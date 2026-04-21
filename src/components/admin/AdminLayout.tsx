@@ -3,11 +3,12 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, Sparkles, User, GraduationCap, Lightbulb, FolderKanban,
   Activity, Megaphone, PhoneCall, Inbox, Image as ImageIcon,
-  Search, Settings, Users, LogOut, ExternalLink, Compass, AppWindow,
+  Search, Settings, Users, LogOut, ExternalLink, Compass, AppWindow, ClipboardCheck,
 } from "lucide-react";
 
 const items = [
   { to: "/admin", label: "Dashboard", Icon: LayoutDashboard, end: true },
+  { to: "/admin/checklist", label: "Pre-publish", Icon: ClipboardCheck },
   { to: "/admin/hero", label: "Hero", Icon: Sparkles },
   { to: "/admin/about", label: "About", Icon: User },
   { to: "/admin/education", label: "Education", Icon: GraduationCap },

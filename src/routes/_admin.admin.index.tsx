@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import {
   FolderKanban, GraduationCap, Activity, Inbox, Image as ImageIcon,
-  Sparkles, User, PhoneCall,
+  Sparkles, User, PhoneCall, ShieldCheck, ShieldAlert, ClipboardCheck,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_admin/admin/")({
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/_admin/admin/")({
 });
 
 function AdminDashboard() {
+  const { user, isAdmin, isEditor, roles, loading: authLoading } = useAuth();
   const [stats, setStats] = useState({
     projects: 0, education: 0, activities: 0, messages: 0,
     media: 0, unread: 0,
@@ -68,6 +70,42 @@ function AdminDashboard() {
         <h1 className="text-3xl font-black mb-1">Dashboard</h1>
         <p className="text-muted-foreground text-sm">Overview of your portfolio content.</p>
       </header>
+
+      <section
+        className={`rounded-2xl p-5 border flex flex-wrap items-center justify-between gap-4 ${
+          isAdmin
+            ? "border-primary/40 bg-primary/5"
+            : "border-destructive/40 bg-destructive/5"
+        }`}
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          {isAdmin ? (
+            <ShieldCheck className="w-6 h-6 text-primary shrink-0" />
+          ) : (
+            <ShieldAlert className="w-6 h-6 text-destructive shrink-0" />
+          )}
+          <div className="min-w-0">
+            <div className="font-bold text-sm">
+              {authLoading
+                ? "Verifying admin access…"
+                : isAdmin
+                  ? "Admin access verified"
+                  : "Admin role missing"}
+            </div>
+            <div className="text-xs text-muted-foreground truncate">
+              Signed in as <span className="font-mono">{user?.email}</span>
+              {" · "}
+              Roles: {roles.length ? roles.join(", ") : isEditor ? "editor" : "none"}
+            </div>
+          </div>
+        </div>
+        <Link
+          to="/admin/checklist"
+          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary hover:underline"
+        >
+          <ClipboardCheck className="w-4 h-4" /> Pre-publish checklist
+        </Link>
+      </section>
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {cards.map((c) => (

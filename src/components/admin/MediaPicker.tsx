@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Image as ImageIcon, Upload, X } from "lucide-react";
+import { Image as ImageIcon, Upload, X, CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -25,6 +25,12 @@ export function MediaPicker({
 }) {
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [status, setStatus] = useState<
+    | { kind: "idle" }
+    | { kind: "uploading"; name: string }
+    | { kind: "success"; message: string }
+    | { kind: "error"; message: string }
+  >({ kind: "idle" });
   const { user } = useAuth();
 
   const { data: media = [], refetch } = useQuery({
@@ -43,7 +49,10 @@ export function MediaPicker({
       toast.error("Not authenticated");
       return;
     }
+    const replacing = !!value;
+    setStatus({ kind: "uploading", name: file.name });
     setUploading(true);
+    const toastId = toast.loading(replacing ? "Replacing image…" : "Uploading image…");
     try {
       const ext = file.name.split(".").pop();
       const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
@@ -62,15 +71,25 @@ export function MediaPicker({
         uploaded_by: user.id,
       });
       if (dbErr) throw dbErr;
-      toast.success("Uploaded");
+      const msg = replacing ? "Image replaced — remember to Save" : "Image uploaded — remember to Save";
+      toast.success(msg, { id: toastId });
+      setStatus({ kind: "success", message: msg });
       refetch();
       onChange(url);
       setOpen(false);
     } catch (e: any) {
-      toast.error(e.message || "Upload failed");
+      const msg = e.message || "Upload failed";
+      toast.error(msg, { id: toastId });
+      setStatus({ kind: "error", message: msg });
     } finally {
       setUploading(false);
     }
+  }
+
+  function handleRemove() {
+    onChange(null);
+    setStatus({ kind: "success", message: "Image removed — remember to Save" });
+    toast.success("Image removed — remember to Save");
   }
 
   return (
@@ -144,7 +163,8 @@ export function MediaPicker({
             type="button"
             variant="outline"
             size="icon"
-            onClick={() => onChange(null)}
+            onClick={handleRemove}
+            title="Remove image"
           >
             <X className="w-4 h-4" />
           </Button>
@@ -156,6 +176,26 @@ export function MediaPicker({
           alt=""
           className="w-32 h-32 object-cover rounded-lg border border-border"
         />
+      )}
+      {status.kind !== "idle" && (
+        <div
+          className={`flex items-center gap-2 text-xs font-medium ${
+            status.kind === "error"
+              ? "text-destructive"
+              : status.kind === "uploading"
+                ? "text-muted-foreground"
+                : "text-primary"
+          }`}
+        >
+          {status.kind === "uploading" && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+          {status.kind === "success" && <CheckCircle2 className="w-3.5 h-3.5" />}
+          {status.kind === "error" && <X className="w-3.5 h-3.5" />}
+          <span>
+            {status.kind === "uploading"
+              ? `Uploading ${status.name}…`
+              : status.message}
+          </span>
+        </div>
       )}
     </div>
   );

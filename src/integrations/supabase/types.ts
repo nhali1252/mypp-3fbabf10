@@ -14,16 +14,591 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      about_content: {
+        Row: {
+          bio: string | null
+          experience_summary: string | null
+          id: string
+          image_url: string | null
+          intro: string | null
+          skills: Json | null
+          stats: Json | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          bio?: string | null
+          experience_summary?: string | null
+          id?: string
+          image_url?: string | null
+          intro?: string | null
+          skills?: Json | null
+          stats?: Json | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          bio?: string | null
+          experience_summary?: string | null
+          id?: string
+          image_url?: string | null
+          intro?: string | null
+          skills?: Json | null
+          stats?: Json | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      activities: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          id: string
+          period: string | null
+          sort_order: number
+          tags: Json | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          period?: string | null
+          sort_order?: number
+          tags?: Json | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          period?: string | null
+          sort_order?: number
+          tags?: Json | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contact_settings: {
+        Row: {
+          address: string | null
+          email: string | null
+          form_receiver_email: string | null
+          id: string
+          map_link: string | null
+          phone: string | null
+          social_links: Json | null
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          address?: string | null
+          email?: string | null
+          form_receiver_email?: string | null
+          id?: string
+          map_link?: string | null
+          phone?: string | null
+          social_links?: Json | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          address?: string | null
+          email?: string | null
+          form_receiver_email?: string | null
+          id?: string
+          map_link?: string | null
+          phone?: string | null
+          social_links?: Json | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      education: {
+        Row: {
+          active: boolean
+          created_at: string
+          degree: string
+          description: string | null
+          gpa: string | null
+          id: string
+          institution: string | null
+          period: string | null
+          sort_order: number
+          university: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          degree: string
+          description?: string | null
+          gpa?: string | null
+          id?: string
+          institution?: string | null
+          period?: string | null
+          sort_order?: number
+          university?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          degree?: string
+          description?: string | null
+          gpa?: string | null
+          id?: string
+          institution?: string | null
+          period?: string | null
+          sort_order?: number
+          university?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      footer_links: {
+        Row: {
+          active: boolean
+          id: string
+          label: string
+          sort_order: number
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          id?: string
+          label: string
+          sort_order?: number
+          url: string
+        }
+        Update: {
+          active?: boolean
+          id?: string
+          label?: string
+          sort_order?: number
+          url?: string
+        }
+        Relationships: []
+      }
+      hero_content: {
+        Row: {
+          background_style: string | null
+          eyebrow: string | null
+          headline: string
+          id: string
+          portrait_url: string | null
+          primary_cta_label: string | null
+          primary_cta_url: string | null
+          secondary_cta_label: string | null
+          secondary_cta_url: string | null
+          subheadline: string | null
+          updated_at: string
+        }
+        Insert: {
+          background_style?: string | null
+          eyebrow?: string | null
+          headline: string
+          id?: string
+          portrait_url?: string | null
+          primary_cta_label?: string | null
+          primary_cta_url?: string | null
+          secondary_cta_label?: string | null
+          secondary_cta_url?: string | null
+          subheadline?: string | null
+          updated_at?: string
+        }
+        Update: {
+          background_style?: string | null
+          eyebrow?: string | null
+          headline?: string
+          id?: string
+          portrait_url?: string | null
+          primary_cta_label?: string | null
+          primary_cta_url?: string | null
+          secondary_cta_label?: string | null
+          secondary_cta_url?: string | null
+          subheadline?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      media: {
+        Row: {
+          created_at: string
+          filename: string
+          id: string
+          mime_type: string | null
+          size_bytes: number | null
+          storage_path: string
+          uploaded_by: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          filename: string
+          id?: string
+          mime_type?: string | null
+          size_bytes?: number | null
+          storage_path: string
+          uploaded_by?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string
+          filename?: string
+          id?: string
+          mime_type?: string | null
+          size_bytes?: number | null
+          storage_path?: string
+          uploaded_by?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_read: boolean
+          is_replied: boolean
+          message: string
+          name: string
+          phone: string | null
+          subject: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_read?: boolean
+          is_replied?: boolean
+          message: string
+          name: string
+          phone?: string | null
+          subject?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_read?: boolean
+          is_replied?: boolean
+          message?: string
+          name?: string
+          phone?: string | null
+          subject?: string | null
+        }
+        Relationships: []
+      }
+      nav_links: {
+        Row: {
+          active: boolean
+          id: string
+          label: string
+          sort_order: number
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          id?: string
+          label: string
+          sort_order?: number
+          url: string
+        }
+        Update: {
+          active?: boolean
+          id?: string
+          label?: string
+          sort_order?: number
+          url?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          featured: boolean
+          gallery: Json | null
+          github_url: string | null
+          id: string
+          image_url: string | null
+          live_url: string | null
+          published: boolean
+          slug: string
+          sort_order: number
+          summary: string | null
+          title: string
+          tools: Json | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          featured?: boolean
+          gallery?: Json | null
+          github_url?: string | null
+          id?: string
+          image_url?: string | null
+          live_url?: string | null
+          published?: boolean
+          slug: string
+          sort_order?: number
+          summary?: string | null
+          title: string
+          tools?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          featured?: boolean
+          gallery?: Json | null
+          github_url?: string | null
+          id?: string
+          image_url?: string | null
+          live_url?: string | null
+          published?: boolean
+          slug?: string
+          sort_order?: number
+          summary?: string | null
+          title?: string
+          tools?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      seo_settings: {
+        Row: {
+          id: string
+          keywords: string | null
+          meta_description: string | null
+          meta_title: string | null
+          og_image: string | null
+          page_key: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          keywords?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          og_image?: string | null
+          page_key: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          keywords?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          og_image?: string | null
+          page_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      services: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          favicon_url: string | null
+          footer_text: string | null
+          id: string
+          logo_url: string | null
+          site_title: string
+          theme_primary: string | null
+          updated_at: string
+        }
+        Insert: {
+          favicon_url?: string | null
+          footer_text?: string | null
+          id?: string
+          logo_url?: string | null
+          site_title?: string
+          theme_primary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          favicon_url?: string | null
+          footer_text?: string | null
+          id?: string
+          logo_url?: string | null
+          site_title?: string
+          theme_primary?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          avatar_url: string | null
+          client_name: string
+          company: string | null
+          created_at: string
+          id: string
+          published: boolean
+          rating: number | null
+          review: string
+          role: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          client_name: string
+          company?: string | null
+          created_at?: string
+          id?: string
+          published?: boolean
+          rating?: number | null
+          review: string
+          role?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          client_name?: string
+          company?: string | null
+          created_at?: string
+          id?: string
+          published?: boolean
+          rating?: number | null
+          review?: string
+          role?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ticker_items: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          sort_order: number
+          text: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          sort_order?: number
+          text: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          sort_order?: number
+          text?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "editor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +725,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "editor"],
+    },
   },
 } as const

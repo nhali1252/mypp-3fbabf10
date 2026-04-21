@@ -26,6 +26,7 @@ import { Route as AdminAdminHeroRouteImport } from './routes/_admin.admin.hero'
 import { Route as AdminAdminFooterAppsRouteImport } from './routes/_admin.admin.footer-apps'
 import { Route as AdminAdminEducationRouteImport } from './routes/_admin.admin.education'
 import { Route as AdminAdminContactRouteImport } from './routes/_admin.admin.contact'
+import { Route as AdminAdminChecklistRouteImport } from './routes/_admin.admin.checklist'
 import { Route as AdminAdminActivitiesRouteImport } from './routes/_admin.admin.activities'
 import { Route as AdminAdminAboutRouteImport } from './routes/_admin.admin.about'
 
@@ -113,6 +114,11 @@ const AdminAdminContactRoute = AdminAdminContactRouteImport.update({
   path: '/admin/contact',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminChecklistRoute = AdminAdminChecklistRouteImport.update({
+  id: '/admin/checklist',
+  path: '/admin/checklist',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAdminActivitiesRoute = AdminAdminActivitiesRouteImport.update({
   id: '/admin/activities',
   path: '/admin/activities',
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/admin/about': typeof AdminAdminAboutRoute
   '/admin/activities': typeof AdminAdminActivitiesRoute
+  '/admin/checklist': typeof AdminAdminChecklistRoute
   '/admin/contact': typeof AdminAdminContactRoute
   '/admin/education': typeof AdminAdminEducationRoute
   '/admin/footer-apps': typeof AdminAdminFooterAppsRoute
@@ -149,6 +156,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/admin/about': typeof AdminAdminAboutRoute
   '/admin/activities': typeof AdminAdminActivitiesRoute
+  '/admin/checklist': typeof AdminAdminChecklistRoute
   '/admin/contact': typeof AdminAdminContactRoute
   '/admin/education': typeof AdminAdminEducationRoute
   '/admin/footer-apps': typeof AdminAdminFooterAppsRoute
@@ -171,6 +179,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_admin/admin/about': typeof AdminAdminAboutRoute
   '/_admin/admin/activities': typeof AdminAdminActivitiesRoute
+  '/_admin/admin/checklist': typeof AdminAdminChecklistRoute
   '/_admin/admin/contact': typeof AdminAdminContactRoute
   '/_admin/admin/education': typeof AdminAdminEducationRoute
   '/_admin/admin/footer-apps': typeof AdminAdminFooterAppsRoute
@@ -193,6 +202,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/admin/about'
     | '/admin/activities'
+    | '/admin/checklist'
     | '/admin/contact'
     | '/admin/education'
     | '/admin/footer-apps'
@@ -213,6 +223,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/admin/about'
     | '/admin/activities'
+    | '/admin/checklist'
     | '/admin/contact'
     | '/admin/education'
     | '/admin/footer-apps'
@@ -234,6 +245,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_admin/admin/about'
     | '/_admin/admin/activities'
+    | '/_admin/admin/checklist'
     | '/_admin/admin/contact'
     | '/_admin/admin/education'
     | '/_admin/admin/footer-apps'
@@ -377,6 +389,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminContactRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/checklist': {
+      id: '/_admin/admin/checklist'
+      path: '/admin/checklist'
+      fullPath: '/admin/checklist'
+      preLoaderRoute: typeof AdminAdminChecklistRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/activities': {
       id: '/_admin/admin/activities'
       path: '/admin/activities'
@@ -397,6 +416,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminAdminAboutRoute: typeof AdminAdminAboutRoute
   AdminAdminActivitiesRoute: typeof AdminAdminActivitiesRoute
+  AdminAdminChecklistRoute: typeof AdminAdminChecklistRoute
   AdminAdminContactRoute: typeof AdminAdminContactRoute
   AdminAdminEducationRoute: typeof AdminAdminEducationRoute
   AdminAdminFooterAppsRoute: typeof AdminAdminFooterAppsRoute
@@ -416,6 +436,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminAboutRoute: AdminAdminAboutRoute,
   AdminAdminActivitiesRoute: AdminAdminActivitiesRoute,
+  AdminAdminChecklistRoute: AdminAdminChecklistRoute,
   AdminAdminContactRoute: AdminAdminContactRoute,
   AdminAdminEducationRoute: AdminAdminEducationRoute,
   AdminAdminFooterAppsRoute: AdminAdminFooterAppsRoute,

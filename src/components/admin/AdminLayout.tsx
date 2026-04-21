@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, Sparkles, User, GraduationCap, Lightbulb, FolderKanban,
   Activity, Megaphone, PhoneCall, Inbox, Image as ImageIcon,
-  Search, Settings, Users, LogOut, ExternalLink, Compass,
+  Search, Settings, Users, LogOut, ExternalLink, Compass, AppWindow,
 } from "lucide-react";
 
 const items = [
@@ -17,6 +17,7 @@ const items = [
   { to: "/admin/ticker", label: "Ticker", Icon: Megaphone },
   { to: "/admin/navigation", label: "Navigation", Icon: Compass },
   { to: "/admin/contact", label: "Contact Info", Icon: PhoneCall },
+  { to: "/admin/footer-apps", label: "Footer Apps", Icon: AppWindow },
   { to: "/admin/messages", label: "Messages", Icon: Inbox },
   { to: "/admin/media", label: "Media Library", Icon: ImageIcon },
   { to: "/admin/seo", label: "SEO Settings", Icon: Search },

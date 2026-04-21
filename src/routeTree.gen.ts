@@ -23,6 +23,7 @@ import { Route as AdminAdminNavigationRouteImport } from './routes/_admin.admin.
 import { Route as AdminAdminMessagesRouteImport } from './routes/_admin.admin.messages'
 import { Route as AdminAdminMediaRouteImport } from './routes/_admin.admin.media'
 import { Route as AdminAdminHeroRouteImport } from './routes/_admin.admin.hero'
+import { Route as AdminAdminFooterAppsRouteImport } from './routes/_admin.admin.footer-apps'
 import { Route as AdminAdminEducationRouteImport } from './routes/_admin.admin.education'
 import { Route as AdminAdminContactRouteImport } from './routes/_admin.admin.contact'
 import { Route as AdminAdminActivitiesRouteImport } from './routes/_admin.admin.activities'
@@ -97,6 +98,11 @@ const AdminAdminHeroRoute = AdminAdminHeroRouteImport.update({
   path: '/admin/hero',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminFooterAppsRoute = AdminAdminFooterAppsRouteImport.update({
+  id: '/admin/footer-apps',
+  path: '/admin/footer-apps',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAdminEducationRoute = AdminAdminEducationRouteImport.update({
   id: '/admin/education',
   path: '/admin/education',
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/admin/activities': typeof AdminAdminActivitiesRoute
   '/admin/contact': typeof AdminAdminContactRoute
   '/admin/education': typeof AdminAdminEducationRoute
+  '/admin/footer-apps': typeof AdminAdminFooterAppsRoute
   '/admin/hero': typeof AdminAdminHeroRoute
   '/admin/media': typeof AdminAdminMediaRoute
   '/admin/messages': typeof AdminAdminMessagesRoute
@@ -144,6 +151,7 @@ export interface FileRoutesByTo {
   '/admin/activities': typeof AdminAdminActivitiesRoute
   '/admin/contact': typeof AdminAdminContactRoute
   '/admin/education': typeof AdminAdminEducationRoute
+  '/admin/footer-apps': typeof AdminAdminFooterAppsRoute
   '/admin/hero': typeof AdminAdminHeroRoute
   '/admin/media': typeof AdminAdminMediaRoute
   '/admin/messages': typeof AdminAdminMessagesRoute
@@ -165,6 +173,7 @@ export interface FileRoutesById {
   '/_admin/admin/activities': typeof AdminAdminActivitiesRoute
   '/_admin/admin/contact': typeof AdminAdminContactRoute
   '/_admin/admin/education': typeof AdminAdminEducationRoute
+  '/_admin/admin/footer-apps': typeof AdminAdminFooterAppsRoute
   '/_admin/admin/hero': typeof AdminAdminHeroRoute
   '/_admin/admin/media': typeof AdminAdminMediaRoute
   '/_admin/admin/messages': typeof AdminAdminMessagesRoute
@@ -186,6 +195,7 @@ export interface FileRouteTypes {
     | '/admin/activities'
     | '/admin/contact'
     | '/admin/education'
+    | '/admin/footer-apps'
     | '/admin/hero'
     | '/admin/media'
     | '/admin/messages'
@@ -205,6 +215,7 @@ export interface FileRouteTypes {
     | '/admin/activities'
     | '/admin/contact'
     | '/admin/education'
+    | '/admin/footer-apps'
     | '/admin/hero'
     | '/admin/media'
     | '/admin/messages'
@@ -225,6 +236,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/activities'
     | '/_admin/admin/contact'
     | '/_admin/admin/education'
+    | '/_admin/admin/footer-apps'
     | '/_admin/admin/hero'
     | '/_admin/admin/media'
     | '/_admin/admin/messages'
@@ -344,6 +356,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminHeroRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/footer-apps': {
+      id: '/_admin/admin/footer-apps'
+      path: '/admin/footer-apps'
+      fullPath: '/admin/footer-apps'
+      preLoaderRoute: typeof AdminAdminFooterAppsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/education': {
       id: '/_admin/admin/education'
       path: '/admin/education'
@@ -380,6 +399,7 @@ interface AdminRouteChildren {
   AdminAdminActivitiesRoute: typeof AdminAdminActivitiesRoute
   AdminAdminContactRoute: typeof AdminAdminContactRoute
   AdminAdminEducationRoute: typeof AdminAdminEducationRoute
+  AdminAdminFooterAppsRoute: typeof AdminAdminFooterAppsRoute
   AdminAdminHeroRoute: typeof AdminAdminHeroRoute
   AdminAdminMediaRoute: typeof AdminAdminMediaRoute
   AdminAdminMessagesRoute: typeof AdminAdminMessagesRoute
@@ -398,6 +418,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminActivitiesRoute: AdminAdminActivitiesRoute,
   AdminAdminContactRoute: AdminAdminContactRoute,
   AdminAdminEducationRoute: AdminAdminEducationRoute,
+  AdminAdminFooterAppsRoute: AdminAdminFooterAppsRoute,
   AdminAdminHeroRoute: AdminAdminHeroRoute,
   AdminAdminMediaRoute: AdminAdminMediaRoute,
   AdminAdminMessagesRoute: AdminAdminMessagesRoute,

@@ -60,14 +60,14 @@ export function Hero() {
             }}
           />
 
-          <div className="relative grid md:grid-cols-[1.15fr_1fr] items-end md:items-center min-h-[540px] md:min-h-[720px]">
-            <div className="relative flex justify-center md:justify-start order-1 md:pl-10 lg:pl-14">
+          <div className="relative grid md:grid-cols-[1.25fr_1fr] items-end md:items-center min-h-[600px] md:min-h-[760px]">
+            <div className="relative flex justify-center md:justify-start order-1 md:pl-6 lg:pl-10">
               <img
                 src={portrait}
                 alt="Ali Nur Hasan portrait"
                 width={820}
                 height={1120}
-                className="photo-enter relative block h-[480px] sm:h-[560px] md:h-[820px] lg:h-[900px] w-auto object-contain object-bottom -mt-24 md:-mt-32 drop-shadow-[0_36px_60px_rgba(0,0,0,0.6)]"
+                className="photo-enter relative block h-[540px] sm:h-[640px] md:h-[920px] lg:h-[1020px] w-auto object-contain object-bottom -mt-28 md:-mt-40 drop-shadow-[0_42px_70px_rgba(0,0,0,0.65)]"
               />
             </div>
 

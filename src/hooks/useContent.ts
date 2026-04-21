@@ -99,3 +99,12 @@ export const useTickerItems = () =>
       return data ?? [];
     },
   });
+
+export const useFooterApps = () =>
+  useQuery({
+    queryKey: ["footer_apps"],
+    queryFn: async () => {
+      const { data } = await supabase.from("footer_apps").select("*").eq("active", true).order("sort_order");
+      return data ?? [];
+    },
+  });

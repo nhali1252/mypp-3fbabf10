@@ -37,7 +37,7 @@ export function Reveal({
       className={className}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once, amount: 0.05, margin: "0px 0px -10% 0px" }}
+      viewport={{ once, amount: 0, margin: "200px 0px 200px 0px" }}
       variants={variants}
     >
       {children}
@@ -77,9 +77,10 @@ export function Stagger({
       className={className}
       initial="hidden"
       whileInView="visible"
-      // amount 0.01 + negative bottom margin guarantees trigger as soon as
-      // any portion of the grid enters the viewport on desktop and mobile.
-      viewport={{ once, amount: 0.01, margin: "0px 0px -5% 0px" }}
+      // Generous positive margin guarantees content reveals as soon as it
+      // is anywhere near the viewport — prevents blank sections on tall
+      // desktop screens where the grid never crosses the trigger threshold.
+      viewport={{ once, amount: 0, margin: "300px 0px 300px 0px" }}
       variants={variants}
     >
       {children}

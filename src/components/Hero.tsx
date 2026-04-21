@@ -67,7 +67,7 @@ export function Hero() {
                 alt="Ali Nur Hasan portrait"
                 width={820}
                 height={1120}
-                className="photo-enter relative block h-[540px] sm:h-[640px] md:h-[920px] lg:h-[1020px] w-auto object-contain object-bottom -mt-28 md:-mt-40 drop-shadow-[0_42px_70px_rgba(0,0,0,0.65)]"
+                className="photo-enter relative block h-[600px] sm:h-[720px] md:h-[1040px] lg:h-[1160px] xl:h-[1240px] w-auto object-contain object-bottom -mt-32 md:-mt-48 lg:-mt-56 drop-shadow-[0_42px_70px_rgba(0,0,0,0.65)]"
               />
             </div>
 

@@ -18,7 +18,8 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn, user } = useAuth();
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,6 +34,24 @@ function AuthPage() {
       return;
     }
     setLoading(true);
+    if (mode === "signup") {
+      const { error } = await signUp(email, password);
+      if (error) {
+        setLoading(false);
+        toast.error(error);
+        return;
+      }
+      // Auto-sign-in right after signup
+      const { error: siErr } = await signIn(email, password);
+      setLoading(false);
+      if (siErr) {
+        toast.error(siErr);
+        return;
+      }
+      toast.success("Account created — admin role granted");
+      navigate({ to: "/admin" });
+      return;
+    }
     const { error } = await signIn(email, password);
     setLoading(false);
     if (error) {
@@ -48,10 +67,12 @@ function AuthPage() {
       <div className="w-full max-w-md bg-card border border-border rounded-[24px] p-8 md:p-10 shadow-lg">
         <Link to="/" className="text-xs text-muted-foreground hover:text-foreground">← Back to site</Link>
         <h1 className="text-2xl md:text-3xl font-black mt-4 mb-1">
-          Admin sign in
+          {mode === "signup" ? "Create admin account" : "Admin sign in"}
         </h1>
         <p className="text-sm text-muted-foreground mb-6">
-          Access your admin panel
+          {mode === "signup"
+            ? "First account becomes the admin automatically."
+            : "Access your admin panel"}
         </p>
         <form onSubmit={submit} className="space-y-3">
           <input
@@ -75,12 +96,29 @@ function AuthPage() {
             disabled={loading}
             className="w-full bg-primary text-primary-foreground px-7 py-3.5 rounded-full text-sm font-bold transition-all hover:-translate-y-0.5 disabled:opacity-60"
           >
-            {loading ? "Signing in…" : "Sign in"}
+            {loading
+              ? mode === "signup"
+                ? "Creating account…"
+                : "Signing in…"
+              : mode === "signup"
+                ? "Create account"
+                : "Sign in"}
           </button>
         </form>
-        <p className="mt-5 text-xs text-muted-foreground">
-          Owner-only access. Public registration is disabled.
-        </p>
+        <div className="mt-5 text-xs text-muted-foreground flex items-center justify-between gap-2">
+          <span>
+            {mode === "signup"
+              ? "Already have an account?"
+              : "Need to create the admin account?"}
+          </span>
+          <button
+            type="button"
+            onClick={() => setMode((m) => (m === "signup" ? "signin" : "signup"))}
+            className="font-bold text-primary hover:underline"
+          >
+            {mode === "signup" ? "Sign in" : "Sign up"}
+          </button>
+        </div>
       </div>
     </div>
   );

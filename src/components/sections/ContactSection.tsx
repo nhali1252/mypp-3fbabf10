@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState, type ReactElement } from "react";
 import { z } from "zod";
 import { motion, useReducedMotion } from "framer-motion";
 import { Mail, Phone, MapPin } from "lucide-react";
-import waIcon from "lucide-react";
 import { useContactSettings } from "@/hooks/useContent";
 import { SectionHeader } from "../SectionHeader";
 import { Reveal, Stagger, StaggerItem } from "../motion/Reveal";
@@ -63,7 +62,7 @@ export function ContactSection() {
     </svg>
   );
 
-  type Row = { key: string; label: string; value: string; href?: string; Icon: (p: { size?: number }) => JSX.Element };
+  type Row = { key: string; label: string; value: string; href?: string; Icon: (p: { size?: number }) => ReactElement };
   const rows: Row[] = [];
   if (contact?.email) rows.push({ key: "email", label: "Email", value: contact.email, href: `mailto:${contact.email}`, Icon: (p) => <Mail size={p.size ?? 16} /> });
   if (contact?.phone) rows.push({ key: "phone", label: "Phone", value: contact.phone, href: `tel:${contact.phone.replace(/\s/g, "")}`, Icon: (p) => <Phone size={p.size ?? 16} /> });

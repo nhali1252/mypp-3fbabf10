@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { z } from "zod";
 import { motion, useReducedMotion } from "framer-motion";
-import { Mail, Phone, MapPin, MessageCircle } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
+import waIcon from "lucide-react";
 import { useContactSettings } from "@/hooks/useContent";
 import { SectionHeader } from "../SectionHeader";
 import { Reveal, Stagger, StaggerItem } from "../motion/Reveal";
@@ -55,12 +56,19 @@ export function ContactSection() {
   const waNumber = contact?.whatsapp?.replace(/[^\d]/g, "");
   const waHref = social.whatsapp || (waNumber ? `https://wa.me/${waNumber}` : null);
 
-  type Row = { key: string; label: string; value: string; href?: string; Icon: typeof Mail };
+  // Inline WhatsApp brand glyph for premium feel
+  const WhatsAppIcon = ({ size = 16 }: { size?: number }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M19.11 4.91A10.05 10.05 0 0 0 12.04 2C6.5 2 2 6.5 2 12.04c0 1.77.46 3.49 1.34 5.01L2 22l5.07-1.33a10.04 10.04 0 0 0 4.97 1.27h.01c5.54 0 10.04-4.5 10.04-10.04 0-2.68-1.04-5.2-2.98-7.09Zm-7.07 15.42h-.01a8.36 8.36 0 0 1-4.26-1.17l-.31-.18-3.01.79.8-2.93-.2-.3a8.34 8.34 0 0 1-1.28-4.5c0-4.61 3.75-8.36 8.36-8.36 2.23 0 4.33.87 5.91 2.45a8.31 8.31 0 0 1 2.45 5.92c0 4.61-3.75 8.36-8.45 8.28Zm4.58-6.27c-.25-.13-1.49-.74-1.72-.82-.23-.08-.4-.13-.56.13-.16.25-.64.82-.78.99-.14.16-.29.18-.54.06-.25-.13-1.06-.39-2.02-1.24-.74-.66-1.25-1.48-1.39-1.73-.14-.25-.02-.39.11-.51.11-.11.25-.29.37-.43.13-.14.16-.25.25-.41.08-.16.04-.31-.02-.43-.06-.13-.56-1.34-.77-1.84-.2-.48-.41-.41-.56-.42l-.48-.01a.92.92 0 0 0-.66.31c-.23.25-.86.84-.86 2.05s.88 2.39 1 2.55c.13.16 1.74 2.66 4.22 3.73.59.25 1.05.4 1.41.51.59.19 1.13.16 1.55.1.47-.07 1.49-.61 1.7-1.2.21-.59.21-1.1.14-1.2-.06-.11-.23-.17-.48-.3Z"/>
+    </svg>
+  );
+
+  type Row = { key: string; label: string; value: string; href?: string; Icon: (p: { size?: number }) => JSX.Element };
   const rows: Row[] = [];
-  if (contact?.email) rows.push({ key: "email", label: "Email", value: contact.email, href: `mailto:${contact.email}`, Icon: Mail });
-  if (contact?.phone) rows.push({ key: "phone", label: "Phone", value: contact.phone, href: `tel:${contact.phone.replace(/\s/g, "")}`, Icon: Phone });
-  if (waHref) rows.push({ key: "whatsapp", label: "WhatsApp", value: contact?.whatsapp || "Chat", href: waHref, Icon: MessageCircle });
-  if (contact?.address) rows.push({ key: "loc", label: "Location", value: contact.address, Icon: MapPin });
+  if (contact?.email) rows.push({ key: "email", label: "Email", value: contact.email, href: `mailto:${contact.email}`, Icon: (p) => <Mail size={p.size ?? 16} /> });
+  if (contact?.phone) rows.push({ key: "phone", label: "Phone", value: contact.phone, href: `tel:${contact.phone.replace(/\s/g, "")}`, Icon: (p) => <Phone size={p.size ?? 16} /> });
+  if (waHref) rows.push({ key: "whatsapp", label: "WhatsApp", value: contact?.whatsapp || "Chat on WhatsApp", href: waHref, Icon: (p) => <WhatsAppIcon size={p.size ?? 16} /> });
+  if (contact?.address) rows.push({ key: "loc", label: "Location", value: contact.address, Icon: (p) => <MapPin size={p.size ?? 16} /> });
 
   return (
     <section id="contact" className="pt-24">

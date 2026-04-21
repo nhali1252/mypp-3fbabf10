@@ -104,7 +104,7 @@ export const useFooterApps = () =>
   useQuery({
     queryKey: ["footer_apps"],
     queryFn: async () => {
-      const { data } = await supabase.from("footer_apps").select("*").eq("active", true).order("sort_order");
+      const { data } = await (supabase as any).from("footer_apps").select("*").eq("active", true).order("sort_order");
       return data ?? [];
     },
   });

@@ -17,6 +17,9 @@ import { Route as PRouteImport } from './routes/P'
 import { Route as FRouteImport } from './routes/F'
 import { Route as BRouteImport } from './routes/B'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PAuthRouteImport } from './routes/P.auth'
+import { Route as FAuthRouteImport } from './routes/F.auth'
+import { Route as BAuthRouteImport } from './routes/B.auth'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin.admin.index'
 import { Route as AdminAdminUsersRouteImport } from './routes/_admin.admin.users'
 import { Route as AdminAdminTickerRouteImport } from './routes/_admin.admin.ticker'
@@ -78,6 +81,21 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const PAuthRoute = PAuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => PRoute,
+} as any)
+const FAuthRoute = FAuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => FRoute,
+} as any)
+const BAuthRoute = BAuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => BRoute,
 } as any)
 const AdminAdminIndexRoute = AdminAdminIndexRouteImport.update({
   id: '/admin/',
@@ -192,12 +210,15 @@ const AdminAdminAboutRoute = AdminAdminAboutRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/B': typeof BRoute
-  '/F': typeof FRoute
-  '/P': typeof PRoute
+  '/B': typeof BRouteWithChildren
+  '/F': typeof FRouteWithChildren
+  '/P': typeof PRouteWithChildren
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
+  '/B/auth': typeof BAuthRoute
+  '/F/auth': typeof FAuthRoute
+  '/P/auth': typeof PAuthRoute
   '/admin/about': typeof AdminAdminAboutRoute
   '/admin/activities': typeof AdminAdminActivitiesRoute
   '/admin/checklist': typeof AdminAdminChecklistRoute
@@ -223,12 +244,15 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/B': typeof BRoute
-  '/F': typeof FRoute
-  '/P': typeof PRoute
+  '/B': typeof BRouteWithChildren
+  '/F': typeof FRouteWithChildren
+  '/P': typeof PRouteWithChildren
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
+  '/B/auth': typeof BAuthRoute
+  '/F/auth': typeof FAuthRoute
+  '/P/auth': typeof PAuthRoute
   '/admin/about': typeof AdminAdminAboutRoute
   '/admin/activities': typeof AdminAdminActivitiesRoute
   '/admin/checklist': typeof AdminAdminChecklistRoute
@@ -255,13 +279,16 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/B': typeof BRoute
-  '/F': typeof FRoute
-  '/P': typeof PRoute
+  '/B': typeof BRouteWithChildren
+  '/F': typeof FRouteWithChildren
+  '/P': typeof PRouteWithChildren
   '/_admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
+  '/B/auth': typeof BAuthRoute
+  '/F/auth': typeof FAuthRoute
+  '/P/auth': typeof PAuthRoute
   '/_admin/admin/about': typeof AdminAdminAboutRoute
   '/_admin/admin/activities': typeof AdminAdminActivitiesRoute
   '/_admin/admin/checklist': typeof AdminAdminChecklistRoute
@@ -295,6 +322,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/services'
+    | '/B/auth'
+    | '/F/auth'
+    | '/P/auth'
     | '/admin/about'
     | '/admin/activities'
     | '/admin/checklist'
@@ -326,6 +356,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/services'
+    | '/B/auth'
+    | '/F/auth'
+    | '/P/auth'
     | '/admin/about'
     | '/admin/activities'
     | '/admin/checklist'
@@ -358,6 +391,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/services'
+    | '/B/auth'
+    | '/F/auth'
+    | '/P/auth'
     | '/_admin/admin/about'
     | '/_admin/admin/activities'
     | '/_admin/admin/checklist'
@@ -384,9 +420,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  BRoute: typeof BRoute
-  FRoute: typeof FRoute
-  PRoute: typeof PRoute
+  BRoute: typeof BRouteWithChildren
+  FRoute: typeof FRouteWithChildren
+  PRoute: typeof PRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -450,6 +486,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/P/auth': {
+      id: '/P/auth'
+      path: '/auth'
+      fullPath: '/P/auth'
+      preLoaderRoute: typeof PAuthRouteImport
+      parentRoute: typeof PRoute
+    }
+    '/F/auth': {
+      id: '/F/auth'
+      path: '/auth'
+      fullPath: '/F/auth'
+      preLoaderRoute: typeof FAuthRouteImport
+      parentRoute: typeof FRoute
+    }
+    '/B/auth': {
+      id: '/B/auth'
+      path: '/auth'
+      fullPath: '/B/auth'
+      preLoaderRoute: typeof BAuthRouteImport
+      parentRoute: typeof BRoute
     }
     '/_admin/admin/': {
       id: '/_admin/admin/'
@@ -608,6 +665,36 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface BRouteChildren {
+  BAuthRoute: typeof BAuthRoute
+}
+
+const BRouteChildren: BRouteChildren = {
+  BAuthRoute: BAuthRoute,
+}
+
+const BRouteWithChildren = BRoute._addFileChildren(BRouteChildren)
+
+interface FRouteChildren {
+  FAuthRoute: typeof FAuthRoute
+}
+
+const FRouteChildren: FRouteChildren = {
+  FAuthRoute: FAuthRoute,
+}
+
+const FRouteWithChildren = FRoute._addFileChildren(FRouteChildren)
+
+interface PRouteChildren {
+  PAuthRoute: typeof PAuthRoute
+}
+
+const PRouteChildren: PRouteChildren = {
+  PAuthRoute: PAuthRoute,
+}
+
+const PRouteWithChildren = PRoute._addFileChildren(PRouteChildren)
+
 interface AdminRouteChildren {
   AdminAdminAboutRoute: typeof AdminAdminAboutRoute
   AdminAdminActivitiesRoute: typeof AdminAdminActivitiesRoute
@@ -662,9 +749,9 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  BRoute: BRoute,
-  FRoute: FRoute,
-  PRoute: PRoute,
+  BRoute: BRouteWithChildren,
+  FRoute: FRouteWithChildren,
+  PRoute: PRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,

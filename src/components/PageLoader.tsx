@@ -6,7 +6,7 @@ import { useSiteSettings } from "@/hooks/useContent";
  * soft glow + wordmark + tagline + sliding gold loader bar.
  * Uses the site's own logo + site_name (no hardcoded "TasTaj").
  */
-export function PageLoader({ minDurationMs = 1100 }: { minDurationMs?: number }) {
+export function PageLoader({ minDurationMs = 450 }: { minDurationMs?: number }) {
   const [show, setShow] = useState(true);
   const [hiding, setHiding] = useState(false);
   const { data: settings } = useSiteSettings();
@@ -18,7 +18,7 @@ export function PageLoader({ minDurationMs = 1100 }: { minDurationMs?: number })
       const wait = Math.max(0, minDurationMs - elapsed);
       window.setTimeout(() => {
         setHiding(true);
-        window.setTimeout(() => setShow(false), 520);
+        window.setTimeout(() => setShow(false), 280);
       }, wait);
     };
     if (document.readyState === "complete") {
@@ -26,7 +26,7 @@ export function PageLoader({ minDurationMs = 1100 }: { minDurationMs?: number })
       return;
     }
     window.addEventListener("load", finish, { once: true });
-    const safety = window.setTimeout(finish, minDurationMs + 1500);
+    const safety = window.setTimeout(finish, minDurationMs + 600);
     return () => {
       window.removeEventListener("load", finish);
       window.clearTimeout(safety);
@@ -51,7 +51,7 @@ export function PageLoader({ minDurationMs = 1100 }: { minDurationMs?: number })
   return (
     <div
       aria-hidden={hiding}
-      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background transition-opacity duration-500 ${
+      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background transition-opacity duration-300 ${
         hiding ? "opacity-0" : "opacity-100"
       }`}
     >
@@ -96,7 +96,7 @@ export function PageLoader({ minDurationMs = 1100 }: { minDurationMs?: number })
           100% { transform: translateX(420%); }
         }
         .page-loader-bar {
-          animation: pageLoaderSlide 1.2s ease-in-out infinite;
+          animation: pageLoaderSlide 0.7s ease-in-out infinite;
         }
         @media (prefers-reduced-motion: reduce) {
           .page-loader-bar { animation: none; }

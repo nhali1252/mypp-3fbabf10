@@ -5,14 +5,18 @@ export const Route = createFileRoute("/")({
   component: VersionChooser,
   head: () => ({
     meta: [
-      { title: "Ali Nur Hasan — Choose Portfolio Version" },
-      { name: "description", content: "Browse different portfolio versions by Ali Nur Hasan." },
+      { title: "Ali Nur Hasan — Portfolio Pages" },
+      {
+        name: "description",
+        content:
+          "Browse Ali Nur Hasan's portfolio: original site (B), skills & about (F), and projects (P).",
+      },
     ],
   }),
 });
 
 type Version = {
-  slug: "/B" | "/F";
+  slug: "/B" | "/F" | "/P";
   label: string;
   title: string;
   description: string;
@@ -22,19 +26,27 @@ type Version = {
 const versions: Version[] = [
   {
     slug: "/B",
-    label: "Version B",
+    label: "Page B",
     title: "Original portfolio",
     description:
-      "The current version of Ali Nur Hasan's portfolio with full sections, projects, and contact.",
+      "The full original portfolio with hero, about, projects, activities and contact sections.",
     badge: "Original",
   },
   {
     slug: "/F",
-    label: "Version F",
-    title: "Redesigned hero edition",
+    label: "Page F",
+    title: "Skills & about",
     description:
-      "A new variant with a redesigned premium hero card and the same content collections.",
-    badge: "New",
+      "A polished page focused on my graphic design skills, tools and professional background.",
+    badge: "Skills",
+  },
+  {
+    slug: "/P",
+    label: "Page P",
+    title: "Projects",
+    description:
+      "Selected work — my-v7 / my-v8 portfolio + CMS and the Pocket-Ledger finance app.",
+    badge: "Projects",
   },
 ];
 
@@ -42,9 +54,9 @@ function VersionChooser() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <header className="px-6 md:px-10 pt-10 md:pt-16">
-        <div className="max-w-[1100px] mx-auto">
+        <div className="max-w-[1200px] mx-auto">
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary mb-3">
-            Portfolio
+            Portfolio · TasTaj
           </p>
           <h1
             className="font-black tracking-tight leading-[1.05]"
@@ -53,13 +65,13 @@ function VersionChooser() {
             Ali Nur Hasan
           </h1>
           <p className="text-muted-foreground mt-3 max-w-2xl">
-            Pick a version to explore. Each card below opens an independent portfolio page.
+            Pick a page to explore. Each card opens an independent portfolio page.
           </p>
         </div>
       </header>
 
       <main className="flex-1 px-6 md:px-10 py-12 md:py-16">
-        <div className="max-w-[1100px] mx-auto grid gap-5 md:gap-6 sm:grid-cols-2">
+        <div className="max-w-[1200px] mx-auto grid gap-5 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {versions.map((v, i) => (
             <motion.div
               key={v.slug}
@@ -69,7 +81,7 @@ function VersionChooser() {
             >
               <Link
                 to={v.slug}
-                className="group relative block rounded-[24px] border border-border bg-card p-7 md:p-9 overflow-hidden hover:border-primary transition-colors"
+                className="group relative block rounded-[24px] border border-border bg-card p-7 md:p-9 overflow-hidden hover:border-primary transition-colors h-full"
               >
                 <div
                   aria-hidden
@@ -90,7 +102,7 @@ function VersionChooser() {
                   </div>
                   <h2
                     className="font-black tracking-tight leading-tight mb-3"
-                    style={{ fontSize: "clamp(22px, 2.6vw, 32px)" }}
+                    style={{ fontSize: "clamp(22px, 2.4vw, 30px)" }}
                   >
                     {v.title}
                   </h2>
@@ -111,7 +123,7 @@ function VersionChooser() {
       </main>
 
       <footer className="px-6 md:px-10 py-8 text-center text-xs text-muted-foreground border-t border-border">
-        © {new Date().getFullYear()} Ali Nur Hasan ·{" "}
+        © {new Date().getFullYear()} Ali Nur Hasan · TasTaj ·{" "}
         <Link to="/auth" className="hover:text-foreground transition-colors">
           Admin
         </Link>

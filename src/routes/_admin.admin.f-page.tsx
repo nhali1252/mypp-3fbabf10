@@ -8,6 +8,7 @@ import {
   useFSkills,
   useFProjects,
   useFRealtimeSync,
+  useFPhotocard,
   F_KEYS,
   type FSkill,
   type FProject,

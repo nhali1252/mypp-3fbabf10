@@ -121,6 +121,7 @@ export function PageLoader({
       const wait = Math.max(0, initialMs - elapsed);
       hideTimer = window.setTimeout(() => {
         setHiding(true);
+        setAnnouncement(`${routeLabel} ready`);
         trackLoaderVisible({
           kind: "initial",
           path: pathname,
@@ -172,9 +173,11 @@ export function PageLoader({
 
     setShow(true);
     setHiding(false);
+    setAnnouncement(`Loading ${routeLabel}`);
     const routeStart = performance.now();
     const t1 = window.setTimeout(() => {
       setHiding(true);
+      setAnnouncement(`${routeLabel} ready`);
       trackLoaderVisible({
         kind: "route",
         path: pathname,

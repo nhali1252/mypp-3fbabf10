@@ -56,7 +56,7 @@ const FALLBACK: LauncherCard[] = [
     label: "Page F",
     title: "Skills & About",
     subtitle: "Graphic design craft",
-    description: "7 years of design experience — logos, banners, posters, Canva & Adobe workflow.",
+    description: "2 years of design work with TasTaj — logos, banners, posters, Canva & Adobe workflow.",
     badge: "Skills",
     route: "/F",
     accent: "from-emerald-400/40 to-cyan-500/10",

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Nav } from "@/components/Nav";
+import { AdminEditFab } from "@/components/AdminEditFab";
 import { Hero } from "@/components/Hero";
 import { Ticker } from "@/components/Ticker";
 import { Footer } from "@/components/Footer";
@@ -20,7 +21,7 @@ export const Route = createFileRoute("/B")({
       {
         name: "description",
         content:
-          "Basic info for Ali Nur Hasan (TasTaj) — graphic designer with 7 years of experience in branding, logos, posters and basic web design.",
+          "Basic info for Ali Nur Hasan (TasTaj) — graphic designer with 2 years of design experience working with TasTaj on branding, logos, posters and basic web design.",
       },
       { property: "og:type", content: "profile" },
       { property: "og:title", content: "Basic info — Ali Nur Hasan (TasTaj)" },
@@ -58,6 +59,7 @@ function PageB() {
         </main>
         <Footer />
       </div>
+      <AdminEditFab />
     </HireMeProvider>
   );
 }

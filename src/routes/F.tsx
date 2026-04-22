@@ -266,6 +266,7 @@ function SkillsPage() {
         © {new Date().getFullYear()} Ali Nur Hasan · TasTaj ·{" "}
         <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
       </footer>
+      <AdminEditFab />
     </div>
   );
 }

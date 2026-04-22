@@ -190,24 +190,26 @@ function ProjectsPage() {
                     ))}
                   </div>
 
-                  <div className="flex flex-wrap gap-2.5">
-                    {p.actions.map((a) => (
-                      <a
-                        key={a.href}
-                        href={a.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={
-                          a.primary
-                            ? "inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-bold hover:opacity-90 transition-opacity shadow-[0_10px_30px_-12px_color-mix(in_oklab,var(--primary)_55%,transparent)]"
-                            : "inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-bold hover:border-primary hover:text-primary transition-colors"
-                        }
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                        {a.label}
-                      </a>
-                    ))}
-                  </div>
+                  {p.actions.length > 0 && (
+                    <div className="flex flex-wrap gap-2.5">
+                      {p.actions.map((a) => (
+                        <a
+                          key={a.href}
+                          href={a.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={
+                            a.primary
+                              ? "inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-bold hover:opacity-90 transition-opacity shadow-[0_10px_30px_-12px_color-mix(in_oklab,var(--primary)_55%,transparent)]"
+                              : "inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-bold hover:border-primary hover:text-primary transition-colors"
+                          }
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          {a.label}
+                        </a>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Side highlights */}

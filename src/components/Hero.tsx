@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useHireMe } from "./HireMeProvider";
 import { smoothScrollToId } from "@/lib/smoothScroll";
 
-export function Hero() {
+export function Hero({ showHireMe = true }: { showHireMe?: boolean } = {}) {
   const { data: hero } = useHero();
   const reduce = useReducedMotion();
   const { openHireMe } = useHireMe();
@@ -152,16 +152,18 @@ export function Hero() {
                   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease } },
                 }}
               >
-                <motion.button
-                  type="button"
-                  onClick={openHireMe}
-                  whileHover={reduce ? undefined : { y: -2 }}
-                  whileTap={reduce ? undefined : { scale: 0.97 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 22 }}
-                  className="bg-gradient-gold text-primary-foreground px-7 py-[14px] rounded-full text-sm font-bold shadow-[0_10px_30px_-10px_color-mix(in_oklab,var(--primary)_60%,transparent)] hover:shadow-glow transition-shadow"
-                >
-                  {hero?.primary_cta_label || "Hire Me"}
-                </motion.button>
+                {showHireMe && (
+                  <motion.button
+                    type="button"
+                    onClick={openHireMe}
+                    whileHover={reduce ? undefined : { y: -2 }}
+                    whileTap={reduce ? undefined : { scale: 0.97 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 22 }}
+                    className="bg-gradient-gold text-primary-foreground px-7 py-[14px] rounded-full text-sm font-bold shadow-[0_10px_30px_-10px_color-mix(in_oklab,var(--primary)_60%,transparent)] hover:shadow-glow transition-shadow"
+                  >
+                    {hero?.primary_cta_label || "Hire Me"}
+                  </motion.button>
+                )}
                 <motion.button
                   type="button"
                   onClick={() => {

@@ -27,8 +27,8 @@ function PageB() {
   return (
     <HireMeProvider>
       <div className="min-h-screen">
-        <Nav />
-        <Hero />
+        <Nav showHireMe={false} />
+        <Hero showHireMe={false} />
         <Ticker />
         <main className="max-w-[1320px] mx-auto px-3.5 md:px-7 pb-16">
           <AboutSection />

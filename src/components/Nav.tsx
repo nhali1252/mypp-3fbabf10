@@ -5,7 +5,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useNavLinks, useSiteSettings } from "@/hooks/useContent";
 import { useHireMe } from "./HireMeProvider";
 
-export function Nav() {
+export function Nav({ showHireMe = true }: { showHireMe?: boolean } = {}) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [logoBroken, setLogoBroken] = useState(false);
@@ -69,16 +69,18 @@ export function Nav() {
         ))}
       </ul>
       <div className="flex items-center gap-2">
-        <motion.button
-          type="button"
-          onClick={openHireMe}
-          whileHover={reduce ? undefined : { y: -2, scale: 1.04 }}
-          whileTap={reduce ? undefined : { scale: 0.96 }}
-          transition={{ type: "spring", stiffness: 400, damping: 22 }}
-          className="hidden sm:inline-block bg-gradient-gold text-primary-foreground px-5 py-2.5 rounded-full text-[13px] font-bold hover:shadow-glow transition-shadow"
-        >
-          Hire Me
-        </motion.button>
+        {showHireMe && (
+          <motion.button
+            type="button"
+            onClick={openHireMe}
+            whileHover={reduce ? undefined : { y: -2, scale: 1.04 }}
+            whileTap={reduce ? undefined : { scale: 0.96 }}
+            transition={{ type: "spring", stiffness: 400, damping: 22 }}
+            className="hidden sm:inline-block bg-gradient-gold text-primary-foreground px-5 py-2.5 rounded-full text-[13px] font-bold hover:shadow-glow transition-shadow"
+          >
+            Hire Me
+          </motion.button>
+        )}
         <button
           className="lg:hidden p-2 text-foreground"
           onClick={() => setOpen(!open)}

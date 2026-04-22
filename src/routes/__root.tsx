@@ -1,9 +1,10 @@
-import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/hooks/useAuth";
 import { PageLoader } from "@/components/PageLoader";
+import { RouteTransition } from "@/components/RouteTransition";
 import { SiteHead } from "@/components/SiteHead";
 
 import appCss from "../styles.css?url";
@@ -84,7 +85,7 @@ function RootComponent() {
       <AuthProvider>
         <SiteHead />
         <PageLoader />
-        <Outlet />
+        <RouteTransition />
         <Toaster richColors position="top-right" />
       </AuthProvider>
     </QueryClientProvider>

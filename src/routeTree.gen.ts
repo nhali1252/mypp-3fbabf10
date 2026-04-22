@@ -33,6 +33,7 @@ import { Route as AdminAdminLauncherRouteImport } from './routes/_admin.admin.la
 import { Route as AdminAdminHeroRouteImport } from './routes/_admin.admin.hero'
 import { Route as AdminAdminFooterAppsRouteImport } from './routes/_admin.admin.footer-apps'
 import { Route as AdminAdminFoldersRouteImport } from './routes/_admin.admin.folders'
+import { Route as AdminAdminFPageRouteImport } from './routes/_admin.admin.f-page'
 import { Route as AdminAdminEducationRouteImport } from './routes/_admin.admin.education'
 import { Route as AdminAdminContactRouteImport } from './routes/_admin.admin.contact'
 import { Route as AdminAdminChecklistRouteImport } from './routes/_admin.admin.checklist'
@@ -158,6 +159,11 @@ const AdminAdminFoldersRoute = AdminAdminFoldersRouteImport.update({
   path: '/admin/folders',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminFPageRoute = AdminAdminFPageRouteImport.update({
+  id: '/admin/f-page',
+  path: '/admin/f-page',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAdminEducationRoute = AdminAdminEducationRouteImport.update({
   id: '/admin/education',
   path: '/admin/education',
@@ -197,6 +203,7 @@ export interface FileRoutesByFullPath {
   '/admin/checklist': typeof AdminAdminChecklistRoute
   '/admin/contact': typeof AdminAdminContactRoute
   '/admin/education': typeof AdminAdminEducationRoute
+  '/admin/f-page': typeof AdminAdminFPageRoute
   '/admin/folders': typeof AdminAdminFoldersRoute
   '/admin/footer-apps': typeof AdminAdminFooterAppsRoute
   '/admin/hero': typeof AdminAdminHeroRoute
@@ -227,6 +234,7 @@ export interface FileRoutesByTo {
   '/admin/checklist': typeof AdminAdminChecklistRoute
   '/admin/contact': typeof AdminAdminContactRoute
   '/admin/education': typeof AdminAdminEducationRoute
+  '/admin/f-page': typeof AdminAdminFPageRoute
   '/admin/folders': typeof AdminAdminFoldersRoute
   '/admin/footer-apps': typeof AdminAdminFooterAppsRoute
   '/admin/hero': typeof AdminAdminHeroRoute
@@ -259,6 +267,7 @@ export interface FileRoutesById {
   '/_admin/admin/checklist': typeof AdminAdminChecklistRoute
   '/_admin/admin/contact': typeof AdminAdminContactRoute
   '/_admin/admin/education': typeof AdminAdminEducationRoute
+  '/_admin/admin/f-page': typeof AdminAdminFPageRoute
   '/_admin/admin/folders': typeof AdminAdminFoldersRoute
   '/_admin/admin/footer-apps': typeof AdminAdminFooterAppsRoute
   '/_admin/admin/hero': typeof AdminAdminHeroRoute
@@ -291,6 +300,7 @@ export interface FileRouteTypes {
     | '/admin/checklist'
     | '/admin/contact'
     | '/admin/education'
+    | '/admin/f-page'
     | '/admin/folders'
     | '/admin/footer-apps'
     | '/admin/hero'
@@ -321,6 +331,7 @@ export interface FileRouteTypes {
     | '/admin/checklist'
     | '/admin/contact'
     | '/admin/education'
+    | '/admin/f-page'
     | '/admin/folders'
     | '/admin/footer-apps'
     | '/admin/hero'
@@ -352,6 +363,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/checklist'
     | '/_admin/admin/contact'
     | '/_admin/admin/education'
+    | '/_admin/admin/f-page'
     | '/_admin/admin/folders'
     | '/_admin/admin/footer-apps'
     | '/_admin/admin/hero'
@@ -551,6 +563,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminFoldersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/f-page': {
+      id: '/_admin/admin/f-page'
+      path: '/admin/f-page'
+      fullPath: '/admin/f-page'
+      preLoaderRoute: typeof AdminAdminFPageRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/education': {
       id: '/_admin/admin/education'
       path: '/admin/education'
@@ -595,6 +614,7 @@ interface AdminRouteChildren {
   AdminAdminChecklistRoute: typeof AdminAdminChecklistRoute
   AdminAdminContactRoute: typeof AdminAdminContactRoute
   AdminAdminEducationRoute: typeof AdminAdminEducationRoute
+  AdminAdminFPageRoute: typeof AdminAdminFPageRoute
   AdminAdminFoldersRoute: typeof AdminAdminFoldersRoute
   AdminAdminFooterAppsRoute: typeof AdminAdminFooterAppsRoute
   AdminAdminHeroRoute: typeof AdminAdminHeroRoute
@@ -619,6 +639,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminChecklistRoute: AdminAdminChecklistRoute,
   AdminAdminContactRoute: AdminAdminContactRoute,
   AdminAdminEducationRoute: AdminAdminEducationRoute,
+  AdminAdminFPageRoute: AdminAdminFPageRoute,
   AdminAdminFoldersRoute: AdminAdminFoldersRoute,
   AdminAdminFooterAppsRoute: AdminAdminFooterAppsRoute,
   AdminAdminHeroRoute: AdminAdminHeroRoute,

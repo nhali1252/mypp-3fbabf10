@@ -32,7 +32,7 @@ export function AdminEditFab() {
 
 function resolveAdminTarget(pathname: string): { to: string; label: string } {
   if (pathname.startsWith("/B")) return { to: "/admin/hero", label: "Page B" };
-  if (pathname.startsWith("/F")) return { to: "/admin/about", label: "Page F" };
+  if (pathname.startsWith("/F")) return { to: "/admin/f-page", label: "Page F" };
   if (pathname.startsWith("/P")) return { to: "/admin/projects", label: "Page P" };
   if (pathname === "/" || pathname === "") return { to: "/admin/launcher", label: "Launcher" };
   return { to: "/admin", label: "Admin" };

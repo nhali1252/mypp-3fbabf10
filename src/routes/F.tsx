@@ -326,7 +326,47 @@ function SkillsPage() {
         © {new Date().getFullYear()} Ali Nur Hasan · TasTaj ·{" "}
         <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
       </footer>
+      <HireMeFloatingButton />
     </div>
+  );
+}
+
+function SkillsPageWrapper() {
+  return (
+    <HireMeProvider>
+      <SkillsPage />
+    </HireMeProvider>
+  );
+}
+
+function HireMeInlineButton() {
+  const { openHireMe } = useHireMe();
+  return (
+    <button
+      type="button"
+      onClick={openHireMe}
+      className="group inline-flex items-center gap-2 rounded-full bg-foreground text-background px-5 py-3 text-xs font-bold uppercase tracking-[0.2em] hover:scale-[1.03] active:scale-[0.98] transition-transform shadow-[0_18px_40px_-12px_color-mix(in_oklab,var(--primary)_55%,transparent)]"
+    >
+      <Sparkles className="w-4 h-4 text-primary" />
+      Hire me
+    </button>
+  );
+}
+
+function HireMeFloatingButton() {
+  const { openHireMe } = useHireMe();
+  return (
+    <button
+      type="button"
+      onClick={openHireMe}
+      aria-label="Hire me"
+      className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground pl-3 pr-4 py-2.5 text-xs font-bold uppercase tracking-[0.18em] shadow-[0_18px_40px_-12px_rgba(0,0,0,0.55)] hover:scale-[1.03] active:scale-[0.98] transition-transform"
+    >
+      <span className="grid place-items-center w-7 h-7 rounded-full bg-primary-foreground/15">
+        <Sparkles className="w-3.5 h-3.5" />
+      </span>
+      Hire me
+    </button>
   );
 }
 

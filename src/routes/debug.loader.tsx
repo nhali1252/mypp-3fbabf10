@@ -1,5 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useLoaderTimings, DEFAULT_LOADER_TIMINGS } from "@/hooks/useLoaderTimings";
+import {
+  useLoaderTimings,
+  DEFAULT_LOADER_TIMINGS,
+  LOADER_MIN_MS,
+  LOADER_MAX_MS,
+} from "@/hooks/useLoaderTimings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

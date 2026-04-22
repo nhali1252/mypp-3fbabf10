@@ -88,7 +88,7 @@ export function PageLoader({
   if (!show) return null;
 
   const routeMap: Record<string, { label: string; tagline: string }> = {
-    "/": { label: "Launcher", tagline: "Pick a page to explore" },
+    "/": { label: "Welcome", tagline: "Pick a page to explore" },
     "/B": { label: "Basic info", tagline: "About · Education · Activities" },
     "/F": { label: "Skills & About", tagline: "Design · Tools · Workflow" },
     "/P": { label: "Projects", tagline: "Selected work & case studies" },

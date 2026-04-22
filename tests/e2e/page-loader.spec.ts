@@ -1,24 +1,31 @@
 import { test, expect } from "@playwright/test";
 
 /**
- * E2E: PageLoader visibility timing across a route navigation.
+ * E2E: PageLoader visibility timing across initial load and route navigation.
  *
  * The loader is configured for 4000ms (initialMs/routeMs in
- * src/hooks/useLoaderTimings.ts) plus a ~260ms hide-fade. We assert it stays
- * visible through ~3.5s after a route change and is gone by ~4.5s.
+ * src/hooks/useLoaderTimings.ts) plus a ~260ms hide-fade. To stay resilient
+ * across machines (CI, local dev, slower laptops) we assert against a
+ * tolerant acceptance window rather than an exact 4000ms.
+ *
+ *   Loader MUST still be visible at:  EXPECTED_MS - TOLERANCE_MS  (3500ms)
+ *   Loader MUST be hidden by:         EXPECTED_MS + TOLERANCE_MS + FADE_BUFFER_MS
+ *
+ * That gives a 3500–4500ms (+ ~500ms fade buffer) acceptance window.
  */
 const LOADER_SELECTOR = '[data-testid="page-loader"]';
-const LOADER_DONE_SELECTOR = '[data-testid="page-loader-live"][data-loader-state="hidden"]';
+const LOADER_DONE_SELECTOR =
+  '[data-testid="page-loader-live"][data-loader-state="hidden"]';
+
 const EXPECTED_MS = 4000;
-const TOLERANCE_BEFORE_MS = 500; // still visible until close to 4000ms
-const TOLERANCE_AFTER_MS = 1000; // hidden by ~5000ms (4000 + fade + buffer)
+const TOLERANCE_MS = 500; // ±500ms around the 4000ms target → 3500–4500ms
+const FADE_BUFFER_MS = 500; // extra slack for the 260ms hide-fade + scheduling jitter
+const HIDDEN_TIMEOUT_MS = TOLERANCE_MS * 2 + FADE_BUFFER_MS; // 1500ms
 
 test.describe("PageLoader timing", () => {
   test.beforeEach(async ({ context }) => {
     // Force deterministic timings for the E2E run by seeding the same
     // localStorage key the PageLoader reads (`pageLoader.timings.v1`).
-    // This guarantees initialMs/routeMs are exactly 4000ms regardless of
-    // any leftover debug-page overrides in the browser profile.
     await context.addInitScript(() => {
       try {
         window.localStorage.setItem(
@@ -31,32 +38,33 @@ test.describe("PageLoader timing", () => {
     });
   });
 
-  test("stays visible for ~4000ms on initial load", async ({ page }) => {
+  test("stays visible for ~4000ms (3500–4500ms) on initial load", async ({ page }) => {
     await page.goto("/", { waitUntil: "commit" });
 
-    // Loader should appear immediately.
+    // Loader should appear immediately on mount.
     await expect(page.locator(LOADER_SELECTOR)).toBeVisible({ timeout: 2000 });
-
     const start = Date.now();
 
-    // Loader must STILL be visible just before the configured threshold.
-    await page.waitForTimeout(EXPECTED_MS - TOLERANCE_BEFORE_MS);
+    // Lower bound: still visible just before the 3500ms floor.
+    await page.waitForTimeout(EXPECTED_MS - TOLERANCE_MS);
     await expect(page.locator(LOADER_SELECTOR)).toBeVisible();
     const stillVisibleAt = Date.now() - start;
-    expect(stillVisibleAt).toBeGreaterThanOrEqual(EXPECTED_MS - TOLERANCE_BEFORE_MS);
+    expect(stillVisibleAt).toBeGreaterThanOrEqual(EXPECTED_MS - TOLERANCE_MS);
 
-    // After the configured threshold (+ hide fade + buffer) it must be gone.
-    await expect(page.locator(LOADER_SELECTOR)).toBeHidden({
-      timeout: TOLERANCE_BEFORE_MS + TOLERANCE_AFTER_MS + 500,
+    // Upper bound: must be gone within the 4500ms ceiling (+ fade buffer).
+    await expect(page.locator(LOADER_DONE_SELECTOR)).toBeVisible({
+      timeout: HIDDEN_TIMEOUT_MS,
     });
     const goneAt = Date.now() - start;
-    expect(goneAt).toBeLessThanOrEqual(EXPECTED_MS + TOLERANCE_AFTER_MS);
+    expect(goneAt).toBeLessThanOrEqual(EXPECTED_MS + TOLERANCE_MS + FADE_BUFFER_MS);
   });
 
-  test("re-shows for ~4000ms when navigating between routes", async ({ page }) => {
+  test("re-shows for ~4000ms (3500–4500ms) when navigating between routes", async ({
+    page,
+  }) => {
     // Load home and wait for the initial loader to fully clear.
     await page.goto("/", { waitUntil: "commit" });
-    await expect(page.locator(LOADER_SELECTOR)).toBeHidden({ timeout: 8000 });
+    await expect(page.locator(LOADER_DONE_SELECTOR)).toBeVisible({ timeout: 8000 });
 
     // Trigger a route change to /B by clicking the launcher card link.
     // Fall back to page.goto if the link isn't present in the DOM.
@@ -71,16 +79,16 @@ test.describe("PageLoader timing", () => {
     await expect(page.locator(LOADER_SELECTOR)).toBeVisible({ timeout: 2000 });
     const start = Date.now();
 
-    // Still visible just before 4000ms.
-    await page.waitForTimeout(EXPECTED_MS - TOLERANCE_BEFORE_MS);
+    // Lower bound: still visible just before the 3500ms floor.
+    await page.waitForTimeout(EXPECTED_MS - TOLERANCE_MS);
     await expect(page.locator(LOADER_SELECTOR)).toBeVisible();
 
-    // Gone within tolerance after 4000ms.
-    await expect(page.locator(LOADER_SELECTOR)).toBeHidden({
-      timeout: TOLERANCE_BEFORE_MS + TOLERANCE_AFTER_MS + 500,
+    // Upper bound: gone within the 4500ms ceiling (+ fade buffer).
+    await expect(page.locator(LOADER_DONE_SELECTOR)).toBeVisible({
+      timeout: HIDDEN_TIMEOUT_MS,
     });
     const goneAt = Date.now() - start;
-    expect(goneAt).toBeGreaterThanOrEqual(EXPECTED_MS - TOLERANCE_BEFORE_MS);
-    expect(goneAt).toBeLessThanOrEqual(EXPECTED_MS + TOLERANCE_AFTER_MS);
+    expect(goneAt).toBeGreaterThanOrEqual(EXPECTED_MS - TOLERANCE_MS);
+    expect(goneAt).toBeLessThanOrEqual(EXPECTED_MS + TOLERANCE_MS + FADE_BUFFER_MS);
   });
 });

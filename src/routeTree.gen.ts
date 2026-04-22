@@ -8,8 +8,6 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createFileRoute, lazyFn } from '@tanstack/react-router'
-
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -45,15 +43,6 @@ import { Route as AdminAdminChecklistRouteImport } from './routes/_admin.admin.c
 import { Route as AdminAdminActivitiesRouteImport } from './routes/_admin.admin.activities'
 import { Route as AdminAdminAboutRouteImport } from './routes/_admin.admin.about'
 
-const DebugLoaderRouteImport = createFileRoute('/debug')()
-
-const DebugLoaderRoute = DebugLoaderRouteImport.update({
-  id: '/debug',
-  path: '/debug',
-  getParentRoute: () => rootRouteImport,
-} as any).updateLoader({
-  loader: lazyFn(() => import('./routes/debug.loader'), 'loader'),
-})
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
@@ -227,7 +216,6 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
-  '/debug': typeof DebugLoaderRoute
   '/B/auth': typeof BAuthRoute
   '/F/auth': typeof FAuthRoute
   '/P/auth': typeof PAuthRoute
@@ -262,7 +250,6 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
-  '/debug': typeof DebugLoaderRoute
   '/B/auth': typeof BAuthRoute
   '/F/auth': typeof FAuthRoute
   '/P/auth': typeof PAuthRoute
@@ -299,7 +286,6 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
-  '/debug': typeof DebugLoaderRoute
   '/B/auth': typeof BAuthRoute
   '/F/auth': typeof FAuthRoute
   '/P/auth': typeof PAuthRoute
@@ -336,7 +322,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/services'
-    | '/debug'
     | '/B/auth'
     | '/F/auth'
     | '/P/auth'
@@ -371,7 +356,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/services'
-    | '/debug'
     | '/B/auth'
     | '/F/auth'
     | '/P/auth'
@@ -407,7 +391,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/services'
-    | '/debug'
     | '/B/auth'
     | '/F/auth'
     | '/P/auth'
@@ -444,18 +427,10 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ServicesRoute: typeof ServicesRoute
-  DebugLoaderRoute: typeof DebugLoaderRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/debug': {
-      id: '/debug'
-      path: '/debug'
-      fullPath: '/debug'
-      preLoaderRoute: typeof DebugLoaderRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/services': {
       id: '/services'
       path: '/services'
@@ -781,7 +756,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ServicesRoute: ServicesRoute,
-  DebugLoaderRoute: DebugLoaderRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

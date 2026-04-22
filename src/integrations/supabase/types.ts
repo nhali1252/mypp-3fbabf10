@@ -367,6 +367,7 @@ export type Database = {
       }
       hero_content: {
         Row: {
+          backdrop_name: string | null
           background_style: string | null
           eyebrow: string | null
           headline: string
@@ -381,6 +382,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          backdrop_name?: string | null
           background_style?: string | null
           eyebrow?: string | null
           headline: string
@@ -395,6 +397,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          backdrop_name?: string | null
           background_style?: string | null
           eyebrow?: string | null
           headline?: string

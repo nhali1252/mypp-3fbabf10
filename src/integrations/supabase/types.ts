@@ -308,6 +308,54 @@ export type Database = {
         }
         Relationships: []
       }
+      launcher_pages: {
+        Row: {
+          accent: string | null
+          active: boolean
+          badge: string | null
+          created_at: string
+          description: string | null
+          id: string
+          label: string
+          route: string
+          sort_order: number
+          subtitle: string | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          accent?: string | null
+          active?: boolean
+          badge?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          label: string
+          route: string
+          sort_order?: number
+          subtitle?: string | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          accent?: string | null
+          active?: boolean
+          badge?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          label?: string
+          route?: string
+          sort_order?: number
+          subtitle?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       media: {
         Row: {
           created_at: string

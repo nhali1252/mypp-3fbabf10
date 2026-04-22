@@ -33,9 +33,21 @@ export function Nav() {
     >
       <Link
         to="/"
-        className="font-serif-display italic text-[24px] md:text-[27px] text-foreground tracking-tight"
+        className="flex items-center gap-2.5 text-foreground tracking-tight group"
+        aria-label="Home"
       >
-        {settings?.site_title?.split("—")[0]?.trim() || "Portfolio"}
+        {settings?.logo_url && (
+          <img
+            src={settings.logo_url}
+            alt={`${settings?.site_name || settings?.site_title || "Site"} logo`}
+            className="h-8 w-8 md:h-9 md:w-9 object-contain rounded-md transition-transform duration-300 group-hover:scale-105"
+          />
+        )}
+        <span className="font-serif-display italic text-[22px] md:text-[26px] leading-none">
+          {settings?.site_name?.trim() ||
+            settings?.site_title?.split("—")[0]?.trim() ||
+            "Portfolio"}
+        </span>
       </Link>
       <ul className="hidden lg:flex gap-8 list-none text-[13.5px] font-medium text-muted-foreground">
         {links.map((l: { id: string; label: string; url: string }) => (

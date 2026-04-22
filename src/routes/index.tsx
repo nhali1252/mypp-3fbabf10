@@ -167,17 +167,28 @@ function Launcher() {
               initial={{ opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1], delay: 0.1 + i * 0.07 }}
+              whileHover={{ y: -8, scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
               <Link
                 to={c.route}
-                className="group relative block rounded-[26px] border border-border bg-card p-7 md:p-8 overflow-hidden h-full hover:border-primary/60 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
+                className="launcher-card group relative block rounded-[26px] border border-border bg-card p-7 md:p-8 overflow-hidden h-full hover:border-primary/60 transition-[border-color,box-shadow] duration-500 hover:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
               >
                 {/* accent glow */}
                 <div
                   aria-hidden
-                  className={`absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl opacity-30 group-hover:opacity-60 transition-opacity duration-700 bg-gradient-to-br ${
+                  className={`absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl opacity-30 group-hover:opacity-70 transition-all duration-700 group-hover:scale-125 bg-gradient-to-br ${
                     c.accent || "from-primary/40 to-primary/10"
                   }`}
+                />
+                {/* sweeping shine on hover/touch */}
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full group-active:translate-x-full transition-transform duration-[1100ms] ease-out"
+                  style={{
+                    background:
+                      "linear-gradient(110deg, transparent 30%, color-mix(in oklab, var(--primary) 22%, transparent) 50%, transparent 70%)",
+                  }}
                 />
                 {/* shimmer */}
                 <div
@@ -195,7 +206,7 @@ function Launcher() {
                       {c.label}
                     </span>
                     {c.badge && (
-                      <span className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full bg-primary/15 text-primary border border-primary/25">
+                      <span className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full bg-primary/15 text-primary border border-primary/25 transition-transform duration-500 group-hover:scale-110">
                         {c.badge}
                       </span>
                     )}
@@ -206,13 +217,13 @@ function Launcher() {
                       <img
                         src={c.thumbnail_url}
                         alt={c.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       />
                     </div>
                   )}
 
                   <h2
-                    className="font-black tracking-tight leading-tight mb-2"
+                    className="font-black tracking-tight leading-tight mb-2 transition-colors duration-500 group-hover:text-primary"
                     style={{ fontSize: "clamp(22px, 2.4vw, 30px)" }}
                   >
                     {c.title}
@@ -230,7 +241,7 @@ function Launcher() {
 
                   <span className="inline-flex items-center justify-between gap-2 text-sm font-bold mt-auto pt-5 border-t border-border/60 text-foreground group-hover:text-primary transition-colors">
                     <span>Open {c.label}</span>
-                    <ArrowUpRight className="w-4 h-4 transition-transform duration-500 group-hover:translate-x-1 group-hover:-translate-y-1" />
+                    <ArrowUpRight className="w-4 h-4 transition-transform duration-500 group-hover:translate-x-2 group-hover:-translate-y-2 group-hover:rotate-12" />
                   </span>
                 </div>
               </Link>

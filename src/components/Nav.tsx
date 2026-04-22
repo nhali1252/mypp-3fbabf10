@@ -46,7 +46,7 @@ export function Nav({ showHireMe = true }: { showHireMe?: boolean } = {}) {
             src={settings.logo_url}
             alt={`${settings?.site_name || settings?.site_title || "Site"} logo`}
             onError={() => setLogoBroken(true)}
-            className="h-8 w-8 md:h-9 md:w-9 object-contain rounded-md transition-transform duration-300 group-hover:scale-105"
+            className="h-8 md:h-9 w-auto max-w-[160px] object-contain transition-transform duration-300 group-hover:scale-105"
           />
         )}
         <span className="font-serif-display italic text-[22px] md:text-[26px] leading-none">

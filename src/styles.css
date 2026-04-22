@@ -35,8 +35,18 @@
   --color-watermark: var(--watermark);
   --shadow-card: var(--shadow-card);
   --shadow-glow: var(--shadow-glow);
+  --shadow-soft: var(--shadow-soft);
+  --shadow-elevated: var(--shadow-elevated);
   --font-sans: 'Inter', sans-serif;
   --font-serif-display: 'Cormorant Garamond', serif;
+
+  /* Motion tokens — keep all animation in one consistent language */
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 180ms;
+  --dur-base: 260ms;
+  --dur-slow: 480ms;
 }
 
 :root {
@@ -71,6 +81,7 @@
   --gradient-gold: linear-gradient(135deg, oklch(0.78 0.08 80) 0%, oklch(0.66 0.07 70) 100%);
   --shadow-card: 0 30px 80px oklch(0 0 0 / 0.55), 0 1px 0 oklch(1 0 0 / 0.04) inset;
   --shadow-soft: 0 18px 40px -22px oklch(0 0 0 / 0.6);
+  --shadow-elevated: 0 40px 80px -28px oklch(0 0 0 / 0.65), 0 8px 24px -12px oklch(0 0 0 / 0.4);
   --shadow-glow: 0 12px 38px oklch(0.72 0.07 78 / 0.35);
 }
 
@@ -102,13 +113,58 @@
     scroll-behavior: smooth;
     /* Sections pinned via #anchor still respect the fixed nav. */
     scroll-padding-top: 76px;
+    text-rendering: optimizeLegibility;
   }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "ss01", "cv11";
   }
+
+  /* Buttery default for every interactive surface */
+  a, button, [role="button"], input, textarea, select, summary, label {
+    transition:
+      color var(--dur-base) var(--ease-smooth),
+      background-color var(--dur-base) var(--ease-smooth),
+      border-color var(--dur-base) var(--ease-smooth),
+      box-shadow var(--dur-base) var(--ease-smooth),
+      transform var(--dur-base) var(--ease-smooth),
+      opacity var(--dur-base) var(--ease-smooth);
+  }
+
+  /* Refined focus ring — premium, not loud */
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--background), 0 0 0 4px color-mix(in oklab, var(--ring) 60%, transparent);
+    border-radius: 8px;
+  }
+
+  /* Subtle, branded text selection */
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 35%, transparent);
+    color: var(--foreground);
+  }
+
+  /* Slim, refined scrollbar (WebKit) */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--foreground) 14%, transparent);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklab, var(--primary) 50%, transparent);
+    background-clip: padding-box;
+  }
+
+  img, video { max-width: 100%; height: auto; }
+  img { -webkit-user-drag: none; }
+
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     *, *::before, *::after {
@@ -125,10 +181,74 @@
   .text-ink { color: var(--ink); }
   .shadow-card { box-shadow: var(--shadow-card); }
   .shadow-soft { box-shadow: var(--shadow-soft); }
+  .shadow-elevated { box-shadow: var(--shadow-elevated); }
   .shadow-glow { box-shadow: var(--shadow-glow); }
   .bg-gradient-card { background-image: var(--gradient-card); }
   .bg-gradient-gold { background-image: var(--gradient-gold); }
   .font-serif-display { font-family: 'Cormorant Garamond', serif; }
+
+  /* ── Premium interaction utilities ─────────────────────────────── */
+  .ease-smooth { transition-timing-function: var(--ease-smooth); }
+  .ease-out-soft { transition-timing-function: var(--ease-out-soft); }
+
+  /* Card lift — gentle, premium hover for any surface */
+  .hover-lift {
+    transition: transform var(--dur-base) var(--ease-smooth),
+                box-shadow var(--dur-base) var(--ease-smooth),
+                border-color var(--dur-base) var(--ease-smooth);
+    will-change: transform;
+  }
+  .hover-lift:hover { transform: translateY(-3px); box-shadow: var(--shadow-elevated); }
+  .hover-lift:active { transform: translateY(-1px); transition-duration: 90ms; }
+
+  /* Crisp tactile press for buttons */
+  .press {
+    transition: transform 140ms var(--ease-smooth),
+                box-shadow var(--dur-base) var(--ease-smooth),
+                background-color var(--dur-base) var(--ease-smooth);
+  }
+  .press:hover { transform: translateY(-1px); }
+  .press:active { transform: translateY(0) scale(0.985); transition-duration: 80ms; }
+
+  /* Frosted/glass surfaces for popovers, dialogs, nav */
+  .glass-surface {
+    background: color-mix(in oklab, var(--card) 78%, transparent);
+    backdrop-filter: saturate(140%) blur(14px);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
+    border: 1px solid color-mix(in oklab, var(--foreground) 8%, transparent);
+  }
+
+  /* Soft animated underline for inline links */
+  .link-underline { position: relative; }
+  .link-underline::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: -2px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right center;
+    transition: transform var(--dur-base) var(--ease-smooth);
+  }
+  .link-underline:hover::after { transform: scaleX(1); transform-origin: left center; }
+
+  /* Refined entrance animations — all share one easing language */
+  .anim-fade-up { animation: fadeUp var(--dur-slow) var(--ease-smooth) both; }
+  .anim-fade-in { animation: fadeIn var(--dur-slow) var(--ease-smooth) both; }
+  .anim-scale-in { animation: scaleIn var(--dur-base) var(--ease-smooth) both; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.97); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
 
   .ticker-track { animation: tick 28s linear infinite; }
   .ticker-wrap:hover .ticker-track { animation-play-state: paused; }

@@ -26,16 +26,42 @@ export function Hero() {
   return (
     <section
       id="home"
-      className="relative pt-32 md:pt-40 pb-10 md:pb-16 overflow-hidden bg-background"
+      className="relative pt-40 md:pt-48 pb-10 md:pb-16 overflow-hidden bg-background"
     >
       <div className="max-w-[1200px] mx-auto px-4 md:px-6 relative">
+        {/* Ambient VFX: soft glow orbs behind the card */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-0 overflow-visible"
+        >
+          <div
+            className="absolute -top-10 left-1/4 w-[420px] h-[420px] rounded-full blur-3xl opacity-40"
+            style={{
+              background:
+                "radial-gradient(circle, color-mix(in oklab, var(--primary) 55%, transparent) 0%, transparent 70%)",
+            }}
+          />
+          <div
+            className="absolute top-20 right-0 w-[360px] h-[360px] rounded-full blur-3xl opacity-30"
+            style={{
+              background:
+                "radial-gradient(circle, color-mix(in oklab, var(--accent, var(--primary)) 50%, transparent) 0%, transparent 70%)",
+            }}
+          />
+        </div>
+
         {/* Large faded watermark name positioned BEHIND the portrait's head area */}
         <motion.div
           aria-hidden
-          className="absolute left-1/2 -translate-x-1/2 -top-2 md:-top-6 font-black uppercase whitespace-nowrap pointer-events-none select-none leading-none tracking-[-0.04em] z-0"
+          className="absolute left-1/2 -translate-x-1/2 top-6 md:top-4 font-black uppercase whitespace-nowrap pointer-events-none select-none leading-none tracking-[-0.04em] z-[5]"
           style={{
-            fontSize: "clamp(56px, 11vw, 180px)",
-            color: "color-mix(in oklab, var(--watermark) 14%, transparent)",
+            fontSize: "clamp(44px, 10vw, 150px)",
+            background:
+              "linear-gradient(180deg, color-mix(in oklab, var(--primary) 35%, transparent) 0%, color-mix(in oklab, var(--watermark) 8%, transparent) 100%)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            textShadow: "0 2px 30px color-mix(in oklab, var(--primary) 20%, transparent)",
           }}
           initial={{ opacity: 0, y: reduce ? 0 : -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -46,7 +72,7 @@ export function Hero() {
 
         {/* Premium dark rounded hero card */}
         <motion.div
-          className="relative z-10 rounded-[24px] border border-white/[0.06] shadow-[0_30px_80px_-30px_rgba(0,0,0,0.7)]"
+          className="relative z-10 rounded-[24px] border border-white/[0.06] shadow-[0_30px_80px_-30px_rgba(0,0,0,0.7)] backdrop-blur-sm"
           style={{
             background:
               "linear-gradient(180deg, color-mix(in oklab, var(--card) 96%, black) 0%, color-mix(in oklab, var(--card) 88%, black) 100%)",
@@ -55,7 +81,16 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease }}
         >
-          <div className="grid md:grid-cols-[40%_60%] items-stretch min-h-[520px] md:min-h-[560px] relative">
+          {/* Subtle grain VFX overlay */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-[24px] opacity-[0.04] mix-blend-overlay"
+            style={{
+              backgroundImage:
+                "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")",
+            }}
+          />
+          <div className="grid md:grid-cols-[40%_60%] items-stretch min-h-[380px] md:min-h-[420px] relative">
             {/* Left: portrait — overflows ABOVE the card so head pops out */}
             <div className="relative flex items-end justify-center md:justify-start px-4 md:pl-10 md:pr-0">
               <img
@@ -63,13 +98,13 @@ export function Hero() {
                 alt="Ali Nur Hasan portrait"
                 width={820}
                 height={1120}
-                className="relative z-20 block h-[420px] sm:h-[520px] md:h-[680px] lg:h-[760px] w-auto object-contain object-bottom -mt-24 md:-mt-32 lg:-mt-40 drop-shadow-[0_30px_50px_rgba(0,0,0,0.55)]"
+                className="relative z-20 block h-[440px] sm:h-[540px] md:h-[640px] lg:h-[720px] w-auto object-contain object-bottom -mt-40 md:-mt-48 lg:-mt-56 drop-shadow-[0_30px_50px_rgba(0,0,0,0.55)]"
               />
             </div>
 
             {/* Right: content */}
             <motion.div
-              className="relative z-10 px-6 md:px-10 lg:px-14 pb-10 md:pb-0 md:py-14 flex flex-col justify-center text-center md:text-left"
+              className="relative z-10 px-6 md:px-10 lg:px-14 pb-10 md:pb-0 md:py-10 flex flex-col justify-center text-center md:text-left"
               initial="hidden"
               animate="visible"
               variants={{

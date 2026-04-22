@@ -43,6 +43,7 @@ function SkillsPage() {
   const { data: hero } = useFHero();
   const { data: skills = [] } = useFSkills();
   const { data: projects = [] } = useFProjects();
+  const { data: photocard, isLoading: photocardLoading } = useFPhotocard();
 
   const design = skills.filter((s) => s.kind === "design");
   const soft = skills.filter((s) => s.kind === "soft");

@@ -45,10 +45,10 @@ export function PageLoader({ minDurationMs = 3000 }: { minDurationMs?: number })
 
   if (!show) return null;
 
-  const rawName =
-    settings?.site_name?.trim() ||
-    settings?.site_title?.split("—")[0]?.trim() ||
-    "Portfolio";
+  // Don't render the loader text until we have real branding from the DB,
+  // so users never see the generic "Portfolio" fallback flash.
+  const rawName = settings?.site_name?.trim();
+  if (!rawName) return null;
 
   // Split "FirstWord RestOfName" so we can color the tail in gold (TasTaj style)
   const parts = rawName.split(" ");

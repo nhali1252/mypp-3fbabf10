@@ -170,6 +170,33 @@ function AdminDashboard() {
       </div>
 
       <section className="bg-card border border-border rounded-2xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-bold">Edit pages</h2>
+          <span className="text-xs text-muted-foreground">Jump straight into a page editor</span>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {pageEditors.map((p) => (
+            <Link
+              key={p.label}
+              to={p.to}
+              className={`relative overflow-hidden border border-border rounded-2xl p-5 hover:border-primary/50 transition group bg-gradient-to-br ${p.accent}`}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div className="w-10 h-10 rounded-xl bg-background/60 backdrop-blur grid place-items-center">
+                  <p.Icon size={18} className="text-primary" />
+                </div>
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground opacity-0 group-hover:opacity-100 transition">
+                  Open →
+                </span>
+              </div>
+              <div className="font-bold text-sm">{p.label}</div>
+              <div className="text-xs text-muted-foreground">{p.sub}</div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="bg-card border border-border rounded-2xl p-6">
         <h2 className="font-bold mb-4">Quick edits</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {quickEdits.map((q) => (

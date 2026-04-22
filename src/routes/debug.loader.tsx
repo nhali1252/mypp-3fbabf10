@@ -1,5 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useLoaderTimings, DEFAULT_LOADER_TIMINGS } from "@/hooks/useLoaderTimings";
+import {
+  useLoaderTimings,
+  DEFAULT_LOADER_TIMINGS,
+  LOADER_MIN_MS,
+  LOADER_MAX_MS,
+} from "@/hooks/useLoaderTimings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,9 +32,10 @@ function DebugLoaderPage() {
           </p>
           <h1 className="text-3xl font-black tracking-tight">PageLoader timings</h1>
           <p className="text-sm text-muted-foreground">
-            Adjust how long the brand loader stays visible. Values persist in this browser
-            (localStorage) and apply immediately on the next initial load or route transition.
-            Defaults: {DEFAULT_LOADER_TIMINGS.initialMs}ms / {DEFAULT_LOADER_TIMINGS.routeMs}ms.
+            Adjust how long the brand loader stays visible. Values are clamped to{" "}
+            {LOADER_MIN_MS}–{LOADER_MAX_MS}ms (3–5s) and persist in this browser
+            (localStorage). Defaults: {DEFAULT_LOADER_TIMINGS.initialMs}ms /{" "}
+            {DEFAULT_LOADER_TIMINGS.routeMs}ms.
           </p>
         </header>
 
@@ -81,8 +87,8 @@ function TimingControl({
         <Label className="text-sm font-semibold">{label}</Label>
         <Input
           type="number"
-          min={0}
-          max={20000}
+          min={LOADER_MIN_MS}
+          max={LOADER_MAX_MS}
           step={100}
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
@@ -90,11 +96,11 @@ function TimingControl({
         />
       </div>
       <Slider
-        min={0}
-        max={10000}
+        min={LOADER_MIN_MS}
+        max={LOADER_MAX_MS}
         step={100}
-        value={[Math.min(10000, value)]}
-        onValueChange={(v) => onChange(v[0] ?? 0)}
+        value={[Math.min(LOADER_MAX_MS, Math.max(LOADER_MIN_MS, value))]}
+        onValueChange={(v) => onChange(v[0] ?? LOADER_MIN_MS)}
       />
       <p className="text-[11px] text-muted-foreground">
         {(value / 1000).toFixed(1)}s

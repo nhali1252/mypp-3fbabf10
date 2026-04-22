@@ -8,7 +8,7 @@ import { getIcon } from "@/lib/iconRegistry";
 import { HireMeProvider, useHireMe } from "@/components/HireMeProvider";
 
 export const Route = createFileRoute("/F")({
-  component: SkillsPage,
+  component: SkillsPageWrapper,
   head: () => ({
     meta: [
       { title: "Skills & About — Ali Nur Hasan (TasTaj)" },
@@ -140,6 +140,9 @@ function SkillsPage() {
                   {t}
                 </span>
               ))}
+            </div>
+            <div className="mt-7 flex justify-center lg:justify-start">
+              <HireMeInlineButton />
             </div>
           </motion.div>
         </div>

@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   FolderKanban, GraduationCap, Activity, Inbox, Image as ImageIcon,
   Sparkles, User, PhoneCall, ShieldCheck, ShieldAlert, ClipboardCheck,
+  Rocket, Lightbulb, Compass, Search, Settings, Megaphone, AppWindow, Users as UsersIcon,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_admin/admin/")({
@@ -57,11 +58,53 @@ function AdminDashboard() {
   ];
 
   const quickEdits = [
-    { label: "Edit Hero", Icon: Sparkles, to: "/admin/hero" as const },
+    { label: "Welcome / Launcher", Icon: Rocket, to: "/admin/launcher" as const },
+    { label: "Page F editor", Icon: Lightbulb, to: "/admin/f-page" as const },
+    { label: "Edit Hero (B)", Icon: Sparkles, to: "/admin/hero" as const },
     { label: "Edit About", Icon: User, to: "/admin/about" as const },
     { label: "Edit Projects", Icon: FolderKanban, to: "/admin/projects" as const },
     { label: "Edit Education", Icon: GraduationCap, to: "/admin/education" as const },
+    { label: "Edit Skills", Icon: Lightbulb, to: "/admin/skills" as const },
+    { label: "Edit Activities", Icon: Activity, to: "/admin/activities" as const },
+    { label: "Edit Ticker", Icon: Megaphone, to: "/admin/ticker" as const },
+    { label: "Edit Navigation", Icon: Compass, to: "/admin/navigation" as const },
     { label: "Edit Contact", Icon: PhoneCall, to: "/admin/contact" as const },
+    { label: "Footer Apps", Icon: AppWindow, to: "/admin/footer-apps" as const },
+    { label: "Media Library", Icon: ImageIcon, to: "/admin/media" as const },
+    { label: "SEO Settings", Icon: Search, to: "/admin/seo" as const },
+    { label: "Site Settings", Icon: Settings, to: "/admin/settings" as const },
+    { label: "Manage Users", Icon: UsersIcon, to: "/admin/users" as const },
+  ];
+
+  const pageEditors = [
+    {
+      label: "Welcome page (/)",
+      sub: "Launcher cards",
+      Icon: Rocket,
+      to: "/admin/launcher" as const,
+      accent: "from-amber-400/30 to-rose-500/10",
+    },
+    {
+      label: "Page /F",
+      sub: "Skills · About",
+      Icon: Lightbulb,
+      to: "/admin/f-page" as const,
+      accent: "from-violet-500/30 to-fuchsia-500/10",
+    },
+    {
+      label: "Page /P",
+      sub: "Projects",
+      Icon: FolderKanban,
+      to: "/admin/projects" as const,
+      accent: "from-emerald-400/30 to-cyan-500/10",
+    },
+    {
+      label: "Page /B",
+      sub: "Hero · About · Contact",
+      Icon: Sparkles,
+      to: "/admin/hero" as const,
+      accent: "from-sky-400/30 to-indigo-500/10",
+    },
   ];
 
   return (

@@ -6,30 +6,40 @@ import { useSiteSettings } from "@/hooks/useContent";
  * soft glow + wordmark + tagline + sliding gold loader bar.
  * Uses the site's own logo + site_name (no hardcoded "TasTaj").
  */
-export function PageLoader({ minDurationMs = 450 }: { minDurationMs?: number }) {
+export function PageLoader({ minDurationMs = 220 }: { minDurationMs?: number }) {
   const [show, setShow] = useState(true);
   const [hiding, setHiding] = useState(false);
   const { data: settings } = useSiteSettings();
 
   useEffect(() => {
     const start = performance.now();
+    let done = false;
+    let hideTimer: number | undefined;
+    let removeTimer: number | undefined;
+
     const finish = () => {
+      if (done) return;
+      done = true;
       const elapsed = performance.now() - start;
       const wait = Math.max(0, minDurationMs - elapsed);
-      window.setTimeout(() => {
+      hideTimer = window.setTimeout(() => {
         setHiding(true);
-        window.setTimeout(() => setShow(false), 280);
+        removeTimer = window.setTimeout(() => setShow(false), 180);
       }, wait);
     };
-    if (document.readyState === "complete") {
+
+    if (document.readyState === "interactive" || document.readyState === "complete") {
       finish();
-      return;
+    } else {
+      document.addEventListener("DOMContentLoaded", finish, { once: true });
     }
-    window.addEventListener("load", finish, { once: true });
-    const safety = window.setTimeout(finish, minDurationMs + 600);
+
+    const safety = window.setTimeout(finish, minDurationMs + 350);
     return () => {
-      window.removeEventListener("load", finish);
+      document.removeEventListener("DOMContentLoaded", finish);
       window.clearTimeout(safety);
+      if (hideTimer) window.clearTimeout(hideTimer);
+      if (removeTimer) window.clearTimeout(removeTimer);
     };
   }, [minDurationMs]);
 
@@ -51,15 +61,14 @@ export function PageLoader({ minDurationMs = 450 }: { minDurationMs?: number }) 
   return (
     <div
       aria-hidden={hiding}
-      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background transition-opacity duration-300 ${
+      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background transition-opacity duration-200 ${
         hiding ? "opacity-0" : "opacity-100"
       }`}
     >
-      {/* Soft top glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
-          className="absolute -top-40 left-1/2 -translate-x-1/2 h-[480px] w-[480px] rounded-full blur-[120px]"
-          style={{ background: "oklch(0.72 0.07 78 / 0.18)" }}
+          className="absolute -top-32 left-1/2 -translate-x-1/2 h-[360px] w-[360px] rounded-full blur-[100px]"
+          style={{ background: "oklch(0.72 0.07 78 / 0.14)" }}
         />
       </div>
 
@@ -68,11 +77,11 @@ export function PageLoader({ minDurationMs = 450 }: { minDurationMs?: number }) 
           <img
             src={settings.logo_url}
             alt=""
-            className="mb-5 h-14 w-14 md:h-16 md:w-16 rounded-2xl object-cover border border-white/10 shadow-glow"
+            className="mb-4 h-12 w-12 md:h-14 md:w-14 rounded-2xl object-cover border border-white/10 shadow-glow"
           />
         ) : null}
 
-        <div className="font-serif-display italic text-5xl sm:text-6xl tracking-tight select-none">
+        <div className="font-serif-display italic text-4xl sm:text-5xl tracking-tight select-none">
           <span className="text-foreground">{head}</span>
           {tail && (
             <span className="bg-gradient-to-r from-[oklch(0.82_0.09_82)] to-[oklch(0.66_0.07_70)] bg-clip-text text-transparent">
@@ -81,22 +90,22 @@ export function PageLoader({ minDurationMs = 450 }: { minDurationMs?: number }) 
           )}
         </div>
 
-        <p className="mt-3 text-[10px] uppercase tracking-[0.4em] text-foreground/60">
+        <p className="mt-2 text-[9px] uppercase tracking-[0.34em] text-foreground/55">
           {tagline}
         </p>
 
-        <div className="mt-8 h-[2px] w-40 overflow-hidden rounded-full bg-white/10">
-          <div className="page-loader-bar h-full w-1/3 bg-gradient-to-r from-transparent via-[oklch(0.78_0.08_80)] to-transparent" />
+        <div className="mt-6 h-[2px] w-32 overflow-hidden rounded-full bg-white/8">
+          <div className="page-loader-bar h-full w-1/2 bg-gradient-to-r from-transparent via-[oklch(0.78_0.08_80)] to-transparent" />
         </div>
       </div>
 
       <style>{`
         @keyframes pageLoaderSlide {
           0% { transform: translateX(-120%); }
-          100% { transform: translateX(420%); }
+          100% { transform: translateX(260%); }
         }
         .page-loader-bar {
-          animation: pageLoaderSlide 0.7s ease-in-out infinite;
+          animation: pageLoaderSlide 0.5s ease-out infinite;
         }
         @media (prefers-reduced-motion: reduce) {
           .page-loader-bar { animation: none; }

@@ -6,7 +6,7 @@ import { useSiteSettings } from "@/hooks/useContent";
  * soft glow + wordmark + tagline + sliding gold loader bar.
  * Uses the site's own logo + site_name (no hardcoded "TasTaj").
  */
-export function PageLoader({ minDurationMs = 220 }: { minDurationMs?: number }) {
+export function PageLoader({ minDurationMs = 3500 }: { minDurationMs?: number }) {
   const [show, setShow] = useState(true);
   const [hiding, setHiding] = useState(false);
   const { data: settings } = useSiteSettings();
@@ -34,7 +34,7 @@ export function PageLoader({ minDurationMs = 220 }: { minDurationMs?: number }) 
       document.addEventListener("DOMContentLoaded", finish, { once: true });
     }
 
-    const safety = window.setTimeout(finish, minDurationMs + 350);
+    const safety = window.setTimeout(finish, minDurationMs + 1500);
     return () => {
       document.removeEventListener("DOMContentLoaded", finish);
       window.clearTimeout(safety);

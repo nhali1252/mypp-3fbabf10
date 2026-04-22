@@ -20,6 +20,7 @@ export function Hero({ showHireMe = true }: { showHireMe?: boolean } = {}) {
     hero?.subheadline ??
     "I create modern visual designs for brands, businesses, and digital content using creative design skills, Canva workflows, and practical AI support.";
   const eyebrow = hero?.eyebrow ?? "Graphic Designer · Branding · Canva · Adobe · AI";
+  const backdropName = (hero?.backdrop_name ?? "ALI NUR HASAN").trim();
 
   const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -51,24 +52,26 @@ export function Hero({ showHireMe = true }: { showHireMe?: boolean } = {}) {
         </div>
 
         {/* Large faded watermark name positioned BEHIND the portrait's head area */}
-        <motion.div
-          aria-hidden
-          className="absolute left-1/2 -translate-x-1/2 top-6 md:top-4 font-black uppercase whitespace-nowrap pointer-events-none select-none leading-none tracking-[-0.04em] z-[5]"
-          style={{
-            fontSize: "clamp(44px, 10vw, 150px)",
-            background:
-              "linear-gradient(180deg, color-mix(in oklab, var(--primary) 35%, transparent) 0%, color-mix(in oklab, var(--watermark) 8%, transparent) 100%)",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            textShadow: "0 2px 30px color-mix(in oklab, var(--primary) 20%, transparent)",
-          }}
-          initial={{ opacity: 0, y: reduce ? 0 : -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease, delay: 0.05 }}
-        >
-          ALI NUR HASAN
-        </motion.div>
+        {backdropName && (
+          <motion.div
+            aria-hidden
+            className="absolute left-1/2 -translate-x-1/2 top-6 md:top-4 font-black uppercase whitespace-nowrap pointer-events-none select-none leading-none tracking-[-0.04em] z-[5]"
+            style={{
+              fontSize: "clamp(44px, 10vw, 150px)",
+              background:
+                "linear-gradient(180deg, color-mix(in oklab, var(--primary) 35%, transparent) 0%, color-mix(in oklab, var(--watermark) 8%, transparent) 100%)",
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              textShadow: "0 2px 30px color-mix(in oklab, var(--primary) 20%, transparent)",
+            }}
+            initial={{ opacity: 0, y: reduce ? 0 : -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease, delay: 0.05 }}
+          >
+            {backdropName}
+          </motion.div>
+        )}
 
         {/* Premium dark rounded hero card */}
         <motion.div

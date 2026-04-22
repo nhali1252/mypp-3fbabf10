@@ -44,6 +44,7 @@ function AdminHero() {
         primary_cta_label: form.primary_cta_label, primary_cta_url: form.primary_cta_url,
         secondary_cta_label: form.secondary_cta_label, secondary_cta_url: form.secondary_cta_url,
         portrait_url: form.portrait_url, background_style: form.background_style,
+        backdrop_name: form.backdrop_name,
         page_key: pageKey,
       };
       if (data?.id) {
@@ -78,6 +79,9 @@ function AdminHero() {
           <FormRow label="Eyebrow"><Input value={form.eyebrow || ""} onChange={(e) => set("eyebrow", e.target.value)} /></FormRow>
           <FormRow label="Headline"><Textarea rows={2} value={form.headline || ""} onChange={(e) => set("headline", e.target.value)} /></FormRow>
           <FormRow label="Subheadline"><Textarea rows={3} value={form.subheadline || ""} onChange={(e) => set("subheadline", e.target.value)} /></FormRow>
+          <FormRow label="Backdrop name" hint="Large faded text behind the portrait. Leave empty to hide.">
+            <Input value={form.backdrop_name ?? ""} onChange={(e) => set("backdrop_name", e.target.value)} placeholder="ALI NUR HASAN" />
+          </FormRow>
         </div>
       </AdminCard>
       <AdminCard title="Call-to-action buttons">

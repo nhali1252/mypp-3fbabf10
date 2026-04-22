@@ -9,4 +9,5 @@ export default defineConfig({
     globals: true,
     include: ["src/**/*.test.{ts,tsx}"],
     exclude: ["node_modules", "dist", ".output", "tests/e2e/**"],
+  },
 });

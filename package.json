@@ -11,7 +11,9 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
-    "check:loader": "node scripts/check-page-loader-timings.mjs"
+    "check:loader": "node scripts/check-page-loader-timings.mjs",
+    "e2e": "playwright test",
+    "e2e:install": "playwright install chromium"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.25.5",

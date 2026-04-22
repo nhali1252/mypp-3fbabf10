@@ -298,20 +298,20 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="px-6 md:px-10 py-10 md:py-14">
+    <section className="px-5 sm:px-6 md:px-10 py-9 sm:py-10 md:py-14">
       <div className="max-w-[1200px] mx-auto">
-        <div className="mb-7 md:mb-10">
-          <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-primary mb-2">
+        <div className="mb-6 sm:mb-7 md:mb-10">
+          <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.25em] sm:tracking-[0.3em] text-primary mb-2">
             {eyebrow}
           </p>
           <h2
             className="font-black tracking-tight leading-tight"
-            style={{ fontSize: "clamp(24px, 3vw, 40px)" }}
+            style={{ fontSize: "clamp(22px, 3.4vw, 40px)" }}
           >
             {title}
           </h2>
           {description && (
-            <p className="text-muted-foreground mt-2 max-w-2xl">{description}</p>
+            <p className="text-sm sm:text-base text-muted-foreground mt-2 max-w-2xl leading-relaxed">{description}</p>
           )}
         </div>
         {children}

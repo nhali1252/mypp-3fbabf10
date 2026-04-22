@@ -86,8 +86,33 @@ function AdminSettings() {
       <AdminCard title="Identity">
         <div className="grid gap-4">
           <FormRow label="Site title (browser tab + meta)"><Input value={form.site_title || ""} onChange={(e) => set("site_title", e.target.value)} /></FormRow>
-          <FormRow label="Site name (display brand name)"><Input value={form.site_name || ""} onChange={(e) => set("site_name", e.target.value)} placeholder="e.g. City Cabs" /></FormRow>
-          <FormRow label="Logo"><MediaPicker value={form.logo_url} onChange={(u: string | null) => set("logo_url", u)} /></FormRow>
+          <FormRow label="Site name (display brand name)">
+            <Input
+              value={form.site_name || ""}
+              onChange={(e) => set("site_name", e.target.value)}
+              placeholder="e.g. Ali Nur Hasan"
+              required
+              aria-invalid={!(form.site_name || "").trim()}
+            />
+            {!(form.site_name || "").trim() && (
+              <p className="text-xs text-destructive mt-1">Site name is required.</p>
+            )}
+          </FormRow>
+          <FormRow label="Logo" hint="Upload an image or paste a public image URL (http/https).">
+            <div className="space-y-2">
+              <MediaPicker value={form.logo_url} onChange={(u: string | null) => set("logo_url", u)} />
+              {form.logo_url && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => set("logo_url", null)}
+                >
+                  <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Remove logo
+                </Button>
+              )}
+            </div>
+          </FormRow>
           <FormRow label="Favicon URL"><Input value={form.favicon_url || ""} onChange={(e) => set("favicon_url", e.target.value)} /></FormRow>
           <FormRow label="Footer text"><Textarea rows={2} value={form.footer_text || ""} onChange={(e) => set("footer_text", e.target.value)} /></FormRow>
         </div>

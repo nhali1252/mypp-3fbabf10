@@ -106,7 +106,7 @@ export function PageLoader({
       window.clearTimeout(t1);
       window.clearTimeout(t2);
     };
-  }, [pathname, routeMs]);
+  }, [pathname, routeMs, initialMs]);
 
   if (!show) return null;
 

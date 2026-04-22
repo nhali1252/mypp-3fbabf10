@@ -273,6 +273,7 @@ function PhotocardEditor() {
   return (
     <AdminCard title="Photo card">
       <p className="text-xs text-muted-foreground -mt-2 mb-3">Editable name, role, badges and indicator on the /F portrait card.</p>
+      <div className="grid sm:grid-cols-2 gap-3">
         <FormRow label="Name">
           <Input value={draft.name ?? ""} onChange={(e) => patch({ name: e.target.value })} />
         </FormRow>

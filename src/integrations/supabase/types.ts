@@ -164,6 +164,39 @@ export type Database = {
         }
         Relationships: []
       }
+      folders: {
+        Row: {
+          created_at: string
+          icon: string | null
+          id: string
+          name: string
+          slug: string
+          sort_order: number
+          status: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number
+          status?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+          status?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       footer_apps: {
         Row: {
           active: boolean
@@ -507,8 +540,13 @@ export type Database = {
         Row: {
           favicon_url: string | null
           footer_text: string | null
+          hero_subtitle: string | null
+          hero_title: string | null
           id: string
           logo_url: string | null
+          primary_color: string | null
+          secondary_color: string | null
+          site_name: string | null
           site_title: string
           theme_primary: string | null
           updated_at: string
@@ -516,8 +554,13 @@ export type Database = {
         Insert: {
           favicon_url?: string | null
           footer_text?: string | null
+          hero_subtitle?: string | null
+          hero_title?: string | null
           id?: string
           logo_url?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          site_name?: string | null
           site_title?: string
           theme_primary?: string | null
           updated_at?: string
@@ -525,13 +568,136 @@ export type Database = {
         Update: {
           favicon_url?: string | null
           footer_text?: string | null
+          hero_subtitle?: string | null
+          hero_title?: string | null
           id?: string
           logo_url?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          site_name?: string | null
           site_title?: string
           theme_primary?: string | null
           updated_at?: string
         }
         Relationships: []
+      }
+      slots: {
+        Row: {
+          card_size: string
+          contact_number: string | null
+          created_at: string
+          folder_id: string
+          highlight_text: string | null
+          id: string
+          sort_order: number
+          status: boolean
+          subtitle: string | null
+          title: string
+          type: string | null
+          updated_at: string
+          whatsapp_number: string | null
+        }
+        Insert: {
+          card_size?: string
+          contact_number?: string | null
+          created_at?: string
+          folder_id: string
+          highlight_text?: string | null
+          id?: string
+          sort_order?: number
+          status?: boolean
+          subtitle?: string | null
+          title: string
+          type?: string | null
+          updated_at?: string
+          whatsapp_number?: string | null
+        }
+        Update: {
+          card_size?: string
+          contact_number?: string | null
+          created_at?: string
+          folder_id?: string
+          highlight_text?: string | null
+          id?: string
+          sort_order?: number
+          status?: boolean
+          subtitle?: string | null
+          title?: string
+          type?: string | null
+          updated_at?: string
+          whatsapp_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "slots_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      taxi_services: {
+        Row: {
+          badge: string | null
+          button_link: string | null
+          button_text: string | null
+          contact_number: string | null
+          created_at: string
+          description: string | null
+          duration: string | null
+          features: Json | null
+          id: string
+          price: string | null
+          service_name: string
+          slot_id: string
+          sort_order: number
+          status: boolean
+          updated_at: string
+        }
+        Insert: {
+          badge?: string | null
+          button_link?: string | null
+          button_text?: string | null
+          contact_number?: string | null
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          features?: Json | null
+          id?: string
+          price?: string | null
+          service_name: string
+          slot_id: string
+          sort_order?: number
+          status?: boolean
+          updated_at?: string
+        }
+        Update: {
+          badge?: string | null
+          button_link?: string | null
+          button_text?: string | null
+          contact_number?: string | null
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          features?: Json | null
+          id?: string
+          price?: string | null
+          service_name?: string
+          slot_id?: string
+          sort_order?: number
+          status?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "taxi_services_slot_id_fkey"
+            columns: ["slot_id"]
+            isOneToOne: false
+            referencedRelation: "slots"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       testimonials: {
         Row: {
@@ -603,18 +769,21 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          is_active: boolean
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
+          is_active?: boolean
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
+          is_active?: boolean
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }

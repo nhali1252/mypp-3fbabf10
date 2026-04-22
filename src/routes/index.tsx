@@ -208,15 +208,15 @@ function Launcher() {
                     transitionDelay: isNeighbor ? staggerDelay : "0ms",
                   }}
                 />
-                {/* sweeping shine — disabled under reduced motion */}
+                {/* sweeping shine — fires on hover and immediately on tap */}
                 {!reduceMotion && (
                   <div
                     aria-hidden
-                    className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full group-active:translate-x-full transition-transform duration-[1100ms] ease-out"
+                    className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1100ms] ease-out"
                     style={{
                       background:
                         "linear-gradient(110deg, transparent 30%, color-mix(in oklab, var(--primary) 22%, transparent) 50%, transparent 70%)",
-                      transform: isNeighbor ? "translateX(100%)" : undefined,
+                      transform: isHovered || isNeighbor ? "translateX(100%)" : undefined,
                       transitionDelay: isNeighbor ? staggerDelay : "0ms",
                     }}
                   />

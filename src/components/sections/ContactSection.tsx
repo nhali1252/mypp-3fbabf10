@@ -66,7 +66,6 @@ export function ContactSection() {
   const rows: Row[] = [];
   if (contact?.email) rows.push({ key: "email", label: "Email", value: contact.email, href: `mailto:${contact.email}`, Icon: (p) => <Mail size={p.size ?? 16} /> });
   if (contact?.phone) rows.push({ key: "phone", label: "Phone", value: contact.phone, href: `tel:${contact.phone.replace(/\s/g, "")}`, Icon: (p) => <Phone size={p.size ?? 16} /> });
-  if (waHref) rows.push({ key: "whatsapp", label: "WhatsApp", value: contact?.whatsapp || "Chat on WhatsApp", href: waHref, Icon: (p) => <WhatsAppIcon size={p.size ?? 16} /> });
   if (contact?.address) rows.push({ key: "loc", label: "Location", value: contact.address, Icon: (p) => <MapPin size={p.size ?? 16} /> });
 
   return (
@@ -118,7 +117,7 @@ export function ContactSection() {
           <p className="text-sm text-muted-foreground mb-5">
             Connect on socials — quick replies on WhatsApp and Telegram.
           </p>
-          <SocialIcons links={social} variant="chip" />
+          <SocialIcons links={{ ...social, whatsapp: waHref ?? social.whatsapp }} variant="chip" />
         </Reveal>
       </div>
 

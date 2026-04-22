@@ -47,28 +47,19 @@ export function PageLoader({ minDurationMs = 3000 }: { minDurationMs?: number })
 
   if (!show) return null;
 
-  // Don't render the loader text until we have real branding from the DB,
-  // so users never see a generic fallback flash.
-  const siteName = settings?.site_name?.trim();
-  if (!siteName) return null;
-
-  // Resolve a per-page wordmark so each route's intro matches the page name.
+  // Per-route label/tagline. Loader shell renders immediately so refresh
+  // never flashes the underlying page — text fills in once settings load.
   const routeMap: Record<string, { label: string; tagline: string }> = {
     "/": { label: "Launcher", tagline: "Pick a page to explore" },
     "/B": { label: "Basic info", tagline: "About · Education · Activities" },
     "/F": { label: "Skills & About", tagline: "Design · Tools · Workflow" },
     "/P": { label: "Projects", tagline: "Selected work & case studies" },
   };
-  const match = routeMap[pathname] ?? { label: siteName, tagline: "" };
-
-  // Display "<SiteName> — <PageLabel>" with the page label highlighted in gold.
+  const siteName = settings?.site_name?.trim() || "";
+  const match = routeMap[pathname] ?? { label: "", tagline: "" };
   const head = siteName;
   const tail = match.label ? ` ${match.label}` : "";
-
-  const tagline =
-    match.tagline ||
-    settings?.hero_subtitle?.trim() ||
-    "Crafting timeless digital stories";
+  const tagline = match.tagline || settings?.hero_subtitle?.trim() || "";
 
   return (
     <div

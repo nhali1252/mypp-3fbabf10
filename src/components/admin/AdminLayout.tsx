@@ -4,11 +4,12 @@ import {
   LayoutDashboard, Sparkles, User, GraduationCap, Lightbulb, FolderKanban,
   Activity, Megaphone, PhoneCall, Inbox, Image as ImageIcon,
   Search, Settings, Users, LogOut, ExternalLink, Compass, AppWindow, ClipboardCheck,
-  Folder, LayoutGrid, Car,
+  Folder, LayoutGrid, Car, Rocket,
 } from "lucide-react";
 
 const items = [
   { to: "/admin", label: "Dashboard", Icon: LayoutDashboard, end: true },
+  { to: "/admin/launcher", label: "Launcher cards", Icon: Rocket },
   { to: "/admin/checklist", label: "Pre-publish", Icon: ClipboardCheck },
   { to: "/admin/folders", label: "Folders", Icon: Folder },
   { to: "/admin/slots", label: "Slots", Icon: LayoutGrid },

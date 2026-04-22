@@ -16,14 +16,14 @@ export const Route = createFileRoute("/B")({
   component: PageB,
   head: () => ({
     meta: [
-      { title: "Ali Nur Hasan — Portfolio (Original)" },
+      { title: "Basic info — Ali Nur Hasan (TasTaj)" },
       {
         name: "description",
         content:
-          "The original portfolio of Ali Nur Hasan (TasTaj) — graphic designer with 7 years of experience in branding, logos, posters and basic web design.",
+          "Basic info for Ali Nur Hasan (TasTaj) — graphic designer with 7 years of experience in branding, logos, posters and basic web design.",
       },
-      { property: "og:type", content: "website" },
-      { property: "og:title", content: "Ali Nur Hasan — Portfolio (Original)" },
+      { property: "og:type", content: "profile" },
+      { property: "og:title", content: "Basic info — Ali Nur Hasan (TasTaj)" },
       {
         property: "og:description",
         content:

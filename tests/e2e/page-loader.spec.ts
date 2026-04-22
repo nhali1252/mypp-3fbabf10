@@ -15,10 +15,16 @@ const TOLERANCE_AFTER_MS = 1000; // hidden by ~5000ms (4000 + fade + buffer)
 
 test.describe("PageLoader timing", () => {
   test.beforeEach(async ({ context }) => {
-    // Ensure a clean slate so debug-page localStorage overrides don't leak in.
+    // Force deterministic timings for the E2E run by seeding the same
+    // localStorage key the PageLoader reads (`pageLoader.timings.v1`).
+    // This guarantees initialMs/routeMs are exactly 4000ms regardless of
+    // any leftover debug-page overrides in the browser profile.
     await context.addInitScript(() => {
       try {
-        window.localStorage.removeItem("pageLoader.timings.v1");
+        window.localStorage.setItem(
+          "pageLoader.timings.v1",
+          JSON.stringify({ initialMs: 4000, routeMs: 4000 }),
+        );
       } catch {
         /* ignore */
       }

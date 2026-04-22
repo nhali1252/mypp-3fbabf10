@@ -241,18 +241,15 @@ function ServicesPage() {
                         );
                       }
                       return (
-                        <motion.div
+                        <motion.a
                           key={slot.id}
-                          {...motionProps}
+                          href={cardHref}
+                          aria-label={`${slot.title} — ${cardLabel}`}
                           className={`${sharedClasses} cursor-pointer`}
+                          {...motionProps}
                         >
-                          <Link
-                            to={cardHref}
-                            aria-label={`${slot.title} — ${cardLabel}`}
-                            className="absolute inset-0 z-0 rounded-3xl focus-visible:outline-none"
-                          />
                           {cardInner}
-                        </motion.div>
+                        </motion.a>
                       );
                     }
 

@@ -6,30 +6,40 @@ import { useSiteSettings } from "@/hooks/useContent";
  * soft glow + wordmark + tagline + sliding gold loader bar.
  * Uses the site's own logo + site_name (no hardcoded "TasTaj").
  */
-export function PageLoader({ minDurationMs = 450 }: { minDurationMs?: number }) {
+export function PageLoader({ minDurationMs = 220 }: { minDurationMs?: number }) {
   const [show, setShow] = useState(true);
   const [hiding, setHiding] = useState(false);
   const { data: settings } = useSiteSettings();
 
   useEffect(() => {
     const start = performance.now();
+    let done = false;
+    let hideTimer: number | undefined;
+    let removeTimer: number | undefined;
+
     const finish = () => {
+      if (done) return;
+      done = true;
       const elapsed = performance.now() - start;
       const wait = Math.max(0, minDurationMs - elapsed);
-      window.setTimeout(() => {
+      hideTimer = window.setTimeout(() => {
         setHiding(true);
-        window.setTimeout(() => setShow(false), 280);
+        removeTimer = window.setTimeout(() => setShow(false), 180);
       }, wait);
     };
-    if (document.readyState === "complete") {
+
+    if (document.readyState === "interactive" || document.readyState === "complete") {
       finish();
-      return;
+    } else {
+      document.addEventListener("DOMContentLoaded", finish, { once: true });
     }
-    window.addEventListener("load", finish, { once: true });
-    const safety = window.setTimeout(finish, minDurationMs + 600);
+
+    const safety = window.setTimeout(finish, minDurationMs + 350);
     return () => {
-      window.removeEventListener("load", finish);
+      document.removeEventListener("DOMContentLoaded", finish);
       window.clearTimeout(safety);
+      if (hideTimer) window.clearTimeout(hideTimer);
+      if (removeTimer) window.clearTimeout(removeTimer);
     };
   }, [minDurationMs]);
 

@@ -6,7 +6,7 @@ import { useSiteSettings } from "@/hooks/useContent";
  * soft glow + wordmark + tagline + sliding gold loader bar.
  * Uses the site's own logo + site_name (no hardcoded "TasTaj").
  */
-export function PageLoader({ minDurationMs = 600 }: { minDurationMs?: number }) {
+export function PageLoader({ minDurationMs = 3000 }: { minDurationMs?: number }) {
   const [show, setShow] = useState(true);
   const [hiding, setHiding] = useState(false);
   const { data: settings } = useSiteSettings();

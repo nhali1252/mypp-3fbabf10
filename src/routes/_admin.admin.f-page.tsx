@@ -95,12 +95,16 @@ function AdminFPage() {
           <Tabs defaultValue="hero" className="space-y-4">
             <TabsList className="flex flex-wrap h-auto">
               <TabsTrigger value="hero">Hero</TabsTrigger>
+              <TabsTrigger value="photocard">Photo card</TabsTrigger>
               <TabsTrigger value="design">Design skills</TabsTrigger>
               <TabsTrigger value="soft">Working style</TabsTrigger>
               <TabsTrigger value="projects">Weekly portfolio</TabsTrigger>
             </TabsList>
             <TabsContent value="hero">
               <HeroEditor />
+            </TabsContent>
+            <TabsContent value="photocard">
+              <PhotocardEditor />
             </TabsContent>
             <TabsContent value="design">
               <SkillsEditor kind="design" title="Design skills" />

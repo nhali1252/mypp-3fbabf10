@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import portrait from "@/assets/ali-portrait.png";
+import portrait from "@/assets/ali-portrait-bg.jpg";
 
 import { ExternalLink, Sparkles } from "lucide-react";
 import { useFHero, useFSkills, useFProjects, useFRealtimeSync } from "@/hooks/useFContent";

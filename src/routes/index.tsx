@@ -168,7 +168,7 @@ function Launcher() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1], delay: 0.1 + i * 0.07 }}
               whileHover={{ y: -8, scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileTap={{ scale: 0.94, y: -2, rotate: -0.4, transition: { type: "spring", stiffness: 400, damping: 18 } }}
             >
               <Link
                 to={c.route}

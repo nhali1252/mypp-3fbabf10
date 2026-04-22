@@ -1,18 +1,29 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { useSiteSettings } from "@/hooks/useContent";
 
 /**
- * Full-screen brand loader inspired by the tajtas.alii.uk intro:
- * soft glow + wordmark + tagline + sliding gold loader bar.
- * Wordmark adapts per-route so each page gets its own intro.
+ * Buttery, professional full-screen brand loader.
+ *
+ * - Shows on first load until the document is ready.
+ * - Re-shows briefly on every route change so each page has its own intro.
+ * - Wordmark + tagline adapt per-route (Launcher / Basic / Skills / Projects).
  */
-export function PageLoader({ minDurationMs = 3000 }: { minDurationMs?: number }) {
+export function PageLoader({
+  initialMs = 1100,
+  routeMs = 520,
+}: {
+  initialMs?: number;
+  routeMs?: number;
+}) {
   const [show, setShow] = useState(true);
   const [hiding, setHiding] = useState(false);
   const { data: settings } = useSiteSettings();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isFirstRun = useRef(true);
+  const lastPath = useRef(pathname);
 
+  // Initial mount loader: wait for document ready, then min duration.
   useEffect(() => {
     const start = performance.now();
     let done = false;
@@ -23,48 +34,74 @@ export function PageLoader({ minDurationMs = 3000 }: { minDurationMs?: number })
       if (done) return;
       done = true;
       const elapsed = performance.now() - start;
-      const wait = Math.max(0, minDurationMs - elapsed);
+      const wait = Math.max(0, initialMs - elapsed);
       hideTimer = window.setTimeout(() => {
         setHiding(true);
-        removeTimer = window.setTimeout(() => setShow(false), 180);
+        removeTimer = window.setTimeout(() => {
+          setShow(false);
+          setHiding(false);
+          isFirstRun.current = false;
+        }, 260);
       }, wait);
     };
 
-    if (document.readyState === "interactive" || document.readyState === "complete") {
+    if (typeof document !== "undefined" && (document.readyState === "interactive" || document.readyState === "complete")) {
       finish();
-    } else {
+    } else if (typeof document !== "undefined") {
       document.addEventListener("DOMContentLoaded", finish, { once: true });
+    } else {
+      finish();
     }
 
-    const safety = window.setTimeout(finish, minDurationMs + 400);
+    const safety = window.setTimeout(finish, initialMs + 600);
     return () => {
-      document.removeEventListener("DOMContentLoaded", finish);
+      if (typeof document !== "undefined") document.removeEventListener("DOMContentLoaded", finish);
       window.clearTimeout(safety);
       if (hideTimer) window.clearTimeout(hideTimer);
       if (removeTimer) window.clearTimeout(removeTimer);
     };
-  }, [minDurationMs]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // On subsequent route changes, flash a quick branded intro.
+  useEffect(() => {
+    if (isFirstRun.current) {
+      lastPath.current = pathname;
+      return;
+    }
+    if (lastPath.current === pathname) return;
+    lastPath.current = pathname;
+
+    setShow(true);
+    setHiding(false);
+    const t1 = window.setTimeout(() => setHiding(true), routeMs);
+    const t2 = window.setTimeout(() => {
+      setShow(false);
+      setHiding(false);
+    }, routeMs + 260);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, [pathname, routeMs]);
 
   if (!show) return null;
 
-  // Per-route label/tagline. Loader shell renders immediately so refresh
-  // never flashes the underlying page — text fills in once settings load.
   const routeMap: Record<string, { label: string; tagline: string }> = {
     "/": { label: "Launcher", tagline: "Pick a page to explore" },
     "/B": { label: "Basic info", tagline: "About · Education · Activities" },
     "/F": { label: "Skills & About", tagline: "Design · Tools · Workflow" },
     "/P": { label: "Projects", tagline: "Selected work & case studies" },
   };
-  const siteName = settings?.site_name?.trim() || "";
+  const siteName = settings?.site_name?.trim() || "Portfolio";
   const match = routeMap[pathname] ?? { label: "", tagline: "" };
-  const head = siteName;
   const tail = match.label ? ` ${match.label}` : "";
   const tagline = match.tagline || settings?.hero_subtitle?.trim() || "";
 
   return (
     <div
       aria-hidden={hiding}
-      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background transition-opacity duration-200 ${
+      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background transition-opacity duration-[260ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
         hiding ? "opacity-0" : "opacity-100"
       }`}
     >
@@ -75,36 +112,38 @@ export function PageLoader({ minDurationMs = 3000 }: { minDurationMs?: number })
         />
       </div>
 
-      {siteName ? (
-        <div className="relative flex flex-col items-center text-center px-6">
-          {settings?.logo_url ? (
-            <img
-              src={settings.logo_url}
-              alt=""
-              className="mb-4 h-12 w-12 md:h-14 md:w-14 rounded-2xl object-cover border border-white/10 shadow-glow"
-            />
-          ) : null}
+      <div
+        className={`relative flex flex-col items-center text-center px-6 transition-all duration-[420ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          hiding ? "opacity-0 translate-y-1" : "opacity-100 translate-y-0"
+        }`}
+      >
+        {settings?.logo_url ? (
+          <img
+            src={settings.logo_url}
+            alt=""
+            className="mb-4 h-12 w-12 md:h-14 md:w-14 rounded-2xl object-cover border border-white/10 shadow-glow"
+          />
+        ) : null}
 
-          <div className="font-serif-display italic text-4xl sm:text-5xl tracking-tight select-none">
-            <span className="text-foreground">{head}</span>
-            {tail && (
-              <span className="bg-gradient-to-r from-[oklch(0.82_0.09_82)] to-[oklch(0.66_0.07_70)] bg-clip-text text-transparent">
-                {tail}
-              </span>
-            )}
-          </div>
-
-          {tagline && (
-            <p className="mt-2 text-[9px] uppercase tracking-[0.34em] text-foreground/55">
-              {tagline}
-            </p>
+        <div className="font-serif-display italic text-4xl sm:text-5xl tracking-tight select-none">
+          <span className="text-foreground">{siteName}</span>
+          {tail && (
+            <span className="bg-gradient-to-r from-[oklch(0.82_0.09_82)] to-[oklch(0.66_0.07_70)] bg-clip-text text-transparent">
+              {tail}
+            </span>
           )}
-
-          <div className="mt-6 h-[2px] w-32 overflow-hidden rounded-full bg-white/8">
-            <div className="page-loader-bar h-full w-1/2 bg-gradient-to-r from-transparent via-[oklch(0.78_0.08_80)] to-transparent" />
-          </div>
         </div>
-      ) : null}
+
+        {tagline && (
+          <p className="mt-2 text-[9px] uppercase tracking-[0.34em] text-foreground/55">
+            {tagline}
+          </p>
+        )}
+
+        <div className="mt-6 h-[2px] w-32 overflow-hidden rounded-full bg-white/8">
+          <div className="page-loader-bar h-full w-1/2 bg-gradient-to-r from-transparent via-[oklch(0.78_0.08_80)] to-transparent" />
+        </div>
+      </div>
 
       <style>{`
         @keyframes pageLoaderSlide {
@@ -112,7 +151,7 @@ export function PageLoader({ minDurationMs = 3000 }: { minDurationMs?: number })
           100% { transform: translateX(260%); }
         }
         .page-loader-bar {
-          animation: pageLoaderSlide 0.5s ease-out infinite;
+          animation: pageLoaderSlide 1.05s cubic-bezier(0.22,1,0.36,1) infinite;
         }
         @media (prefers-reduced-motion: reduce) {
           .page-loader-bar { animation: none; }

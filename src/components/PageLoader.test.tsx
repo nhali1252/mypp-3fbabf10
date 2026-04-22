@@ -27,10 +27,12 @@ describe("PageLoader timings", () => {
     vi.useRealTimers();
   });
 
-  it("uses 4000ms as the default initialMs and routeMs", () => {
-    // Inspect the function's default parameters via toString — a structural
-    // sanity check that the configured constants haven't drifted.
-    const src = PageLoader.toString();
+  it("uses 4000ms as the default initialMs and routeMs", async () => {
+    // Read the source file directly — compiled JSX strips default-param syntax,
+    // so PageLoader.toString() can't be relied on for this check.
+    const fs = await import("node:fs");
+    const path = await import("node:path");
+    const src = fs.readFileSync(path.resolve(__dirname, "PageLoader.tsx"), "utf8");
     expect(src).toMatch(/initialMs\s*=\s*4000/);
     expect(src).toMatch(/routeMs\s*=\s*4000/);
   });

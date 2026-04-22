@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowUpRight, Sparkles } from "lucide-react";
+import { AdminEditFab } from "@/components/AdminEditFab";
 
 export const Route = createFileRoute("/")({
   component: Launcher,
@@ -56,7 +57,7 @@ const FALLBACK: LauncherCard[] = [
     label: "Page F",
     title: "Skills & About",
     subtitle: "Graphic design craft",
-    description: "7 years of design experience — logos, banners, posters, Canva & Adobe workflow.",
+    description: "2 years of design work with TasTaj — logos, banners, posters, Canva & Adobe workflow.",
     badge: "Skills",
     route: "/F",
     accent: "from-emerald-400/40 to-cyan-500/10",
@@ -244,6 +245,7 @@ function Launcher() {
           Admin
         </Link>
       </footer>
+      <AdminEditFab />
     </div>
   );
 }

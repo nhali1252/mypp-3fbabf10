@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import portrait from "@/assets/ali-portrait.png";
+import { AdminEditFab } from "@/components/AdminEditFab";
 import {
   Palette,
   Brush,
@@ -27,21 +28,21 @@ export const Route = createFileRoute("/F")({
       {
         name: "description",
         content:
-          "Ali Nur Hasan — graphic designer with 7 years of experience in logo, banner, poster, product and basic web design. Canva and Adobe workflow. Reference collaborator: TasTaj.",
+          "Ali Nur Hasan — graphic designer with 2 years of design experience working with TasTaj on logos, banners, posters, product and basic web design. Canva and Adobe workflow.",
       },
       { property: "og:type", content: "profile" },
       { property: "og:title", content: "Skills & About — Ali Nur Hasan (TasTaj)" },
       {
         property: "og:description",
         content:
-          "Graphic designer · 7 years experience · Logo, banner, poster, product & basic web design · Canva + Adobe + AI workflow.",
+          "Graphic designer · 2 years with TasTaj · Logo, banner, poster, product & basic web design · Canva + Adobe + AI workflow.",
       },
       { property: "twitter:card", content: "summary_large_image" },
       { property: "twitter:title", content: "Skills & About — Ali Nur Hasan (TasTaj)" },
       {
         property: "twitter:description",
         content:
-          "Graphic designer with 7 years of experience — logo, banner, poster, product & basic web design.",
+          "Graphic designer with 2 years of experience working with TasTaj — logo, banner, poster, product & basic web design.",
       },
     ],
   }),
@@ -156,14 +157,14 @@ function SkillsPage() {
                     "linear-gradient(110deg, var(--primary) 0%, color-mix(in oklab, var(--primary) 40%, var(--foreground)) 100%)",
                 }}
               >
-                7 years
+                2 years
               </span>{" "}
-              of practical craft.
+              of design work with TasTaj.
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-2xl mx-auto lg:mx-0">
-              I'm Ali Nur Hasan — I design logos, banners, posters, product visuals and basic
-              websites. My workflow blends Canva, Adobe tools and AI assistance to deliver clean,
-              brand-ready work for everyday clients.
+              I'm Ali Nur Hasan — a graphic designer with 2 years of design experience working
+              with TasTaj. I create logos, banners, posters, product visuals and basic websites,
+              blending Canva, Adobe tools and AI assistance to deliver clean, brand-ready work.
             </p>
             <div className="mt-5 flex flex-wrap gap-2 justify-center lg:justify-start">
               {tools.map((t) => (
@@ -265,6 +266,7 @@ function SkillsPage() {
         © {new Date().getFullYear()} Ali Nur Hasan · TasTaj ·{" "}
         <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
       </footer>
+      <AdminEditFab />
     </div>
   );
 }

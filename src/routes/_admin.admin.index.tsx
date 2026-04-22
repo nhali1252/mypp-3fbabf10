@@ -85,14 +85,14 @@ function AdminDashboard() {
       accent: "from-amber-400/30 to-rose-500/10",
     },
     {
-      label: "Page /F",
+      label: "Page /f",
       sub: "Skills · About",
       Icon: Lightbulb,
       to: "/admin/f-page" as const,
       accent: "from-violet-500/30 to-fuchsia-500/10",
     },
     {
-      label: "Page /P",
+      label: "Page /p",
       sub: "Projects",
       Icon: FolderKanban,
       to: "/admin/projects" as const,

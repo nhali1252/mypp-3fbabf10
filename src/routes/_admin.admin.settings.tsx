@@ -129,7 +129,19 @@ function AdminSettings() {
               )}
             </div>
           </FormRow>
-          <FormRow label="Favicon URL"><Input value={form.favicon_url || ""} onChange={(e) => set("favicon_url", e.target.value)} /></FormRow>
+          <FormRow label="Favicon (browser tab icon)" hint="Upload a square PNG/SVG (32×32 or larger). Shown in the browser tab next to the title.">
+            <div className="space-y-2">
+              <MediaPicker value={form.favicon_url} onChange={(u: string | null) => set("favicon_url", u)} />
+              {form.favicon_url && (
+                <div className="flex items-center gap-2">
+                  <img src={form.favicon_url} alt="favicon preview" className="w-6 h-6 rounded-md border border-white/10 object-contain bg-background" />
+                  <Button type="button" variant="outline" size="sm" onClick={() => set("favicon_url", null)}>
+                    <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Remove favicon
+                  </Button>
+                </div>
+              )}
+            </div>
+          </FormRow>
           <FormRow label="Footer text"><Textarea rows={2} value={form.footer_text || ""} onChange={(e) => set("footer_text", e.target.value)} /></FormRow>
         </div>
       </AdminCard>

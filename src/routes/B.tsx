@@ -8,7 +8,7 @@ import { AboutSection } from "@/components/sections/AboutSection";
 import { EducationSection } from "@/components/sections/EducationSection";
 import { SkillsSection } from "@/components/sections/SkillsSection";
 import { ProjectsSection } from "@/components/sections/ProjectsSection";
-import { ActivitiesSection } from "@/components/sections/ActivitiesSection";
+
 import { ContactSection } from "@/components/sections/ContactSection";
 import { HireMeProvider } from "@/components/HireMeProvider";
 import { useSmoothAnchors } from "@/hooks/useSmoothAnchors";
@@ -54,7 +54,7 @@ function PageB() {
           <EducationSection />
           <SkillsSection />
           <ProjectsSection />
-          <ActivitiesSection />
+          
           <ContactSection />
         </main>
         <Footer />

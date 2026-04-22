@@ -19,17 +19,25 @@ export const Route = createFileRoute("/F")({
   component: SkillsPage,
   head: () => ({
     meta: [
-      { title: "Ali Nur Hasan — Skills & About (TasTaj)" },
+      { title: "Skills & About — Ali Nur Hasan (TasTaj)" },
       {
         name: "description",
         content:
           "Ali Nur Hasan — graphics designer with 7 years of experience under the brand TasTaj. Branding, logo, poster, product and basic web design.",
       },
-      { property: "og:title", content: "Ali Nur Hasan — Skills & About (TasTaj)" },
+      { property: "og:type", content: "profile" },
+      { property: "og:title", content: "Skills & About — Ali Nur Hasan (TasTaj)" },
       {
         property: "og:description",
         content:
           "Branding, logo, poster, product and basic website design. Tools: Canva, Photoshop, Illustrator, InDesign + AI-assisted workflow.",
+      },
+      { property: "twitter:card", content: "summary_large_image" },
+      { property: "twitter:title", content: "Skills & About — Ali Nur Hasan (TasTaj)" },
+      {
+        property: "twitter:description",
+        content:
+          "Graphic designer with 7 years of experience — branding, logos, posters, product & basic web design.",
       },
     ],
   }),

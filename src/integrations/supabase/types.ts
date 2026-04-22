@@ -21,6 +21,7 @@ export type Database = {
           id: string
           image_url: string | null
           intro: string | null
+          page_key: string
           skills: Json | null
           stats: Json | null
           title: string
@@ -32,6 +33,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           intro?: string | null
+          page_key?: string
           skills?: Json | null
           stats?: Json | null
           title: string
@@ -43,6 +45,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           intro?: string | null
+          page_key?: string
           skills?: Json | null
           stats?: Json | null
           title?: string
@@ -93,6 +96,7 @@ export type Database = {
           form_receiver_email: string | null
           id: string
           map_link: string | null
+          page_key: string
           phone: string | null
           social_links: Json | null
           updated_at: string
@@ -104,6 +108,7 @@ export type Database = {
           form_receiver_email?: string | null
           id?: string
           map_link?: string | null
+          page_key?: string
           phone?: string | null
           social_links?: Json | null
           updated_at?: string
@@ -115,6 +120,7 @@ export type Database = {
           form_receiver_email?: string | null
           id?: string
           map_link?: string | null
+          page_key?: string
           phone?: string | null
           social_links?: Json | null
           updated_at?: string
@@ -263,6 +269,7 @@ export type Database = {
           eyebrow: string | null
           headline: string
           id: string
+          page_key: string
           portrait_url: string | null
           primary_cta_label: string | null
           primary_cta_url: string | null
@@ -276,6 +283,7 @@ export type Database = {
           eyebrow?: string | null
           headline: string
           id?: string
+          page_key?: string
           portrait_url?: string | null
           primary_cta_label?: string | null
           primary_cta_url?: string | null
@@ -289,6 +297,7 @@ export type Database = {
           eyebrow?: string | null
           headline?: string
           id?: string
+          page_key?: string
           portrait_url?: string | null
           primary_cta_label?: string | null
           primary_cta_url?: string | null
@@ -544,6 +553,7 @@ export type Database = {
           hero_title: string | null
           id: string
           logo_url: string | null
+          page_key: string
           primary_color: string | null
           secondary_color: string | null
           site_name: string | null
@@ -558,6 +568,7 @@ export type Database = {
           hero_title?: string | null
           id?: string
           logo_url?: string | null
+          page_key?: string
           primary_color?: string | null
           secondary_color?: string | null
           site_name?: string | null
@@ -572,6 +583,7 @@ export type Database = {
           hero_title?: string | null
           id?: string
           logo_url?: string | null
+          page_key?: string
           primary_color?: string | null
           secondary_color?: string | null
           site_name?: string | null

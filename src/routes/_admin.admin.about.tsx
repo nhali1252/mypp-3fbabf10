@@ -9,23 +9,30 @@ import { toast } from "sonner";
 import { AdminPage, AdminCard, FormRow } from "@/components/admin/AdminPage";
 import { MediaPicker } from "@/components/admin/MediaPicker";
 import { TagListEditor } from "@/components/admin/TagListEditor";
+import { PageKeySelector, usePageKey } from "@/components/admin/PageKeySelector";
 import { Save, Plus, X } from "lucide-react";
 
 export const Route = createFileRoute("/_admin/admin/about")({ component: AdminAbout });
 
 function AdminAbout() {
   const qc = useQueryClient();
+  const [pageKey, setPageKey] = usePageKey();
   const { data, isLoading } = useQuery({
-    queryKey: ["admin-about"],
+    queryKey: ["admin-about", pageKey],
     queryFn: async () => {
-      const { data } = await supabase.from("about_content").select("*").limit(1).maybeSingle();
+      const { data } = await (supabase as any)
+        .from("about_content")
+        .select("*")
+        .eq("page_key", pageKey)
+        .limit(1)
+        .maybeSingle();
       return data;
     },
   });
 
   const [form, setForm] = useState<any>({});
   const [saving, setSaving] = useState(false);
-  useEffect(() => { if (data) setForm(data); }, [data]);
+  useEffect(() => { setForm(data || {}); }, [data]);
 
   const skills: string[] = Array.isArray(form.skills) ? form.skills : [];
   const stats: { label: string; value: string }[] = Array.isArray(form.stats) ? form.stats : [];
@@ -34,19 +41,20 @@ function AdminAbout() {
   async function save() {
     setSaving(true);
     try {
-      const payload = {
+      const payload: any = {
         title: form.title || "About",
         intro: form.intro, bio: form.bio, image_url: form.image_url,
         experience_summary: form.experience_summary, skills, stats,
+        page_key: pageKey,
       };
       if (data?.id) {
-        const { error } = await supabase.from("about_content").update(payload).eq("id", data.id);
+        const { error } = await (supabase as any).from("about_content").update(payload).eq("id", data.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("about_content").insert(payload);
+        const { error } = await (supabase as any).from("about_content").insert(payload);
         if (error) throw error;
       }
-      toast.success("About saved");
+      toast.success(`About saved (Page ${pageKey})`);
       qc.invalidateQueries({ queryKey: ["about"] });
       qc.invalidateQueries({ queryKey: ["admin-about"] });
     } catch (e: any) { toast.error(e.message); }
@@ -56,8 +64,16 @@ function AdminAbout() {
   if (isLoading) return <div className="p-6">Loading…</div>;
 
   return (
-    <AdminPage title="About" description="Personal bio, skills, and key stats."
-      actions={<Button onClick={save} disabled={saving}><Save className="w-4 h-4 mr-1.5" />{saving ? "Saving…" : "Save changes"}</Button>}>
+    <AdminPage
+      title="About"
+      description="Personal bio, skills, and key stats."
+      actions={
+        <div className="flex items-center gap-3 flex-wrap">
+          <PageKeySelector value={pageKey} onChange={setPageKey} />
+          <Button onClick={save} disabled={saving}><Save className="w-4 h-4 mr-1.5" />{saving ? "Saving…" : "Save changes"}</Button>
+        </div>
+      }
+    >
       <AdminCard title="Section content">
         <div className="grid gap-4">
           <FormRow label="Section title"><Input value={form.title || ""} onChange={(e) => set("title", e.target.value)} /></FormRow>

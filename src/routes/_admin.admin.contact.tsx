@@ -6,23 +6,30 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { AdminPage, AdminCard, FormRow } from "@/components/admin/AdminPage";
+import { PageKeySelector, usePageKey } from "@/components/admin/PageKeySelector";
 import { Save } from "lucide-react";
 
 export const Route = createFileRoute("/_admin/admin/contact")({ component: AdminContact });
 
 function AdminContact() {
   const qc = useQueryClient();
+  const [pageKey, setPageKey] = usePageKey();
   const { data, isLoading } = useQuery({
-    queryKey: ["admin-contact"],
+    queryKey: ["admin-contact", pageKey],
     queryFn: async () => {
-      const { data } = await supabase.from("contact_settings").select("*").limit(1).maybeSingle();
+      const { data } = await (supabase as any)
+        .from("contact_settings")
+        .select("*")
+        .eq("page_key", pageKey)
+        .limit(1)
+        .maybeSingle();
       return data;
     },
   });
 
   const [form, setForm] = useState<any>({});
   const [saving, setSaving] = useState(false);
-  useEffect(() => { if (data) setForm(data); }, [data]);
+  useEffect(() => { setForm(data || {}); }, [data]);
 
   const social = (form.social_links || {}) as Record<string, string>;
   function setSocial(key: string, val: string) {
@@ -33,20 +40,21 @@ function AdminContact() {
   async function save() {
     setSaving(true);
     try {
-      const payload = {
+      const payload: any = {
         email: form.email, phone: form.phone, whatsapp: form.whatsapp,
         address: form.address, map_link: form.map_link,
         form_receiver_email: form.form_receiver_email,
         social_links: form.social_links || {},
+        page_key: pageKey,
       };
       if (data?.id) {
-        const { error } = await supabase.from("contact_settings").update(payload).eq("id", data.id);
+        const { error } = await (supabase as any).from("contact_settings").update(payload).eq("id", data.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("contact_settings").insert(payload);
+        const { error } = await (supabase as any).from("contact_settings").insert(payload);
         if (error) throw error;
       }
-      toast.success("Contact info saved");
+      toast.success(`Contact info saved (Page ${pageKey})`);
       qc.invalidateQueries({ queryKey: ["contact_settings"] });
       qc.invalidateQueries({ queryKey: ["admin-contact"] });
     } catch (e: any) { toast.error(e.message); }
@@ -56,8 +64,16 @@ function AdminContact() {
   if (isLoading) return <div className="p-6">Loading…</div>;
 
   return (
-    <AdminPage title="Contact info" description="Contact details shown across the site and used by the contact form."
-      actions={<Button onClick={save} disabled={saving}><Save className="w-4 h-4 mr-1.5" />{saving ? "Saving…" : "Save changes"}</Button>}>
+    <AdminPage
+      title="Contact info"
+      description="Contact details shown across the site and used by the contact form."
+      actions={
+        <div className="flex items-center gap-3 flex-wrap">
+          <PageKeySelector value={pageKey} onChange={setPageKey} />
+          <Button onClick={save} disabled={saving}><Save className="w-4 h-4 mr-1.5" />{saving ? "Saving…" : "Save changes"}</Button>
+        </div>
+      }
+    >
       <AdminCard title="Direct contact">
         <div className="grid sm:grid-cols-2 gap-4">
           <FormRow label="Public email"><Input type="email" value={form.email || ""} onChange={(e) => set("email", e.target.value)} /></FormRow>

@@ -11,6 +11,59 @@ import { useSiteSettings } from "@/hooks/useContent";
  */
 const EXPECTED_LOADER_MS = 4000;
 
+/**
+ * Lightweight analytics hook for PageLoader visibility.
+ * Dispatches a window CustomEvent ("pageloader:visible") AND, when available,
+ * forwards to common analytics shims (window.gtag, window.plausible, window.dataLayer).
+ * Consumers can `window.addEventListener("pageloader:visible", ...)` to record.
+ */
+type LoaderVisibleDetail = {
+  kind: "initial" | "route";
+  path: string;
+  fromPath?: string;
+  configuredMs: number;
+  actualMs: number;
+};
+
+function trackLoaderVisible(detail: LoaderVisibleDetail) {
+  if (typeof window === "undefined") return;
+  try {
+    window.dispatchEvent(new CustomEvent("pageloader:visible", { detail }));
+    const w = window as unknown as {
+      gtag?: (...args: unknown[]) => void;
+      plausible?: (event: string, opts?: { props?: Record<string, unknown> }) => void;
+      dataLayer?: unknown[];
+    };
+    w.gtag?.("event", "page_loader_visible", {
+      kind: detail.kind,
+      path: detail.path,
+      configured_ms: detail.configuredMs,
+      actual_ms: Math.round(detail.actualMs),
+    });
+    w.plausible?.("PageLoader Visible", {
+      props: {
+        kind: detail.kind,
+        path: detail.path,
+        actualMs: Math.round(detail.actualMs),
+      },
+    });
+    if (Array.isArray(w.dataLayer)) {
+      w.dataLayer.push({
+        event: "page_loader_visible",
+        ...detail,
+        actualMs: Math.round(detail.actualMs),
+      });
+    }
+    if (import.meta.env?.DEV) {
+      console.log(
+        `[PageLoader][analytics] ${detail.kind} ${detail.fromPath ? detail.fromPath + " → " : ""}${detail.path} actual=${Math.round(detail.actualMs)}ms (configured=${detail.configuredMs}ms)`,
+      );
+    }
+  } catch {
+    // never let analytics break rendering
+  }
+}
+
 export function PageLoader({
   initialMs = 4000,
   routeMs = 4000,

@@ -86,10 +86,20 @@ export function PageLoader({
   }
   const [show, setShow] = useState(true);
   const [hiding, setHiding] = useState(false);
+  const [announcement, setAnnouncement] = useState("Loading page");
   const { data: settings } = useSiteSettings();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isFirstRun = useRef(true);
   const lastPath = useRef(pathname);
+
+  // Human-friendly label for the current route, used in announcements + UI.
+  const ROUTE_LABELS: Record<string, string> = {
+    "/": "Welcome",
+    "/B": "Basic info",
+    "/F": "Skills & About",
+    "/P": "Projects",
+  };
+  const routeLabel = ROUTE_LABELS[pathname] ?? "page";
 
   // Initial mount loader: wait for document ready, then min duration.
   useEffect(() => {

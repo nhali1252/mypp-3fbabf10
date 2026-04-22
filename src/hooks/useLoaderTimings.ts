@@ -28,9 +28,13 @@ function readStored(): LoaderTimings {
   }
 }
 
+// Hard bounds: the page loader animation must always stay within 3–5 seconds.
+export const LOADER_MIN_MS = 3000;
+export const LOADER_MAX_MS = 5000;
+
 function clamp(n: number): number {
   if (!Number.isFinite(n)) return DEFAULT_LOADER_TIMINGS.initialMs;
-  return Math.max(0, Math.min(20000, Math.round(n)));
+  return Math.max(LOADER_MIN_MS, Math.min(LOADER_MAX_MS, Math.round(n)));
 }
 
 /**

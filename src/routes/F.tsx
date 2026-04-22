@@ -49,28 +49,28 @@ export const Route = createFileRoute("/F")({
 });
 
 const designSkills = [
-  { label: "Logo design", Icon: Palette },
-  { label: "Logo making", Icon: Brush },
-  { label: "Banner design", Icon: ImageIcon },
-  { label: "Product-level design", Icon: Layers },
-  { label: "Poster design", Icon: Megaphone },
-  { label: "Basic website design", Icon: Globe },
-  { label: "Canva design", Icon: Wand2 },
-  { label: "Brand identity design", Icon: Sparkles },
-  { label: "Layout & composition", Icon: Layout },
-  { label: "Typography selection", Icon: Type },
-  { label: "Visual communication", Icon: Eye },
-  { label: "Creative concept dev.", Icon: Brush },
-  { label: "Social media design sense", Icon: ImageIcon },
-  { label: "AI-assisted design workflow", Icon: Wand2 },
+  { label: "Logo design", desc: "Clean, memorable identities.", Icon: Palette },
+  { label: "Logo making", desc: "Simple, sharp brand marks.", Icon: Brush },
+  { label: "Banner design", desc: "Eye-catching promotional visuals.", Icon: ImageIcon },
+  { label: "Product-level design", desc: "Polished visuals for products and promotions.", Icon: Layers },
+  { label: "Poster design", desc: "Bold layouts with strong hierarchy.", Icon: Megaphone },
+  { label: "Basic website design", desc: "Clear, modern, responsive layouts.", Icon: Globe },
+  { label: "Canva design", desc: "Practical graphics for everyday content.", Icon: Wand2 },
+  { label: "Brand identity design", desc: "Consistent visual systems for brands.", Icon: Sparkles },
+  { label: "Layout & composition", desc: "Balanced structure and spacing.", Icon: Layout },
+  { label: "Typography selection", desc: "Strong text styling and type pairing.", Icon: Type },
+  { label: "Visual communication", desc: "Turning ideas into visuals that are easy to understand.", Icon: Eye },
+  { label: "Creative concept dev.", desc: "Fresh directions built from goals and audience needs.", Icon: Brush },
+  { label: "Social media design sense", desc: "Scroll-stopping, platform-ready content.", Icon: ImageIcon },
+  { label: "AI-assisted design workflow", desc: "Faster brainstorming and design exploration.", Icon: Wand2 },
 ];
 
 const softSkills = [
-  { label: "Communication", Icon: MessagesSquare },
-  { label: "Client understanding", Icon: HeartHandshake },
-  { label: "Time management", Icon: Clock },
-  { label: "Adaptability", Icon: Users },
-  { label: "Attention to detail", Icon: Eye },
+  { label: "Communication", desc: "Clear updates and smooth collaboration.", Icon: MessagesSquare },
+  { label: "Client understanding", desc: "Design based on real needs.", Icon: HeartHandshake },
+  { label: "Time management", desc: "Organized and on schedule.", Icon: Clock },
+  { label: "Adaptability", desc: "Flexible to project changes.", Icon: Users },
+  { label: "Attention to detail", desc: "Polished, professional finishing.", Icon: Eye },
 ];
 
 const tools = ["Canva", "Adobe Photoshop", "Adobe Illustrator", "Figma", "AI workflow tools"];
@@ -197,7 +197,8 @@ function SkillsPage() {
                 <div className="w-9 h-9 rounded-xl bg-primary/15 text-primary grid place-items-center ring-1 ring-primary/20 mb-3 group-hover:scale-110 transition-transform">
                   <s.Icon className="w-4 h-4" />
                 </div>
-                <p className="text-sm font-semibold leading-tight">{s.label}</p>
+                <p className="text-sm font-semibold leading-tight mb-1">{s.label}</p>
+                <p className="text-xs text-muted-foreground leading-snug">{s.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -221,7 +222,8 @@ function SkillsPage() {
                 <div className="w-9 h-9 rounded-xl bg-primary/15 text-primary grid place-items-center ring-1 ring-primary/20 mb-3">
                   <s.Icon className="w-4 h-4" />
                 </div>
-                <p className="text-sm font-semibold leading-tight">{s.label}</p>
+                <p className="text-sm font-semibold leading-tight mb-1">{s.label}</p>
+                <p className="text-xs text-muted-foreground leading-snug">{s.desc}</p>
               </motion.div>
             ))}
           </div>

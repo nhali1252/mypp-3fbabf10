@@ -31,11 +31,36 @@ export type FProject = {
   active: boolean;
 };
 
+export type FPhotocard = {
+  id: string;
+  name: string;
+  role: string;
+  badge_top: string | null;
+  badge_bottom: string | null;
+  open_label: string | null;
+  image_url: string | null;
+};
+
 export const F_KEYS = {
   hero: ["f_hero"] as const,
   skills: ["f_skills"] as const,
   projects: ["f_projects"] as const,
+  photocard: ["f_photocard"] as const,
 };
+
+export function useFPhotocard() {
+  return useQuery({
+    queryKey: F_KEYS.photocard,
+    queryFn: async (): Promise<FPhotocard | null> => {
+      const { data } = await (supabase as any)
+        .from("f_photocard")
+        .select("*")
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+  });
+}
 
 export function useFHero() {
   return useQuery({
@@ -103,6 +128,11 @@ export function useFRealtimeSync() {
         "postgres_changes",
         { event: "*", schema: "public", table: "f_projects" },
         () => qc.invalidateQueries({ queryKey: F_KEYS.projects }),
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "f_photocard" },
+        () => qc.invalidateQueries({ queryKey: F_KEYS.photocard }),
       )
       .subscribe();
     return () => {

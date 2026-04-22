@@ -173,9 +173,12 @@ function Launcher() {
             <motion.div
               key={c.id}
               initial={reduceMotion ? false : { opacity: 0, y: 28 }}
-              animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-              transition={{ duration: reduceMotion ? 0 : 0.65, ease: [0.22, 1, 0.36, 1], delay: reduceMotion ? 0 : 0.1 + i * 0.07 }}
-              whileHover={reduceMotion ? undefined : { y: -8, scale: 1.02 }}
+              animate={
+                reduceMotion
+                  ? { opacity: 1 }
+                  : { opacity: 1, y: isHovered ? -8 : 0, scale: isHovered ? 1.02 : 1 }
+              }
+              transition={{ duration: reduceMotion ? 0 : 0.5, ease: [0.22, 1, 0.36, 1], delay: reduceMotion ? 0 : 0.1 + i * 0.07 }}
               whileTap={reduceMotion ? undefined : { scale: 0.94, y: -2, rotate: -0.4, transition: { type: "spring", stiffness: 400, damping: 18 } }}
               onHoverStart={reduceMotion ? undefined : () => setHovered(i)}
               onHoverEnd={reduceMotion ? undefined : () => setHovered((h) => (h === i ? null : h))}
@@ -183,10 +186,12 @@ function Launcher() {
             >
               <Link
                 to={c.route}
-                className={`launcher-card group relative block rounded-[26px] border border-border bg-card p-7 md:p-8 overflow-hidden h-full ${
+                onFocus={reduceMotion ? undefined : () => setHovered(i)}
+                onBlur={reduceMotion ? undefined : () => setHovered((h) => (h === i ? null : h))}
+                className={`launcher-card group relative block rounded-[26px] border border-border bg-card p-7 md:p-8 overflow-hidden h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
                   reduceMotion
-                    ? "hover:border-primary/60"
-                    : "hover:border-primary/60 transition-[border-color,box-shadow,transform] duration-500 hover:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
+                    ? "hover:border-primary/60 focus-visible:border-primary/60"
+                    : "hover:border-primary/60 focus-visible:border-primary/60 transition-[border-color,box-shadow,transform] duration-500 hover:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)] focus-visible:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
                 }`}
                 style={{
                   transitionDelay: isNeighbor ? staggerDelay : "0ms",

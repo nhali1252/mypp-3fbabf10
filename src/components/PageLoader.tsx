@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
+import { useRouterState } from "@tanstack/react-router";
 import { useSiteSettings } from "@/hooks/useContent";
 
 /**
  * Full-screen brand loader inspired by the tajtas.alii.uk intro:
  * soft glow + wordmark + tagline + sliding gold loader bar.
- * Uses the site's own logo + site_name (no hardcoded "TasTaj").
+ * Wordmark adapts per-route so each page gets its own intro.
  */
 export function PageLoader({ minDurationMs = 3000 }: { minDurationMs?: number }) {
   const [show, setShow] = useState(true);
   const [hiding, setHiding] = useState(false);
   const { data: settings } = useSiteSettings();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
     const start = performance.now();

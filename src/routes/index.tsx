@@ -163,7 +163,11 @@ function Launcher() {
 
       <main className="relative flex-1 px-5 sm:px-6 md:px-10 py-12 md:py-20">
         <div className="max-w-[1240px] mx-auto grid gap-5 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {cards.map((c, i) => (
+          {cards.map((c, i) => {
+            const distance = hovered === null ? 0 : Math.abs(hovered - i);
+            const isNeighbor = hovered !== null && hovered !== i;
+            const staggerDelay = `${distance * 110}ms`;
+            return (
             <motion.div
               key={c.id}
               initial={{ opacity: 0, y: 28 }}
@@ -171,25 +175,42 @@ function Launcher() {
               transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1], delay: 0.1 + i * 0.07 }}
               whileHover={{ y: -8, scale: 1.02 }}
               whileTap={{ scale: 0.94, y: -2, rotate: -0.4, transition: { type: "spring", stiffness: 400, damping: 18 } }}
+              onHoverStart={() => setHovered(i)}
+              onHoverEnd={() => setHovered((h) => (h === i ? null : h))}
+              onTapStart={() => setHovered(i)}
             >
               <Link
                 to={c.route}
-                className="launcher-card group relative block rounded-[26px] border border-border bg-card p-7 md:p-8 overflow-hidden h-full hover:border-primary/60 transition-[border-color,box-shadow] duration-500 hover:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
+                className="launcher-card group relative block rounded-[26px] border border-border bg-card p-7 md:p-8 overflow-hidden h-full hover:border-primary/60 transition-[border-color,box-shadow,transform] duration-500 hover:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
+                style={{
+                  transitionDelay: isNeighbor ? staggerDelay : "0ms",
+                  borderColor: isNeighbor ? "color-mix(in oklab, var(--primary) 35%, var(--border))" : undefined,
+                  boxShadow: isNeighbor
+                    ? `0 20px 60px -30px color-mix(in oklab, var(--primary) ${Math.max(20, 45 - distance * 12)}%, transparent)`
+                    : undefined,
+                }}
               >
-                {/* accent glow */}
+                {/* accent glow — staggered intensify on neighbor hover */}
                 <div
                   aria-hidden
-                  className={`absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl opacity-30 group-hover:opacity-70 transition-all duration-700 group-hover:scale-125 bg-gradient-to-br ${
+                  className={`absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl transition-all duration-700 group-hover:opacity-70 group-hover:scale-125 bg-gradient-to-br ${
                     c.accent || "from-primary/40 to-primary/10"
                   }`}
+                  style={{
+                    opacity: hovered === i ? 0.7 : isNeighbor ? Math.max(0.35, 0.6 - distance * 0.12) : 0.3,
+                    transform: isNeighbor ? `scale(${1 + Math.max(0, 0.18 - distance * 0.06)})` : undefined,
+                    transitionDelay: isNeighbor ? staggerDelay : "0ms",
+                  }}
                 />
-                {/* sweeping shine on hover/touch */}
+                {/* sweeping shine — also fires on neighbors with stagger */}
                 <div
                   aria-hidden
                   className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full group-active:translate-x-full transition-transform duration-[1100ms] ease-out"
                   style={{
                     background:
                       "linear-gradient(110deg, transparent 30%, color-mix(in oklab, var(--primary) 22%, transparent) 50%, transparent 70%)",
+                    transform: isNeighbor ? "translateX(100%)" : undefined,
+                    transitionDelay: isNeighbor ? staggerDelay : "0ms",
                   }}
                 />
                 {/* shimmer */}

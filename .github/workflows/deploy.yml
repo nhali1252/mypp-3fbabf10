@@ -30,6 +30,19 @@ jobs:
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
           VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
 
+      - name: Prepare Worker runtime secrets
+        shell: bash
+        env:
+          WORKER_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          FALLBACK_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          WORKER_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+          FALLBACK_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          echo "SUPABASE_URL=${WORKER_SUPABASE_URL:-$FALLBACK_SUPABASE_URL}" >> "$GITHUB_ENV"
+          echo "SUPABASE_PUBLISHABLE_KEY=${WORKER_SUPABASE_PUBLISHABLE_KEY:-$FALLBACK_SUPABASE_PUBLISHABLE_KEY}" >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}" >> "$GITHUB_ENV"
+
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
@@ -40,7 +53,3 @@ jobs:
             SUPABASE_URL
             SUPABASE_PUBLISHABLE_KEY
             SUPABASE_SERVICE_ROLE_KEY
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
-          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY || secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

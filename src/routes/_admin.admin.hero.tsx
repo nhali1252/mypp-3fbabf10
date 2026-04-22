@@ -8,16 +8,23 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { AdminPage, AdminCard, FormRow } from "@/components/admin/AdminPage";
 import { MediaPicker } from "@/components/admin/MediaPicker";
+import { PageKeySelector, usePageKey } from "@/components/admin/PageKeySelector";
 import { Save } from "lucide-react";
 
 export const Route = createFileRoute("/_admin/admin/hero")({ component: AdminHero });
 
 function AdminHero() {
   const qc = useQueryClient();
+  const [pageKey, setPageKey] = usePageKey();
   const { data, isLoading } = useQuery({
-    queryKey: ["admin-hero"],
+    queryKey: ["admin-hero", pageKey],
     queryFn: async () => {
-      const { data } = await supabase.from("hero_content").select("*").limit(1).maybeSingle();
+      const { data } = await (supabase as any)
+        .from("hero_content")
+        .select("*")
+        .eq("page_key", pageKey)
+        .limit(1)
+        .maybeSingle();
       return data;
     },
   });
@@ -25,27 +32,28 @@ function AdminHero() {
   const [form, setForm] = useState<any>({});
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { if (data) setForm(data); }, [data]);
+  useEffect(() => { setForm(data || {}); }, [data]);
 
   function set(k: string, v: any) { setForm((f: any) => ({ ...f, [k]: v })); }
 
   async function save() {
     setSaving(true);
     try {
-      const payload = {
+      const payload: any = {
         eyebrow: form.eyebrow, headline: form.headline, subheadline: form.subheadline,
         primary_cta_label: form.primary_cta_label, primary_cta_url: form.primary_cta_url,
         secondary_cta_label: form.secondary_cta_label, secondary_cta_url: form.secondary_cta_url,
         portrait_url: form.portrait_url, background_style: form.background_style,
+        page_key: pageKey,
       };
       if (data?.id) {
-        const { error } = await supabase.from("hero_content").update(payload).eq("id", data.id);
+        const { error } = await (supabase as any).from("hero_content").update(payload).eq("id", data.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("hero_content").insert({ ...payload, headline: form.headline || "Headline" });
+        const { error } = await (supabase as any).from("hero_content").insert({ ...payload, headline: form.headline || "Headline" });
         if (error) throw error;
       }
-      toast.success("Hero saved");
+      toast.success(`Hero saved (Page ${pageKey})`);
       qc.invalidateQueries({ queryKey: ["hero"] });
       qc.invalidateQueries({ queryKey: ["admin-hero"] });
     } catch (e: any) { toast.error(e.message); }
@@ -55,8 +63,16 @@ function AdminHero() {
   if (isLoading) return <div className="p-6">Loading…</div>;
 
   return (
-    <AdminPage title="Hero" description="The main banner section at the top of your homepage."
-      actions={<Button onClick={save} disabled={saving}><Save className="w-4 h-4 mr-1.5" />{saving ? "Saving…" : "Save changes"}</Button>}>
+    <AdminPage
+      title="Hero"
+      description="The main banner section at the top of your homepage."
+      actions={
+        <div className="flex items-center gap-3 flex-wrap">
+          <PageKeySelector value={pageKey} onChange={setPageKey} />
+          <Button onClick={save} disabled={saving}><Save className="w-4 h-4 mr-1.5" />{saving ? "Saving…" : "Save changes"}</Button>
+        </div>
+      }
+    >
       <AdminCard title="Headline">
         <div className="grid gap-4">
           <FormRow label="Eyebrow"><Input value={form.eyebrow || ""} onChange={(e) => set("eyebrow", e.target.value)} /></FormRow>

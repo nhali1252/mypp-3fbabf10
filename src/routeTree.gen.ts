@@ -13,6 +13,8 @@ import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/_admin'
+import { Route as FRouteImport } from './routes/F'
+import { Route as BRouteImport } from './routes/B'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin.admin.index'
 import { Route as AdminAdminUsersRouteImport } from './routes/_admin.admin.users'
@@ -52,6 +54,16 @@ const AuthRoute = AuthRouteImport.update({
 } as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/_admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FRoute = FRouteImport.update({
+  id: '/F',
+  path: '/F',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BRoute = BRouteImport.update({
+  id: '/B',
+  path: '/B',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -162,6 +174,8 @@ const AdminAdminAboutRoute = AdminAdminAboutRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/B': typeof BRoute
+  '/F': typeof FRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
@@ -188,6 +202,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/B': typeof BRoute
+  '/F': typeof FRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
@@ -215,6 +231,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/B': typeof BRoute
+  '/F': typeof FRoute
   '/_admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -244,6 +262,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/B'
+    | '/F'
     | '/auth'
     | '/reset-password'
     | '/services'
@@ -270,6 +290,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/B'
+    | '/F'
     | '/auth'
     | '/reset-password'
     | '/services'
@@ -296,6 +318,8 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/B'
+    | '/F'
     | '/_admin'
     | '/auth'
     | '/reset-password'
@@ -324,6 +348,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BRoute: typeof BRoute
+  FRoute: typeof FRoute
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -358,6 +384,20 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/F': {
+      id: '/F'
+      path: '/F'
+      fullPath: '/F'
+      preLoaderRoute: typeof FRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/B': {
+      id: '/B'
+      path: '/B'
+      fullPath: '/B'
+      preLoaderRoute: typeof BRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -560,6 +600,8 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BRoute: BRoute,
+  FRoute: FRoute,
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,

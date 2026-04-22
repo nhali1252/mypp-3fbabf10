@@ -1,24 +1,66 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export const useHero = () =>
+// Page-scoped hooks accept an optional page key ("B" | "F" | ...). Defaults to "B".
+type PageKey = "B" | "F" | string;
+
+export const useHero = (pageKey: PageKey = "B") =>
   useQuery({
-    queryKey: ["hero"],
+    queryKey: ["hero", pageKey],
     queryFn: async () => {
-      const { data } = await supabase.from("hero_content").select("*").limit(1).maybeSingle();
+      const { data } = await (supabase as any)
+        .from("hero_content")
+        .select("*")
+        .eq("page_key", pageKey)
+        .limit(1)
+        .maybeSingle();
       return data;
     },
   });
 
-export const useAbout = () =>
+export const useAbout = (pageKey: PageKey = "B") =>
   useQuery({
-    queryKey: ["about"],
+    queryKey: ["about", pageKey],
     queryFn: async () => {
-      const { data } = await supabase.from("about_content").select("*").limit(1).maybeSingle();
+      const { data } = await (supabase as any)
+        .from("about_content")
+        .select("*")
+        .eq("page_key", pageKey)
+        .limit(1)
+        .maybeSingle();
       return data;
     },
   });
 
+export const useContactSettings = (pageKey: PageKey = "B") =>
+  useQuery({
+    queryKey: ["contact_settings", pageKey],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("contact_settings")
+        .select("*")
+        .eq("page_key", pageKey)
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+export const useSiteSettings = (pageKey: PageKey = "B") =>
+  useQuery({
+    queryKey: ["site_settings", pageKey],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("site_settings")
+        .select("*")
+        .eq("page_key", pageKey)
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+// Shared collection hooks (not page-scoped)
 export const useServices = () =>
   useQuery({
     queryKey: ["services"],
@@ -34,24 +76,6 @@ export const useProjects = () =>
     queryFn: async () => {
       const { data } = await supabase.from("projects").select("*").eq("published", true).order("sort_order");
       return data ?? [];
-    },
-  });
-
-export const useContactSettings = () =>
-  useQuery({
-    queryKey: ["contact_settings"],
-    queryFn: async () => {
-      const { data } = await supabase.from("contact_settings").select("*").limit(1).maybeSingle();
-      return data;
-    },
-  });
-
-export const useSiteSettings = () =>
-  useQuery({
-    queryKey: ["site_settings"],
-    queryFn: async () => {
-      const { data } = await supabase.from("site_settings").select("*").limit(1).maybeSingle();
-      return data;
     },
   });
 

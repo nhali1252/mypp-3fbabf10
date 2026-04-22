@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { AdminPage, AdminCard, FormRow } from "@/components/admin/AdminPage";
 import { MediaPicker } from "@/components/admin/MediaPicker";
+import { PageKeySelector, usePageKey } from "@/components/admin/PageKeySelector";
 import { Save, Trash2 } from "lucide-react";
 
 function isValidImageUrl(v: string): boolean {
@@ -27,17 +28,23 @@ export const Route = createFileRoute("/_admin/admin/settings")({ component: Admi
 
 function AdminSettings() {
   const qc = useQueryClient();
+  const [pageKey, setPageKey] = usePageKey();
   const { data, isLoading } = useQuery({
-    queryKey: ["admin-settings"],
+    queryKey: ["admin-settings", pageKey],
     queryFn: async () => {
-      const { data } = await supabase.from("site_settings").select("*").limit(1).maybeSingle();
+      const { data } = await (supabase as any)
+        .from("site_settings")
+        .select("*")
+        .eq("page_key", pageKey)
+        .limit(1)
+        .maybeSingle();
       return data;
     },
   });
 
   const [form, setForm] = useState<any>({});
   const [saving, setSaving] = useState(false);
-  useEffect(() => { if (data) setForm(data); }, [data]);
+  useEffect(() => { setForm(data || {}); }, [data]);
 
   function set(k: string, v: any) { setForm((f: any) => ({ ...f, [k]: v })); }
 
@@ -54,7 +61,7 @@ function AdminSettings() {
     }
     setSaving(true);
     try {
-      const payload = {
+      const payload: any = {
         site_title: form.site_title || "Portfolio",
         logo_url: logo || null,
         favicon_url: form.favicon_url,
@@ -62,15 +69,16 @@ function AdminSettings() {
         site_name: form.site_name, primary_color: form.primary_color,
         secondary_color: form.secondary_color,
         hero_title: form.hero_title, hero_subtitle: form.hero_subtitle,
+        page_key: pageKey,
       };
       if (data?.id) {
-        const { error } = await supabase.from("site_settings").update(payload).eq("id", data.id);
+        const { error } = await (supabase as any).from("site_settings").update(payload).eq("id", data.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("site_settings").insert(payload);
+        const { error } = await (supabase as any).from("site_settings").insert(payload);
         if (error) throw error;
       }
-      toast.success("Site settings saved");
+      toast.success(`Site settings saved (Page ${pageKey})`);
       qc.invalidateQueries({ queryKey: ["site_settings"] });
       qc.invalidateQueries({ queryKey: ["admin-settings"] });
       qc.invalidateQueries({ queryKey: ["public-site-settings"] });
@@ -81,8 +89,16 @@ function AdminSettings() {
   if (isLoading) return <div className="p-6">Loading…</div>;
 
   return (
-    <AdminPage title="Site settings" description="Global identity used across the site."
-      actions={<Button onClick={save} disabled={saving}><Save className="w-4 h-4 mr-1.5" />{saving ? "Saving…" : "Save changes"}</Button>}>
+    <AdminPage
+      title="Site settings"
+      description="Global identity used across the site. Each page version (B / F) can have its own brand identity."
+      actions={
+        <div className="flex items-center gap-3 flex-wrap">
+          <PageKeySelector value={pageKey} onChange={setPageKey} />
+          <Button onClick={save} disabled={saving}><Save className="w-4 h-4 mr-1.5" />{saving ? "Saving…" : "Save changes"}</Button>
+        </div>
+      }
+    >
       <AdminCard title="Identity">
         <div className="grid gap-4">
           <FormRow label="Site title (browser tab + meta)"><Input value={form.site_title || ""} onChange={(e) => set("site_title", e.target.value)} /></FormRow>

@@ -34,6 +34,12 @@ export function PageLoader({
 
   // Initial mount loader: wait for document ready, then min duration.
   useEffect(() => {
+    if (import.meta.env?.DEV) {
+      // [DEBUG][PageLoader] temporary: confirms initial timing per session.
+      console.log(
+        `[PageLoader][initial] path=${pathname} initialMs=${initialMs} routeMs=${routeMs}`,
+      );
+    }
     const start = performance.now();
     let done = false;
     let hideTimer: number | undefined;
@@ -79,7 +85,15 @@ export function PageLoader({
       return;
     }
     if (lastPath.current === pathname) return;
+    const fromPath = lastPath.current;
     lastPath.current = pathname;
+
+    if (import.meta.env?.DEV) {
+      // [DEBUG][PageLoader] temporary: confirms per-route timing on every navigation.
+      console.log(
+        `[PageLoader][route] ${fromPath} → ${pathname} routeMs=${routeMs} (initialMs=${initialMs})`,
+      );
+    }
 
     setShow(true);
     setHiding(false);
@@ -92,7 +106,7 @@ export function PageLoader({
       window.clearTimeout(t1);
       window.clearTimeout(t2);
     };
-  }, [pathname, routeMs]);
+  }, [pathname, routeMs, initialMs]);
 
   if (!show) return null;
 

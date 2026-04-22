@@ -171,9 +171,14 @@ function Launcher() {
         <div className="max-w-[1240px] mx-auto grid gap-5 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {cards.map((c, i) => {
             const distance = hovered === null ? 0 : Math.abs(hovered - i);
-            const isNeighbor = !reduceMotion && hovered !== null && hovered !== i;
-            const isHovered = !reduceMotion && hovered === i;
-            const staggerDelay = reduceMotion ? "0ms" : `${distance * 110}ms`;
+            const isNeighbor = hovered !== null && hovered !== i;
+            const isHovered = hovered === i;
+            // Reduced-motion still tracks hover/focus, but uses snappy 120ms
+            // transitions and no transforms — only color/opacity changes.
+            const baseDur = reduceMotion ? 120 : 500;
+            const shineDur = reduceMotion ? 220 : 1100;
+            const stagger = reduceMotion ? 0 : 110;
+            const staggerDelay = `${distance * stagger}ms`;
             return (
             <motion.div
               key={c.id}
@@ -184,21 +189,20 @@ function Launcher() {
                   : { opacity: 1, y: isHovered ? -8 : 0, scale: isHovered ? 1.02 : 1 }
               }
               transition={{ duration: reduceMotion ? 0 : 0.5, ease: [0.22, 1, 0.36, 1], delay: reduceMotion ? 0 : 0.1 + i * 0.07 }}
-              whileTap={reduceMotion ? undefined : { scale: 0.94, y: -2, rotate: -0.4, transition: { type: "spring", stiffness: 400, damping: 18 } }}
-              onHoverStart={reduceMotion ? undefined : () => setHovered(i)}
-              onHoverEnd={reduceMotion ? undefined : () => setHovered((h) => (h === i ? null : h))}
-              onTapStart={reduceMotion ? undefined : () => setHovered(i)}
+              whileTap={reduceMotion ? { scale: 0.985, transition: { duration: 0.08 } } : { scale: 0.94, y: -2, rotate: -0.4, transition: { type: "spring", stiffness: 400, damping: 18 } }}
+              onHoverStart={() => setHovered(i)}
+              onHoverEnd={() => setHovered((h) => (h === i ? null : h))}
+              onTapStart={() => setHovered(i)}
             >
               <Link
                 to={c.route}
-                onFocus={reduceMotion ? undefined : () => setHovered(i)}
-                onBlur={reduceMotion ? undefined : () => setHovered((h) => (h === i ? null : h))}
-                className={`launcher-card group relative block rounded-[26px] border border-border bg-card p-7 md:p-8 overflow-hidden h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-                  reduceMotion
-                    ? "hover:border-primary/60 focus-visible:border-primary/60"
-                    : "hover:border-primary/60 focus-visible:border-primary/60 transition-[border-color,box-shadow,transform] duration-500 hover:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)] focus-visible:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
-                }`}
+                onFocus={() => setHovered(i)}
+                onBlur={() => setHovered((h) => (h === i ? null : h))}
+                className="launcher-card group relative block rounded-[26px] border border-border bg-card p-7 md:p-8 overflow-hidden h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:border-primary/60 focus-visible:border-primary/60 hover:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)] focus-visible:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
                 style={{
+                  transitionProperty: "border-color, box-shadow, transform",
+                  transitionDuration: `${baseDur}ms`,
+                  transitionTimingFunction: "cubic-bezier(0.22,1,0.36,1)",
                   transitionDelay: isNeighbor ? staggerDelay : "0ms",
                   borderColor: isNeighbor ? "color-mix(in oklab, var(--primary) 35%, var(--border))" : undefined,
                   boxShadow: isNeighbor
@@ -206,31 +210,36 @@ function Launcher() {
                     : undefined,
                 }}
               >
-                {/* accent glow — staggered intensify on neighbor hover */}
+                {/* accent glow — opacity-only fade under reduced motion */}
                 <div
                   aria-hidden
                   className={`absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl bg-gradient-to-br ${
-                    reduceMotion ? "" : "transition-all duration-700 group-hover:opacity-70 group-hover:scale-125"
-                  } ${c.accent || "from-primary/40 to-primary/10"}`}
+                    c.accent || "from-primary/40 to-primary/10"
+                  } ${reduceMotion ? "group-hover:opacity-60" : "group-hover:opacity-70 group-hover:scale-125"}`}
                   style={{
-                    opacity: reduceMotion ? 0.3 : isHovered ? 0.7 : isNeighbor ? Math.max(0.35, 0.6 - distance * 0.12) : 0.3,
-                    transform: isNeighbor ? `scale(${1 + Math.max(0, 0.18 - distance * 0.06)})` : undefined,
+                    transitionProperty: reduceMotion ? "opacity" : "opacity, transform",
+                    transitionDuration: `${reduceMotion ? 160 : 700}ms`,
+                    transitionTimingFunction: "ease-out",
+                    opacity: isHovered ? (reduceMotion ? 0.55 : 0.7) : isNeighbor ? Math.max(0.32, 0.55 - distance * 0.12) : 0.3,
+                    transform: !reduceMotion && isNeighbor ? `scale(${1 + Math.max(0, 0.18 - distance * 0.06)})` : undefined,
                     transitionDelay: isNeighbor ? staggerDelay : "0ms",
                   }}
                 />
-                {/* sweeping shine — fires on hover and immediately on tap */}
-                {!reduceMotion && (
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1100ms] ease-out"
-                    style={{
-                      background:
-                        "linear-gradient(110deg, transparent 30%, color-mix(in oklab, var(--primary) 22%, transparent) 50%, transparent 70%)",
-                      transform: isHovered || isNeighbor ? "translateX(100%)" : undefined,
-                      transitionDelay: isNeighbor ? staggerDelay : "0ms",
-                    }}
-                  />
-                )}
+                {/* sweeping shine — kept under reduced motion but quick + subtle */}
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full"
+                  style={{
+                    background: reduceMotion
+                      ? "linear-gradient(110deg, transparent 35%, color-mix(in oklab, var(--primary) 12%, transparent) 50%, transparent 65%)"
+                      : "linear-gradient(110deg, transparent 30%, color-mix(in oklab, var(--primary) 22%, transparent) 50%, transparent 70%)",
+                    transitionProperty: "transform",
+                    transitionDuration: `${shineDur}ms`,
+                    transitionTimingFunction: "ease-out",
+                    transform: isHovered || isNeighbor ? "translateX(100%)" : undefined,
+                    transitionDelay: isNeighbor ? staggerDelay : "0ms",
+                  }}
+                />
                 {/* shimmer */}
                 <div
                   aria-hidden

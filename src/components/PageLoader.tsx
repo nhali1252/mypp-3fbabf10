@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { useSiteSettings } from "@/hooks/useContent";
+import { useLoaderTimings } from "@/hooks/useLoaderTimings";
 
 /**
  * Buttery, professional full-screen brand loader.
@@ -65,13 +66,18 @@ function trackLoaderVisible(detail: LoaderVisibleDetail) {
 }
 
 export function PageLoader({
-  initialMs = 4000,
-  routeMs = 4000,
+  initialMs: initialMsProp,
+  routeMs: routeMsProp,
 }: {
   initialMs?: number;
   routeMs?: number;
-}) {
-  // Dev-only sanity check: warn loudly if defaults drift from the configured value.
+} = {}) {
+  // Stored overrides from the debug page; props (if provided) win.
+  const { timings } = useLoaderTimings();
+  const initialMs = initialMsProp ?? timings.initialMs;
+  const routeMs = routeMsProp ?? timings.routeMs;
+
+  // Dev-only sanity check: warn loudly if effective values drift from the configured default.
   if (import.meta.env?.DEV) {
     console.assert(
       initialMs === EXPECTED_LOADER_MS && routeMs === EXPECTED_LOADER_MS,

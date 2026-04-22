@@ -9,6 +9,8 @@ import { useSiteSettings } from "@/hooks/useContent";
  * - Re-shows briefly on every route change so each page has its own intro.
  * - Wordmark + tagline adapt per-route (Launcher / Basic / Skills / Projects).
  */
+const EXPECTED_LOADER_MS = 4000;
+
 export function PageLoader({
   initialMs = 4000,
   routeMs = 4000,
@@ -16,6 +18,13 @@ export function PageLoader({
   initialMs?: number;
   routeMs?: number;
 }) {
+  // Dev-only sanity check: warn loudly if defaults drift from the configured value.
+  if (import.meta.env?.DEV) {
+    console.assert(
+      initialMs === EXPECTED_LOADER_MS && routeMs === EXPECTED_LOADER_MS,
+      `[PageLoader] Expected ${EXPECTED_LOADER_MS}ms timings, got initialMs=${initialMs}, routeMs=${routeMs}`,
+    );
+  }
   const [show, setShow] = useState(true);
   const [hiding, setHiding] = useState(false);
   const { data: settings } = useSiteSettings();

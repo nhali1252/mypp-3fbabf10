@@ -99,7 +99,7 @@ function Launcher() {
 
   const cards = data ?? FALLBACK;
   const [hovered, setHovered] = useState<number | null>(null);
-  const reduceMotion = useReducedMotion();
+  const { reduceMotion } = useMotionPref();
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-hidden">

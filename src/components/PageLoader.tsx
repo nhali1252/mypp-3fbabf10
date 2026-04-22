@@ -85,7 +85,15 @@ export function PageLoader({
       return;
     }
     if (lastPath.current === pathname) return;
+    const fromPath = lastPath.current;
     lastPath.current = pathname;
+
+    if (import.meta.env?.DEV) {
+      // [DEBUG][PageLoader] temporary: confirms per-route timing on every navigation.
+      console.log(
+        `[PageLoader][route] ${fromPath} → ${pathname} routeMs=${routeMs} (initialMs=${initialMs})`,
+      );
+    }
 
     setShow(true);
     setHiding(false);

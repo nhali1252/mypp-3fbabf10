@@ -170,6 +170,108 @@ export type Database = {
         }
         Relationships: []
       }
+      f_hero: {
+        Row: {
+          eyebrow: string
+          headline: string
+          highlight: string
+          id: string
+          intro: string
+          updated_at: string
+        }
+        Insert: {
+          eyebrow?: string
+          headline?: string
+          highlight?: string
+          id?: string
+          intro?: string
+          updated_at?: string
+        }
+        Update: {
+          eyebrow?: string
+          headline?: string
+          highlight?: string
+          id?: string
+          intro?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      f_projects: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          sort_order: number
+          tags: Json
+          title: string
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          sort_order?: number
+          tags?: Json
+          title: string
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          sort_order?: number
+          tags?: Json
+          title?: string
+          updated_at?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
+      f_skills: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          icon: string
+          id: string
+          kind: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          kind?: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          kind?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       folders: {
         Row: {
           created_at: string

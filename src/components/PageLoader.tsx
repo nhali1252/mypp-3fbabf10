@@ -156,7 +156,17 @@ export function PageLoader({
 
     setShow(true);
     setHiding(false);
-    const t1 = window.setTimeout(() => setHiding(true), routeMs);
+    const routeStart = performance.now();
+    const t1 = window.setTimeout(() => {
+      setHiding(true);
+      trackLoaderVisible({
+        kind: "route",
+        path: pathname,
+        fromPath,
+        configuredMs: routeMs,
+        actualMs: performance.now() - routeStart,
+      });
+    }, routeMs);
     const t2 = window.setTimeout(() => {
       setShow(false);
       setHiding(false);

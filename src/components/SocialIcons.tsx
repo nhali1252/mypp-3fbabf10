@@ -61,12 +61,12 @@ export function SocialIcons({ links, size = 18, variant = "chip", className }: P
 
   return (
     <div className={`flex flex-wrap gap-3 ${className ?? ""}`}>
-      {items.map(({ key, label, Icon }) => (
+      {items.map(({ key, label, Icon, href }) => (
         <motion.a
           key={key}
-          href={links![key]!}
+          href={href}
           target="_blank"
-          rel="noreferrer"
+          rel="noopener noreferrer"
           aria-label={label}
           title={label}
           whileHover={reduce ? undefined : { y: -3, scale: 1.08 }}

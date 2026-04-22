@@ -34,6 +34,12 @@ export function PageLoader({
 
   // Initial mount loader: wait for document ready, then min duration.
   useEffect(() => {
+    if (import.meta.env?.DEV) {
+      // [DEBUG][PageLoader] temporary: confirms initial timing per session.
+      console.log(
+        `[PageLoader][initial] path=${pathname} initialMs=${initialMs} routeMs=${routeMs}`,
+      );
+    }
     const start = performance.now();
     let done = false;
     let hideTimer: number | undefined;

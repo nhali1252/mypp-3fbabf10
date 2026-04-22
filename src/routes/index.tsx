@@ -180,122 +180,122 @@ function Launcher() {
             const stagger = reduceMotion ? 0 : 110;
             const staggerDelay = `${distance * stagger}ms`;
             return (
-            <motion.div
-              key={c.id}
-              initial={reduceMotion ? false : { opacity: 0, y: 28 }}
-              animate={
-                reduceMotion
-                  ? { opacity: 1 }
-                  : { opacity: 1, y: isHovered ? -8 : 0, scale: isHovered ? 1.02 : 1 }
-              }
-              transition={{ duration: reduceMotion ? 0 : 0.5, ease: [0.22, 1, 0.36, 1], delay: reduceMotion ? 0 : 0.1 + i * 0.07 }}
-              whileTap={reduceMotion ? { scale: 0.985, transition: { duration: 0.08 } } : { scale: 0.94, y: -2, rotate: -0.4, transition: { type: "spring", stiffness: 400, damping: 18 } }}
-              onHoverStart={() => setHovered(i)}
-              onHoverEnd={() => setHovered((h) => (h === i ? null : h))}
-              onTapStart={() => setHovered(i)}
-            >
-              <Link
-                to={c.route}
-                onFocus={() => setHovered(i)}
-                onBlur={() => setHovered((h) => (h === i ? null : h))}
-                className="launcher-card group relative block rounded-[26px] border border-border bg-card p-7 md:p-8 overflow-hidden h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:border-primary/60 focus-visible:border-primary/60 hover:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)] focus-visible:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
-                style={{
-                  transitionProperty: "border-color, box-shadow, transform",
-                  transitionDuration: `${baseDur}ms`,
-                  transitionTimingFunction: "cubic-bezier(0.22,1,0.36,1)",
-                  transitionDelay: isNeighbor ? staggerDelay : "0ms",
-                  borderColor: isNeighbor ? "color-mix(in oklab, var(--primary) 35%, var(--border))" : undefined,
-                  boxShadow: isNeighbor
-                    ? `0 20px 60px -30px color-mix(in oklab, var(--primary) ${Math.max(20, 45 - distance * 12)}%, transparent)`
-                    : undefined,
-                }}
+              <motion.div
+                key={c.id}
+                initial={reduceMotion ? false : { opacity: 0, y: 28 }}
+                animate={
+                  reduceMotion
+                    ? { opacity: 1 }
+                    : { opacity: 1, y: isHovered ? -8 : 0, scale: isHovered ? 1.02 : 1 }
+                }
+                transition={{ duration: reduceMotion ? 0 : 0.5, ease: [0.22, 1, 0.36, 1], delay: reduceMotion ? 0 : 0.1 + i * 0.07 }}
+                whileTap={reduceMotion ? { scale: 0.985, transition: { duration: 0.08 } } : { scale: 0.94, y: -2, rotate: -0.4, transition: { type: "spring", stiffness: 400, damping: 18 } }}
+                onHoverStart={() => setHovered(i)}
+                onHoverEnd={() => setHovered((h) => (h === i ? null : h))}
+                onTapStart={() => setHovered(i)}
               >
-                {/* accent glow — opacity-only fade under reduced motion */}
-                <div
-                  aria-hidden
-                  className={`absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl bg-gradient-to-br ${
-                    c.accent || "from-primary/40 to-primary/10"
-                  } ${reduceMotion ? "group-hover:opacity-60" : "group-hover:opacity-70 group-hover:scale-125"}`}
+                <Link
+                  to={c.route}
+                  onFocus={() => setHovered(i)}
+                  onBlur={() => setHovered((h) => (h === i ? null : h))}
+                  className="launcher-card group relative block rounded-[26px] border border-border bg-card p-7 md:p-8 overflow-hidden h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:border-primary/60 focus-visible:border-primary/60 hover:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)] focus-visible:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
                   style={{
-                    transitionProperty: reduceMotion ? "opacity" : "opacity, transform",
-                    transitionDuration: `${reduceMotion ? 160 : 700}ms`,
-                    transitionTimingFunction: "ease-out",
-                    opacity: isHovered ? (reduceMotion ? 0.55 : 0.7) : isNeighbor ? Math.max(0.32, 0.55 - distance * 0.12) : 0.3,
-                    transform: !reduceMotion && isNeighbor ? `scale(${1 + Math.max(0, 0.18 - distance * 0.06)})` : undefined,
+                    transitionProperty: "border-color, box-shadow, transform",
+                    transitionDuration: `${baseDur}ms`,
+                    transitionTimingFunction: "cubic-bezier(0.22,1,0.36,1)",
                     transitionDelay: isNeighbor ? staggerDelay : "0ms",
+                    borderColor: isNeighbor ? "color-mix(in oklab, var(--primary) 35%, var(--border))" : undefined,
+                    boxShadow: isNeighbor
+                      ? `0 20px 60px -30px color-mix(in oklab, var(--primary) ${Math.max(20, 45 - distance * 12)}%, transparent)`
+                      : undefined,
                   }}
-                />
-                {/* sweeping shine — kept under reduced motion but quick + subtle */}
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full"
-                  style={{
-                    background: reduceMotion
-                      ? "linear-gradient(110deg, transparent 35%, color-mix(in oklab, var(--primary) 12%, transparent) 50%, transparent 65%)"
-                      : "linear-gradient(110deg, transparent 30%, color-mix(in oklab, var(--primary) 22%, transparent) 50%, transparent 70%)",
-                    transitionProperty: "transform",
-                    transitionDuration: `${shineDur}ms`,
-                    transitionTimingFunction: "ease-out",
-                    transform: isHovered || isNeighbor ? "translateX(100%)" : undefined,
-                    transitionDelay: isNeighbor ? staggerDelay : "0ms",
-                  }}
-                />
-                {/* shimmer */}
-                <div
-                  aria-hidden
-                  className="absolute inset-0 opacity-[0.04] mix-blend-overlay pointer-events-none"
-                  style={{
-                    backgroundImage:
-                      "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")",
-                  }}
-                />
+                >
+                  {/* accent glow — opacity-only fade under reduced motion */}
+                  <div
+                    aria-hidden
+                    className={`absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl bg-gradient-to-br ${
+                      c.accent || "from-primary/40 to-primary/10"
+                    } ${reduceMotion ? "group-hover:opacity-60" : "group-hover:opacity-70 group-hover:scale-125"}`}
+                    style={{
+                      transitionProperty: reduceMotion ? "opacity" : "opacity, transform",
+                      transitionDuration: `${reduceMotion ? 160 : 700}ms`,
+                      transitionTimingFunction: "ease-out",
+                      opacity: isHovered ? (reduceMotion ? 0.55 : 0.7) : isNeighbor ? Math.max(0.32, 0.55 - distance * 0.12) : 0.3,
+                      transform: !reduceMotion && isNeighbor ? `scale(${1 + Math.max(0, 0.18 - distance * 0.06)})` : undefined,
+                      transitionDelay: isNeighbor ? staggerDelay : "0ms",
+                    }}
+                  />
+                  {/* sweeping shine — kept under reduced motion but quick + subtle */}
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full"
+                    style={{
+                      background: reduceMotion
+                        ? "linear-gradient(110deg, transparent 35%, color-mix(in oklab, var(--primary) 12%, transparent) 50%, transparent 65%)"
+                        : "linear-gradient(110deg, transparent 30%, color-mix(in oklab, var(--primary) 22%, transparent) 50%, transparent 70%)",
+                      transitionProperty: "transform",
+                      transitionDuration: `${shineDur}ms`,
+                      transitionTimingFunction: "ease-out",
+                      transform: isHovered || isNeighbor ? "translateX(100%)" : undefined,
+                      transitionDelay: isNeighbor ? staggerDelay : "0ms",
+                    }}
+                  />
+                  {/* shimmer */}
+                  <div
+                    aria-hidden
+                    className="absolute inset-0 opacity-[0.04] mix-blend-overlay pointer-events-none"
+                    style={{
+                      backgroundImage:
+                        "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")",
+                    }}
+                  />
 
-                <div className="relative flex flex-col h-full min-h-[260px]">
-                  <div className="flex items-center justify-between mb-7">
-                    <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-muted-foreground">
-                      {c.label}
-                    </span>
-                    {c.badge && (
-                      <span className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full bg-primary/15 text-primary border border-primary/25 transition-transform duration-500 group-hover:scale-110">
-                        {c.badge}
+                  <div className="relative flex flex-col h-full min-h-[260px]">
+                    <div className="flex items-center justify-between mb-7">
+                      <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-muted-foreground">
+                        {c.label}
                       </span>
-                    )}
-                  </div>
-
-                  {c.thumbnail_url && (
-                    <div className="mb-5 rounded-2xl overflow-hidden border border-border aspect-[16/9]">
-                      <img
-                        src={c.thumbnail_url}
-                        alt={c.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
+                      {c.badge && (
+                        <span className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full bg-primary/15 text-primary border border-primary/25 transition-transform duration-500 group-hover:scale-110">
+                          {c.badge}
+                        </span>
+                      )}
                     </div>
-                  )}
 
-                  <h2
-                    className="font-black tracking-tight leading-tight mb-2 transition-colors duration-500 group-hover:text-primary"
-                    style={{ fontSize: "clamp(22px, 2.4vw, 30px)" }}
-                  >
-                    {c.title}
-                  </h2>
-                  {c.subtitle && (
-                    <p className="text-xs font-semibold uppercase tracking-wider text-primary/80 mb-3">
-                      {c.subtitle}
-                    </p>
-                  )}
-                  {c.description && (
-                    <p className="text-sm text-muted-foreground leading-relaxed mb-7 flex-1">
-                      {c.description}
-                    </p>
-                  )}
+                    {c.thumbnail_url && (
+                      <div className="mb-5 rounded-2xl overflow-hidden border border-border aspect-[16/9]">
+                        <img
+                          src={c.thumbnail_url}
+                          alt={c.title}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                      </div>
+                    )}
 
-                  <span className="inline-flex items-center justify-between gap-2 text-sm font-bold mt-auto pt-5 border-t border-border/60 text-foreground group-hover:text-primary transition-colors">
-                    <span>Open {c.label}</span>
-                    <ArrowUpRight className="w-4 h-4 transition-transform duration-500 group-hover:translate-x-2 group-hover:-translate-y-2 group-hover:rotate-12" />
-                  </span>
-                </div>
-              </Link>
-            </motion.div>
+                    <h2
+                      className="font-black tracking-tight leading-tight mb-2 transition-colors duration-500 group-hover:text-primary"
+                      style={{ fontSize: "clamp(22px, 2.4vw, 30px)" }}
+                    >
+                      {c.title}
+                    </h2>
+                    {c.subtitle && (
+                      <p className="text-xs font-semibold uppercase tracking-wider text-primary/80 mb-3">
+                        {c.subtitle}
+                      </p>
+                    )}
+                    {c.description && (
+                      <p className="text-sm text-muted-foreground leading-relaxed mb-7 flex-1">
+                        {c.description}
+                      </p>
+                    )}
+
+                    <span className="inline-flex items-center justify-between gap-2 text-sm font-bold mt-auto pt-5 border-t border-border/60 text-foreground group-hover:text-primary transition-colors">
+                      <span>Open {c.label}</span>
+                      <ArrowUpRight className="w-4 h-4 transition-transform duration-500 group-hover:translate-x-2 group-hover:-translate-y-2 group-hover:rotate-12" />
+                    </span>
+                  </div>
+                </Link>
+              </motion.div>
             );
           })}
         </div>

@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { ExternalLink, Sparkles, Wallet, LayoutTemplate, ArrowRight } from "lucide-react";
+import { ExternalLink, Wallet, Workflow, ArrowRight } from "lucide-react";
+import mypocketoBanner from "@/assets/project-mypocketo.jpg";
+import haziBanner from "@/assets/project-hazi.jpg";
 
 
 export const Route = createFileRoute("/P")({
@@ -11,21 +13,21 @@ export const Route = createFileRoute("/P")({
       {
         name: "description",
         content:
-          "Selected work by Ali Nur Hasan — my-v7 / my-v8 portfolio + CMS project and Pocket-Ledger personal finance app.",
+          "Selected work by Ali Nur Hasan — MyPocketo personal finance app and Hazi Enterprise business automation platform.",
       },
       { property: "og:type", content: "website" },
       { property: "og:title", content: "Projects — Ali Nur Hasan (TasTaj)" },
       {
         property: "og:description",
         content:
-          "Two real builds: my-v7 / my-v8 portfolio + admin CMS, and Pocket-Ledger finance app.",
+          "Two real builds: MyPocketo (Pocket Ledger) and Hazi Enterprise (Business Automation).",
       },
       { property: "twitter:card", content: "summary_large_image" },
       { property: "twitter:title", content: "Projects — Ali Nur Hasan (TasTaj)" },
       {
         property: "twitter:description",
         content:
-          "Two real builds: my-v7 / my-v8 portfolio + admin CMS, and Pocket-Ledger finance app.",
+          "Two real builds: MyPocketo (Pocket Ledger) and Hazi Enterprise (Business Automation).",
       },
     ],
   }),
@@ -39,36 +41,19 @@ type Project = {
   description: string;
   highlights: string[];
   tech: string[];
-  icon: typeof Sparkles;
+  icon: typeof Wallet;
   actions: Action[];
   accent: string;
+  banner: string;
 };
 
 const projects: Project[] = [
   {
-    badge: "Portfolio · CMS",
-    title: "my-v7 / my-v8 — Portfolio + Admin CMS",
-    tagline: "An evolving portfolio site with a real, editable admin behind it.",
-    description:
-      "my-v7 and my-v8 are the two iterations of my personal portfolio + CMS project. They pair a polished portfolio frontend with admin-editable sections — hero, social links, projects, and content blocks — so the site can be updated without touching code. Across these versions I focused on the hero card redesign, smoother animations, cleaner admin usability, and tighter content management. The work reflects both design thinking and practical website customization.",
-    highlights: [
-      "Admin-editable hero, sections, and social links",
-      "Hero card redesign with stronger typography and motion",
-      "Smooth, premium animations across the public pages",
-      "CMS / admin usability improvements between v7 and v8",
-      "Showcases design thinking + real product iteration",
-    ],
-    tech: ["Portfolio", "CMS", "Admin", "UI/UX", "Animations"],
-    icon: LayoutTemplate,
-    actions: [],
-    accent: "from-amber-500/30 to-rose-500/20",
-  },
-  {
     badge: "Finance · App",
-    title: "Pocket-Ledger — Personal Finance & Account Tracker",
+    title: "MyPocketo — Pocket Ledger",
     tagline: "A focused app for digital record keeping and money management.",
     description:
-      "Pocket-Ledger is a finance and account tracking application built around simple, reliable digital record keeping. It's designed for the everyday rhythm of logging transactions, reviewing balances and staying on top of personal finances — with a clean interface that keeps the focus on the numbers. I work on the source code and own the product direction, treating it as a long-term build that reflects my interest in practical digital products and modern app workflow.",
+      "MyPocketo is a personal finance and pocket ledger app built around simple, reliable digital record keeping. It's designed for the everyday rhythm of logging transactions, reviewing balances and staying on top of personal finances — with a clean interface that keeps the focus on the numbers. I work on the source code and own the product direction, treating it as a long-term build that reflects my interest in practical digital products and modern app workflow.",
     highlights: [
       "Clean transaction entry and history",
       "Account-level balance and overview",
@@ -78,8 +63,32 @@ const projects: Project[] = [
     ],
     tech: ["Finance", "App", "UX", "Product"],
     icon: Wallet,
-    actions: [],
+    actions: [
+      { label: "Visit p.alii.uk", href: "https://p.alii.uk", primary: true },
+    ],
     accent: "from-emerald-500/30 to-cyan-500/20",
+    banner: mypocketoBanner,
+  },
+  {
+    badge: "Business · Automation",
+    title: "Hazi Enterprise (HE) — Business Automation",
+    tagline: "Streamlining operations with smart, automated workflows.",
+    description:
+      "Hazi Enterprise (HE) is a business automation project focused on simplifying day-to-day operations through smart digital workflows. It brings together process automation, clean dashboards and a practical management layer so a business can move faster without extra overhead. I lead the product direction and the build, shaping it as a real-world automation platform that reflects how I think about modern, efficient business tooling.",
+    highlights: [
+      "Workflow and process automation",
+      "Clean, practical management dashboards",
+      "Built for real operational efficiency",
+      "Owned end-to-end: product direction and build",
+      "Reflects modern business tooling thinking",
+    ],
+    tech: ["Automation", "Business", "Dashboard", "Product"],
+    icon: Workflow,
+    actions: [
+      { label: "Visit he.alii.uk", href: "https://he.alii.uk", primary: true },
+    ],
+    accent: "from-amber-500/30 to-rose-500/20",
+    banner: haziBanner,
   },
 ];
 
@@ -140,32 +149,34 @@ function ProjectsPage() {
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: i * 0.08 }}
               className="group relative rounded-[20px] sm:rounded-[24px] border border-border bg-card overflow-hidden"
             >
-              {/* Animated accent glow */}
-              <div
-                aria-hidden
-                className={`absolute -top-24 -right-24 w-72 h-72 sm:w-96 sm:h-96 rounded-full blur-3xl opacity-25 group-hover:opacity-50 transition-opacity duration-700 bg-gradient-to-br ${p.accent}`}
-              />
-              {/* Subtle moving shimmer */}
-              <div
-                aria-hidden
-                className="absolute inset-0 opacity-[0.04] mix-blend-overlay pointer-events-none"
-                style={{
-                  backgroundImage:
-                    "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")",
-                }}
-              />
+              {/* Banner */}
+              <div className="relative aspect-[16/7] sm:aspect-[16/6] overflow-hidden">
+                <img
+                  src={p.banner}
+                  alt={`${p.title} banner`}
+                  width={1600}
+                  height={896}
+                  loading="lazy"
+                  className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-transparent" />
+                <div
+                  aria-hidden
+                  className={`absolute -bottom-24 -right-24 w-72 h-72 sm:w-96 sm:h-96 rounded-full blur-3xl opacity-30 group-hover:opacity-60 transition-opacity duration-700 bg-gradient-to-br ${p.accent}`}
+                />
+                <div className="absolute top-4 left-4 sm:top-5 sm:left-5 flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-xl bg-background/70 backdrop-blur-md text-primary grid place-items-center ring-1 ring-primary/30">
+                    <p.icon className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.25em] px-2.5 py-1 rounded-full bg-background/70 backdrop-blur-md text-primary border border-primary/25">
+                    {p.badge}
+                  </span>
+                </div>
+              </div>
 
               <div className="relative grid lg:grid-cols-[1fr_360px] gap-0">
                 {/* Main */}
                 <div className="p-6 sm:p-8 md:p-10">
-                  <div className="flex flex-wrap items-center gap-3 mb-5">
-                    <div className="w-11 h-11 rounded-xl bg-primary/15 text-primary grid place-items-center ring-1 ring-primary/20">
-                      <p.icon className="w-5 h-5" />
-                    </div>
-                    <span className="text-[10px] font-bold uppercase tracking-[0.25em] px-2.5 py-1 rounded-full bg-primary/15 text-primary border border-primary/25">
-                      {p.badge}
-                    </span>
-                  </div>
                   <h2
                     className="font-black tracking-tight leading-tight mb-2 break-words"
                     style={{ fontSize: "clamp(20px, 3.4vw, 34px)" }}

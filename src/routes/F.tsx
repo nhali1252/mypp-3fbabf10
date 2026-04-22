@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
-import portrait from "@/assets/ali-portrait-bg.jpg";
-
-import { ExternalLink, Sparkles } from "lucide-react";
-import { useFHero, useFSkills, useFProjects, useFRealtimeSync } from "@/hooks/useFContent";
+import { motion, useReducedMotion } from "framer-motion";
+import { useState } from "react";
+import portrait from "@/assets/ali-portrait-baked.jpg";
+import { ImageOff, ExternalLink, Sparkles, User } from "lucide-react";
+import { useFHero, useFSkills, useFProjects, useFRealtimeSync, useFPhotocard } from "@/hooks/useFContent";
 import { getIcon } from "@/lib/iconRegistry";
 import { HireMeProvider, useHireMe } from "@/components/HireMeProvider";
 
@@ -43,6 +43,7 @@ function SkillsPage() {
   const { data: hero } = useFHero();
   const { data: skills = [] } = useFSkills();
   const { data: projects = [] } = useFProjects();
+  const { data: photocard, isLoading: photocardLoading } = useFPhotocard();
 
   const design = skills.filter((s) => s.kind === "design");
   const soft = skills.filter((s) => s.kind === "soft");
@@ -84,106 +85,15 @@ function SkillsPage() {
           }}
         />
         <div className="max-w-[1200px] mx-auto grid lg:grid-cols-[340px_1fr] gap-8 md:gap-12 items-center relative">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            whileHover={{ y: -6, rotate: -0.6 }}
-            className="relative mx-auto lg:mx-0 group [perspective:1200px]"
-          >
-            {/* Rotating conic halo */}
-            <motion.div
-              aria-hidden
-              animate={{ rotate: 360 }}
-              transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
-              className="absolute -inset-8 rounded-[36px] blur-2xl opacity-70"
-              style={{
-                background:
-                  "conic-gradient(from 0deg, color-mix(in oklab, var(--primary) 65%, transparent), transparent 30%, color-mix(in oklab, var(--primary) 45%, transparent) 60%, transparent 90%)",
-              }}
-            />
-            {/* Soft pulsing glow underneath */}
-            <motion.div
-              aria-hidden
-              animate={{ opacity: [0.35, 0.7, 0.35], scale: [1, 1.05, 1] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -inset-4 rounded-[34px] blur-3xl"
-              style={{
-                background:
-                  "radial-gradient(circle at 50% 60%, color-mix(in oklab, var(--primary) 60%, transparent), transparent 70%)",
-              }}
-            />
-
-            {/* Decorative offset frame */}
-            <div
-              aria-hidden
-              className="absolute -inset-2 rounded-[32px] border border-primary/30 opacity-60 group-hover:opacity-100 group-hover:-inset-3 transition-all duration-500"
-            />
-
-            {/* Photo card */}
-            <div className="relative w-[260px] h-[330px] sm:w-[300px] sm:h-[380px] rounded-[28px] overflow-hidden border border-border/80 bg-card shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6),0_0_0_1px_color-mix(in_oklab,var(--primary)_25%,transparent)] transition-transform duration-500 group-hover:[transform:rotateX(2deg)_rotateY(-3deg)]">
-              <img
-                src={portrait}
-                alt="Ali Nur Hasan portrait"
-                className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-[1200ms] ease-out group-hover:scale-[1.07]"
-              />
-              {/* Bottom gradient for legibility */}
-              <div
-                aria-hidden
-                className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-background/90 via-background/30 to-transparent"
-              />
-              {/* Inner shine sweep on hover */}
-              <div
-                aria-hidden
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
-                style={{
-                  background:
-                    "linear-gradient(115deg, transparent 30%, color-mix(in oklab, var(--primary) 35%, transparent) 50%, transparent 70%)",
-                  mixBlendMode: "overlay",
-                }}
-              />
-              {/* Inner ring */}
-              <div aria-hidden className="absolute inset-0 rounded-[28px] ring-1 ring-inset ring-white/10" />
-
-              {/* Bottom name plate */}
-              <div className="absolute inset-x-3 bottom-3 rounded-2xl border border-white/10 bg-background/55 backdrop-blur-md px-3 py-2.5 flex items-center gap-2.5">
-                <span className="grid place-items-center w-7 h-7 rounded-lg bg-primary/20 text-primary ring-1 ring-primary/30">
-                  <Sparkles className="w-3.5 h-3.5" />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-[11px] font-bold leading-none tracking-tight truncate">Ali Nur Hasan</p>
-                  <p className="text-[9px] uppercase tracking-[0.22em] text-muted-foreground mt-1 truncate">
-                    Designer · TasTaj
-                  </p>
-                </div>
-                <span className="ml-auto inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.18em] text-primary">
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 animate-ping" />
-                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
-                  </span>
-                  Open
-                </span>
-              </div>
-            </div>
-
-            {/* Floating accent badges */}
-            <motion.div
-              aria-hidden
-              animate={{ y: [0, -6, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-[0.2em] shadow-[0_12px_30px_-10px_color-mix(in_oklab,var(--primary)_70%,transparent)]"
-            >
-              2 yrs
-            </motion.div>
-            <motion.div
-              aria-hidden
-              animate={{ y: [0, 6, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
-              className="absolute -bottom-2 -left-3 sm:-bottom-3 sm:-left-4 px-3 py-1.5 rounded-full bg-card border border-border text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/85 shadow-lg"
-            >
-              ✦ Designer
-            </motion.div>
-          </motion.div>
+          <PhotoCard
+            isLoading={photocardLoading}
+            name={photocard?.name ?? "Ali Nur Hasan"}
+            role={photocard?.role ?? "Designer · TasTaj"}
+            badgeTop={photocard?.badge_top ?? "2 yrs"}
+            badgeBottom={photocard?.badge_bottom ?? "✦ Designer"}
+            openLabel={photocard?.open_label ?? "Open"}
+            imageUrl={photocard?.image_url || portrait}
+          />
 
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -476,5 +386,198 @@ function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
         {title}
       </h2>
     </div>
+  );
+}
+
+function PhotoCard({
+  isLoading,
+  name,
+  role,
+  badgeTop,
+  badgeBottom,
+  openLabel,
+  imageUrl,
+}: {
+  isLoading: boolean;
+  name: string;
+  role: string;
+  badgeTop: string | null;
+  badgeBottom: string | null;
+  openLabel: string | null;
+  imageUrl: string;
+}) {
+  const reduce = useReducedMotion();
+  const [imgState, setImgState] = useState<"loading" | "loaded" | "error">("loading");
+
+  // Reduced-motion: gentler entrance, no idle/hover tilt or rotating halo.
+  const enter = reduce
+    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.4 } }
+    : {
+        initial: { opacity: 0, scale: 0.92, y: 20 },
+        animate: { opacity: 1, scale: 1, y: 0 },
+        transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] as const },
+      };
+
+  return (
+    <motion.div
+      {...enter}
+      whileHover={reduce ? undefined : { y: -4, rotate: -0.3 }}
+      className="relative mx-auto lg:mx-0 group [perspective:1200px]"
+    >
+      {/* Rotating conic halo — disabled for reduced motion */}
+      {!reduce && (
+        <motion.div
+          aria-hidden
+          animate={{ rotate: 360 }}
+          transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
+          className="absolute -inset-8 rounded-[36px] blur-2xl opacity-60"
+          style={{
+            background:
+              "conic-gradient(from 0deg, color-mix(in oklab, var(--primary) 65%, transparent), transparent 30%, color-mix(in oklab, var(--primary) 45%, transparent) 60%, transparent 90%)",
+          }}
+        />
+      )}
+
+      {/* Soft glow underneath — static when reduced motion */}
+      {reduce ? (
+        <div
+          aria-hidden
+          className="absolute -inset-4 rounded-[34px] blur-3xl opacity-50"
+          style={{
+            background:
+              "radial-gradient(circle at 50% 60%, color-mix(in oklab, var(--primary) 55%, transparent), transparent 70%)",
+          }}
+        />
+      ) : (
+        <motion.div
+          aria-hidden
+          animate={{ opacity: [0.35, 0.7, 0.35], scale: [1, 1.05, 1] }}
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -inset-4 rounded-[34px] blur-3xl"
+          style={{
+            background:
+              "radial-gradient(circle at 50% 60%, color-mix(in oklab, var(--primary) 60%, transparent), transparent 70%)",
+          }}
+        />
+      )}
+
+      {/* Decorative offset frame */}
+      <div
+        aria-hidden
+        className="absolute -inset-2 rounded-[32px] border border-primary/30 opacity-60 group-hover:opacity-100 group-hover:-inset-3 transition-all duration-500"
+      />
+
+      {/* Photo card */}
+      <div
+        className={`relative w-[260px] h-[330px] sm:w-[300px] sm:h-[380px] rounded-[28px] overflow-hidden border border-border/80 bg-card shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6),0_0_0_1px_color-mix(in_oklab,var(--primary)_25%,transparent)] transition-transform duration-500 ${
+          reduce ? "" : "group-hover:[transform:rotateX(1deg)_rotateY(-1.5deg)]"
+        }`}
+      >
+        {/* Skeleton — shown while CMS data or image is still loading */}
+        {(isLoading || imgState === "loading") && (
+          <div
+            aria-hidden
+            className="absolute inset-0 bg-gradient-to-br from-muted/60 via-muted/30 to-muted/60 animate-pulse"
+          >
+            <div className="absolute inset-x-3 bottom-3 h-12 rounded-2xl bg-background/40" />
+          </div>
+        )}
+
+        {/* Image (hidden while loading or on error) */}
+        {imgState !== "error" && (
+          <img
+            src={imageUrl}
+            alt={`${name} portrait`}
+            onLoad={() => setImgState("loaded")}
+            onError={() => setImgState("error")}
+            className={`absolute inset-0 w-full h-full object-cover object-top transition-all duration-[1200ms] ease-out ${
+              imgState === "loaded" ? "opacity-100" : "opacity-0"
+            } ${reduce ? "" : "group-hover:scale-[1.05]"}`}
+          />
+        )}
+
+        {/* Graceful fallback when image fails */}
+        {imgState === "error" && (
+          <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-card to-muted text-muted-foreground">
+            <div className="flex flex-col items-center gap-2 px-4 text-center">
+              <div className="w-14 h-14 rounded-full bg-primary/15 text-primary grid place-items-center ring-1 ring-primary/30">
+                <User className="w-6 h-6" />
+              </div>
+              <p className="text-xs font-bold tracking-tight">{name}</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] flex items-center gap-1">
+                <ImageOff className="w-3 h-3" /> image unavailable
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Bottom darken gradient — stronger for nameplate contrast in both themes */}
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-black/85 via-black/45 to-transparent"
+        />
+        {/* Inner shine sweep on hover */}
+        {!reduce && (
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+            style={{
+              background:
+                "linear-gradient(115deg, transparent 30%, color-mix(in oklab, var(--primary) 35%, transparent) 50%, transparent 70%)",
+              mixBlendMode: "overlay",
+            }}
+          />
+        )}
+        <div aria-hidden className="absolute inset-0 rounded-[28px] ring-1 ring-inset ring-white/10" />
+
+        {/* Bottom name plate — high-contrast white text on dark scrim, readable in light & dark mode */}
+        <div className="absolute inset-x-3 bottom-3 rounded-2xl border border-white/15 bg-black/55 backdrop-blur-md px-3 py-2.5 flex items-center gap-2.5 shadow-lg">
+          <span className="grid place-items-center w-7 h-7 rounded-lg bg-primary/30 text-primary-foreground ring-1 ring-primary/40">
+            <Sparkles className="w-3.5 h-3.5" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-[11px] font-bold leading-none tracking-tight truncate text-white">
+              {name}
+            </p>
+            <p className="text-[9px] uppercase tracking-[0.22em] mt-1 truncate text-white/75">
+              {role}
+            </p>
+          </div>
+          {openLabel && (
+            <span className="ml-auto inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.18em] text-primary">
+              <span className="relative flex h-1.5 w-1.5">
+                {!reduce && (
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 animate-ping" />
+                )}
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
+              </span>
+              {openLabel}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Floating accent badges — static when reduced motion */}
+      {badgeTop && (
+        <motion.div
+          aria-hidden
+          animate={reduce ? undefined : { y: [0, -6, 0] }}
+          transition={reduce ? undefined : { duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-[0.2em] shadow-[0_12px_30px_-10px_color-mix(in_oklab,var(--primary)_70%,transparent)]"
+        >
+          {badgeTop}
+        </motion.div>
+      )}
+      {badgeBottom && (
+        <motion.div
+          aria-hidden
+          animate={reduce ? undefined : { y: [0, 6, 0] }}
+          transition={reduce ? undefined : { duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
+          className="absolute -bottom-2 -left-3 sm:-bottom-3 sm:-left-4 px-3 py-1.5 rounded-full bg-card border border-border text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/85 shadow-lg"
+        >
+          {badgeBottom}
+        </motion.div>
+      )}
+    </motion.div>
   );
 }

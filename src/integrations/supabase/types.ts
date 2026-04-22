@@ -197,6 +197,39 @@ export type Database = {
         }
         Relationships: []
       }
+      f_photocard: {
+        Row: {
+          badge_bottom: string | null
+          badge_top: string | null
+          id: string
+          image_url: string | null
+          name: string
+          open_label: string | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          badge_bottom?: string | null
+          badge_top?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          open_label?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          badge_bottom?: string | null
+          badge_top?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          open_label?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       f_projects: {
         Row: {
           active: boolean

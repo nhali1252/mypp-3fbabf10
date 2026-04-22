@@ -8,6 +8,7 @@ import {
   useFSkills,
   useFProjects,
   useFRealtimeSync,
+  useFPhotocard,
   F_KEYS,
   type FSkill,
   type FProject,
@@ -95,12 +96,16 @@ function AdminFPage() {
           <Tabs defaultValue="hero" className="space-y-4">
             <TabsList className="flex flex-wrap h-auto">
               <TabsTrigger value="hero">Hero</TabsTrigger>
+              <TabsTrigger value="photocard">Photo card</TabsTrigger>
               <TabsTrigger value="design">Design skills</TabsTrigger>
               <TabsTrigger value="soft">Working style</TabsTrigger>
               <TabsTrigger value="projects">Weekly portfolio</TabsTrigger>
             </TabsList>
             <TabsContent value="hero">
               <HeroEditor />
+            </TabsContent>
+            <TabsContent value="photocard">
+              <PhotocardEditor />
             </TabsContent>
             <TabsContent value="design">
               <SkillsEditor kind="design" title="Design skills" />
@@ -217,7 +222,88 @@ function HeroEditor() {
   );
 }
 
-/* ------------------------ Skills editor (drag-and-drop) ------------------------ */
+/* ------------------------ Photocard editor ------------------------ */
+
+function PhotocardEditor() {
+  const { data, isLoading } = useFPhotocard();
+  const qc = useQueryClient();
+  const [draft, setDraft] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (data && !draft) setDraft(data);
+  }, [data]); // eslint-disable-line
+
+  if (isLoading || !draft) {
+    return (
+      <AdminCard>
+        <Loader2 className="w-4 h-4 animate-spin" />
+      </AdminCard>
+    );
+  }
+
+  function patch(p: any) {
+    const next = { ...draft, ...p };
+    setDraft(next);
+    qc.setQueryData(F_KEYS.photocard, next);
+  }
+
+  async function save() {
+    setSaving(true);
+    const { error } = await (supabase as any)
+      .from("f_photocard")
+      .update({
+        name: draft.name,
+        role: draft.role,
+        badge_top: draft.badge_top || null,
+        badge_bottom: draft.badge_bottom || null,
+        open_label: draft.open_label || null,
+        image_url: draft.image_url || null,
+      })
+      .eq("id", draft.id);
+    setSaving(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Photo card saved");
+    qc.invalidateQueries({ queryKey: F_KEYS.photocard });
+  }
+
+  return (
+    <AdminCard title="Photo card">
+      <p className="text-xs text-muted-foreground -mt-2 mb-3">Editable name, role, badges and indicator on the /F portrait card.</p>
+      <div className="grid sm:grid-cols-2 gap-3">
+        <FormRow label="Name">
+          <Input value={draft.name ?? ""} onChange={(e) => patch({ name: e.target.value })} />
+        </FormRow>
+        <FormRow label="Role / subtitle">
+          <Input value={draft.role ?? ""} onChange={(e) => patch({ role: e.target.value })} />
+        </FormRow>
+        <FormRow label="Top badge" hint="Floating pill, top-right">
+          <Input value={draft.badge_top ?? ""} onChange={(e) => patch({ badge_top: e.target.value })} />
+        </FormRow>
+        <FormRow label="Bottom badge" hint="Floating pill, bottom-left">
+          <Input value={draft.badge_bottom ?? ""} onChange={(e) => patch({ badge_bottom: e.target.value })} />
+        </FormRow>
+        <FormRow label='"Open" indicator label' hint='Small text next to the live dot. Leave empty to hide.'>
+          <Input value={draft.open_label ?? ""} onChange={(e) => patch({ open_label: e.target.value })} />
+        </FormRow>
+        <div className="sm:col-span-2">
+          <FormRow label="Portrait image" hint="Optional override. Leave empty to use the built-in cinematic portrait.">
+            <MediaPicker value={draft.image_url ?? ""} onChange={(url) => patch({ image_url: url })} />
+          </FormRow>
+        </div>
+      </div>
+      <div className="mt-4 flex gap-2">
+        <Button onClick={save} disabled={saving}>
+          {saving ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Save className="w-4 h-4 mr-1.5" />}
+          Save photo card
+        </Button>
+      </div>
+    </AdminCard>
+  );
+}
 
 function SkillsEditor({ kind, title }: { kind: "design" | "soft"; title: string }) {
   const { data: all = [], isLoading } = useFSkills({ onlyActive: false });

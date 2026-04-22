@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { Phone, MessageCircle, ArrowRight, Sparkles, ChevronRight } from "lucide-react";
+import { Phone, MessageCircle, Sparkles, ChevronRight, ArrowUpRight } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 
@@ -132,20 +132,22 @@ function ServicesPage() {
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
                   {folderSlots.map((slot, si) => {
                     const slotServices = (services.data ?? []).filter((sv) => sv.slot_id === slot.id);
-                    return (
-                      <motion.article
-                        key={slot.id}
-                        initial={{ opacity: 0, y: 24 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: "-60px" }}
-                        transition={{ duration: 0.45, delay: si * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                        whileHover={{ y: -6 }}
-                        className={`group relative ${sizeClasses[slot.card_size] ?? sizeClasses.medium} bg-card rounded-3xl p-6 md:p-8 border border-border overflow-hidden transition-shadow duration-300 hover:shadow-[0_30px_80px_-20px_oklch(0_0_0/0.6),0_12px_38px_oklch(0.72_0.07_78/0.18)]`}
-                        style={{ background: "var(--gradient-card)" }}
-                      >
+                    const mainService = slotServices.find((sv) => sv.button_link);
+                    const cardHref = mainService?.button_link ?? null;
+                    const cardLabel = mainService?.button_text || "Open";
+
+                    const cardInner = (
+                      <>
                         {/* corner glow */}
                         <div aria-hidden className="absolute -top-20 -right-20 w-60 h-60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                           style={{ background: "radial-gradient(circle, oklch(0.72 0.07 78 / 0.18), transparent 60%)" }} />
+
+                        {/* top-right indicator when card is a link */}
+                        {cardHref && (
+                          <div aria-hidden className="absolute top-5 right-5 w-9 h-9 rounded-full border border-border bg-background/60 backdrop-blur grid place-items-center text-muted-foreground transition-all duration-300 group-hover:border-primary/50 group-hover:text-primary group-hover:bg-primary/10 group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
+                            <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" />
+                          </div>
+                        )}
 
                         {slot.highlight_text && (
                           <div className="inline-flex items-center gap-1.5 mb-4 px-3 py-1 rounded-full bg-primary text-primary-foreground text-[0.7rem] font-bold uppercase tracking-wider">
@@ -158,7 +160,7 @@ function ServicesPage() {
                           </div>
                         )}
 
-                        <h3 className="text-2xl md:text-3xl font-black leading-tight mb-2">{slot.title}</h3>
+                        <h3 className="text-2xl md:text-3xl font-black leading-tight mb-2 transition-colors duration-300 group-hover:text-primary">{slot.title}</h3>
                         {slot.subtitle && <p className="text-muted-foreground mb-5 text-sm md:text-base">{slot.subtitle}</p>}
 
                         {slotServices.length > 0 && (
@@ -183,32 +185,81 @@ function ServicesPage() {
                           </ul>
                         )}
 
-                        {/* Contact actions */}
-                        <div className="mt-auto pt-2 flex flex-wrap gap-2">
-                          {slot.contact_number && (
-                            <a href={`tel:${slot.contact_number}`}
-                              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold transition-transform hover:scale-[1.03] active:scale-[0.98]">
-                              <Phone className="w-4 h-4" /> {slot.contact_number}
-                            </a>
-                          )}
-                          {slot.whatsapp_number && (
-                            <a
-                              href={`https://wa.me/${slot.whatsapp_number.replace(/[^0-9]/g, "")}`}
-                              target="_blank" rel="noreferrer"
-                              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border text-sm font-bold hover:bg-muted/40 transition-colors"
-                            >
-                              <MessageCircle className="w-4 h-4" /> WhatsApp
-                            </a>
-                          )}
-                          {slotServices.find((sv) => sv.button_link)?.button_link && (() => {
-                            const main = slotServices.find((sv) => sv.button_link)!;
-                            return (
-                              <a href={main.button_link!} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-primary/40 text-primary text-sm font-bold hover:bg-primary/10 transition-colors ml-auto">
-                                {main.button_text || "Book"} <ArrowRight className="w-4 h-4" />
+                        {/* Contact actions — stop propagation so they don't trigger the card link */}
+                        {(slot.contact_number || slot.whatsapp_number) && (
+                          <div className="mt-auto pt-2 flex flex-wrap gap-2 relative z-10">
+                            {slot.contact_number && (
+                              <a
+                                href={`tel:${slot.contact_number}`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold transition-transform hover:scale-[1.03] active:scale-[0.98]"
+                              >
+                                <Phone className="w-4 h-4" /> {slot.contact_number}
                               </a>
-                            );
-                          })()}
-                        </div>
+                            )}
+                            {slot.whatsapp_number && (
+                              <a
+                                href={`https://wa.me/${slot.whatsapp_number.replace(/[^0-9]/g, "")}`}
+                                target="_blank" rel="noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border text-sm font-bold hover:bg-muted/40 transition-colors"
+                              >
+                                <MessageCircle className="w-4 h-4" /> WhatsApp
+                              </a>
+                            )}
+                          </div>
+                        )}
+                      </>
+                    );
+
+                    const sharedClasses = `group relative block ${sizeClasses[slot.card_size] ?? sizeClasses.medium} bg-card rounded-3xl p-6 md:p-8 border border-border overflow-hidden transition-all duration-300 hover:border-primary/40 hover:shadow-[0_30px_80px_-20px_oklch(0_0_0/0.6),0_12px_38px_oklch(0.72_0.07_78/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background`;
+                    const motionProps = {
+                      initial: { opacity: 0, y: 24 },
+                      whileInView: { opacity: 1, y: 0 },
+                      viewport: { once: true, margin: "-60px" },
+                      transition: { duration: 0.45, delay: si * 0.05, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
+                      whileHover: { y: -6 },
+                      whileTap: { scale: 0.985 },
+                      style: { background: "var(--gradient-card)" },
+                    };
+
+                    if (cardHref) {
+                      const isExternal = /^https?:\/\//i.test(cardHref);
+                      if (isExternal) {
+                        return (
+                          <motion.a
+                            key={slot.id}
+                            href={cardHref}
+                            target="_blank"
+                            rel="noreferrer"
+                            aria-label={`${slot.title} — ${cardLabel}`}
+                            className={`${sharedClasses} cursor-pointer`}
+                            {...motionProps}
+                          >
+                            {cardInner}
+                          </motion.a>
+                        );
+                      }
+                      return (
+                        <motion.a
+                          key={slot.id}
+                          href={cardHref}
+                          aria-label={`${slot.title} — ${cardLabel}`}
+                          className={`${sharedClasses} cursor-pointer`}
+                          {...motionProps}
+                        >
+                          {cardInner}
+                        </motion.a>
+                      );
+                    }
+
+                    return (
+                      <motion.article
+                        key={slot.id}
+                        className={sharedClasses}
+                        {...motionProps}
+                      >
+                        {cardInner}
                       </motion.article>
                     );
                   })}

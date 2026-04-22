@@ -85,32 +85,104 @@ function SkillsPage() {
         />
         <div className="max-w-[1200px] mx-auto grid lg:grid-cols-[340px_1fr] gap-8 md:gap-12 items-center relative">
           <motion.div
-            initial={{ opacity: 0, scale: 0.92 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="relative mx-auto lg:mx-0"
+            initial={{ opacity: 0, scale: 0.92, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ y: -6, rotate: -0.6 }}
+            className="relative mx-auto lg:mx-0 group [perspective:1200px]"
           >
+            {/* Rotating conic halo */}
             <motion.div
               aria-hidden
               animate={{ rotate: 360 }}
               transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
-              className="absolute -inset-6 rounded-full blur-2xl opacity-60"
+              className="absolute -inset-8 rounded-[36px] blur-2xl opacity-70"
               style={{
                 background:
-                  "conic-gradient(from 0deg, color-mix(in oklab, var(--primary) 60%, transparent), transparent 30%, color-mix(in oklab, var(--primary) 40%, transparent) 60%, transparent 90%)",
+                  "conic-gradient(from 0deg, color-mix(in oklab, var(--primary) 65%, transparent), transparent 30%, color-mix(in oklab, var(--primary) 45%, transparent) 60%, transparent 90%)",
               }}
             />
-            <div className="relative w-[260px] h-[320px] sm:w-[300px] sm:h-[360px] rounded-[28px] overflow-hidden border border-border bg-card">
+            {/* Soft pulsing glow underneath */}
+            <motion.div
+              aria-hidden
+              animate={{ opacity: [0.35, 0.7, 0.35], scale: [1, 1.05, 1] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -inset-4 rounded-[34px] blur-3xl"
+              style={{
+                background:
+                  "radial-gradient(circle at 50% 60%, color-mix(in oklab, var(--primary) 60%, transparent), transparent 70%)",
+              }}
+            />
+
+            {/* Decorative offset frame */}
+            <div
+              aria-hidden
+              className="absolute -inset-2 rounded-[32px] border border-primary/30 opacity-60 group-hover:opacity-100 group-hover:-inset-3 transition-all duration-500"
+            />
+
+            {/* Photo card */}
+            <div className="relative w-[260px] h-[330px] sm:w-[300px] sm:h-[380px] rounded-[28px] overflow-hidden border border-border/80 bg-card shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6),0_0_0_1px_color-mix(in_oklab,var(--primary)_25%,transparent)] transition-transform duration-500 group-hover:[transform:rotateX(2deg)_rotateY(-3deg)]">
               <img
                 src={portrait}
                 alt="Ali Nur Hasan portrait"
-                className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-700 hover:scale-105"
+                className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-[1200ms] ease-out group-hover:scale-[1.07]"
               />
+              {/* Bottom gradient for legibility */}
               <div
                 aria-hidden
-                className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent"
+                className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-background/90 via-background/30 to-transparent"
               />
+              {/* Inner shine sweep on hover */}
+              <div
+                aria-hidden
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+                style={{
+                  background:
+                    "linear-gradient(115deg, transparent 30%, color-mix(in oklab, var(--primary) 35%, transparent) 50%, transparent 70%)",
+                  mixBlendMode: "overlay",
+                }}
+              />
+              {/* Inner ring */}
+              <div aria-hidden className="absolute inset-0 rounded-[28px] ring-1 ring-inset ring-white/10" />
+
+              {/* Bottom name plate */}
+              <div className="absolute inset-x-3 bottom-3 rounded-2xl border border-white/10 bg-background/55 backdrop-blur-md px-3 py-2.5 flex items-center gap-2.5">
+                <span className="grid place-items-center w-7 h-7 rounded-lg bg-primary/20 text-primary ring-1 ring-primary/30">
+                  <Sparkles className="w-3.5 h-3.5" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold leading-none tracking-tight truncate">Ali Nur Hasan</p>
+                  <p className="text-[9px] uppercase tracking-[0.22em] text-muted-foreground mt-1 truncate">
+                    Designer · TasTaj
+                  </p>
+                </div>
+                <span className="ml-auto inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.18em] text-primary">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 animate-ping" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
+                  </span>
+                  Open
+                </span>
+              </div>
             </div>
+
+            {/* Floating accent badges */}
+            <motion.div
+              aria-hidden
+              animate={{ y: [0, -6, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-[0.2em] shadow-[0_12px_30px_-10px_color-mix(in_oklab,var(--primary)_70%,transparent)]"
+            >
+              2 yrs
+            </motion.div>
+            <motion.div
+              aria-hidden
+              animate={{ y: [0, 6, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
+              className="absolute -bottom-2 -left-3 sm:-bottom-3 sm:-left-4 px-3 py-1.5 rounded-full bg-card border border-border text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/85 shadow-lg"
+            >
+              ✦ Designer
+            </motion.div>
           </motion.div>
 
           <motion.div

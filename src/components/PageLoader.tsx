@@ -10,8 +10,8 @@ import { useSiteSettings } from "@/hooks/useContent";
  * - Wordmark + tagline adapt per-route (Launcher / Basic / Skills / Projects).
  */
 export function PageLoader({
-  initialMs = 5000,
-  routeMs = 5000,
+  initialMs = 4000,
+  routeMs = 4000,
 }: {
   initialMs?: number;
   routeMs?: number;

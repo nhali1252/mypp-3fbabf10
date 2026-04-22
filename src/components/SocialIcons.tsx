@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from "framer-motion";
-import { Linkedin, Facebook, Send, MessageCircle, Instagram } from "lucide-react";
+import { Linkedin, Facebook, Send, MessageCircle, Instagram, Github, Twitter } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export interface SocialMap {
@@ -8,6 +8,8 @@ export interface SocialMap {
   instagram?: string;
   telegram?: string;
   whatsapp?: string;
+  github?: string;
+  twitter?: string;
   [k: string]: string | undefined;
 }
 
@@ -15,6 +17,8 @@ const ORDER: Array<{ key: keyof SocialMap; label: string; Icon: LucideIcon }> = 
   { key: "linkedin", label: "LinkedIn", Icon: Linkedin },
   { key: "facebook", label: "Facebook", Icon: Facebook },
   { key: "instagram", label: "Instagram", Icon: Instagram },
+  { key: "twitter", label: "X (Twitter)", Icon: Twitter },
+  { key: "github", label: "GitHub", Icon: Github },
   { key: "telegram", label: "Telegram", Icon: Send },
   { key: "whatsapp", label: "WhatsApp", Icon: MessageCircle },
 ];

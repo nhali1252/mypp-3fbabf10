@@ -169,4 +169,27 @@
     50%      { transform: translate(30px, -20px); }
   }
   .drift-a { animation: driftA 14s ease-in-out infinite; }
+
+  /* Smooth in-page anchor scrolling + headroom for sticky nav */
+  html { scroll-behavior: smooth; }
+  section[id] { scroll-margin-top: 96px; }
+
+  /* Respect users who prefer reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .ticker-track,
+    .photo-enter,
+    .text-slide-in > *,
+    .drift-a {
+      animation: none !important;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }

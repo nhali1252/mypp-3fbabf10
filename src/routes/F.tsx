@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
-import portrait from "@/assets/ali-portrait-bg.jpg";
-
-import { ExternalLink, Sparkles } from "lucide-react";
-import { useFHero, useFSkills, useFProjects, useFRealtimeSync } from "@/hooks/useFContent";
+import { motion, useReducedMotion } from "framer-motion";
+import { useState } from "react";
+import portrait from "@/assets/ali-portrait-baked.jpg";
+import { ImageOff, ExternalLink, Sparkles, User } from "lucide-react";
+import { useFHero, useFSkills, useFProjects, useFRealtimeSync, useFPhotocard } from "@/hooks/useFContent";
 import { getIcon } from "@/lib/iconRegistry";
 import { HireMeProvider, useHireMe } from "@/components/HireMeProvider";
 

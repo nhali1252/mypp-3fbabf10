@@ -30,12 +30,33 @@ interface Props {
   className?: string;
 }
 
+function normalizeUrl(key: string, raw: string): string {
+  const v = raw.trim();
+  if (!v) return v;
+  if (/^(https?:|mailto:|tel:)/i.test(v)) return v;
+  if (key === "whatsapp") {
+    const digits = v.replace(/[^\d]/g, "");
+    return digits ? `https://wa.me/${digits}` : v;
+  }
+  if (key === "telegram") {
+    const handle = v.replace(/^@/, "");
+    return `https://t.me/${handle}`;
+  }
+  if (key === "email") return `mailto:${v}`;
+  return `https://${v.replace(/^\/+/, "")}`;
+}
+
 export function SocialIcons({ links, size = 18, variant = "chip", className }: Props) {
   const reduce = useReducedMotion();
   const items = ORDER.filter(({ key }) => {
     const v = links?.[key];
     return typeof v === "string" && v.trim().length > 0;
-  });
+  }).map(({ key, label, Icon }) => ({
+    key,
+    label,
+    Icon,
+    href: normalizeUrl(String(key), links![key]!),
+  }));
   if (items.length === 0) return null;
 
   return (

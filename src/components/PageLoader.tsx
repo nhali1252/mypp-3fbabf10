@@ -53,7 +53,7 @@ export function PageLoader({
       finish();
     }
 
-    const safety = window.setTimeout(finish, initialMs + 600);
+    const safety = window.setTimeout(finish, initialMs + 2000);
     return () => {
       if (typeof document !== "undefined") document.removeEventListener("DOMContentLoaded", finish);
       window.clearTimeout(safety);

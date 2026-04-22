@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import portrait from "@/assets/ali-portrait.png";
-import { AdminEditFab } from "@/components/AdminEditFab";
+
 import { ExternalLink } from "lucide-react";
 import { useFHero, useFSkills, useFProjects, useFRealtimeSync } from "@/hooks/useFContent";
 import { getIcon } from "@/lib/iconRegistry";
@@ -322,7 +322,6 @@ function SkillsPage() {
         © {new Date().getFullYear()} Ali Nur Hasan · TasTaj ·{" "}
         <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
       </footer>
-      <AdminEditFab />
     </div>
   );
 }

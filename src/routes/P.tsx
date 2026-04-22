@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ExternalLink, Sparkles, Wallet, Building2, ArrowRight } from "lucide-react";
-import { AdminEditFab } from "@/components/AdminEditFab";
+
 
 export const Route = createFileRoute("/P")({
   component: ProjectsPage,
@@ -236,7 +236,6 @@ function ProjectsPage() {
           Home
         </Link>
       </footer>
-      <AdminEditFab />
     </div>
   );
 }

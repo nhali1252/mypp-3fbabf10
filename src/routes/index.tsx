@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowUpRight, Sparkles } from "lucide-react";
-import { AdminEditFab } from "@/components/AdminEditFab";
+
 
 export const Route = createFileRoute("/")({
   component: Launcher,
@@ -245,7 +245,6 @@ function Launcher() {
           Admin
         </Link>
       </footer>
-      <AdminEditFab />
     </div>
   );
 }

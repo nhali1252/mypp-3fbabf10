@@ -30,7 +30,7 @@ export const Route = createFileRoute("/B")({
           "Graphic designer (TasTaj) — branding, logos, posters, product & basic web design.",
       },
       { property: "twitter:card", content: "summary_large_image" },
-      { property: "twitter:title", content: "Ali Nur Hasan — Portfolio (Original)" },
+      { property: "twitter:title", content: "Basic info — Ali Nur Hasan (TasTaj)" },
       {
         property: "twitter:description",
         content:

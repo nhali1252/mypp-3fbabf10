@@ -639,6 +639,10 @@ export type Database = {
       }
       taxi_services: {
         Row: {
+          badge: string | null
+          button_link: string | null
+          button_text: string | null
+          contact_number: string | null
           created_at: string
           description: string | null
           duration: string | null
@@ -652,6 +656,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          badge?: string | null
+          button_link?: string | null
+          button_text?: string | null
+          contact_number?: string | null
           created_at?: string
           description?: string | null
           duration?: string | null
@@ -665,6 +673,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          badge?: string | null
+          button_link?: string | null
+          button_text?: string | null
+          contact_number?: string | null
           created_at?: string
           description?: string | null
           duration?: string | null

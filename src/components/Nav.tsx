@@ -8,10 +8,15 @@ import { useHireMe } from "./HireMeProvider";
 export function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [logoBroken, setLogoBroken] = useState(false);
   const { data: links = [] } = useNavLinks();
   const { data: settings } = useSiteSettings();
   const reduce = useReducedMotion();
   const { openHireMe } = useHireMe();
+
+  useEffect(() => {
+    setLogoBroken(false);
+  }, [settings?.logo_url]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 18);
@@ -36,10 +41,11 @@ export function Nav() {
         className="flex items-center gap-2.5 text-foreground tracking-tight group"
         aria-label="Home"
       >
-        {settings?.logo_url && (
+        {settings?.logo_url && !logoBroken && (
           <img
             src={settings.logo_url}
             alt={`${settings?.site_name || settings?.site_title || "Site"} logo`}
+            onError={() => setLogoBroken(true)}
             className="h-8 w-8 md:h-9 md:w-9 object-contain rounded-md transition-transform duration-300 group-hover:scale-105"
           />
         )}

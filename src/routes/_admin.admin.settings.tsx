@@ -8,7 +8,20 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { AdminPage, AdminCard, FormRow } from "@/components/admin/AdminPage";
 import { MediaPicker } from "@/components/admin/MediaPicker";
-import { Save } from "lucide-react";
+import { Save, Trash2 } from "lucide-react";
+
+function isValidImageUrl(v: string): boolean {
+  if (!v) return false;
+  const s = v.trim();
+  if (s.startsWith("data:image/")) return true;
+  if (s.startsWith("/")) return true;
+  try {
+    const u = new URL(s);
+    return u.protocol === "http:" || u.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
 
 export const Route = createFileRoute("/_admin/admin/settings")({ component: AdminSettings });
 
@@ -29,11 +42,22 @@ function AdminSettings() {
   function set(k: string, v: any) { setForm((f: any) => ({ ...f, [k]: v })); }
 
   async function save() {
+    const siteName = (form.site_name || "").trim();
+    if (!siteName) {
+      toast.error("Site name cannot be empty");
+      return;
+    }
+    const logo = (form.logo_url || "").trim();
+    if (logo && !isValidImageUrl(logo)) {
+      toast.error("Logo must be a valid image URL (http/https) or an uploaded image");
+      return;
+    }
     setSaving(true);
     try {
       const payload = {
         site_title: form.site_title || "Portfolio",
-        logo_url: form.logo_url, favicon_url: form.favicon_url,
+        logo_url: logo || null,
+        favicon_url: form.favicon_url,
         theme_primary: form.theme_primary, footer_text: form.footer_text,
         site_name: form.site_name, primary_color: form.primary_color,
         secondary_color: form.secondary_color,

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Nav } from "@/components/Nav";
-import { AdminEditFab } from "@/components/AdminEditFab";
+
 import { Hero } from "@/components/Hero";
 import { Ticker } from "@/components/Ticker";
 import { Footer } from "@/components/Footer";
@@ -59,7 +59,6 @@ function PageB() {
         </main>
         <Footer />
       </div>
-      <AdminEditFab />
     </HireMeProvider>
   );
 }

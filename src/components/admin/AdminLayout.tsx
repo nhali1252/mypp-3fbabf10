@@ -10,6 +10,7 @@ import {
 const items = [
   { to: "/admin", label: "Dashboard", Icon: LayoutDashboard, end: true },
   { to: "/admin/launcher", label: "Launcher cards", Icon: Rocket },
+  { to: "/admin/f-page", label: "Page F editor", Icon: Lightbulb },
   { to: "/admin/checklist", label: "Pre-publish", Icon: ClipboardCheck },
   { to: "/admin/folders", label: "Folders", Icon: Folder },
   { to: "/admin/slots", label: "Slots", Icon: LayoutGrid },

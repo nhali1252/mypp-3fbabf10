@@ -98,7 +98,11 @@
 
 @layer base {
   * { border-color: var(--color-border); }
-  html { scroll-behavior: smooth; }
+  html {
+    scroll-behavior: smooth;
+    /* Sections pinned via #anchor still respect the fixed nav. */
+    scroll-padding-top: 76px;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);

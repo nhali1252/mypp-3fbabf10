@@ -49,7 +49,7 @@ Your site is live at `https://tanstack-start-app.<your-subdomain>.workers.dev` (
 
 ## Troubleshooting
 
-- **Build fails on `bun install`**: ensure your repo contains `bun.lockb` (it does) and that no private packages are referenced.
+- **Build fails on `bun install` with a frozen lockfile error**: the workflow uses a non-frozen install (`bun install --no-save`) on purpose, so this should not happen. If it returns, delete any committed `bun.lockb` from the repo and let CI rebuild it; all version ranges are pinned in `package.json`, so installs are reproducible.
 - **Deploy succeeds but site shows env errors**: a `SUPABASE_*` secret is missing in GitHub. Re-check the table above.
 - **401 on `/admin` server functions**: `SUPABASE_SERVICE_ROLE_KEY` is missing or wrong.
 - **Want to redeploy without a code change**: Actions tab → Deploy to Cloudflare Workers → **Run workflow**.

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useNavLinks, useSiteSettings } from "@/hooks/useContent";
+import { useHireMe } from "./HireMeProvider";
 
 export function Nav() {
   const [open, setOpen] = useState(false);
@@ -10,6 +11,7 @@ export function Nav() {
   const { data: links = [] } = useNavLinks();
   const { data: settings } = useSiteSettings();
   const reduce = useReducedMotion();
+  const { openHireMe } = useHireMe();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 18);
@@ -49,15 +51,16 @@ export function Nav() {
         ))}
       </ul>
       <div className="flex items-center gap-2">
-        <motion.a
-          href="#contact"
+        <motion.button
+          type="button"
+          onClick={openHireMe}
           whileHover={reduce ? undefined : { y: -2, scale: 1.04 }}
           whileTap={reduce ? undefined : { scale: 0.96 }}
           transition={{ type: "spring", stiffness: 400, damping: 22 }}
           className="hidden sm:inline-block bg-gradient-gold text-primary-foreground px-5 py-2.5 rounded-full text-[13px] font-bold hover:shadow-glow transition-shadow"
         >
           Hire Me
-        </motion.a>
+        </motion.button>
         <button
           className="lg:hidden p-2 text-foreground"
           onClick={() => setOpen(!open)}

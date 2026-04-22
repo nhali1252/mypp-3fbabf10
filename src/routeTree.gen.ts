@@ -16,8 +16,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin.admin.index'
 import { Route as AdminAdminUsersRouteImport } from './routes/_admin.admin.users'
 import { Route as AdminAdminTickerRouteImport } from './routes/_admin.admin.ticker'
+import { Route as AdminAdminSlotsRouteImport } from './routes/_admin.admin.slots'
 import { Route as AdminAdminSkillsRouteImport } from './routes/_admin.admin.skills'
 import { Route as AdminAdminSettingsRouteImport } from './routes/_admin.admin.settings'
+import { Route as AdminAdminServicesCmsRouteImport } from './routes/_admin.admin.services-cms'
 import { Route as AdminAdminSeoRouteImport } from './routes/_admin.admin.seo'
 import { Route as AdminAdminProjectsRouteImport } from './routes/_admin.admin.projects'
 import { Route as AdminAdminNavigationRouteImport } from './routes/_admin.admin.navigation'
@@ -25,6 +27,7 @@ import { Route as AdminAdminMessagesRouteImport } from './routes/_admin.admin.me
 import { Route as AdminAdminMediaRouteImport } from './routes/_admin.admin.media'
 import { Route as AdminAdminHeroRouteImport } from './routes/_admin.admin.hero'
 import { Route as AdminAdminFooterAppsRouteImport } from './routes/_admin.admin.footer-apps'
+import { Route as AdminAdminFoldersRouteImport } from './routes/_admin.admin.folders'
 import { Route as AdminAdminEducationRouteImport } from './routes/_admin.admin.education'
 import { Route as AdminAdminContactRouteImport } from './routes/_admin.admin.contact'
 import { Route as AdminAdminChecklistRouteImport } from './routes/_admin.admin.checklist'
@@ -65,6 +68,11 @@ const AdminAdminTickerRoute = AdminAdminTickerRouteImport.update({
   path: '/admin/ticker',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminSlotsRoute = AdminAdminSlotsRouteImport.update({
+  id: '/admin/slots',
+  path: '/admin/slots',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAdminSkillsRoute = AdminAdminSkillsRouteImport.update({
   id: '/admin/skills',
   path: '/admin/skills',
@@ -73,6 +81,11 @@ const AdminAdminSkillsRoute = AdminAdminSkillsRouteImport.update({
 const AdminAdminSettingsRoute = AdminAdminSettingsRouteImport.update({
   id: '/admin/settings',
   path: '/admin/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdminServicesCmsRoute = AdminAdminServicesCmsRouteImport.update({
+  id: '/admin/services-cms',
+  path: '/admin/services-cms',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAdminSeoRoute = AdminAdminSeoRouteImport.update({
@@ -110,6 +123,11 @@ const AdminAdminFooterAppsRoute = AdminAdminFooterAppsRouteImport.update({
   path: '/admin/footer-apps',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminFoldersRoute = AdminAdminFoldersRouteImport.update({
+  id: '/admin/folders',
+  path: '/admin/folders',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAdminEducationRoute = AdminAdminEducationRouteImport.update({
   id: '/admin/education',
   path: '/admin/education',
@@ -145,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/admin/checklist': typeof AdminAdminChecklistRoute
   '/admin/contact': typeof AdminAdminContactRoute
   '/admin/education': typeof AdminAdminEducationRoute
+  '/admin/folders': typeof AdminAdminFoldersRoute
   '/admin/footer-apps': typeof AdminAdminFooterAppsRoute
   '/admin/hero': typeof AdminAdminHeroRoute
   '/admin/media': typeof AdminAdminMediaRoute
@@ -152,8 +171,10 @@ export interface FileRoutesByFullPath {
   '/admin/navigation': typeof AdminAdminNavigationRoute
   '/admin/projects': typeof AdminAdminProjectsRoute
   '/admin/seo': typeof AdminAdminSeoRoute
+  '/admin/services-cms': typeof AdminAdminServicesCmsRoute
   '/admin/settings': typeof AdminAdminSettingsRoute
   '/admin/skills': typeof AdminAdminSkillsRoute
+  '/admin/slots': typeof AdminAdminSlotsRoute
   '/admin/ticker': typeof AdminAdminTickerRoute
   '/admin/users': typeof AdminAdminUsersRoute
   '/admin/': typeof AdminAdminIndexRoute
@@ -167,6 +188,7 @@ export interface FileRoutesByTo {
   '/admin/checklist': typeof AdminAdminChecklistRoute
   '/admin/contact': typeof AdminAdminContactRoute
   '/admin/education': typeof AdminAdminEducationRoute
+  '/admin/folders': typeof AdminAdminFoldersRoute
   '/admin/footer-apps': typeof AdminAdminFooterAppsRoute
   '/admin/hero': typeof AdminAdminHeroRoute
   '/admin/media': typeof AdminAdminMediaRoute
@@ -174,8 +196,10 @@ export interface FileRoutesByTo {
   '/admin/navigation': typeof AdminAdminNavigationRoute
   '/admin/projects': typeof AdminAdminProjectsRoute
   '/admin/seo': typeof AdminAdminSeoRoute
+  '/admin/services-cms': typeof AdminAdminServicesCmsRoute
   '/admin/settings': typeof AdminAdminSettingsRoute
   '/admin/skills': typeof AdminAdminSkillsRoute
+  '/admin/slots': typeof AdminAdminSlotsRoute
   '/admin/ticker': typeof AdminAdminTickerRoute
   '/admin/users': typeof AdminAdminUsersRoute
   '/admin': typeof AdminAdminIndexRoute
@@ -191,6 +215,7 @@ export interface FileRoutesById {
   '/_admin/admin/checklist': typeof AdminAdminChecklistRoute
   '/_admin/admin/contact': typeof AdminAdminContactRoute
   '/_admin/admin/education': typeof AdminAdminEducationRoute
+  '/_admin/admin/folders': typeof AdminAdminFoldersRoute
   '/_admin/admin/footer-apps': typeof AdminAdminFooterAppsRoute
   '/_admin/admin/hero': typeof AdminAdminHeroRoute
   '/_admin/admin/media': typeof AdminAdminMediaRoute
@@ -198,8 +223,10 @@ export interface FileRoutesById {
   '/_admin/admin/navigation': typeof AdminAdminNavigationRoute
   '/_admin/admin/projects': typeof AdminAdminProjectsRoute
   '/_admin/admin/seo': typeof AdminAdminSeoRoute
+  '/_admin/admin/services-cms': typeof AdminAdminServicesCmsRoute
   '/_admin/admin/settings': typeof AdminAdminSettingsRoute
   '/_admin/admin/skills': typeof AdminAdminSkillsRoute
+  '/_admin/admin/slots': typeof AdminAdminSlotsRoute
   '/_admin/admin/ticker': typeof AdminAdminTickerRoute
   '/_admin/admin/users': typeof AdminAdminUsersRoute
   '/_admin/admin/': typeof AdminAdminIndexRoute
@@ -215,6 +242,7 @@ export interface FileRouteTypes {
     | '/admin/checklist'
     | '/admin/contact'
     | '/admin/education'
+    | '/admin/folders'
     | '/admin/footer-apps'
     | '/admin/hero'
     | '/admin/media'
@@ -222,8 +250,10 @@ export interface FileRouteTypes {
     | '/admin/navigation'
     | '/admin/projects'
     | '/admin/seo'
+    | '/admin/services-cms'
     | '/admin/settings'
     | '/admin/skills'
+    | '/admin/slots'
     | '/admin/ticker'
     | '/admin/users'
     | '/admin/'
@@ -237,6 +267,7 @@ export interface FileRouteTypes {
     | '/admin/checklist'
     | '/admin/contact'
     | '/admin/education'
+    | '/admin/folders'
     | '/admin/footer-apps'
     | '/admin/hero'
     | '/admin/media'
@@ -244,8 +275,10 @@ export interface FileRouteTypes {
     | '/admin/navigation'
     | '/admin/projects'
     | '/admin/seo'
+    | '/admin/services-cms'
     | '/admin/settings'
     | '/admin/skills'
+    | '/admin/slots'
     | '/admin/ticker'
     | '/admin/users'
     | '/admin'
@@ -260,6 +293,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/checklist'
     | '/_admin/admin/contact'
     | '/_admin/admin/education'
+    | '/_admin/admin/folders'
     | '/_admin/admin/footer-apps'
     | '/_admin/admin/hero'
     | '/_admin/admin/media'
@@ -267,8 +301,10 @@ export interface FileRouteTypes {
     | '/_admin/admin/navigation'
     | '/_admin/admin/projects'
     | '/_admin/admin/seo'
+    | '/_admin/admin/services-cms'
     | '/_admin/admin/settings'
     | '/_admin/admin/skills'
+    | '/_admin/admin/slots'
     | '/_admin/admin/ticker'
     | '/_admin/admin/users'
     | '/_admin/admin/'
@@ -332,6 +368,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminTickerRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/slots': {
+      id: '/_admin/admin/slots'
+      path: '/admin/slots'
+      fullPath: '/admin/slots'
+      preLoaderRoute: typeof AdminAdminSlotsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/skills': {
       id: '/_admin/admin/skills'
       path: '/admin/skills'
@@ -344,6 +387,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/settings'
       fullPath: '/admin/settings'
       preLoaderRoute: typeof AdminAdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/admin/services-cms': {
+      id: '/_admin/admin/services-cms'
+      path: '/admin/services-cms'
+      fullPath: '/admin/services-cms'
+      preLoaderRoute: typeof AdminAdminServicesCmsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/_admin/admin/seo': {
@@ -395,6 +445,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminFooterAppsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/folders': {
+      id: '/_admin/admin/folders'
+      path: '/admin/folders'
+      fullPath: '/admin/folders'
+      preLoaderRoute: typeof AdminAdminFoldersRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/education': {
       id: '/_admin/admin/education'
       path: '/admin/education'
@@ -439,6 +496,7 @@ interface AdminRouteChildren {
   AdminAdminChecklistRoute: typeof AdminAdminChecklistRoute
   AdminAdminContactRoute: typeof AdminAdminContactRoute
   AdminAdminEducationRoute: typeof AdminAdminEducationRoute
+  AdminAdminFoldersRoute: typeof AdminAdminFoldersRoute
   AdminAdminFooterAppsRoute: typeof AdminAdminFooterAppsRoute
   AdminAdminHeroRoute: typeof AdminAdminHeroRoute
   AdminAdminMediaRoute: typeof AdminAdminMediaRoute
@@ -446,8 +504,10 @@ interface AdminRouteChildren {
   AdminAdminNavigationRoute: typeof AdminAdminNavigationRoute
   AdminAdminProjectsRoute: typeof AdminAdminProjectsRoute
   AdminAdminSeoRoute: typeof AdminAdminSeoRoute
+  AdminAdminServicesCmsRoute: typeof AdminAdminServicesCmsRoute
   AdminAdminSettingsRoute: typeof AdminAdminSettingsRoute
   AdminAdminSkillsRoute: typeof AdminAdminSkillsRoute
+  AdminAdminSlotsRoute: typeof AdminAdminSlotsRoute
   AdminAdminTickerRoute: typeof AdminAdminTickerRoute
   AdminAdminUsersRoute: typeof AdminAdminUsersRoute
   AdminAdminIndexRoute: typeof AdminAdminIndexRoute
@@ -459,6 +519,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminChecklistRoute: AdminAdminChecklistRoute,
   AdminAdminContactRoute: AdminAdminContactRoute,
   AdminAdminEducationRoute: AdminAdminEducationRoute,
+  AdminAdminFoldersRoute: AdminAdminFoldersRoute,
   AdminAdminFooterAppsRoute: AdminAdminFooterAppsRoute,
   AdminAdminHeroRoute: AdminAdminHeroRoute,
   AdminAdminMediaRoute: AdminAdminMediaRoute,
@@ -466,8 +527,10 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminNavigationRoute: AdminAdminNavigationRoute,
   AdminAdminProjectsRoute: AdminAdminProjectsRoute,
   AdminAdminSeoRoute: AdminAdminSeoRoute,
+  AdminAdminServicesCmsRoute: AdminAdminServicesCmsRoute,
   AdminAdminSettingsRoute: AdminAdminSettingsRoute,
   AdminAdminSkillsRoute: AdminAdminSkillsRoute,
+  AdminAdminSlotsRoute: AdminAdminSlotsRoute,
   AdminAdminTickerRoute: AdminAdminTickerRoute,
   AdminAdminUsersRoute: AdminAdminUsersRoute,
   AdminAdminIndexRoute: AdminAdminIndexRoute,

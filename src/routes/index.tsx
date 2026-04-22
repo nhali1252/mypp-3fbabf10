@@ -9,28 +9,33 @@ import { SkillsSection } from "@/components/sections/SkillsSection";
 import { ProjectsSection } from "@/components/sections/ProjectsSection";
 import { ActivitiesSection } from "@/components/sections/ActivitiesSection";
 import { ContactSection } from "@/components/sections/ContactSection";
+import { HireMeProvider } from "@/components/HireMeProvider";
+import { useSmoothAnchors } from "@/hooks/useSmoothAnchors";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
 function Index() {
+  useSmoothAnchors();
   return (
-    <div className="min-h-screen">
-      <Nav />
-      <Hero />
-      <Ticker />
+    <HireMeProvider>
+      <div className="min-h-screen">
+        <Nav />
+        <Hero />
+        <Ticker />
 
-      <main className="max-w-[1320px] mx-auto px-3.5 md:px-7 pb-16">
-        <AboutSection />
-        <EducationSection />
-        <SkillsSection />
-        <ProjectsSection />
-        <ActivitiesSection />
-        <ContactSection />
-      </main>
+        <main className="max-w-[1320px] mx-auto px-3.5 md:px-7 pb-16">
+          <AboutSection />
+          <EducationSection />
+          <SkillsSection />
+          <ProjectsSection />
+          <ActivitiesSection />
+          <ContactSection />
+        </main>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </HireMeProvider>
   );
 }

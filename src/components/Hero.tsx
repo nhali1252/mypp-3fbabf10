@@ -1,10 +1,13 @@
 import portraitFallback from "@/assets/ali-portrait.png";
 import { useHero } from "@/hooks/useContent";
 import { motion, useReducedMotion } from "framer-motion";
+import { useHireMe } from "./HireMeProvider";
+import { smoothScrollToId } from "@/lib/smoothScroll";
 
 export function Hero() {
   const { data: hero } = useHero();
   const reduce = useReducedMotion();
+  const { openHireMe } = useHireMe();
   const portrait =
     hero?.portrait_url && !hero.portrait_url.startsWith("/src/")
       ? hero.portrait_url
@@ -16,130 +19,132 @@ export function Hero() {
   const sub =
     hero?.subheadline ??
     "I create modern visual designs for brands, businesses, and digital content using creative design skills, Canva workflows, and practical AI support.";
-  const eyebrow = hero?.eyebrow ?? "Creative Designer · Canva · AI";
+  const eyebrow = hero?.eyebrow ?? "Graphic Designer · Branding · Canva · Adobe · AI";
 
   const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
   return (
-    <section id="home" className="relative pt-[110px] pb-0 overflow-hidden bg-background">
-      <motion.div
-        aria-hidden
-        className="absolute left-1/2 top-[140px] md:top-[160px] -translate-x-1/2 font-black uppercase whitespace-nowrap pointer-events-none select-none leading-none tracking-[-0.055em] z-0"
-        style={{
-          fontSize: "clamp(56px, 10.2vw, 166px)",
-          color: "color-mix(in oklab, var(--watermark) 4%, transparent)",
-        }}
-        initial={{ opacity: 0, scale: reduce ? 1 : 1.04 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.2, ease, delay: 0.1 }}
-      >
-        ALI NUR HASAN
-      </motion.div>
+    <section
+      id="home"
+      className="relative pt-24 md:pt-28 pb-10 md:pb-16 overflow-hidden bg-background"
+    >
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6 relative">
+        {/* Large faded watermark name behind the card */}
+        <motion.div
+          aria-hidden
+          className="absolute left-1/2 -translate-x-1/2 top-2 md:top-6 font-black uppercase whitespace-nowrap pointer-events-none select-none leading-none tracking-[-0.04em] z-0"
+          style={{
+            fontSize: "clamp(64px, 11vw, 180px)",
+            color: "color-mix(in oklab, var(--watermark) 7%, transparent)",
+          }}
+          initial={{ opacity: 0, y: reduce ? 0 : -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, ease, delay: 0.05 }}
+        >
+          ALI NUR HASAN
+        </motion.div>
 
-      <motion.div
-        className="relative z-[2] mx-3 md:mx-7"
-        initial={{ opacity: 0, y: reduce ? 0 : 32 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.9, ease }}
-      >
-        <div className="relative bg-gradient-card border border-white/5 rounded-[28px] md:rounded-t-[28px] md:rounded-b-none overflow-visible min-h-[540px] md:min-h-[720px] shadow-card">
-          <div
-            className="absolute -top-20 -right-20 w-[480px] h-[480px] rounded-full opacity-40 pointer-events-none drift-a"
-            style={{
-              background:
-                "radial-gradient(closest-side, color-mix(in oklab, var(--primary) 50%, transparent), transparent 70%)",
-              filter: "blur(80px)",
-            }}
-          />
-          <div
-            aria-hidden
-            className="absolute inset-0 rounded-[28px] md:rounded-t-[28px] md:rounded-b-none pointer-events-none"
-            style={{
-              background:
-                "radial-gradient(120% 80% at 0% 100%, color-mix(in oklab, var(--primary) 8%, transparent) 0%, transparent 60%)",
-            }}
-          />
-
-          <div className="relative grid md:grid-cols-[1.25fr_1fr] items-end md:items-center min-h-[600px] md:min-h-[760px]">
-            <div className="relative flex justify-center md:justify-start order-1 md:pl-6 lg:pl-10">
+        {/* Premium dark rounded hero card */}
+        <motion.div
+          className="relative z-10 rounded-[24px] overflow-hidden border border-white/[0.06] shadow-[0_30px_80px_-30px_rgba(0,0,0,0.7)]"
+          style={{
+            background:
+              "linear-gradient(180deg, color-mix(in oklab, var(--card) 96%, black) 0%, color-mix(in oklab, var(--card) 88%, black) 100%)",
+          }}
+          initial={{ opacity: 0, y: reduce ? 0 : 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease }}
+        >
+          <div className="grid md:grid-cols-[40%_60%] items-stretch min-h-[520px] md:min-h-[560px]">
+            {/* Left: portrait */}
+            <div className="relative flex items-end justify-center md:justify-start pt-8 md:pt-0 px-4 md:pl-10 md:pr-0">
               <img
                 src={portrait}
                 alt="Ali Nur Hasan portrait"
                 width={820}
                 height={1120}
-                className="photo-enter relative block h-[600px] sm:h-[720px] md:h-[1040px] lg:h-[1160px] xl:h-[1240px] w-auto object-contain object-bottom -mt-32 md:-mt-48 lg:-mt-56 drop-shadow-[0_42px_70px_rgba(0,0,0,0.65)]"
+                className="relative block h-[360px] sm:h-[440px] md:h-[600px] lg:h-[680px] w-auto object-contain object-bottom drop-shadow-[0_30px_50px_rgba(0,0,0,0.55)]"
               />
             </div>
 
+            {/* Right: content */}
             <motion.div
-              className="relative px-6 pb-12 md:pb-0 md:pr-16 md:pl-2 order-2 text-center md:text-left z-[3]"
+              className="relative px-6 md:px-10 lg:px-14 pb-10 md:pb-0 md:py-14 flex flex-col justify-center text-center md:text-left"
               initial="hidden"
               animate="visible"
               variants={{
                 hidden: {},
-                visible: { transition: { staggerChildren: 0.12, delayChildren: 0.35 } },
+                visible: { transition: { staggerChildren: 0.1, delayChildren: 0.3 } },
               }}
             >
               <motion.span
-                className="inline-block text-[0.7rem] font-bold tracking-[0.18em] uppercase text-primary mb-5"
+                className="inline-block text-[0.7rem] md:text-xs font-bold tracking-[0.2em] uppercase text-primary mb-4"
                 variants={{
-                  hidden: { opacity: 0, x: reduce ? 0 : 30 },
-                  visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease } },
+                  hidden: { opacity: 0, y: reduce ? 0 : 12 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease } },
                 }}
               >
                 {eyebrow}
               </motion.span>
+
               <motion.h1
                 className="font-black leading-[1.05] mb-5 tracking-tight text-foreground"
-                style={{ fontSize: "clamp(30px, 4.4vw, 58px)" }}
+                style={{ fontSize: "clamp(28px, 4vw, 54px)" }}
                 variants={{
-                  hidden: { opacity: 0, x: reduce ? 0 : 30 },
-                  visible: { opacity: 1, x: 0, transition: { duration: 0.85, ease } },
+                  hidden: { opacity: 0, y: reduce ? 0 : 16 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease } },
                 }}
               >
                 {headline}
               </motion.h1>
+
               {sub && (
                 <motion.p
-                  className="text-muted-foreground text-base md:text-lg mb-8 max-w-md mx-auto md:mx-0 leading-relaxed"
+                  className="text-muted-foreground text-sm md:text-base mb-8 max-w-xl mx-auto md:mx-0 leading-relaxed"
                   variants={{
-                    hidden: { opacity: 0, x: reduce ? 0 : 30 },
-                    visible: { opacity: 1, x: 0, transition: { duration: 0.75, ease } },
+                    hidden: { opacity: 0, y: reduce ? 0 : 14 },
+                    visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease } },
                   }}
                 >
                   {sub}
                 </motion.p>
               )}
+
               <motion.div
-                className="flex gap-3.5 items-center flex-wrap justify-center md:justify-start"
+                className="flex gap-3 items-center flex-wrap justify-center md:justify-start"
                 variants={{
-                  hidden: { opacity: 0, x: reduce ? 0 : 30 },
-                  visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease } },
+                  hidden: { opacity: 0, y: reduce ? 0 : 12 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease } },
                 }}
               >
-                <motion.a
-                  href={hero?.primary_cta_url || "#contact"}
-                  whileHover={reduce ? undefined : { y: -3, scale: 1.03 }}
+                <motion.button
+                  type="button"
+                  onClick={openHireMe}
+                  whileHover={reduce ? undefined : { y: -2 }}
                   whileTap={reduce ? undefined : { scale: 0.97 }}
                   transition={{ type: "spring", stiffness: 400, damping: 22 }}
-                  className="bg-gradient-gold text-primary-foreground px-7 py-[15px] rounded-full text-sm font-bold transition-shadow hover:shadow-glow"
+                  className="bg-gradient-gold text-primary-foreground px-7 py-[14px] rounded-full text-sm font-bold shadow-[0_10px_30px_-10px_color-mix(in_oklab,var(--primary)_60%,transparent)] hover:shadow-glow transition-shadow"
                 >
                   {hero?.primary_cta_label || "Hire Me"}
-                </motion.a>
-                <motion.a
-                  href={hero?.secondary_cta_url || "#portfolio"}
-                  whileHover={reduce ? undefined : { y: -3 }}
+                </motion.button>
+                <motion.button
+                  type="button"
+                  onClick={() => {
+                    const target = (hero?.secondary_cta_url || "#portfolio").replace(/^.*#/, "");
+                    smoothScrollToId(target);
+                  }}
+                  whileHover={reduce ? undefined : { y: -2 }}
                   whileTap={reduce ? undefined : { scale: 0.97 }}
                   transition={{ type: "spring", stiffness: 400, damping: 22 }}
-                  className="bg-transparent border border-foreground/25 text-foreground px-7 py-[15px] rounded-full text-sm font-semibold hover:border-primary hover:text-primary transition-colors"
+                  className="bg-transparent border border-foreground/25 text-foreground px-7 py-[14px] rounded-full text-sm font-semibold hover:border-primary hover:text-primary transition-colors"
                 >
                   {hero?.secondary_cta_label || "View Projects"}
-                </motion.a>
+                </motion.button>
               </motion.div>
             </motion.div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </section>
   );
 }

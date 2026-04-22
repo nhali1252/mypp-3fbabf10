@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
+import { useRouterState } from "@tanstack/react-router";
 import { useSiteSettings } from "@/hooks/useContent";
 
 /**
  * Full-screen brand loader inspired by the tajtas.alii.uk intro:
  * soft glow + wordmark + tagline + sliding gold loader bar.
- * Uses the site's own logo + site_name (no hardcoded "TasTaj").
+ * Wordmark adapts per-route so each page gets its own intro.
  */
 export function PageLoader({ minDurationMs = 3000 }: { minDurationMs?: number }) {
   const [show, setShow] = useState(true);
   const [hiding, setHiding] = useState(false);
   const { data: settings } = useSiteSettings();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
     const start = performance.now();
@@ -46,17 +48,27 @@ export function PageLoader({ minDurationMs = 3000 }: { minDurationMs?: number })
   if (!show) return null;
 
   // Don't render the loader text until we have real branding from the DB,
-  // so users never see the generic "Portfolio" fallback flash.
-  const rawName = settings?.site_name?.trim();
-  if (!rawName) return null;
+  // so users never see a generic fallback flash.
+  const siteName = settings?.site_name?.trim();
+  if (!siteName) return null;
 
-  // Split "FirstWord RestOfName" so we can color the tail in gold (TasTaj style)
-  const parts = rawName.split(" ");
-  const head = parts.length > 1 ? parts.slice(0, -1).join(" ") : rawName;
-  const tail = parts.length > 1 ? " " + parts[parts.length - 1] : "";
+  // Resolve a per-page wordmark so each route's intro matches the page name.
+  const routeMap: Record<string, { label: string; tagline: string }> = {
+    "/": { label: "Launcher", tagline: "Pick a page to explore" },
+    "/B": { label: "Basic info", tagline: "About · Education · Activities" },
+    "/F": { label: "Skills & About", tagline: "Design · Tools · Workflow" },
+    "/P": { label: "Projects", tagline: "Selected work & case studies" },
+  };
+  const match = routeMap[pathname] ?? { label: siteName, tagline: "" };
+
+  // Display "<SiteName> — <PageLabel>" with the page label highlighted in gold.
+  const head = siteName;
+  const tail = match.label ? ` ${match.label}` : "";
 
   const tagline =
-    settings?.hero_subtitle?.trim() || "Crafting timeless digital stories";
+    match.tagline ||
+    settings?.hero_subtitle?.trim() ||
+    "Crafting timeless digital stories";
 
   return (
     <div

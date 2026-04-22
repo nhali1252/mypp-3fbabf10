@@ -197,7 +197,8 @@ function SkillsPage() {
                 <div className="w-9 h-9 rounded-xl bg-primary/15 text-primary grid place-items-center ring-1 ring-primary/20 mb-3 group-hover:scale-110 transition-transform">
                   <s.Icon className="w-4 h-4" />
                 </div>
-                <p className="text-sm font-semibold leading-tight">{s.label}</p>
+                <p className="text-sm font-semibold leading-tight mb-1">{s.label}</p>
+                <p className="text-xs text-muted-foreground leading-snug">{s.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -221,7 +222,8 @@ function SkillsPage() {
                 <div className="w-9 h-9 rounded-xl bg-primary/15 text-primary grid place-items-center ring-1 ring-primary/20 mb-3">
                   <s.Icon className="w-4 h-4" />
                 </div>
-                <p className="text-sm font-semibold leading-tight">{s.label}</p>
+                <p className="text-sm font-semibold leading-tight mb-1">{s.label}</p>
+                <p className="text-xs text-muted-foreground leading-snug">{s.desc}</p>
               </motion.div>
             ))}
           </div>

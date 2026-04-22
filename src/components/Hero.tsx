@@ -26,16 +26,16 @@ export function Hero() {
   return (
     <section
       id="home"
-      className="relative pt-24 md:pt-28 pb-10 md:pb-16 overflow-hidden bg-background"
+      className="relative pt-32 md:pt-40 pb-10 md:pb-16 overflow-hidden bg-background"
     >
       <div className="max-w-[1200px] mx-auto px-4 md:px-6 relative">
-        {/* Large faded watermark name behind the card */}
+        {/* Large faded watermark name positioned BEHIND the portrait's head area */}
         <motion.div
           aria-hidden
-          className="absolute left-1/2 -translate-x-1/2 top-2 md:top-6 font-black uppercase whitespace-nowrap pointer-events-none select-none leading-none tracking-[-0.04em] z-0"
+          className="absolute left-1/2 -translate-x-1/2 -top-2 md:-top-6 font-black uppercase whitespace-nowrap pointer-events-none select-none leading-none tracking-[-0.04em] z-0"
           style={{
-            fontSize: "clamp(64px, 11vw, 180px)",
-            color: "color-mix(in oklab, var(--watermark) 7%, transparent)",
+            fontSize: "clamp(56px, 11vw, 180px)",
+            color: "color-mix(in oklab, var(--watermark) 14%, transparent)",
           }}
           initial={{ opacity: 0, y: reduce ? 0 : -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -46,7 +46,7 @@ export function Hero() {
 
         {/* Premium dark rounded hero card */}
         <motion.div
-          className="relative z-10 rounded-[24px] overflow-hidden border border-white/[0.06] shadow-[0_30px_80px_-30px_rgba(0,0,0,0.7)]"
+          className="relative z-10 rounded-[24px] border border-white/[0.06] shadow-[0_30px_80px_-30px_rgba(0,0,0,0.7)]"
           style={{
             background:
               "linear-gradient(180deg, color-mix(in oklab, var(--card) 96%, black) 0%, color-mix(in oklab, var(--card) 88%, black) 100%)",
@@ -55,21 +55,21 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease }}
         >
-          <div className="grid md:grid-cols-[40%_60%] items-stretch min-h-[520px] md:min-h-[560px]">
-            {/* Left: portrait */}
-            <div className="relative flex items-end justify-center md:justify-start pt-8 md:pt-0 px-4 md:pl-10 md:pr-0">
+          <div className="grid md:grid-cols-[40%_60%] items-stretch min-h-[520px] md:min-h-[560px] relative">
+            {/* Left: portrait — overflows ABOVE the card so head pops out */}
+            <div className="relative flex items-end justify-center md:justify-start px-4 md:pl-10 md:pr-0">
               <img
                 src={portrait}
                 alt="Ali Nur Hasan portrait"
                 width={820}
                 height={1120}
-                className="relative block h-[360px] sm:h-[440px] md:h-[600px] lg:h-[680px] w-auto object-contain object-bottom drop-shadow-[0_30px_50px_rgba(0,0,0,0.55)]"
+                className="relative z-20 block h-[420px] sm:h-[520px] md:h-[680px] lg:h-[760px] w-auto object-contain object-bottom -mt-24 md:-mt-32 lg:-mt-40 drop-shadow-[0_30px_50px_rgba(0,0,0,0.55)]"
               />
             </div>
 
             {/* Right: content */}
             <motion.div
-              className="relative px-6 md:px-10 lg:px-14 pb-10 md:pb-0 md:py-14 flex flex-col justify-center text-center md:text-left"
+              className="relative z-10 px-6 md:px-10 lg:px-14 pb-10 md:pb-0 md:py-14 flex flex-col justify-center text-center md:text-left"
               initial="hidden"
               animate="visible"
               variants={{

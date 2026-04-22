@@ -75,32 +75,36 @@ export function PageLoader({ minDurationMs = 3000 }: { minDurationMs?: number })
         />
       </div>
 
-      <div className="relative flex flex-col items-center text-center px-6">
-        {settings?.logo_url ? (
-          <img
-            src={settings.logo_url}
-            alt=""
-            className="mb-4 h-12 w-12 md:h-14 md:w-14 rounded-2xl object-cover border border-white/10 shadow-glow"
-          />
-        ) : null}
+      {siteName ? (
+        <div className="relative flex flex-col items-center text-center px-6">
+          {settings?.logo_url ? (
+            <img
+              src={settings.logo_url}
+              alt=""
+              className="mb-4 h-12 w-12 md:h-14 md:w-14 rounded-2xl object-cover border border-white/10 shadow-glow"
+            />
+          ) : null}
 
-        <div className="font-serif-display italic text-4xl sm:text-5xl tracking-tight select-none">
-          <span className="text-foreground">{head}</span>
-          {tail && (
-            <span className="bg-gradient-to-r from-[oklch(0.82_0.09_82)] to-[oklch(0.66_0.07_70)] bg-clip-text text-transparent">
-              {tail}
-            </span>
+          <div className="font-serif-display italic text-4xl sm:text-5xl tracking-tight select-none">
+            <span className="text-foreground">{head}</span>
+            {tail && (
+              <span className="bg-gradient-to-r from-[oklch(0.82_0.09_82)] to-[oklch(0.66_0.07_70)] bg-clip-text text-transparent">
+                {tail}
+              </span>
+            )}
+          </div>
+
+          {tagline && (
+            <p className="mt-2 text-[9px] uppercase tracking-[0.34em] text-foreground/55">
+              {tagline}
+            </p>
           )}
-        </div>
 
-        <p className="mt-2 text-[9px] uppercase tracking-[0.34em] text-foreground/55">
-          {tagline}
-        </p>
-
-        <div className="mt-6 h-[2px] w-32 overflow-hidden rounded-full bg-white/8">
-          <div className="page-loader-bar h-full w-1/2 bg-gradient-to-r from-transparent via-[oklch(0.78_0.08_80)] to-transparent" />
+          <div className="mt-6 h-[2px] w-32 overflow-hidden rounded-full bg-white/8">
+            <div className="page-loader-bar h-full w-1/2 bg-gradient-to-r from-transparent via-[oklch(0.78_0.08_80)] to-transparent" />
+          </div>
         </div>
-      </div>
+      ) : null}
 
       <style>{`
         @keyframes pageLoaderSlide {

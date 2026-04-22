@@ -7,7 +7,8 @@ import { test, expect } from "@playwright/test";
  * src/hooks/useLoaderTimings.ts) plus a ~260ms hide-fade. We assert it stays
  * visible through ~3.5s after a route change and is gone by ~4.5s.
  */
-const LOADER_SELECTOR = ".page-loader-bar";
+const LOADER_SELECTOR = '[data-testid="page-loader"]';
+const LOADER_DONE_SELECTOR = '[data-testid="page-loader-live"][data-loader-state="hidden"]';
 const EXPECTED_MS = 4000;
 const TOLERANCE_BEFORE_MS = 500; // still visible until close to 4000ms
 const TOLERANCE_AFTER_MS = 1000; // hidden by ~5000ms (4000 + fade + buffer)

@@ -209,8 +209,25 @@ export function PageLoader({
   // The live region is rendered EVEN when the loader is hidden, so screen
   // readers can announce both "Loading X" and "X ready" without the node
   // being unmounted between transitions.
+  // `data-loader-state` exposes the current lifecycle phase for E2E tests:
+  //   "visible" → overlay mounted and fully shown
+  //   "hiding"  → overlay mounted, fading out
+  //   "hidden"  → overlay unmounted (only the live region remains)
+  const loaderState: "visible" | "hiding" | "hidden" = !show
+    ? "hidden"
+    : hiding
+      ? "hiding"
+      : "visible";
+
   const liveRegion = (
-    <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+    <div
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      className="sr-only"
+      data-testid="page-loader-live"
+      data-loader-state={loaderState}
+    >
       {announcement}
     </div>
   );
@@ -225,6 +242,8 @@ export function PageLoader({
         aria-busy="true"
         aria-label={`Loading ${routeLabel}`}
         aria-hidden={hiding}
+        data-testid="page-loader"
+        data-loader-state={loaderState}
         className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background transition-opacity duration-[260ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
           hiding ? "opacity-0" : "opacity-100"
         }`}

@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { ExternalLink, Sparkles, Wallet, Building2, ArrowRight } from "lucide-react";
+import { ExternalLink, Sparkles, Wallet, LayoutTemplate, ArrowRight } from "lucide-react";
 
 
 export const Route = createFileRoute("/P")({
@@ -11,21 +11,21 @@ export const Route = createFileRoute("/P")({
       {
         name: "description",
         content:
-          "Selected work by Ali Nur Hasan — My Pocketo (p.alii.uk) personal finance app and Hazi Enterprise (he.alii.uk) business automation site.",
+          "Selected work by Ali Nur Hasan — my-v7 / my-v8 portfolio + CMS project and Pocket-Ledger personal finance app.",
       },
       { property: "og:type", content: "website" },
       { property: "og:title", content: "Projects — Ali Nur Hasan (TasTaj)" },
       {
         property: "og:description",
         content:
-          "My Pocketo finance app and Hazi Enterprise business automation site by Ali Nur Hasan.",
+          "Two real builds: my-v7 / my-v8 portfolio + admin CMS, and Pocket-Ledger finance app.",
       },
       { property: "twitter:card", content: "summary_large_image" },
       { property: "twitter:title", content: "Projects — Ali Nur Hasan (TasTaj)" },
       {
         property: "twitter:description",
         content:
-          "My Pocketo finance app and Hazi Enterprise business automation site by Ali Nur Hasan.",
+          "Two real builds: my-v7 / my-v8 portfolio + admin CMS, and Pocket-Ledger finance app.",
       },
     ],
   }),
@@ -46,11 +46,29 @@ type Project = {
 
 const projects: Project[] = [
   {
-    badge: "Finance · Web App",
-    title: "My Pocketo — Personal Finance Tracker",
+    badge: "Portfolio · CMS",
+    title: "my-v7 / my-v8 — Portfolio + Admin CMS",
+    tagline: "An evolving portfolio site with a real, editable admin behind it.",
+    description:
+      "my-v7 and my-v8 are the two iterations of my personal portfolio + CMS project. They pair a polished portfolio frontend with admin-editable sections — hero, social links, projects, and content blocks — so the site can be updated without touching code. Across these versions I focused on the hero card redesign, smoother animations, cleaner admin usability, and tighter content management. The work reflects both design thinking and practical website customization.",
+    highlights: [
+      "Admin-editable hero, sections, and social links",
+      "Hero card redesign with stronger typography and motion",
+      "Smooth, premium animations across the public pages",
+      "CMS / admin usability improvements between v7 and v8",
+      "Showcases design thinking + real product iteration",
+    ],
+    tech: ["Portfolio", "CMS", "Admin", "UI/UX", "Animations"],
+    icon: LayoutTemplate,
+    actions: [],
+    accent: "from-amber-500/30 to-rose-500/20",
+  },
+  {
+    badge: "Finance · App",
+    title: "Pocket-Ledger — Personal Finance & Account Tracker",
     tagline: "A focused app for digital record keeping and money management.",
     description:
-      "My Pocketo (Pocket-Ledger) is a finance and account tracking application centered on simple, reliable digital record keeping. It's designed around the everyday rhythm of logging transactions, reviewing balances and staying on top of personal finances — with a clean interface that keeps the focus on the numbers. I work on the source code and own the product direction, treating it as a long-term build.",
+      "Pocket-Ledger is a finance and account tracking application built around simple, reliable digital record keeping. It's designed for the everyday rhythm of logging transactions, reviewing balances and staying on top of personal finances — with a clean interface that keeps the focus on the numbers. I work on the source code and own the product direction, treating it as a long-term build that reflects my interest in practical digital products and modern app workflow.",
     highlights: [
       "Clean transaction entry and history",
       "Account-level balance and overview",
@@ -58,28 +76,10 @@ const projects: Project[] = [
       "Owned end-to-end: source code and product direction",
       "Demonstrates product thinking and modern app workflow",
     ],
-    tech: ["Web App", "Finance", "UX", "Product"],
+    tech: ["Finance", "App", "UX", "Product"],
     icon: Wallet,
-    actions: [{ label: "Visit p.alii.uk", href: "https://p.alii.uk", primary: true }],
+    actions: [],
     accent: "from-emerald-500/30 to-cyan-500/20",
-  },
-  {
-    badge: "Business · Automation",
-    title: "Hazi Enterprise (HE) — Business Automation Site",
-    tagline: "A business automation site for Hazi Enterprise.",
-    description:
-      "Hazi Enterprise (HE) is a business automation website that brings everyday operations online — from service presentation and customer touchpoints to streamlined internal workflows. The project pairs a clean, professional brand presence with practical automation flows so the business runs more smoothly, with less manual effort and a stronger digital footprint.",
-    highlights: [
-      "Professional brand-led business website",
-      "Automation flows for everyday operations",
-      "Clear service presentation for customers",
-      "Built for reliability and easy updates",
-      "Modern, responsive, business-ready UI",
-    ],
-    tech: ["Business", "Automation", "Web", "Brand"],
-    icon: Building2,
-    actions: [{ label: "Visit he.alii.uk", href: "https://he.alii.uk", primary: true }],
-    accent: "from-amber-500/30 to-rose-500/20",
   },
 ];
 

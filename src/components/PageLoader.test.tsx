@@ -11,6 +11,16 @@ vi.mock("@/hooks/useContent", () => ({
   useSiteSettings: () => ({ data: { site_name: "Test", hero_subtitle: "" } }),
 }));
 
+// Force-default timings so tests don't depend on localStorage state.
+vi.mock("@/hooks/useLoaderTimings", () => ({
+  useLoaderTimings: () => ({
+    timings: { initialMs: 4000, routeMs: 4000 },
+    update: () => {},
+    reset: () => {},
+  }),
+  DEFAULT_LOADER_TIMINGS: { initialMs: 4000, routeMs: 4000 },
+}));
+
 const HIDE_FADE = 260; // matches PageLoader's internal fade-out duration
 
 describe("PageLoader timings", () => {
@@ -28,13 +38,15 @@ describe("PageLoader timings", () => {
   });
 
   it("uses 4000ms as the default initialMs and routeMs", async () => {
-    // Read the source file directly — compiled JSX strips default-param syntax,
-    // so PageLoader.toString() can't be relied on for this check.
+    // Defaults now live in useLoaderTimings; verify them at the source.
     const fs = await import("node:fs");
     const path = await import("node:path");
-    const src = fs.readFileSync(path.resolve(__dirname, "PageLoader.tsx"), "utf8");
-    expect(src).toMatch(/initialMs\s*=\s*4000/);
-    expect(src).toMatch(/routeMs\s*=\s*4000/);
+    const src = fs.readFileSync(
+      path.resolve(__dirname, "../hooks/useLoaderTimings.ts"),
+      "utf8",
+    );
+    expect(src).toMatch(/initialMs:\s*4000/);
+    expect(src).toMatch(/routeMs:\s*4000/);
   });
 
   it("stays visible for the full configured initialMs before hiding", () => {

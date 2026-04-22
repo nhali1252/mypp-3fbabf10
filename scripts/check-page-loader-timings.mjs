@@ -11,12 +11,12 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const file = resolve(here, "../src/components/PageLoader.tsx");
+const file = resolve(here, "../src/hooks/useLoaderTimings.ts");
 const expected = Number(process.argv[2] ?? 4000);
 
 const src = readFileSync(file, "utf8");
-const initial = src.match(/initialMs\s*=\s*(\d+)/);
-const route = src.match(/routeMs\s*=\s*(\d+)/);
+const initial = src.match(/initialMs:\s*(\d+)/);
+const route = src.match(/routeMs:\s*(\d+)/);
 
 const fail = (msg) => {
   console.error(`\u274c  ${msg}`);

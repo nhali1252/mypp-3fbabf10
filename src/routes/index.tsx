@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowUpRight, Sparkles } from "lucide-react";
+import { useMotionPref } from "@/hooks/useMotionPref";
+import { MotionToggle } from "@/components/MotionToggle";
 
 
 export const Route = createFileRoute("/")({
@@ -97,7 +99,7 @@ function Launcher() {
 
   const cards = data ?? FALLBACK;
   const [hovered, setHovered] = useState<number | null>(null);
-  const reduceMotion = useReducedMotion();
+  const { reduceMotion } = useMotionPref();
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-hidden">
@@ -121,15 +123,18 @@ function Launcher() {
 
       <header className="relative px-5 sm:px-6 md:px-10 pt-10 md:pt-16">
         <div className="max-w-[1240px] mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.3em] text-primary mb-4"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            Portfolio · TasTaj
-          </motion.div>
+          <div className="flex items-center justify-between gap-4 mb-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.3em] text-primary"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Portfolio · TasTaj
+            </motion.div>
+            <MotionToggle />
+          </div>
 
           <motion.h1
             initial={{ opacity: 0, y: 24 }}

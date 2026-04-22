@@ -196,78 +196,92 @@ export function PageLoader({
     };
   }, [pathname, routeMs, initialMs]);
 
-  if (!show) return null;
-
-  const routeMap: Record<string, { label: string; tagline: string }> = {
-    "/": { label: "Welcome", tagline: "Pick a page to explore" },
-    "/B": { label: "Basic info", tagline: "About · Education · Activities" },
-    "/F": { label: "Skills & About", tagline: "Design · Tools · Workflow" },
-    "/P": { label: "Projects", tagline: "Selected work & case studies" },
+  const ROUTE_TAGLINES: Record<string, string> = {
+    "/": "Pick a page to explore",
+    "/B": "About · Education · Activities",
+    "/F": "Design · Tools · Workflow",
+    "/P": "Selected work & case studies",
   };
   const siteName = settings?.site_name?.trim() || "Portfolio";
-  const match = routeMap[pathname] ?? { label: "", tagline: "" };
-  const tail = match.label ? ` ${match.label}` : "";
-  const tagline = match.tagline || settings?.hero_subtitle?.trim() || "";
+  const tail = ROUTE_LABELS[pathname] ? ` ${ROUTE_LABELS[pathname]}` : "";
+  const tagline = ROUTE_TAGLINES[pathname] || settings?.hero_subtitle?.trim() || "";
+
+  // The live region is rendered EVEN when the loader is hidden, so screen
+  // readers can announce both "Loading X" and "X ready" without the node
+  // being unmounted between transitions.
+  const liveRegion = (
+    <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+      {announcement}
+    </div>
+  );
+
+  if (!show) return liveRegion;
 
   return (
-    <div
-      aria-hidden={hiding}
-      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background transition-opacity duration-[260ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
-        hiding ? "opacity-0" : "opacity-100"
-      }`}
-    >
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          className="absolute -top-32 left-1/2 -translate-x-1/2 h-[360px] w-[360px] rounded-full blur-[100px]"
-          style={{ background: "oklch(0.72 0.07 78 / 0.14)" }}
-        />
-      </div>
-
+    <>
+      {liveRegion}
       <div
-        className={`relative flex flex-col items-center text-center px-6 transition-all duration-[420ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
-          hiding ? "opacity-0 translate-y-1" : "opacity-100 translate-y-0"
+        role="alert"
+        aria-busy="true"
+        aria-label={`Loading ${routeLabel}`}
+        aria-hidden={hiding}
+        className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background transition-opacity duration-[260ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          hiding ? "opacity-0" : "opacity-100"
         }`}
       >
-        {settings?.logo_url ? (
-          <img
-            src={settings.logo_url}
-            alt=""
-            className="mb-4 h-12 w-12 md:h-14 md:w-14 rounded-2xl object-cover border border-white/10 shadow-glow"
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div
+            className="absolute -top-32 left-1/2 -translate-x-1/2 h-[360px] w-[360px] rounded-full blur-[100px]"
+            style={{ background: "oklch(0.72 0.07 78 / 0.14)" }}
           />
-        ) : null}
+        </div>
 
-        <div className="font-serif-display italic text-4xl sm:text-5xl tracking-tight select-none">
-          <span className="text-foreground">{siteName}</span>
-          {tail && (
-            <span className="bg-gradient-to-r from-[oklch(0.82_0.09_82)] to-[oklch(0.66_0.07_70)] bg-clip-text text-transparent">
-              {tail}
-            </span>
+        <div
+          className={`relative flex flex-col items-center text-center px-6 transition-all duration-[420ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            hiding ? "opacity-0 translate-y-1" : "opacity-100 translate-y-0"
+          }`}
+        >
+          {settings?.logo_url ? (
+            <img
+              src={settings.logo_url}
+              alt=""
+              className="mb-4 h-12 w-12 md:h-14 md:w-14 rounded-2xl object-cover border border-white/10 shadow-glow"
+            />
+          ) : null}
+
+          <div className="font-serif-display italic text-4xl sm:text-5xl tracking-tight select-none">
+            <span className="text-foreground">{siteName}</span>
+            {tail && (
+              <span className="bg-gradient-to-r from-[oklch(0.82_0.09_82)] to-[oklch(0.66_0.07_70)] bg-clip-text text-transparent">
+                {tail}
+              </span>
+            )}
+          </div>
+
+          {tagline && (
+            <p className="mt-2 text-[9px] uppercase tracking-[0.34em] text-foreground/55">
+              {tagline}
+            </p>
           )}
+
+          <div className="mt-6 h-[2px] w-32 overflow-hidden rounded-full bg-white/8">
+            <div className="page-loader-bar h-full w-1/2 bg-gradient-to-r from-transparent via-[oklch(0.78_0.08_80)] to-transparent" />
+          </div>
         </div>
 
-        {tagline && (
-          <p className="mt-2 text-[9px] uppercase tracking-[0.34em] text-foreground/55">
-            {tagline}
-          </p>
-        )}
-
-        <div className="mt-6 h-[2px] w-32 overflow-hidden rounded-full bg-white/8">
-          <div className="page-loader-bar h-full w-1/2 bg-gradient-to-r from-transparent via-[oklch(0.78_0.08_80)] to-transparent" />
-        </div>
+        <style>{`
+          @keyframes pageLoaderSlide {
+            0% { transform: translateX(-120%); }
+            100% { transform: translateX(260%); }
+          }
+          .page-loader-bar {
+            animation: pageLoaderSlide 1.05s cubic-bezier(0.22,1,0.36,1) infinite;
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .page-loader-bar { animation: none; }
+          }
+        `}</style>
       </div>
-
-      <style>{`
-        @keyframes pageLoaderSlide {
-          0% { transform: translateX(-120%); }
-          100% { transform: translateX(260%); }
-        }
-        .page-loader-bar {
-          animation: pageLoaderSlide 1.05s cubic-bezier(0.22,1,0.36,1) infinite;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .page-loader-bar { animation: none; }
-        }
-      `}</style>
-    </div>
+    </>
   );
 }

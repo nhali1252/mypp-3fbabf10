@@ -181,10 +181,74 @@
   .text-ink { color: var(--ink); }
   .shadow-card { box-shadow: var(--shadow-card); }
   .shadow-soft { box-shadow: var(--shadow-soft); }
+  .shadow-elevated { box-shadow: var(--shadow-elevated); }
   .shadow-glow { box-shadow: var(--shadow-glow); }
   .bg-gradient-card { background-image: var(--gradient-card); }
   .bg-gradient-gold { background-image: var(--gradient-gold); }
   .font-serif-display { font-family: 'Cormorant Garamond', serif; }
+
+  /* ── Premium interaction utilities ─────────────────────────────── */
+  .ease-smooth { transition-timing-function: var(--ease-smooth); }
+  .ease-out-soft { transition-timing-function: var(--ease-out-soft); }
+
+  /* Card lift — gentle, premium hover for any surface */
+  .hover-lift {
+    transition: transform var(--dur-base) var(--ease-smooth),
+                box-shadow var(--dur-base) var(--ease-smooth),
+                border-color var(--dur-base) var(--ease-smooth);
+    will-change: transform;
+  }
+  .hover-lift:hover { transform: translateY(-3px); box-shadow: var(--shadow-elevated); }
+  .hover-lift:active { transform: translateY(-1px); transition-duration: 90ms; }
+
+  /* Crisp tactile press for buttons */
+  .press {
+    transition: transform 140ms var(--ease-smooth),
+                box-shadow var(--dur-base) var(--ease-smooth),
+                background-color var(--dur-base) var(--ease-smooth);
+  }
+  .press:hover { transform: translateY(-1px); }
+  .press:active { transform: translateY(0) scale(0.985); transition-duration: 80ms; }
+
+  /* Frosted/glass surfaces for popovers, dialogs, nav */
+  .glass-surface {
+    background: color-mix(in oklab, var(--card) 78%, transparent);
+    backdrop-filter: saturate(140%) blur(14px);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
+    border: 1px solid color-mix(in oklab, var(--foreground) 8%, transparent);
+  }
+
+  /* Soft animated underline for inline links */
+  .link-underline { position: relative; }
+  .link-underline::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: -2px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right center;
+    transition: transform var(--dur-base) var(--ease-smooth);
+  }
+  .link-underline:hover::after { transform: scaleX(1); transform-origin: left center; }
+
+  /* Refined entrance animations — all share one easing language */
+  .anim-fade-up { animation: fadeUp var(--dur-slow) var(--ease-smooth) both; }
+  .anim-fade-in { animation: fadeIn var(--dur-slow) var(--ease-smooth) both; }
+  .anim-scale-in { animation: scaleIn var(--dur-base) var(--ease-smooth) both; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.97); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
 
   .ticker-track { animation: tick 28s linear infinite; }
   .ticker-wrap:hover .ticker-track { animation-play-state: paused; }

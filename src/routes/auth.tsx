@@ -157,14 +157,14 @@ function AuthPage() {
           {mode === "signin" && (
             <p>
               Need an account?{" "}
-              <button onClick={() => setMode("signup")} className="text-foreground font-medium hover:underline">
+              <button type="button" onClick={() => setMode("signup")} className="text-foreground font-medium hover:underline">
                 Sign up
               </button>
             </p>
           )}
           {(mode === "signup" || mode === "forgot") && (
             <p>
-              <button onClick={() => setMode("signin")} className="text-foreground font-medium hover:underline">
+              <button type="button" onClick={() => setMode("signin")} className="text-foreground font-medium hover:underline">
                 ← Back to sign in
               </button>
             </p>

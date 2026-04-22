@@ -269,7 +269,8 @@ function Launcher() {
                 </div>
               </Link>
             </motion.div>
-          ))}
+            );
+          })}
         </div>
       </main>
 

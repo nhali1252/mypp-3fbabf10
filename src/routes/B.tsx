@@ -7,7 +7,7 @@ import { Footer } from "@/components/Footer";
 import { AboutSection } from "@/components/sections/AboutSection";
 import { EducationSection } from "@/components/sections/EducationSection";
 import { SkillsSection } from "@/components/sections/SkillsSection";
-import { ProjectsSection } from "@/components/sections/ProjectsSection";
+import { ActivitiesSection } from "@/components/sections/ActivitiesSection";
 
 import { ContactSection } from "@/components/sections/ContactSection";
 import { HireMeProvider } from "@/components/HireMeProvider";
@@ -53,7 +53,7 @@ function PageB() {
           <AboutSection />
           <EducationSection />
           <SkillsSection />
-          <ProjectsSection />
+          <ActivitiesSection />
           
           <ContactSection />
         </main>

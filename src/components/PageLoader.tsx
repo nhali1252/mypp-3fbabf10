@@ -105,6 +105,12 @@ export function PageLoader({
       const wait = Math.max(0, initialMs - elapsed);
       hideTimer = window.setTimeout(() => {
         setHiding(true);
+        trackLoaderVisible({
+          kind: "initial",
+          path: pathname,
+          configuredMs: initialMs,
+          actualMs: performance.now() - start,
+        });
         removeTimer = window.setTimeout(() => {
           setShow(false);
           setHiding(false);

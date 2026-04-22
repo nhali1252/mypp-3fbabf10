@@ -3,11 +3,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 const STORAGE_KEY = "admin:pageKey";
 
-export type PageKey = "B" | "F";
+export type PageKey = "B" | "F" | "P";
 
 const OPTIONS: { value: PageKey; label: string }[] = [
   { value: "B", label: "Page B (original)" },
-  { value: "F", label: "Page F (redesign)" },
+  { value: "F", label: "Page F (skills)" },
+  { value: "P", label: "Page P (projects)" },
 ];
 
 export function usePageKey(): [PageKey, (v: PageKey) => void] {
@@ -15,7 +16,7 @@ export function usePageKey(): [PageKey, (v: PageKey) => void] {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const saved = window.localStorage.getItem(STORAGE_KEY) as PageKey | null;
-    if (saved === "B" || saved === "F") setPk(saved);
+    if (saved === "B" || saved === "F" || saved === "P") setPk(saved);
   }, []);
   const set = (v: PageKey) => {
     setPk(v);

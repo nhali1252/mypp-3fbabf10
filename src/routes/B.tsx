@@ -16,8 +16,26 @@ export const Route = createFileRoute("/B")({
   component: PageB,
   head: () => ({
     meta: [
-      { title: "Ali Nur Hasan — Portfolio (Version B)" },
-      { name: "description", content: "Original portfolio version of Ali Nur Hasan." },
+      { title: "Ali Nur Hasan — Portfolio (Original)" },
+      {
+        name: "description",
+        content:
+          "The original portfolio of Ali Nur Hasan (TasTaj) — graphic designer with 7 years of experience in branding, logos, posters and basic web design.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:title", content: "Ali Nur Hasan — Portfolio (Original)" },
+      {
+        property: "og:description",
+        content:
+          "Graphic designer (TasTaj) — branding, logos, posters, product & basic web design.",
+      },
+      { property: "twitter:card", content: "summary_large_image" },
+      { property: "twitter:title", content: "Ali Nur Hasan — Portfolio (Original)" },
+      {
+        property: "twitter:description",
+        content:
+          "Graphic designer (TasTaj) — branding, logos, posters, product & basic web design.",
+      },
     ],
   }),
 });

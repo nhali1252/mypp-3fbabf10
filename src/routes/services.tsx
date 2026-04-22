@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { Phone, MessageCircle, ArrowRight, Sparkles, ChevronRight } from "lucide-react";
+import { Phone, MessageCircle, Sparkles, ChevronRight, ArrowUpRight } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 

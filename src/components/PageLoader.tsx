@@ -9,7 +9,7 @@ import { useSiteSettings } from "@/hooks/useContent";
  * - Re-shows briefly on every route change so each page has its own intro.
  * - Wordmark + tagline adapt per-route (Launcher / Basic / Skills / Projects).
  */
-const EXPECTED_LOADER_MS = 600;
+const EXPECTED_LOADER_MS = 250;
 
 /**
  * Lightweight analytics hook for PageLoader visibility.
@@ -65,8 +65,8 @@ function trackLoaderVisible(detail: LoaderVisibleDetail) {
 }
 
 export function PageLoader({
-  initialMs = 600,
-  routeMs = 600,
+  initialMs = 250,
+  routeMs = 250,
 }: {
   initialMs?: number;
   routeMs?: number;

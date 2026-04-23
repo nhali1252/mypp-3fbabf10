@@ -528,53 +528,26 @@ function PhotoCard({
   return (
     <motion.div
       {...enter}
-      whileHover={reduce ? undefined : { y: -4, rotate: -0.3 }}
-      className="relative mx-auto lg:mx-0 group [perspective:1200px]"
+      className="relative mx-auto lg:mx-0 group isolate"
+      style={{ contain: "layout paint" }}
     >
-      {!reduce && (
-        <motion.div
-          aria-hidden
-          animate={{ rotate: 360 }}
-          transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
-          className="absolute -inset-8 rounded-[36px] blur-2xl opacity-60"
-          style={{
-            background:
-              "conic-gradient(from 0deg, color-mix(in oklab, var(--primary) 65%, transparent), transparent 30%, color-mix(in oklab, var(--primary) 45%, transparent) 60%, transparent 90%)",
-          }}
-        />
-      )}
-
-      {reduce ? (
-        <div
-          aria-hidden
-          className="absolute -inset-4 rounded-[34px] blur-3xl opacity-50"
-          style={{
-            background:
-              "radial-gradient(circle at 50% 60%, color-mix(in oklab, var(--primary) 55%, transparent), transparent 70%)",
-          }}
-        />
-      ) : (
-        <motion.div
-          aria-hidden
-          animate={{ opacity: [0.35, 0.7, 0.35], scale: [1, 1.05, 1] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -inset-4 rounded-[34px] blur-3xl"
-          style={{
-            background:
-              "radial-gradient(circle at 50% 60%, color-mix(in oklab, var(--primary) 60%, transparent), transparent 70%)",
-          }}
-        />
-      )}
-
+      {/* Static glow — no animation, prevents jank on scroll */}
       <div
         aria-hidden
-        className="absolute -inset-2 rounded-[32px] border border-primary/30 opacity-60 group-hover:opacity-100 group-hover:-inset-3 transition-all duration-500"
+        className="absolute -inset-4 rounded-[34px] blur-3xl opacity-50 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(circle at 50% 60%, color-mix(in oklab, var(--primary) 55%, transparent), transparent 70%)",
+        }}
       />
 
       <div
-        className={`relative w-[260px] h-[330px] sm:w-[300px] sm:h-[380px] rounded-[28px] overflow-hidden border border-border/80 bg-card shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6),0_0_0_1px_color-mix(in_oklab,var(--primary)_25%,transparent)] transition-transform duration-500 ${
-          reduce ? "" : "group-hover:[transform:rotateX(1deg)_rotateY(-1.5deg)]"
-        }`}
+        aria-hidden
+        className="absolute -inset-2 rounded-[32px] border border-primary/30 opacity-70 pointer-events-none"
+      />
+
+      <div
+        className="relative w-[260px] h-[330px] sm:w-[300px] sm:h-[380px] rounded-[28px] overflow-hidden border border-border/80 bg-card shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6),0_0_0_1px_color-mix(in_oklab,var(--primary)_25%,transparent)]"
       >
         {(isLoading || imgState === "loading") && (
           <div

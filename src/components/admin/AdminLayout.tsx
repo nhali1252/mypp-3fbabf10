@@ -54,6 +54,7 @@ const groups: Group[] = [
       { to: "/admin/navigation", label: "Navigation", Icon: Compass },
       { to: "/admin/contact", label: "Contact info", Icon: PhoneCall },
       { to: "/admin/footer-apps", label: "Footer apps", Icon: AppWindow },
+      { to: "/admin/footer-cta", label: "Footer CTA", Icon: Sparkles },
       { to: "/admin/messages", label: "Messages", Icon: Inbox },
       { to: "/admin/media", label: "Media library", Icon: ImageIcon },
     ],

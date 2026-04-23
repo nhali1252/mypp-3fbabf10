@@ -374,6 +374,60 @@ export type Database = {
         }
         Relationships: []
       }
+      footer_cta: {
+        Row: {
+          active: boolean
+          call_label: string
+          email_label: string
+          eyebrow: string
+          headline: string
+          id: string
+          primary_label: string
+          primary_url: string
+          show_call: boolean
+          show_email: boolean
+          show_whatsapp: boolean
+          singleton: boolean
+          subtext: string
+          updated_at: string
+          whatsapp_label: string
+        }
+        Insert: {
+          active?: boolean
+          call_label?: string
+          email_label?: string
+          eyebrow?: string
+          headline?: string
+          id?: string
+          primary_label?: string
+          primary_url?: string
+          show_call?: boolean
+          show_email?: boolean
+          show_whatsapp?: boolean
+          singleton?: boolean
+          subtext?: string
+          updated_at?: string
+          whatsapp_label?: string
+        }
+        Update: {
+          active?: boolean
+          call_label?: string
+          email_label?: string
+          eyebrow?: string
+          headline?: string
+          id?: string
+          primary_label?: string
+          primary_url?: string
+          show_call?: boolean
+          show_email?: boolean
+          show_whatsapp?: boolean
+          singleton?: boolean
+          subtext?: string
+          updated_at?: string
+          whatsapp_label?: string
+        }
+        Relationships: []
+      }
       footer_links: {
         Row: {
           active: boolean

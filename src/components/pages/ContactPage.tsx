@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { Mail, Phone, MessageCircle, Sparkles, Send, Loader2, Calendar, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { PageNav } from "@/components/PageNav";
 
 const projectTypes = [
   "Brand Identity",
@@ -107,8 +106,6 @@ export function ContactPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <PageNav active="/contact" />
-
       {/* HERO */}
       <section className="relative px-5 sm:px-6 md:px-10 pt-10 sm:pt-14 md:pt-20 pb-8 overflow-hidden">
         <div

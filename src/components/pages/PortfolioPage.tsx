@@ -34,8 +34,6 @@ export function PortfolioPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <PageNav active="/portfolio" />
-
       <section className="relative px-5 sm:px-6 md:px-10 pt-10 sm:pt-14 md:pt-20 pb-6 sm:pb-10 overflow-hidden">
         <div
           aria-hidden

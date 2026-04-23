@@ -9,12 +9,16 @@ import { ActivitiesSection } from "@/components/sections/ActivitiesSection";
 import { ContactSection } from "@/components/sections/ContactSection";
 import { HireMeProvider } from "@/components/HireMeProvider";
 import { useSmoothAnchors } from "@/hooks/useSmoothAnchors";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function BasicPage() {
   useSmoothAnchors();
   return (
     <HireMeProvider>
       <div className="min-h-screen">
+        <div className="fixed top-4 right-4 z-50">
+          <ThemeToggle />
+        </div>
         <Nav showHireMe={false} />
         <Hero showHireMe={false} />
         <Ticker />

@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowUpRight, Sparkles } from "lucide-react";
 import { useMotionPref } from "@/hooks/useMotionPref";
 import { MotionToggle } from "@/components/MotionToggle";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 
 export const Route = createFileRoute("/")({
@@ -94,6 +95,19 @@ const FALLBACK: LauncherCard[] = [
     sort_order: 4,
     active: true,
   },
+  {
+    id: "fb-c",
+    label: "Contact",
+    title: "Contact",
+    subtitle: "Start a project",
+    description: "Pick a slot, share a brief and I'll reply within 24 hours. Synced to my inbox.",
+    badge: "Talk",
+    route: "/contact",
+    accent: "from-rose-500/40 to-orange-500/10",
+    thumbnail_url: null,
+    sort_order: 5,
+    active: true,
+  },
 ];
 
 function Launcher() {
@@ -146,7 +160,10 @@ function Launcher() {
               <Sparkles className="w-3.5 h-3.5" />
               Portfolio · TasTaj
             </motion.div>
-            <MotionToggle />
+            <div className="flex items-center gap-2">
+              <MotionToggle />
+              <ThemeToggle />
+            </div>
           </div>
 
           <motion.h1

@@ -4,7 +4,8 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 const items = [
   { to: "/basic" as const, label: "Basic" },
   { to: "/about-and-skills" as const, label: "About" },
-  { to: "/projects" as const, label: "Portfolio" },
+  { to: "/portfolio" as const, label: "Portfolio" },
+  { to: "/projects" as const, label: "Projects" },
   { to: "/services" as const, label: "Services" },
   { to: "/contact" as const, label: "Contact" },
 ];

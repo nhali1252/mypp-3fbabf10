@@ -36,6 +36,7 @@ import { Route as AdminAdminSettingsRouteImport } from './routes/_admin.admin.se
 import { Route as AdminAdminServicesCmsRouteImport } from './routes/_admin.admin.services-cms'
 import { Route as AdminAdminSeoRouteImport } from './routes/_admin.admin.seo'
 import { Route as AdminAdminProjectsRouteImport } from './routes/_admin.admin.projects'
+import { Route as AdminAdminPortfolioPageRouteImport } from './routes/_admin.admin.portfolio-page'
 import { Route as AdminAdminNavigationRouteImport } from './routes/_admin.admin.navigation'
 import { Route as AdminAdminMessagesRouteImport } from './routes/_admin.admin.messages'
 import { Route as AdminAdminMediaRouteImport } from './routes/_admin.admin.media'
@@ -184,6 +185,11 @@ const AdminAdminProjectsRoute = AdminAdminProjectsRouteImport.update({
   path: '/admin/projects',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminPortfolioPageRoute = AdminAdminPortfolioPageRouteImport.update({
+  id: '/admin/portfolio-page',
+  path: '/admin/portfolio-page',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAdminNavigationRoute = AdminAdminNavigationRouteImport.update({
   id: '/admin/navigation',
   path: '/admin/navigation',
@@ -280,6 +286,7 @@ export interface FileRoutesByFullPath {
   '/admin/media': typeof AdminAdminMediaRoute
   '/admin/messages': typeof AdminAdminMessagesRoute
   '/admin/navigation': typeof AdminAdminNavigationRoute
+  '/admin/portfolio-page': typeof AdminAdminPortfolioPageRoute
   '/admin/projects': typeof AdminAdminProjectsRoute
   '/admin/seo': typeof AdminAdminSeoRoute
   '/admin/services-cms': typeof AdminAdminServicesCmsRoute
@@ -321,6 +328,7 @@ export interface FileRoutesByTo {
   '/admin/media': typeof AdminAdminMediaRoute
   '/admin/messages': typeof AdminAdminMessagesRoute
   '/admin/navigation': typeof AdminAdminNavigationRoute
+  '/admin/portfolio-page': typeof AdminAdminPortfolioPageRoute
   '/admin/projects': typeof AdminAdminProjectsRoute
   '/admin/seo': typeof AdminAdminSeoRoute
   '/admin/services-cms': typeof AdminAdminServicesCmsRoute
@@ -364,6 +372,7 @@ export interface FileRoutesById {
   '/_admin/admin/media': typeof AdminAdminMediaRoute
   '/_admin/admin/messages': typeof AdminAdminMessagesRoute
   '/_admin/admin/navigation': typeof AdminAdminNavigationRoute
+  '/_admin/admin/portfolio-page': typeof AdminAdminPortfolioPageRoute
   '/_admin/admin/projects': typeof AdminAdminProjectsRoute
   '/_admin/admin/seo': typeof AdminAdminSeoRoute
   '/_admin/admin/services-cms': typeof AdminAdminServicesCmsRoute
@@ -407,6 +416,7 @@ export interface FileRouteTypes {
     | '/admin/media'
     | '/admin/messages'
     | '/admin/navigation'
+    | '/admin/portfolio-page'
     | '/admin/projects'
     | '/admin/seo'
     | '/admin/services-cms'
@@ -448,6 +458,7 @@ export interface FileRouteTypes {
     | '/admin/media'
     | '/admin/messages'
     | '/admin/navigation'
+    | '/admin/portfolio-page'
     | '/admin/projects'
     | '/admin/seo'
     | '/admin/services-cms'
@@ -490,6 +501,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/media'
     | '/_admin/admin/messages'
     | '/_admin/admin/navigation'
+    | '/_admin/admin/portfolio-page'
     | '/_admin/admin/projects'
     | '/_admin/admin/seo'
     | '/_admin/admin/services-cms'
@@ -710,6 +722,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminProjectsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/portfolio-page': {
+      id: '/_admin/admin/portfolio-page'
+      path: '/admin/portfolio-page'
+      fullPath: '/admin/portfolio-page'
+      preLoaderRoute: typeof AdminAdminPortfolioPageRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/navigation': {
       id: '/_admin/admin/navigation'
       path: '/admin/navigation'
@@ -848,6 +867,7 @@ interface AdminRouteChildren {
   AdminAdminMediaRoute: typeof AdminAdminMediaRoute
   AdminAdminMessagesRoute: typeof AdminAdminMessagesRoute
   AdminAdminNavigationRoute: typeof AdminAdminNavigationRoute
+  AdminAdminPortfolioPageRoute: typeof AdminAdminPortfolioPageRoute
   AdminAdminProjectsRoute: typeof AdminAdminProjectsRoute
   AdminAdminSeoRoute: typeof AdminAdminSeoRoute
   AdminAdminServicesCmsRoute: typeof AdminAdminServicesCmsRoute
@@ -874,6 +894,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminMediaRoute: AdminAdminMediaRoute,
   AdminAdminMessagesRoute: AdminAdminMessagesRoute,
   AdminAdminNavigationRoute: AdminAdminNavigationRoute,
+  AdminAdminPortfolioPageRoute: AdminAdminPortfolioPageRoute,
   AdminAdminProjectsRoute: AdminAdminProjectsRoute,
   AdminAdminSeoRoute: AdminAdminSeoRoute,
   AdminAdminServicesCmsRoute: AdminAdminServicesCmsRoute,

@@ -124,6 +124,21 @@ const FALLBACK: LauncherCard[] = [
   },
 ];
 
+type LauncherHero = {
+  eyebrow: string;
+  headline_top: string;
+  headline_bottom: string;
+  intro: string;
+};
+
+const HERO_FALLBACK: LauncherHero = {
+  eyebrow: "Portfolio · TasTaj",
+  headline_top: "Pick a page",
+  headline_bottom: "to explore.",
+  intro:
+    "A curated launcher for Ali Nur Hasan's portfolio. Each card opens an independent page — managed and editable from the admin panel.",
+};
+
 function Launcher() {
   const { data } = useQuery({
     queryKey: ["launcher_pages"],
@@ -138,6 +153,20 @@ function Launcher() {
     },
   });
 
+  const { data: heroData } = useQuery({
+    queryKey: ["launcher_hero"],
+    queryFn: async (): Promise<LauncherHero> => {
+      const { data, error } = await (supabase as any)
+        .from("launcher_hero")
+        .select("eyebrow, headline_top, headline_bottom, intro")
+        .limit(1)
+        .maybeSingle();
+      if (error || !data) return HERO_FALLBACK;
+      return data as LauncherHero;
+    },
+  });
+
+  const hero = heroData ?? HERO_FALLBACK;
   const cards = data ?? FALLBACK;
   const [hovered, setHovered] = useState<number | null>(null);
   const { reduceMotion } = useMotionPref();

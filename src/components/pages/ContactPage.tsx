@@ -161,21 +161,23 @@ export function ContactPage() {
       <section className="px-5 sm:px-6 md:px-10 pb-16">
         <div className="max-w-[1180px] mx-auto grid lg:grid-cols-[1fr_360px] gap-6">
           <motion.form
+            id="contact-form"
             onSubmit={onSubmit}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="rounded-3xl border border-border bg-card p-6 sm:p-8 md:p-10 space-y-6"
+            className="rounded-3xl border border-border bg-card p-6 sm:p-8 md:p-10 space-y-6 scroll-mt-24"
             style={{ background: "var(--gradient-card)" }}
           >
             <div className="grid sm:grid-cols-2 gap-4">
               <Field label="Your name">
                 <input
+                  id="contact-name-input"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
                   className="input"
-                  placeholder="Ali Nur Hasan"
+                  placeholder="Write your name here"
                 />
               </Field>
               <Field label="Email">

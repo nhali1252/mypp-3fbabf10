@@ -117,14 +117,22 @@ export function ContactPage() {
           }}
         />
         <div className="relative max-w-[1100px] mx-auto text-center">
-          <motion.span
+          <motion.button
+            type="button"
+            onClick={() => {
+              const el = document.getElementById("contact-form");
+              el?.scrollIntoView({ behavior: "smooth", block: "start" });
+              setTimeout(() => {
+                document.getElementById("contact-name-input")?.focus();
+              }, 600);
+            }}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card/60 backdrop-blur text-[11px] font-bold uppercase tracking-[0.25em] text-primary"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card/60 backdrop-blur text-[11px] font-bold uppercase tracking-[0.25em] text-primary hover:bg-primary/10 hover:border-primary/40 transition-colors cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5" /> Start a project
-          </motion.span>
+          </motion.button>
           <motion.h1
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}

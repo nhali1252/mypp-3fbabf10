@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { useSiteSettings } from "@/hooks/useContent";
+import { usePageLoaderSettings, PAGE_LOADER_DEFAULTS } from "@/hooks/usePageLoaderSettings";
 
 /**
  * Buttery, professional full-screen brand loader.
@@ -65,22 +66,18 @@ function trackLoaderVisible(detail: LoaderVisibleDetail) {
 }
 
 export function PageLoader({
-  initialMs = 250,
-  routeMs = 250,
+  initialMs: initialMsProp,
+  routeMs: routeMsProp,
 }: {
   initialMs?: number;
   routeMs?: number;
-}) {
-  // Dev-only sanity check: warn loudly if defaults drift from the configured value.
-  if (import.meta.env?.DEV) {
-    console.assert(
-      initialMs === EXPECTED_LOADER_MS && routeMs === EXPECTED_LOADER_MS,
-      `[PageLoader] Expected ${EXPECTED_LOADER_MS}ms timings, got initialMs=${initialMs}, routeMs=${routeMs}`,
-    );
-  }
+} = {}) {
   const [show, setShow] = useState(true);
   const [hiding, setHiding] = useState(false);
   const { data: settings } = useSiteSettings();
+  const { data: loaderCfg } = usePageLoaderSettings();
+  const initialMs = initialMsProp ?? loaderCfg?.initial_ms ?? PAGE_LOADER_DEFAULTS.initial_ms;
+  const routeMs = routeMsProp ?? loaderCfg?.route_ms ?? PAGE_LOADER_DEFAULTS.route_ms;
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isFirstRun = useRef(true);
   const lastPath = useRef(pathname);
@@ -179,30 +176,19 @@ export function PageLoader({
 
   if (!show) return null;
 
-  const routeMap: Record<string, { label: string; tagline: string }> = {
-    "/": { label: "Welcome", tagline: "Pick a page to explore" },
-    "/basic": { label: "Basic info", tagline: "About · Education · Activities" },
-    "/about-and-skills": { label: "Skills & About", tagline: "Design · Tools · Workflow" },
-    "/portfolio": { label: "Portfolio", tagline: "Client & design work" },
-    "/projects": { label: "Projects", tagline: "Personal & code projects" },
-    "/services": { label: "Services", tagline: "What I offer" },
-    "/services-design": { label: "Design Services", tagline: "Branding · Identity · Print" },
-    "/contact": { label: "Contact", tagline: "Start a project" },
-    "/auth": { label: "Sign in", tagline: "Admin access" },
-    "/reset-password": { label: "Reset password", tagline: "Account recovery" },
-    // Legacy short-key routes still supported
-    "/B": { label: "Basic info", tagline: "About · Education · Activities" },
-    "/F": { label: "Skills & About", tagline: "Design · Tools · Workflow" },
-    "/P": { label: "Projects", tagline: "Selected work & case studies" },
-  };
   // Admin routes share one label
   const isAdmin = pathname.startsWith("/admin");
   const siteName = settings?.site_name?.trim() || "Portfolio";
+  const dbRoutes = loaderCfg?.routes ?? PAGE_LOADER_DEFAULTS.routes;
+  const fallbackRoutes = PAGE_LOADER_DEFAULTS.routes;
+  const dbDefaultLabel = loaderCfg?.default_label?.trim() || "";
+  const dbDefaultTagline = loaderCfg?.default_tagline?.trim() || "";
+  const lookup = (path: string) => dbRoutes[path] ?? fallbackRoutes[path];
   const match = isAdmin
-    ? { label: "Admin", tagline: "Content management" }
-    : (routeMap[pathname] ?? { label: "", tagline: "" });
+    ? (lookup("/admin") ?? { label: "Admin", tagline: "Content management" })
+    : (lookup(pathname) ?? { label: dbDefaultLabel, tagline: dbDefaultTagline });
   const tail = match.label ? ` ${match.label}` : "";
-  const tagline = match.tagline || settings?.hero_subtitle?.trim() || "";
+  const tagline = match.tagline || dbDefaultTagline || settings?.hero_subtitle?.trim() || "";
 
   return (
     <div

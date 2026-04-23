@@ -216,7 +216,7 @@ function Launcher() {
             className="font-black tracking-tight leading-[1.02]"
             style={{ fontSize: "clamp(38px, 7vw, 88px)" }}
           >
-            Pick a page <br className="hidden sm:block" />
+            {hero.headline_top} <br className="hidden sm:block" />
             <span
               className="bg-clip-text text-transparent"
               style={{

@@ -84,9 +84,6 @@ export function Footer() {
       )}
 
       {/* Permanent "Start a project" CTA — appears on every page, just above the credit line */}
-      <div className="relative mb-6">
-        <div className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-5 sm:p-6 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-      {/* Permanent "Start a project" CTA — appears on every page, just above the credit line */}
       {cta.active && (
         <div className="relative mb-6">
           <div className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-5 sm:p-6 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">

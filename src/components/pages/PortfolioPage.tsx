@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, Eye, Folder, FolderOpen, X, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { PageNav } from "@/components/PageNav";
 
 type FProject = {
   id: string;

@@ -13,7 +13,6 @@ import {
   PenTool,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { PageNav } from "@/components/PageNav";
 import { getIcon } from "@/lib/iconRegistry";
 
 type ServiceRow = {
@@ -81,8 +80,6 @@ export function ServicesTasTajPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <PageNav active="/services" />
-
       {/* HERO */}
       <section className="relative px-5 sm:px-6 md:px-10 pt-10 sm:pt-14 md:pt-20 pb-10 overflow-hidden">
         <div

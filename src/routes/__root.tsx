@@ -6,8 +6,23 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { PageLoader } from "@/components/PageLoader";
 import { RouteTransition } from "@/components/RouteTransition";
 import { SiteHead } from "@/components/SiteHead";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 import appCss from "../styles.css?url";
+
+// Inline script that runs before React hydrates so the right theme class
+// is set on <html> on first paint and we never flash the wrong colors.
+const themeBootScript = `(() => {
+  try {
+    var t = localStorage.getItem('theme');
+    if (t !== 'dark' && t !== 'light') {
+      t = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    }
+    var r = document.documentElement;
+    r.classList.add(t);
+    r.style.colorScheme = t;
+  } catch (e) {}
+})();`;
 
 function NotFoundComponent() {
   return (
@@ -69,6 +84,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
       </head>
       <body>
         {children}
@@ -82,12 +98,14 @@ function RootComponent() {
   const [queryClient] = useState(() => new QueryClient());
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <SiteHead />
-        <PageLoader />
-        <RouteTransition />
-        <Toaster richColors position="top-right" />
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <SiteHead />
+          <PageLoader />
+          <RouteTransition />
+          <Toaster richColors position="top-right" />
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

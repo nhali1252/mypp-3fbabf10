@@ -181,12 +181,25 @@ export function PageLoader({
 
   const routeMap: Record<string, { label: string; tagline: string }> = {
     "/": { label: "Welcome", tagline: "Pick a page to explore" },
+    "/basic": { label: "Basic info", tagline: "About · Education · Activities" },
+    "/about-and-skills": { label: "Skills & About", tagline: "Design · Tools · Workflow" },
+    "/portfolio": { label: "Portfolio", tagline: "Client & design work" },
+    "/projects": { label: "Projects", tagline: "Personal & code projects" },
+    "/services": { label: "Services", tagline: "What I offer" },
+    "/contact": { label: "Contact", tagline: "Start a project" },
+    "/auth": { label: "Sign in", tagline: "Admin access" },
+    "/reset-password": { label: "Reset password", tagline: "Account recovery" },
+    // Legacy short-key routes still supported
     "/B": { label: "Basic info", tagline: "About · Education · Activities" },
     "/F": { label: "Skills & About", tagline: "Design · Tools · Workflow" },
     "/P": { label: "Projects", tagline: "Selected work & case studies" },
   };
+  // Admin routes share one label
+  const isAdmin = pathname.startsWith("/admin");
   const siteName = settings?.site_name?.trim() || "Portfolio";
-  const match = routeMap[pathname] ?? { label: "", tagline: "" };
+  const match = isAdmin
+    ? { label: "Admin", tagline: "Content management" }
+    : (routeMap[pathname] ?? { label: "", tagline: "" });
   const tail = match.label ? ` ${match.label}` : "";
   const tagline = match.tagline || settings?.hero_subtitle?.trim() || "";
 

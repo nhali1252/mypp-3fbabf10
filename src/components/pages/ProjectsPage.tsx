@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { ExternalLink, Github, ArrowRight, FolderKanban } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { PageNav } from "@/components/PageNav";
 
 const accents = [
   "from-emerald-500/30 to-cyan-500/20",
@@ -28,19 +29,7 @@ export function ProjectsPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="px-5 sm:px-6 md:px-10 pt-7 md:pt-10">
-        <div className="max-w-[1200px] mx-auto flex items-center justify-between gap-3">
-          <Link to="/" className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.25em] text-muted-foreground hover:text-foreground transition-colors">
-            ← All pages
-          </Link>
-          <nav className="flex items-center gap-3 sm:gap-4 text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em]">
-            <Link to="/basic" className="text-muted-foreground hover:text-foreground transition-colors">Basic</Link>
-            <Link to="/about-and-skills" className="text-muted-foreground hover:text-foreground transition-colors">About</Link>
-            <Link to="/projects" className="text-primary">Projects</Link>
-            <Link to="/services-design" className="text-muted-foreground hover:text-foreground transition-colors">Services</Link>
-          </nav>
-        </div>
-      </header>
+      <PageNav active="/projects" />
 
       <section className="px-5 sm:px-6 md:px-10 pt-8 sm:pt-10 md:pt-14 pb-4 sm:pb-6">
         <div className="max-w-[1200px] mx-auto">

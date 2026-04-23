@@ -7,6 +7,7 @@ import { ArrowUpRight, Sparkles } from "lucide-react";
 import { useMotionPref } from "@/hooks/useMotionPref";
 import { MotionToggle } from "@/components/MotionToggle";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Footer } from "@/components/Footer";
 
 
 export const Route = createFileRoute("/")({
@@ -344,12 +345,7 @@ function Launcher() {
         </div>
       </main>
 
-      <footer className="relative px-5 sm:px-6 md:px-10 py-8 text-center text-xs text-muted-foreground border-t border-border">
-        © {new Date().getFullYear()} Ali Nur Hasan · TasTaj ·{" "}
-        <Link to="/auth" className="hover:text-foreground transition-colors">
-          Admin
-        </Link>
-      </footer>
+      <Footer />
     </div>
   );
 }

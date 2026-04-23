@@ -13,6 +13,7 @@ import {
 } from "@/hooks/useFContent";
 import { getIcon } from "@/lib/iconRegistry";
 import { HireMeProvider, useHireMe } from "@/components/HireMeProvider";
+import { Footer } from "@/components/Footer";
 
 const tools = ["Canva", "Adobe Photoshop", "Adobe Illustrator", "Figma", "AI workflow tools"];
 const marqueeWords = ["Branding", "Logo Design", "Posters", "Banners", "Social", "Packaging", "Web Visuals", "Editorial"];
@@ -412,10 +413,7 @@ function AboutSkillsInner() {
         </div>
       </section>
 
-      <footer className="px-5 sm:px-6 md:px-10 py-8 text-center text-xs text-muted-foreground border-t border-border">
-        © {new Date().getFullYear()} Ali Nur Hasan · TasTaj ·{" "}
-        <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
-      </footer>
+      <Footer />
       <HireMeFloatingButton />
     </div>
   );

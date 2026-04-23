@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useFooterLinks, useSiteSettings, useContactSettings, useFooterApps } from "@/hooks/useContent";
+import { useFooterCta, FOOTER_CTA_DEFAULTS } from "@/hooks/useFooterCta";
 import { motion, useReducedMotion } from "framer-motion";
 import { SocialIcons, type SocialMap } from "./SocialIcons";
 import { ArrowUpRight, AppWindow, Mail, Phone, MessageCircle, Sparkles } from "lucide-react";
@@ -17,9 +18,12 @@ export function Footer() {
   const { data: settings } = useSiteSettings();
   const { data: contact } = useContactSettings();
   const { data: apps = [] } = useFooterApps();
+  const { data: ctaData } = useFooterCta();
+  const cta = ctaData ?? FOOTER_CTA_DEFAULTS;
   const social = (contact?.social_links as SocialMap | undefined) ?? {};
   const reduce = useReducedMotion();
   const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
+  const ctaIsExternal = /^https?:\/\//i.test(cta.primary_url);
 
   return (
     <motion.footer

@@ -86,53 +86,69 @@ export function Footer() {
       {/* Permanent "Start a project" CTA — appears on every page, just above the credit line */}
       <div className="relative mb-6">
         <div className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-5 sm:p-6 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-          <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-primary mb-1.5 flex items-center gap-1.5">
-              <Sparkles className="w-3 h-3" /> Start a project
-            </p>
-            <h3 className="text-base sm:text-lg font-bold text-foreground leading-tight">
-              Have a brief or an idea? Let's talk.
-            </h3>
-            <p className="text-xs text-muted-foreground mt-1">
-              Replies within 24 hours · Calls Mon–Fri
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2 shrink-0">
-            <Link
-              to="/contact"
-              className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-xs font-bold uppercase tracking-[0.18em] hover:opacity-90 transition-opacity shadow-glow"
-            >
-              <Sparkles className="w-3.5 h-3.5" /> Start a project
-            </Link>
-            {contact?.email && (
-              <a
-                href={`mailto:${contact.email}`}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] hover:bg-white/[0.08] hover:border-primary/40 px-4 py-2.5 text-xs font-bold uppercase tracking-[0.18em] text-foreground/85 transition-colors"
-              >
-                <Mail className="w-3.5 h-3.5" /> Email
-              </a>
-            )}
-            {contact?.whatsapp && (
-              <a
-                href={`https://wa.me/${contact.whatsapp.replace(/[^0-9]/g, "")}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] hover:bg-white/[0.08] hover:border-primary/40 px-4 py-2.5 text-xs font-bold uppercase tracking-[0.18em] text-foreground/85 transition-colors"
-              >
-                <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
-              </a>
-            )}
-            {contact?.phone && (
-              <a
-                href={`tel:${contact.phone.replace(/\s+/g, "")}`}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] hover:bg-white/[0.08] hover:border-primary/40 px-4 py-2.5 text-xs font-bold uppercase tracking-[0.18em] text-foreground/85 transition-colors"
-              >
-                <Phone className="w-3.5 h-3.5" /> Call
-              </a>
-            )}
+      {/* Permanent "Start a project" CTA — appears on every page, just above the credit line */}
+      {cta.active && (
+        <div className="relative mb-6">
+          <div className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-5 sm:p-6 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-primary mb-1.5 flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3" /> {cta.eyebrow}
+              </p>
+              <h3 className="text-base sm:text-lg font-bold text-foreground leading-tight">
+                {cta.headline}
+              </h3>
+              {cta.subtext && (
+                <p className="text-xs text-muted-foreground mt-1">{cta.subtext}</p>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2 shrink-0">
+              {ctaIsExternal ? (
+                <a
+                  href={cta.primary_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-xs font-bold uppercase tracking-[0.18em] hover:opacity-90 transition-opacity shadow-glow"
+                >
+                  <Sparkles className="w-3.5 h-3.5" /> {cta.primary_label}
+                </a>
+              ) : (
+                <Link
+                  to={cta.primary_url}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-xs font-bold uppercase tracking-[0.18em] hover:opacity-90 transition-opacity shadow-glow"
+                >
+                  <Sparkles className="w-3.5 h-3.5" /> {cta.primary_label}
+                </Link>
+              )}
+              {cta.show_email && contact?.email && (
+                <a
+                  href={`mailto:${contact.email}`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] hover:bg-white/[0.08] hover:border-primary/40 px-4 py-2.5 text-xs font-bold uppercase tracking-[0.18em] text-foreground/85 transition-colors"
+                >
+                  <Mail className="w-3.5 h-3.5" /> {cta.email_label}
+                </a>
+              )}
+              {cta.show_whatsapp && contact?.whatsapp && (
+                <a
+                  href={`https://wa.me/${contact.whatsapp.replace(/[^0-9]/g, "")}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] hover:bg-white/[0.08] hover:border-primary/40 px-4 py-2.5 text-xs font-bold uppercase tracking-[0.18em] text-foreground/85 transition-colors"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" /> {cta.whatsapp_label}
+                </a>
+              )}
+              {cta.show_call && contact?.phone && (
+                <a
+                  href={`tel:${contact.phone.replace(/\s+/g, "")}`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] hover:bg-white/[0.08] hover:border-primary/40 px-4 py-2.5 text-xs font-bold uppercase tracking-[0.18em] text-foreground/85 transition-colors"
+                >
+                  <Phone className="w-3.5 h-3.5" /> {cta.call_label}
+                </a>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="relative flex flex-col md:flex-row md:justify-between gap-6 items-center pt-6 border-t border-white/5">
         <a

@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Sparkles, User, GraduationCap, Lightbulb, FolderKanban,
   Activity, Megaphone, PhoneCall, Inbox, Image as ImageIcon,
   Search, Settings, Users, LogOut, ExternalLink, Compass, AppWindow, ClipboardCheck,
-  Folder, LayoutGrid, Car, Rocket, Briefcase, Wrench,
+  Folder, LayoutGrid, Car, Rocket, Briefcase, Wrench, Loader2,
 } from "lucide-react";
 
 type Item = { to: string; label: string; Icon: any; end?: boolean };
@@ -62,6 +62,7 @@ const groups: Group[] = [
     label: "Settings",
     items: [
       { to: "/admin/seo", label: "SEO", Icon: Search },
+      { to: "/admin/page-loader", label: "Page loader", Icon: Loader2 },
       { to: "/admin/settings", label: "Site settings", Icon: Settings },
       { to: "/admin/users", label: "Users", Icon: Users },
     ],

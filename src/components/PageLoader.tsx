@@ -10,7 +10,7 @@ import { usePageLoaderSettings, PAGE_LOADER_DEFAULTS } from "@/hooks/usePageLoad
  * - Re-shows briefly on every route change so each page has its own intro.
  * - Wordmark + tagline adapt per-route (Launcher / Basic / Skills / Projects).
  */
-const EXPECTED_LOADER_MS = 250;
+
 
 /**
  * Lightweight analytics hook for PageLoader visibility.

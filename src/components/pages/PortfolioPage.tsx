@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, Eye, Folder, FolderOpen, X, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Footer } from "@/components/Footer";
 
 type FProject = {
   id: string;
@@ -99,10 +100,7 @@ export function PortfolioPage() {
         {active && <ProjectModal project={active} onClose={() => setActive(null)} />}
       </AnimatePresence>
 
-      <footer className="px-5 sm:px-6 md:px-10 py-8 sm:py-10 text-center text-xs text-muted-foreground border-t border-border">
-        © {new Date().getFullYear()} Ali Nur Hasan · TasTaj ·{" "}
-        <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
-      </footer>
+      <Footer />
     </div>
   );
 }

@@ -1,7 +1,8 @@
+import { Link } from "@tanstack/react-router";
 import { useFooterLinks, useSiteSettings, useContactSettings, useFooterApps } from "@/hooks/useContent";
 import { motion, useReducedMotion } from "framer-motion";
 import { SocialIcons, type SocialMap } from "./SocialIcons";
-import { ArrowUpRight, AppWindow, Mail, Phone, Globe } from "lucide-react";
+import { ArrowUpRight, AppWindow, Mail, Phone, MessageCircle, Sparkles } from "lucide-react";
 
 interface FooterApp {
   id: string;
@@ -78,53 +79,56 @@ export function Footer() {
         </div>
       )}
 
-      {/* Quick contact strip — sits above the footer divider on every page */}
-      {(contact?.email || contact?.phone || (typeof window !== "undefined")) && (
-        <div className="relative grid sm:grid-cols-3 gap-3 mb-6">
-          {contact?.email && (
-            <a
-              href={`mailto:${contact.email}`}
-              className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-primary/40 px-4 py-3 transition-all"
+      {/* Permanent "Start a project" CTA — appears on every page, just above the credit line */}
+      <div className="relative mb-6">
+        <div className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-5 sm:p-6 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-primary mb-1.5 flex items-center gap-1.5">
+              <Sparkles className="w-3 h-3" /> Start a project
+            </p>
+            <h3 className="text-base sm:text-lg font-bold text-foreground leading-tight">
+              Have a brief or an idea? Let's talk.
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Replies within 24 hours · Calls Mon–Fri
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2 shrink-0">
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-xs font-bold uppercase tracking-[0.18em] hover:opacity-90 transition-opacity shadow-glow"
             >
-              <span className="w-9 h-9 grid place-items-center rounded-xl bg-primary/15 text-primary border border-primary/25">
-                <Mail size={15} />
-              </span>
-              <div className="min-w-0">
-                <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Email</div>
-                <div className="text-sm text-foreground truncate group-hover:text-primary transition-colors">{contact.email}</div>
-              </div>
-            </a>
-          )}
-          {contact?.phone && (
-            <a
-              href={`tel:${contact.phone.replace(/\s+/g, "")}`}
-              className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-primary/40 px-4 py-3 transition-all"
-            >
-              <span className="w-9 h-9 grid place-items-center rounded-xl bg-primary/15 text-primary border border-primary/25">
-                <Phone size={15} />
-              </span>
-              <div className="min-w-0">
-                <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Phone</div>
-                <div className="text-sm text-foreground truncate group-hover:text-primary transition-colors">{contact.phone}</div>
-              </div>
-            </a>
-          )}
-          <a
-            href="/"
-            className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-primary/40 px-4 py-3 transition-all"
-          >
-            <span className="w-9 h-9 grid place-items-center rounded-xl bg-primary/15 text-primary border border-primary/25">
-              <Globe size={15} />
-            </span>
-            <div className="min-w-0">
-              <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Website</div>
-              <div className="text-sm text-foreground truncate group-hover:text-primary transition-colors">
-                {typeof window !== "undefined" ? window.location.host : "alii.uk"}
-              </div>
-            </div>
-          </a>
+              <Sparkles className="w-3.5 h-3.5" /> Start a project
+            </Link>
+            {contact?.email && (
+              <a
+                href={`mailto:${contact.email}`}
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] hover:bg-white/[0.08] hover:border-primary/40 px-4 py-2.5 text-xs font-bold uppercase tracking-[0.18em] text-foreground/85 transition-colors"
+              >
+                <Mail className="w-3.5 h-3.5" /> Email
+              </a>
+            )}
+            {contact?.whatsapp && (
+              <a
+                href={`https://wa.me/${contact.whatsapp.replace(/[^0-9]/g, "")}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] hover:bg-white/[0.08] hover:border-primary/40 px-4 py-2.5 text-xs font-bold uppercase tracking-[0.18em] text-foreground/85 transition-colors"
+              >
+                <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
+              </a>
+            )}
+            {contact?.phone && (
+              <a
+                href={`tel:${contact.phone.replace(/\s+/g, "")}`}
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] hover:bg-white/[0.08] hover:border-primary/40 px-4 py-2.5 text-xs font-bold uppercase tracking-[0.18em] text-foreground/85 transition-colors"
+              >
+                <Phone className="w-3.5 h-3.5" /> Call
+              </a>
+            )}
+          </div>
         </div>
-      )}
+      </div>
 
       <div className="relative flex flex-col md:flex-row md:justify-between gap-6 items-center pt-6 border-t border-white/5">
         <a

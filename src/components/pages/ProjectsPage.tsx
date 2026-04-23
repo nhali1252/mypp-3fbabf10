@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Code2, ExternalLink, Github, Star, Terminal } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Footer } from "@/components/Footer";
 
 type Project = {
   id: string;
@@ -97,10 +98,7 @@ export function ProjectsPage() {
         </div>
       </section>
 
-      <footer className="px-5 sm:px-6 md:px-10 py-8 sm:py-10 text-center text-xs text-muted-foreground border-t border-border">
-        © {new Date().getFullYear()} Ali Nur Hasan · TasTaj ·{" "}
-        <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
-      </footer>
+      <Footer />
     </div>
   );
 }

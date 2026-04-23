@@ -186,6 +186,7 @@ export function PageLoader({
     "/portfolio": { label: "Portfolio", tagline: "Client & design work" },
     "/projects": { label: "Projects", tagline: "Personal & code projects" },
     "/services": { label: "Services", tagline: "What I offer" },
+    "/services-design": { label: "Design Services", tagline: "Branding · Identity · Print" },
     "/contact": { label: "Contact", tagline: "Start a project" },
     "/auth": { label: "Sign in", tagline: "Admin access" },
     "/reset-password": { label: "Reset password", tagline: "Account recovery" },

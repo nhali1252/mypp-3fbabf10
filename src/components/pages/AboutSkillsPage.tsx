@@ -56,7 +56,7 @@ function AboutSkillsInner() {
             <Link to="/basic" className="text-muted-foreground hover:text-foreground transition-colors">Basic</Link>
             <Link to="/about-and-skills" className="text-primary">About</Link>
             <Link to="/projects" className="text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
-            <Link to="/services" className="text-muted-foreground hover:text-foreground transition-colors">Services</Link>
+            <Link to="/services-design" className="text-muted-foreground hover:text-foreground transition-colors">Services</Link>
           </nav>
         </div>
       </header>

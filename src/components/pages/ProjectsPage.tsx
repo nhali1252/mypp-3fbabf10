@@ -1,16 +1,7 @@
-import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  ArrowUpRight,
-  Eye,
-  Folder,
-  FolderOpen,
-  X,
-  ExternalLink,
-  Github,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowUpRight, Code2, ExternalLink, Github, Star, Terminal } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 type Project = {
@@ -21,7 +12,6 @@ type Project = {
   summary?: string | null;
   description?: string | null;
   image_url?: string | null;
-  gallery?: string[] | null;
   live_url?: string | null;
   github_url?: string | null;
   tools?: string[] | null;
@@ -42,8 +32,6 @@ export function ProjectsPage() {
     },
   });
 
-  const [active, setActive] = useState<Project | null>(null);
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* HERO */}
@@ -60,319 +48,157 @@ export function ProjectsPage() {
           <motion.span
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card/60 backdrop-blur text-[11px] font-bold uppercase tracking-[0.25em] text-primary"
           >
-            <Folder className="w-3.5 h-3.5" /> Portfolio
+            <Terminal className="w-3.5 h-3.5" /> Projects · Code & Builds
           </motion.span>
           <motion.h1
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
             className="font-black tracking-tight leading-[1.02] mt-5"
             style={{ fontSize: "clamp(34px, 6.4vw, 78px)" }}
           >
-            Browse by{" "}
-            <span className="font-serif-display italic font-medium text-primary">category</span>
+            Things I{" "}
+            <span className="font-serif-display italic font-medium text-primary">build</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.15 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
             className="text-muted-foreground mt-5 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed"
           >
-            Each folder opens a curated gallery — click any project card to see what's inside.
+            Personal apps, small tools and side projects — each card lists the stack, a live demo and the source code when available.
           </motion.p>
         </div>
       </section>
 
-      {/* FOLDER GRID */}
+      {/* PROJECT LIST — long horizontal cards */}
       <section className="px-5 sm:px-6 md:px-10 pb-14 sm:pb-20">
-        <div className="max-w-[1240px] mx-auto">
+        <div className="max-w-[1100px] mx-auto">
           {isLoading ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="aspect-[4/3] rounded-2xl border border-border bg-card animate-pulse"
-                />
+            <div className="space-y-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="h-44 rounded-2xl border border-border bg-card animate-pulse" />
               ))}
             </div>
           ) : projects.length === 0 ? (
             <div className="text-center py-20 text-sm text-muted-foreground border border-dashed border-border rounded-2xl">
-              No projects published yet.
+              No projects published yet — add some from the admin panel.
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="space-y-5">
               {projects.map((p, i) => (
-                <FolderCard
-                  key={p.id}
-                  project={p}
-                  index={i}
-                  onPreview={() => setActive(p)}
-                />
+                <ProjectRow key={p.id} project={p} index={i} />
               ))}
             </div>
           )}
         </div>
       </section>
 
-      <AnimatePresence>
-        {active && <ProjectModal project={active} onClose={() => setActive(null)} />}
-      </AnimatePresence>
-
       <footer className="px-5 sm:px-6 md:px-10 py-8 sm:py-10 text-center text-xs text-muted-foreground border-t border-border">
         © {new Date().getFullYear()} Ali Nur Hasan · TasTaj ·{" "}
-        <Link to="/" className="hover:text-foreground transition-colors">
-          Home
-        </Link>
+        <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
       </footer>
     </div>
   );
 }
 
-function FolderCard({
-  project,
-  index,
-  onPreview,
-}: {
-  project: Project;
-  index: number;
-  onPreview: () => void;
-}) {
-  const cover = project.image_url;
+function ProjectRow({ project, index }: { project: Project; index: number }) {
+  const tools = Array.isArray(project.tools) ? project.tools : [];
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
+    <motion.article
+      initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.55, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
-      className="group relative block w-full overflow-hidden rounded-2xl border border-border hover:border-primary/45 transition-all duration-500 hover:-translate-y-1 bg-card"
+      transition={{ duration: 0.45, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
+      className="group relative grid sm:grid-cols-[260px_1fr] gap-0 overflow-hidden rounded-2xl border border-border hover:border-primary/45 transition-colors duration-300 bg-card"
     >
-      <button
-        type="button"
-        onClick={onPreview}
-        aria-label={`Open ${project.title}`}
-        className="block w-full text-left"
-      >
-        <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-muted via-card to-background">
-          {cover ? (
-            <img
-              src={cover}
-              alt={project.title}
-              loading="lazy"
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Folder
-                className="h-20 w-20 text-primary/25 transition-all duration-500 group-hover:text-primary/45 group-hover:scale-110"
-                strokeWidth={0.9}
-              />
-              <span className="absolute font-serif-display italic font-light text-7xl text-primary/10 select-none">
-                {String(index + 1).padStart(2, "0")}
-              </span>
-            </div>
-          )}
-
-          {/* Folder tab */}
-          <div className="absolute top-4 left-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/70 backdrop-blur-md border border-primary/30 text-primary">
-            <Folder className="h-3 w-3" strokeWidth={1.6} />
-            <span className="font-mono text-[10px] uppercase tracking-[0.22em]">Folder</span>
-          </div>
-
-          {project.featured && (
-            <div className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-[0.2em]">
-              Featured
-            </div>
-          )}
-
-          {/* Hover overlay */}
-          <div
-            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6 pointer-events-none"
-            style={{
-              background:
-                "linear-gradient(to top, color-mix(in oklab, var(--background) 96%, transparent) 0%, color-mix(in oklab, var(--background) 35%, transparent) 60%, transparent 100%)",
-            }}
-          >
-            <h3 className="font-serif-display text-2xl tracking-tight font-light">
-              {project.title}
-            </h3>
-            {project.summary && (
-              <p className="mt-1.5 text-sm text-foreground/70 line-clamp-2">{project.summary}</p>
-            )}
-            <span className="mt-3 inline-flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.22em] text-primary">
-              Open folder <FolderOpen className="h-3.5 w-3.5" strokeWidth={1.6} />
+      {/* Cover / numeric badge */}
+      <div className="relative aspect-[16/10] sm:aspect-auto sm:min-h-[200px] overflow-hidden bg-gradient-to-br from-muted via-card to-background">
+        {project.image_url ? (
+          <img
+            src={project.image_url}
+            alt={project.title}
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Code2 className="h-16 w-16 text-primary/25" strokeWidth={0.9} />
+            <span className="absolute font-serif-display italic font-light text-7xl text-primary/10 select-none">
+              {String(index + 1).padStart(2, "0")}
             </span>
           </div>
-        </div>
+        )}
+        {project.featured && (
+          <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-[0.2em]">
+            <Star className="w-3 h-3" /> Featured
+          </div>
+        )}
+      </div>
 
-        {/* Always-visible footer */}
-        <div className="px-5 py-4 flex items-center justify-between gap-3 border-t border-border">
+      {/* Body */}
+      <div className="p-6 sm:p-7 flex flex-col gap-4">
+        <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <h3 className="text-base font-bold tracking-tight truncate">{project.title}</h3>
-            <p className="text-[11px] font-mono uppercase tracking-[0.22em] text-muted-foreground mt-0.5">
-              {project.category || "View gallery"}
-            </p>
+            {project.category && (
+              <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary mb-2">
+                {project.category}
+              </p>
+            )}
+            <h3 className="text-xl sm:text-2xl font-bold tracking-tight">{project.title}</h3>
+            {project.summary && (
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                {project.summary}
+              </p>
+            )}
           </div>
           <span className="shrink-0 inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary/35 text-primary group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors duration-300">
             <ArrowUpRight className="h-3.5 w-3.5" />
           </span>
         </div>
-      </button>
 
-      {/* Quick preview */}
-      <button
-        type="button"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          onPreview();
-        }}
-        aria-label={`Quick preview ${project.title}`}
-        className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 h-8 rounded-full bg-background/70 backdrop-blur-md border border-primary/30 text-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-primary hover:text-primary-foreground hover:border-primary text-[10px] font-mono uppercase tracking-[0.22em]"
-      >
-        <Eye className="h-3 w-3" strokeWidth={1.8} />
-        Preview
-      </button>
-    </motion.div>
-  );
-}
-
-function ProjectModal({ project, onClose }: { project: Project; onClose: () => void }) {
-  const gallery = Array.isArray(project.gallery) ? (project.gallery as string[]) : [];
-  const tools = Array.isArray(project.tools) ? (project.tools as string[]) : [];
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.22 }}
-      className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-start sm:items-center justify-center p-4 sm:p-8 overflow-auto"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ y: 24, opacity: 0, scale: 0.97 }}
-        animate={{ y: 0, opacity: 1, scale: 1 }}
-        exit={{ y: 18, opacity: 0, scale: 0.97 }}
-        transition={{ duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
-        className="relative w-full max-w-5xl bg-card border border-primary/30 rounded-2xl my-4 text-foreground"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between gap-4 p-6 sm:p-7 border-b border-border">
-          <div className="flex items-center gap-4 min-w-0">
-            <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 border border-primary/30 text-primary shrink-0">
-              <FolderOpen className="h-5 w-5" strokeWidth={1.5} />
-            </span>
-            <div className="min-w-0">
-              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-primary">
-                {project.category || "Project"}
-              </p>
-              <h3 className="font-serif-display text-2xl sm:text-3xl tracking-tight font-light truncate">
-                {project.title}
-              </h3>
-              {project.summary && (
-                <p className="mt-1 text-sm text-muted-foreground line-clamp-1">
-                  {project.summary}
-                </p>
-              )}
-            </div>
+        {tools.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {tools.map((t) => (
+              <span
+                key={t}
+                className="text-[10px] font-mono uppercase tracking-[0.18em] px-2.5 py-1 rounded-full border border-border bg-background/40 text-muted-foreground"
+              >
+                {t}
+              </span>
+            ))}
           </div>
-          <button
-            onClick={onClose}
-            className="shrink-0 h-10 w-10 rounded-full border border-border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors duration-300 inline-flex items-center justify-center"
-            aria-label="Close"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+        )}
 
-        {/* Body */}
-        <div className="p-6 sm:p-7 max-h-[70vh] overflow-y-auto space-y-6">
-          {project.image_url && (
-            <div className="rounded-xl overflow-hidden border border-border">
-              <img src={project.image_url} alt={project.title} className="w-full h-auto" />
-            </div>
-          )}
-
-          {project.description && (
-            <p className="text-sm sm:text-[15px] text-muted-foreground leading-relaxed whitespace-pre-line">
-              {project.description}
-            </p>
-          )}
-
-          {tools.length > 0 && (
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground mb-3">
-                Tools & Tech
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {tools.map((t) => (
-                  <span
-                    key={t}
-                    className="text-xs font-semibold px-3 py-1.5 rounded-full border border-border bg-background/40"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {gallery.length > 0 && (
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground mb-3">
-                Gallery
-              </p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {gallery.map((src, i) => (
-                  <a
-                    key={`${src}-${i}`}
-                    href={src}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group block relative aspect-square overflow-hidden border border-border hover:border-primary/50 rounded-lg"
-                  >
-                    <img
-                      src={src}
-                      alt={`${project.title} ${i + 1}`}
-                      loading="lazy"
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    />
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {(project.live_url || project.github_url) && (
-            <div className="flex flex-wrap gap-2.5 pt-2">
-              {project.live_url && (
-                <a
-                  href={project.live_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-bold hover:opacity-90 transition-opacity shadow-glow"
-                >
-                  <ExternalLink className="w-4 h-4" /> Visit live
-                </a>
-              )}
-              {project.github_url && (
-                <a
-                  href={project.github_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-bold hover:border-primary hover:text-primary transition-colors"
-                >
-                  <Github className="w-4 h-4" /> GitHub
-                </a>
-              )}
-            </div>
-          )}
-        </div>
-      </motion.div>
-    </motion.div>
+        {(project.live_url || project.github_url) && (
+          <div className="flex flex-wrap gap-2.5 pt-1">
+            {project.live_url && (
+              <a
+                href={project.live_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-xs font-bold hover:opacity-90 transition-opacity"
+              >
+                <ExternalLink className="w-3.5 h-3.5" /> Live demo
+              </a>
+            )}
+            {project.github_url && (
+              <a
+                href={project.github_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-xs font-bold hover:border-primary hover:text-primary transition-colors"
+              >
+                <Github className="w-3.5 h-3.5" /> Source
+              </a>
+            )}
+          </div>
+        )}
+      </div>
+    </motion.article>
   );
 }

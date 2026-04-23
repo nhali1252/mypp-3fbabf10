@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { useFooterLinks, useSiteSettings, useContactSettings, useFooterApps } from "@/hooks/useContent";
 import { motion, useReducedMotion } from "framer-motion";
 import { SocialIcons, type SocialMap } from "./SocialIcons";
-import { ArrowUpRight, AppWindow, Mail, Phone, Globe } from "lucide-react";
+import { ArrowUpRight, AppWindow, Mail, Phone, MessageCircle, Sparkles } from "lucide-react";
 
 interface FooterApp {
   id: string;

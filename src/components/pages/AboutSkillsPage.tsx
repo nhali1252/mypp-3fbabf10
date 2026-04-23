@@ -3,6 +3,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useState } from "react";
 import portrait from "@/assets/ali-portrait-baked.jpg";
 import { ImageOff, ExternalLink, Sparkles, User, Quote, Star } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   useFHero,
   useFSkills,
@@ -52,12 +53,16 @@ function AboutSkillsInner() {
           >
             ← All pages
           </Link>
-          <nav className="flex items-center gap-3 sm:gap-4 text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em]">
-            <Link to="/basic" className="text-muted-foreground hover:text-foreground transition-colors">Basic</Link>
-            <Link to="/about-and-skills" className="text-primary">About</Link>
-            <Link to="/projects" className="text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
-            <Link to="/services-design" className="text-muted-foreground hover:text-foreground transition-colors">Services</Link>
-          </nav>
+          <div className="flex items-center gap-3 sm:gap-4">
+            <nav className="flex items-center gap-3 sm:gap-4 text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em]">
+              <Link to="/basic" className="text-muted-foreground hover:text-foreground transition-colors">Basic</Link>
+              <Link to="/about-and-skills" className="text-primary">About</Link>
+              <Link to="/projects" className="text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
+              <Link to="/services-design" className="text-muted-foreground hover:text-foreground transition-colors">Services</Link>
+              <Link to="/contact" className="text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
+            </nav>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 

@@ -6,7 +6,7 @@ import { Phone, MessageCircle, Sparkles, ChevronRight, ArrowUpRight } from "luci
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 
-export const Route = createFileRoute("/services")({
+export const Route = createFileRoute("/services-design")({
   component: ServicesPage,
   head: () => ({
     meta: [

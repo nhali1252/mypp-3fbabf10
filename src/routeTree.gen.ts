@@ -13,6 +13,7 @@ import { Route as ServicesDesignRouteImport } from './routes/services-design'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProjectsRouteImport } from './routes/projects'
+import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BasicRouteImport } from './routes/basic'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -66,6 +67,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const ProjectsRoute = ProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioRoute = PortfolioRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -247,6 +253,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/basic': typeof BasicRoute
   '/contact': typeof ContactRoute
+  '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
@@ -286,6 +293,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/basic': typeof BasicRoute
   '/contact': typeof ContactRoute
+  '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
@@ -327,6 +335,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/basic': typeof BasicRoute
   '/contact': typeof ContactRoute
+  '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
@@ -368,6 +377,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/basic'
     | '/contact'
+    | '/portfolio'
     | '/projects'
     | '/reset-password'
     | '/services'
@@ -407,6 +417,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/basic'
     | '/contact'
+    | '/portfolio'
     | '/projects'
     | '/reset-password'
     | '/services'
@@ -447,6 +458,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/basic'
     | '/contact'
+    | '/portfolio'
     | '/projects'
     | '/reset-password'
     | '/services'
@@ -488,6 +500,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   BasicRoute: typeof BasicRoute
   ContactRoute: typeof ContactRoute
+  PortfolioRoute: typeof PortfolioRoute
   ProjectsRoute: typeof ProjectsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ServicesRoute: typeof ServicesRoute
@@ -522,6 +535,13 @@ declare module '@tanstack/react-router' {
       path: '/projects'
       fullPath: '/projects'
       preLoaderRoute: typeof ProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio': {
+      id: '/portfolio'
+      path: '/portfolio'
+      fullPath: '/portfolio'
+      preLoaderRoute: typeof PortfolioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -857,6 +877,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   BasicRoute: BasicRoute,
   ContactRoute: ContactRoute,
+  PortfolioRoute: PortfolioRoute,
   ProjectsRoute: ProjectsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ServicesRoute: ServicesRoute,

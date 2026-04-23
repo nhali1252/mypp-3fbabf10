@@ -11,7 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as ProjectsRouteImport } from './routes/projects'
+import { Route as BasicRouteImport } from './routes/basic'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AboutAndSkillsRouteImport } from './routes/about-and-skills'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as PRouteImport } from './routes/P'
 import { Route as FRouteImport } from './routes/F'
@@ -53,9 +56,24 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProjectsRoute = ProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BasicRoute = BasicRouteImport.update({
+  id: '/basic',
+  path: '/basic',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutAndSkillsRoute = AboutAndSkillsRouteImport.update({
+  id: '/about-and-skills',
+  path: '/about-and-skills',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -213,7 +231,10 @@ export interface FileRoutesByFullPath {
   '/B': typeof BRouteWithChildren
   '/F': typeof FRouteWithChildren
   '/P': typeof PRouteWithChildren
+  '/about-and-skills': typeof AboutAndSkillsRoute
   '/auth': typeof AuthRoute
+  '/basic': typeof BasicRoute
+  '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/B/auth': typeof BAuthRoute
@@ -247,7 +268,10 @@ export interface FileRoutesByTo {
   '/B': typeof BRouteWithChildren
   '/F': typeof FRouteWithChildren
   '/P': typeof PRouteWithChildren
+  '/about-and-skills': typeof AboutAndSkillsRoute
   '/auth': typeof AuthRoute
+  '/basic': typeof BasicRoute
+  '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/B/auth': typeof BAuthRoute
@@ -283,7 +307,10 @@ export interface FileRoutesById {
   '/F': typeof FRouteWithChildren
   '/P': typeof PRouteWithChildren
   '/_admin': typeof AdminRouteWithChildren
+  '/about-and-skills': typeof AboutAndSkillsRoute
   '/auth': typeof AuthRoute
+  '/basic': typeof BasicRoute
+  '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/B/auth': typeof BAuthRoute
@@ -319,7 +346,10 @@ export interface FileRouteTypes {
     | '/B'
     | '/F'
     | '/P'
+    | '/about-and-skills'
     | '/auth'
+    | '/basic'
+    | '/projects'
     | '/reset-password'
     | '/services'
     | '/B/auth'
@@ -353,7 +383,10 @@ export interface FileRouteTypes {
     | '/B'
     | '/F'
     | '/P'
+    | '/about-and-skills'
     | '/auth'
+    | '/basic'
+    | '/projects'
     | '/reset-password'
     | '/services'
     | '/B/auth'
@@ -388,7 +421,10 @@ export interface FileRouteTypes {
     | '/F'
     | '/P'
     | '/_admin'
+    | '/about-and-skills'
     | '/auth'
+    | '/basic'
+    | '/projects'
     | '/reset-password'
     | '/services'
     | '/B/auth'
@@ -424,7 +460,10 @@ export interface RootRouteChildren {
   FRoute: typeof FRouteWithChildren
   PRoute: typeof PRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
+  AboutAndSkillsRoute: typeof AboutAndSkillsRoute
   AuthRoute: typeof AuthRoute
+  BasicRoute: typeof BasicRoute
+  ProjectsRoute: typeof ProjectsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ServicesRoute: typeof ServicesRoute
 }
@@ -445,11 +484,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/projects': {
+      id: '/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof ProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/basic': {
+      id: '/basic'
+      path: '/basic'
+      fullPath: '/basic'
+      preLoaderRoute: typeof BasicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about-and-skills': {
+      id: '/about-and-skills'
+      path: '/about-and-skills'
+      fullPath: '/about-and-skills'
+      preLoaderRoute: typeof AboutAndSkillsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_admin': {
@@ -753,7 +813,10 @@ const rootRouteChildren: RootRouteChildren = {
   FRoute: FRouteWithChildren,
   PRoute: PRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
+  AboutAndSkillsRoute: AboutAndSkillsRoute,
   AuthRoute: AuthRoute,
+  BasicRoute: BasicRoute,
+  ProjectsRoute: ProjectsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ServicesRoute: ServicesRoute,
 }

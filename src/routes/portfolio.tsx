@@ -1,15 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ProjectsPage } from "@/components/pages/ProjectsPage";
+import { PortfolioPage } from "@/components/pages/PortfolioPage";
 
 export const Route = createFileRoute("/portfolio")({
-  component: ProjectsPage,
+  component: PortfolioPage,
   head: () => ({
     meta: [
       { title: "Portfolio — Ali Nur Hasan (TasTaj)" },
-      { name: "description", content: "Folder-style portfolio gallery of selected design and development work by Ali Nur Hasan." },
+      { name: "description", content: "Folder-style portfolio gallery synced from my portfolio CMS." },
       { property: "og:type", content: "website" },
       { property: "og:title", content: "Portfolio — Ali Nur Hasan (TasTaj)" },
-      { property: "og:description", content: "Folder-style portfolio gallery of selected work." },
+      { property: "og:description", content: "Folder-style portfolio gallery." },
       { property: "twitter:card", content: "summary_large_image" },
     ],
   }),

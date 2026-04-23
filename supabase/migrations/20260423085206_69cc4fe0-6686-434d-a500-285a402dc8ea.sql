@@ -1,0 +1,3 @@
+INSERT INTO f_projects (title, description, image_url, url, tags, sort_order, active) VALUES
+('Pocketo', 'Personal finance app — track expenses, set budgets and visualize spending with a clean mobile-first interface.', NULL, NULL, '["React","TypeScript","Finance"]'::jsonb, 1, true),
+('Hazi Enterprise', 'Business automation site for Hazi Enterprise — landing, services and lead capture wired to a CMS.', NULL, NULL, '["Web","CMS","Business"]'::jsonb, 2, true);

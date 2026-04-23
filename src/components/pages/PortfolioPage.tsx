@@ -50,7 +50,7 @@ export function PortfolioPage() {
             transition={{ duration: 0.6 }}
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card/60 backdrop-blur text-[11px] font-bold uppercase tracking-[0.25em] text-primary"
           >
-            <Folder className="w-3.5 h-3.5" /> Portfolio
+            <Folder className="w-3.5 h-3.5" /> Portfolio · Design & client work
           </motion.span>
           <motion.h1
             initial={{ opacity: 0, y: 24 }}
@@ -59,8 +59,8 @@ export function PortfolioPage() {
             className="font-black tracking-tight leading-[1.02] mt-5"
             style={{ fontSize: "clamp(34px, 6.4vw, 78px)" }}
           >
-            Browse by{" "}
-            <span className="font-serif-display italic font-medium text-primary">folder</span>
+            Selected{" "}
+            <span className="font-serif-display italic font-medium text-primary">design work</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
@@ -68,7 +68,7 @@ export function PortfolioPage() {
             transition={{ duration: 0.7, delay: 0.15 }}
             className="text-muted-foreground mt-5 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed"
           >
-            A curated set of design and product folders — open any card to peek inside.
+            Branding, posters, packaging, invitations and digital design — open any folder to peek inside the project.
           </motion.p>
         </div>
       </section>

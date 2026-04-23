@@ -117,14 +117,22 @@ export function ContactPage() {
           }}
         />
         <div className="relative max-w-[1100px] mx-auto text-center">
-          <motion.span
+          <motion.button
+            type="button"
+            onClick={() => {
+              const el = document.getElementById("contact-form");
+              el?.scrollIntoView({ behavior: "smooth", block: "start" });
+              setTimeout(() => {
+                document.getElementById("contact-name-input")?.focus();
+              }, 600);
+            }}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card/60 backdrop-blur text-[11px] font-bold uppercase tracking-[0.25em] text-primary"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card/60 backdrop-blur text-[11px] font-bold uppercase tracking-[0.25em] text-primary hover:bg-primary/10 hover:border-primary/40 transition-colors cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5" /> Start a project
-          </motion.span>
+          </motion.button>
           <motion.h1
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
@@ -153,21 +161,23 @@ export function ContactPage() {
       <section className="px-5 sm:px-6 md:px-10 pb-16">
         <div className="max-w-[1180px] mx-auto grid lg:grid-cols-[1fr_360px] gap-6">
           <motion.form
+            id="contact-form"
             onSubmit={onSubmit}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="rounded-3xl border border-border bg-card p-6 sm:p-8 md:p-10 space-y-6"
+            className="rounded-3xl border border-border bg-card p-6 sm:p-8 md:p-10 space-y-6 scroll-mt-24"
             style={{ background: "var(--gradient-card)" }}
           >
             <div className="grid sm:grid-cols-2 gap-4">
               <Field label="Your name">
                 <input
+                  id="contact-name-input"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
                   className="input"
-                  placeholder="Ali Nur Hasan"
+                  placeholder="Write your name here"
                 />
               </Field>
               <Field label="Email">

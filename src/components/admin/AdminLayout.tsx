@@ -9,6 +9,7 @@ import {
 
 const items = [
   { to: "/admin", label: "Dashboard", Icon: LayoutDashboard, end: true },
+  { to: "/admin/welcome", label: "Welcome page", Icon: Sparkles },
   { to: "/admin/launcher", label: "Launcher cards", Icon: Rocket },
   { to: "/admin/f-page", label: "Page F editor", Icon: Lightbulb },
   { to: "/admin/checklist", label: "Pre-publish", Icon: ClipboardCheck },

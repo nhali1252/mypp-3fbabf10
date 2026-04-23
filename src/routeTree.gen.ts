@@ -27,6 +27,7 @@ import { Route as PAuthRouteImport } from './routes/P.auth'
 import { Route as FAuthRouteImport } from './routes/F.auth'
 import { Route as BAuthRouteImport } from './routes/B.auth'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin.admin.index'
+import { Route as AdminAdminWelcomeRouteImport } from './routes/_admin.admin.welcome'
 import { Route as AdminAdminUsersRouteImport } from './routes/_admin.admin.users'
 import { Route as AdminAdminTickerRouteImport } from './routes/_admin.admin.ticker'
 import { Route as AdminAdminSlotsRouteImport } from './routes/_admin.admin.slots'
@@ -136,6 +137,11 @@ const BAuthRoute = BAuthRouteImport.update({
 const AdminAdminIndexRoute = AdminAdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdminWelcomeRoute = AdminAdminWelcomeRouteImport.update({
+  id: '/admin/welcome',
+  path: '/admin/welcome',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAdminUsersRoute = AdminAdminUsersRouteImport.update({
@@ -282,6 +288,7 @@ export interface FileRoutesByFullPath {
   '/admin/slots': typeof AdminAdminSlotsRoute
   '/admin/ticker': typeof AdminAdminTickerRoute
   '/admin/users': typeof AdminAdminUsersRoute
+  '/admin/welcome': typeof AdminAdminWelcomeRoute
   '/admin/': typeof AdminAdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -322,6 +329,7 @@ export interface FileRoutesByTo {
   '/admin/slots': typeof AdminAdminSlotsRoute
   '/admin/ticker': typeof AdminAdminTickerRoute
   '/admin/users': typeof AdminAdminUsersRoute
+  '/admin/welcome': typeof AdminAdminWelcomeRoute
   '/admin': typeof AdminAdminIndexRoute
 }
 export interface FileRoutesById {
@@ -364,6 +372,7 @@ export interface FileRoutesById {
   '/_admin/admin/slots': typeof AdminAdminSlotsRoute
   '/_admin/admin/ticker': typeof AdminAdminTickerRoute
   '/_admin/admin/users': typeof AdminAdminUsersRoute
+  '/_admin/admin/welcome': typeof AdminAdminWelcomeRoute
   '/_admin/admin/': typeof AdminAdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -406,6 +415,7 @@ export interface FileRouteTypes {
     | '/admin/slots'
     | '/admin/ticker'
     | '/admin/users'
+    | '/admin/welcome'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -446,6 +456,7 @@ export interface FileRouteTypes {
     | '/admin/slots'
     | '/admin/ticker'
     | '/admin/users'
+    | '/admin/welcome'
     | '/admin'
   id:
     | '__root__'
@@ -487,6 +498,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/slots'
     | '/_admin/admin/ticker'
     | '/_admin/admin/users'
+    | '/_admin/admin/welcome'
     | '/_admin/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -633,6 +645,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminAdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/admin/welcome': {
+      id: '/_admin/admin/welcome'
+      path: '/admin/welcome'
+      fullPath: '/admin/welcome'
+      preLoaderRoute: typeof AdminAdminWelcomeRouteImport
       parentRoute: typeof AdminRoute
     }
     '/_admin/admin/users': {
@@ -837,6 +856,7 @@ interface AdminRouteChildren {
   AdminAdminSlotsRoute: typeof AdminAdminSlotsRoute
   AdminAdminTickerRoute: typeof AdminAdminTickerRoute
   AdminAdminUsersRoute: typeof AdminAdminUsersRoute
+  AdminAdminWelcomeRoute: typeof AdminAdminWelcomeRoute
   AdminAdminIndexRoute: typeof AdminAdminIndexRoute
 }
 
@@ -862,6 +882,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminSlotsRoute: AdminAdminSlotsRoute,
   AdminAdminTickerRoute: AdminAdminTickerRoute,
   AdminAdminUsersRoute: AdminAdminUsersRoute,
+  AdminAdminWelcomeRoute: AdminAdminWelcomeRoute,
   AdminAdminIndexRoute: AdminAdminIndexRoute,
 }
 

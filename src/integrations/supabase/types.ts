@@ -446,6 +446,33 @@ export type Database = {
         }
         Relationships: []
       }
+      launcher_hero: {
+        Row: {
+          eyebrow: string
+          headline_bottom: string
+          headline_top: string
+          id: string
+          intro: string
+          updated_at: string
+        }
+        Insert: {
+          eyebrow?: string
+          headline_bottom?: string
+          headline_top?: string
+          id?: string
+          intro?: string
+          updated_at?: string
+        }
+        Update: {
+          eyebrow?: string
+          headline_bottom?: string
+          headline_top?: string
+          id?: string
+          intro?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       launcher_pages: {
         Row: {
           accent: string | null

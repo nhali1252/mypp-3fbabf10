@@ -124,6 +124,21 @@ const FALLBACK: LauncherCard[] = [
   },
 ];
 
+type LauncherHero = {
+  eyebrow: string;
+  headline_top: string;
+  headline_bottom: string;
+  intro: string;
+};
+
+const HERO_FALLBACK: LauncherHero = {
+  eyebrow: "Portfolio · TasTaj",
+  headline_top: "Pick a page",
+  headline_bottom: "to explore.",
+  intro:
+    "A curated launcher for Ali Nur Hasan's portfolio. Each card opens an independent page — managed and editable from the admin panel.",
+};
+
 function Launcher() {
   const { data } = useQuery({
     queryKey: ["launcher_pages"],
@@ -138,6 +153,20 @@ function Launcher() {
     },
   });
 
+  const { data: heroData } = useQuery({
+    queryKey: ["launcher_hero"],
+    queryFn: async (): Promise<LauncherHero> => {
+      const { data, error } = await (supabase as any)
+        .from("launcher_hero")
+        .select("eyebrow, headline_top, headline_bottom, intro")
+        .limit(1)
+        .maybeSingle();
+      if (error || !data) return HERO_FALLBACK;
+      return data as LauncherHero;
+    },
+  });
+
+  const hero = heroData ?? HERO_FALLBACK;
   const cards = data ?? FALLBACK;
   const [hovered, setHovered] = useState<number | null>(null);
   const { reduceMotion } = useMotionPref();
@@ -172,7 +201,7 @@ function Launcher() {
               className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.3em] text-primary"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              Portfolio · TasTaj
+              {hero.eyebrow}
             </motion.div>
             <div className="flex items-center gap-2">
               <MotionToggle />
@@ -187,7 +216,7 @@ function Launcher() {
             className="font-black tracking-tight leading-[1.02]"
             style={{ fontSize: "clamp(38px, 7vw, 88px)" }}
           >
-            Pick a page <br className="hidden sm:block" />
+            {hero.headline_top} <br className="hidden sm:block" />
             <span
               className="bg-clip-text text-transparent"
               style={{
@@ -195,7 +224,7 @@ function Launcher() {
                   "linear-gradient(110deg, var(--foreground) 0%, color-mix(in oklab, var(--primary) 80%, var(--foreground)) 60%, var(--primary) 100%)",
               }}
             >
-              to explore.
+              {hero.headline_bottom}
             </span>
           </motion.h1>
 
@@ -205,8 +234,7 @@ function Launcher() {
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
             className="text-muted-foreground mt-5 max-w-2xl text-sm sm:text-base leading-relaxed"
           >
-            A curated launcher for Ali Nur Hasan's portfolio. Each card opens an independent
-            page — managed and editable from the admin panel.
+            {hero.intro}
           </motion.p>
         </div>
       </header>

@@ -201,7 +201,7 @@ function Launcher() {
               className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.3em] text-primary"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              Portfolio · TasTaj
+              {hero.eyebrow}
             </motion.div>
             <div className="flex items-center gap-2">
               <MotionToggle />
@@ -224,7 +224,7 @@ function Launcher() {
                   "linear-gradient(110deg, var(--foreground) 0%, color-mix(in oklab, var(--primary) 80%, var(--foreground)) 60%, var(--primary) 100%)",
               }}
             >
-              to explore.
+              {hero.headline_bottom}
             </span>
           </motion.h1>
 
@@ -234,8 +234,7 @@ function Launcher() {
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
             className="text-muted-foreground mt-5 max-w-2xl text-sm sm:text-base leading-relaxed"
           >
-            A curated launcher for Ali Nur Hasan's portfolio. Each card opens an independent
-            page — managed and editable from the admin panel.
+            {hero.intro}
           </motion.p>
         </div>
       </header>

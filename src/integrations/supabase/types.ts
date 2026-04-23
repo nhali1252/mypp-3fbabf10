@@ -614,6 +614,39 @@ export type Database = {
         }
         Relationships: []
       }
+      page_loader_settings: {
+        Row: {
+          default_label: string
+          default_tagline: string
+          id: string
+          initial_ms: number
+          route_ms: number
+          routes: Json
+          singleton: boolean
+          updated_at: string
+        }
+        Insert: {
+          default_label?: string
+          default_tagline?: string
+          id?: string
+          initial_ms?: number
+          route_ms?: number
+          routes?: Json
+          singleton?: boolean
+          updated_at?: string
+        }
+        Update: {
+          default_label?: string
+          default_tagline?: string
+          id?: string
+          initial_ms?: number
+          route_ms?: number
+          routes?: Json
+          singleton?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

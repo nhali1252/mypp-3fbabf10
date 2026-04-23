@@ -82,12 +82,12 @@ function AdminFPage() {
       description="Edit /F hero, weekly skills, working style, and weekly portfolio. Changes sync live to the preview panel."
       actions={
         <a
-          href="/F"
+          href="/about-and-skills"
           target="_blank"
           rel="noreferrer"
           className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground"
         >
-          <ExternalLink className="w-3.5 h-3.5" /> Open /F
+          <ExternalLink className="w-3.5 h-3.5" /> Open /about-and-skills
         </a>
       }
     >

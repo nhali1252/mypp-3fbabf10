@@ -129,16 +129,16 @@ function AboutSkillsInner() {
         </div>
       </section>
 
-      {/* Marquee strip — kinetic visual flair */}
-      <section aria-hidden className="relative overflow-hidden border-y border-border bg-card/40 py-4 sm:py-5 mb-10">
-        <div className="flex gap-12 whitespace-nowrap ticker-track">
+      {/* Marquee strip — kinetic visual flair (compact, thin border) */}
+      <section aria-hidden className="relative overflow-hidden border-y border-border/50 bg-card/30 py-2 sm:py-2.5 mb-10">
+        <div className="flex gap-8 whitespace-nowrap ticker-track">
           {[...marqueeWords, ...marqueeWords, ...marqueeWords].map((w, i) => (
             <span
               key={i}
-              className="font-serif-display italic text-2xl sm:text-3xl md:text-4xl text-foreground/60 flex items-center gap-12"
+              className="font-serif-display italic text-sm sm:text-base md:text-lg text-foreground/55 flex items-center gap-8"
             >
               {w}
-              <Sparkles className="w-4 h-4 text-primary" />
+              <Sparkles className="w-3 h-3 text-primary" />
             </span>
           ))}
         </div>
@@ -433,9 +433,9 @@ function HireMeInlineButton() {
     <button
       type="button"
       onClick={openHireMe}
-      className="group inline-flex items-center gap-2 rounded-full bg-foreground text-background px-5 py-3 text-xs font-bold uppercase tracking-[0.2em] hover:scale-[1.03] active:scale-[0.98] transition-transform shadow-[0_18px_40px_-12px_color-mix(in_oklab,var(--primary)_55%,transparent)]"
+      className="group inline-flex items-center gap-2 rounded-full bg-foreground text-background hover:bg-primary hover:text-primary-foreground px-5 py-3 text-xs font-bold uppercase tracking-[0.2em] hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 shadow-[0_18px_40px_-12px_color-mix(in_oklab,var(--primary)_55%,transparent)] hover:shadow-[0_22px_48px_-12px_color-mix(in_oklab,var(--primary)_75%,transparent)]"
     >
-      <Sparkles className="w-4 h-4 text-primary" />
+      <Sparkles className="w-4 h-4 text-primary group-hover:text-primary-foreground transition-colors" />
       Hire me
     </button>
   );
@@ -448,9 +448,9 @@ function HireMeFloatingButton() {
       type="button"
       onClick={openHireMe}
       aria-label="Hire me"
-      className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground pl-3 pr-4 py-2.5 text-xs font-bold uppercase tracking-[0.18em] shadow-[0_18px_40px_-12px_rgba(0,0,0,0.55)] hover:scale-[1.03] active:scale-[0.98] transition-transform"
+      className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground hover:bg-foreground hover:text-background pl-3 pr-4 py-2.5 text-xs font-bold uppercase tracking-[0.18em] shadow-[0_18px_40px_-12px_rgba(0,0,0,0.55)] hover:scale-[1.05] active:scale-[0.98] transition-all duration-300"
     >
-      <span className="grid place-items-center w-7 h-7 rounded-full bg-primary-foreground/15">
+      <span className="grid place-items-center w-7 h-7 rounded-full bg-primary-foreground/15 group-hover:bg-primary/15">
         <Sparkles className="w-3.5 h-3.5" />
       </span>
       Hire me

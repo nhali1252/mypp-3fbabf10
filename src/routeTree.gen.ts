@@ -9,7 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ServicesRouteImport } from './routes/services'
+import { Route as ServicesDesignRouteImport } from './routes/services-design'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as BasicRouteImport } from './routes/basic'
@@ -46,9 +46,9 @@ import { Route as AdminAdminChecklistRouteImport } from './routes/_admin.admin.c
 import { Route as AdminAdminActivitiesRouteImport } from './routes/_admin.admin.activities'
 import { Route as AdminAdminAboutRouteImport } from './routes/_admin.admin.about'
 
-const ServicesRoute = ServicesRouteImport.update({
-  id: '/services',
-  path: '/services',
+const ServicesDesignRoute = ServicesDesignRouteImport.update({
+  id: '/services-design',
+  path: '/services-design',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -236,7 +236,7 @@ export interface FileRoutesByFullPath {
   '/basic': typeof BasicRoute
   '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/services': typeof ServicesRoute
+  '/services-design': typeof ServicesDesignRoute
   '/B/auth': typeof BAuthRoute
   '/F/auth': typeof FAuthRoute
   '/P/auth': typeof PAuthRoute
@@ -273,7 +273,7 @@ export interface FileRoutesByTo {
   '/basic': typeof BasicRoute
   '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/services': typeof ServicesRoute
+  '/services-design': typeof ServicesDesignRoute
   '/B/auth': typeof BAuthRoute
   '/F/auth': typeof FAuthRoute
   '/P/auth': typeof PAuthRoute
@@ -312,7 +312,7 @@ export interface FileRoutesById {
   '/basic': typeof BasicRoute
   '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/services': typeof ServicesRoute
+  '/services-design': typeof ServicesDesignRoute
   '/B/auth': typeof BAuthRoute
   '/F/auth': typeof FAuthRoute
   '/P/auth': typeof PAuthRoute
@@ -351,7 +351,7 @@ export interface FileRouteTypes {
     | '/basic'
     | '/projects'
     | '/reset-password'
-    | '/services'
+    | '/services-design'
     | '/B/auth'
     | '/F/auth'
     | '/P/auth'
@@ -388,7 +388,7 @@ export interface FileRouteTypes {
     | '/basic'
     | '/projects'
     | '/reset-password'
-    | '/services'
+    | '/services-design'
     | '/B/auth'
     | '/F/auth'
     | '/P/auth'
@@ -426,7 +426,7 @@ export interface FileRouteTypes {
     | '/basic'
     | '/projects'
     | '/reset-password'
-    | '/services'
+    | '/services-design'
     | '/B/auth'
     | '/F/auth'
     | '/P/auth'
@@ -465,16 +465,16 @@ export interface RootRouteChildren {
   BasicRoute: typeof BasicRoute
   ProjectsRoute: typeof ProjectsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
-  ServicesRoute: typeof ServicesRoute
+  ServicesDesignRoute: typeof ServicesDesignRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/services': {
-      id: '/services'
-      path: '/services'
-      fullPath: '/services'
-      preLoaderRoute: typeof ServicesRouteImport
+    '/services-design': {
+      id: '/services-design'
+      path: '/services-design'
+      fullPath: '/services-design'
+      preLoaderRoute: typeof ServicesDesignRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -818,7 +818,7 @@ const rootRouteChildren: RootRouteChildren = {
   BasicRoute: BasicRoute,
   ProjectsRoute: ProjectsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
-  ServicesRoute: ServicesRoute,
+  ServicesDesignRoute: ServicesDesignRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

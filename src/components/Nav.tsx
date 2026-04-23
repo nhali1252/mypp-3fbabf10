@@ -81,13 +81,6 @@ export function Nav({ showHireMe = true }: { showHireMe?: boolean } = {}) {
             Hire Me
           </motion.button>
         )}
-        <button
-          className="lg:hidden p-2 text-foreground"
-          onClick={() => setOpen(!open)}
-          aria-label="Toggle menu"
-        >
-          {open ? <X size={22} /> : <Menu size={22} />}
-        </button>
       </div>
 
       <AnimatePresence>

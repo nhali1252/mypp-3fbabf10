@@ -187,7 +187,6 @@ function AboutSkillsInner() {
                 return (
                   <motion.div
                     key={s.id}
-                    layout
                     initial={{ opacity: 0, y: 16 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-40px" }}
@@ -257,7 +256,6 @@ function AboutSkillsInner() {
                 return (
                   <motion.div
                     key={s.id}
-                    layout
                     initial={{ opacity: 0, y: 16 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-40px" }}
@@ -288,7 +286,6 @@ function AboutSkillsInner() {
               {projects.map((p, i) => {
                 const Card = (
                   <motion.div
-                    layout
                     initial={{ opacity: 0, y: 18 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-40px" }}

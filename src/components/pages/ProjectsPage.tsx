@@ -1,17 +1,33 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
-import { ExternalLink, Github, ArrowRight, FolderKanban } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  ArrowUpRight,
+  Eye,
+  Folder,
+  FolderOpen,
+  X,
+  ExternalLink,
+  Github,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageNav } from "@/components/PageNav";
 
-const accents = [
-  "from-emerald-500/30 to-cyan-500/20",
-  "from-amber-500/30 to-rose-500/20",
-  "from-indigo-500/30 to-fuchsia-500/20",
-  "from-sky-500/30 to-violet-500/20",
-  "from-rose-500/30 to-orange-500/20",
-];
+type Project = {
+  id: string;
+  title: string;
+  slug: string;
+  category?: string | null;
+  summary?: string | null;
+  description?: string | null;
+  image_url?: string | null;
+  gallery?: string[] | null;
+  live_url?: string | null;
+  github_url?: string | null;
+  tools?: string[] | null;
+  featured?: boolean | null;
+};
 
 export function ProjectsPage() {
   const { data: projects = [], isLoading } = useQuery({
@@ -23,144 +39,343 @@ export function ProjectsPage() {
         .eq("published", true)
         .order("sort_order", { ascending: true });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as Project[];
     },
   });
+
+  const [active, setActive] = useState<Project | null>(null);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <PageNav active="/projects" />
 
-      <section className="px-5 sm:px-6 md:px-10 pt-8 sm:pt-10 md:pt-14 pb-4 sm:pb-6">
-        <div className="max-w-[1200px] mx-auto">
-          <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-primary mb-3">Projects</p>
-          <h1 className="font-black tracking-tight leading-[1.05] mb-3" style={{ fontSize: "clamp(30px, 5.4vw, 64px)" }}>
-            Selected work
-          </h1>
-          <p className="text-sm sm:text-base text-muted-foreground max-w-2xl leading-relaxed">
-            A curated set of projects reflecting design thinking, research and practical digital products.
-          </p>
+      {/* HERO */}
+      <section className="relative px-5 sm:px-6 md:px-10 pt-10 sm:pt-14 md:pt-20 pb-6 sm:pb-10 overflow-hidden">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 w-[820px] h-[520px] rounded-full blur-[140px] opacity-50"
+          style={{
+            background:
+              "radial-gradient(closest-side, color-mix(in oklab, var(--primary) 60%, transparent), transparent)",
+          }}
+        />
+        <div className="relative max-w-[1100px] mx-auto text-center">
+          <motion.span
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card/60 backdrop-blur text-[11px] font-bold uppercase tracking-[0.25em] text-primary"
+          >
+            <Folder className="w-3.5 h-3.5" /> Portfolio
+          </motion.span>
+          <motion.h1
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+            className="font-black tracking-tight leading-[1.02] mt-5"
+            style={{ fontSize: "clamp(34px, 6.4vw, 78px)" }}
+          >
+            Browse by{" "}
+            <span className="font-serif-display italic font-medium text-primary">category</span>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.15 }}
+            className="text-muted-foreground mt-5 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed"
+          >
+            Each folder opens a curated gallery — click any project card to see what's inside.
+          </motion.p>
         </div>
       </section>
 
-      <section className="px-5 sm:px-6 md:px-10 pb-14 sm:pb-16">
-        <div className="max-w-[1200px] mx-auto grid gap-5 sm:gap-6 md:gap-8">
-          {isLoading && (
-            <div className="text-center py-20 text-sm text-muted-foreground">Loading projects…</div>
-          )}
-          {!isLoading && projects.length === 0 && (
+      {/* FOLDER GRID */}
+      <section className="px-5 sm:px-6 md:px-10 pb-14 sm:pb-20">
+        <div className="max-w-[1240px] mx-auto">
+          {isLoading ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="aspect-[4/3] rounded-2xl border border-border bg-card animate-pulse"
+                />
+              ))}
+            </div>
+          ) : projects.length === 0 ? (
             <div className="text-center py-20 text-sm text-muted-foreground border border-dashed border-border rounded-2xl">
               No projects published yet.
             </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {projects.map((p, i) => (
+                <FolderCard
+                  key={p.id}
+                  project={p}
+                  index={i}
+                  onPreview={() => setActive(p)}
+                />
+              ))}
+            </div>
           )}
-          {projects.map((p: any, i: number) => {
-            const accent = accents[i % accents.length];
-            const tools: string[] = Array.isArray(p.tools) ? p.tools : [];
-            return (
-              <motion.article
-                key={p.id}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: i * 0.06 }}
-                className="group relative rounded-[20px] sm:rounded-[24px] border border-border bg-card overflow-hidden"
-              >
-                {p.image_url && (
-                  <div className="relative aspect-[16/7] sm:aspect-[16/6] overflow-hidden">
-                    <img
-                      src={p.image_url}
-                      alt={`${p.title} banner`}
-                      loading="lazy"
-                      className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-transparent" />
-                    <div aria-hidden className={`absolute -bottom-24 -right-24 w-72 h-72 sm:w-96 sm:h-96 rounded-full blur-3xl opacity-30 group-hover:opacity-60 transition-opacity duration-700 bg-gradient-to-br ${accent}`} />
-                    <div className="absolute top-4 left-4 sm:top-5 sm:left-5 flex items-center gap-2.5">
-                      <div className="w-10 h-10 rounded-xl bg-background/70 backdrop-blur-md text-primary grid place-items-center ring-1 ring-primary/30">
-                        <FolderKanban className="w-5 h-5" />
-                      </div>
-                      {p.category && (
-                        <span className="text-[10px] font-bold uppercase tracking-[0.25em] px-2.5 py-1 rounded-full bg-background/70 backdrop-blur-md text-primary border border-primary/25">
-                          {p.category}
-                        </span>
-                      )}
-                      {p.featured && (
-                        <span className="text-[10px] font-bold uppercase tracking-[0.25em] px-2.5 py-1 rounded-full bg-primary/90 text-primary-foreground">
-                          Featured
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                <div className="relative grid lg:grid-cols-[1fr_360px] gap-0">
-                  <div className="p-6 sm:p-8 md:p-10">
-                    <h2 className="font-black tracking-tight leading-tight mb-2 break-words" style={{ fontSize: "clamp(20px, 3.4vw, 34px)" }}>
-                      {p.title}
-                    </h2>
-                    {p.summary && (
-                      <p className="text-sm sm:text-base text-foreground/80 mb-4 italic">{p.summary}</p>
-                    )}
-                    {p.description && (
-                      <p className="text-sm sm:text-[15px] text-muted-foreground leading-relaxed mb-6 whitespace-pre-line">
-                        {p.description}
-                      </p>
-                    )}
-
-                    {tools.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-6">
-                        {tools.map((t) => (
-                          <span key={t} className="text-xs font-semibold px-3 py-1.5 rounded-full border border-border bg-background/40">
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {(p.live_url || p.github_url) && (
-                      <div className="flex flex-wrap gap-2.5">
-                        {p.live_url && (
-                          <a href={p.live_url} target="_blank" rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-bold hover:opacity-90 transition-opacity shadow-[0_10px_30px_-12px_color-mix(in_oklab,var(--primary)_55%,transparent)]">
-                            <ExternalLink className="w-4 h-4" /> Visit live
-                          </a>
-                        )}
-                        {p.github_url && (
-                          <a href={p.github_url} target="_blank" rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-bold hover:border-primary hover:text-primary transition-colors">
-                            <Github className="w-4 h-4" /> GitHub
-                          </a>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {tools.length > 0 && (
-                    <div className="border-t lg:border-t-0 lg:border-l border-border p-6 sm:p-8 md:p-10 bg-background/30">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground mb-4">
-                        Tools & Tech
-                      </p>
-                      <ul className="space-y-2.5">
-                        {tools.map((t) => (
-                          <li key={t} className="flex gap-2.5 text-sm">
-                            <ArrowRight className="w-4 h-4 mt-0.5 text-primary shrink-0" />
-                            <span className="text-foreground/85 leading-relaxed">{t}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </motion.article>
-            );
-          })}
         </div>
       </section>
 
+      <AnimatePresence>
+        {active && <ProjectModal project={active} onClose={() => setActive(null)} />}
+      </AnimatePresence>
+
       <footer className="px-5 sm:px-6 md:px-10 py-8 sm:py-10 text-center text-xs text-muted-foreground border-t border-border">
         © {new Date().getFullYear()} Ali Nur Hasan · TasTaj ·{" "}
-        <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
+        <Link to="/" className="hover:text-foreground transition-colors">
+          Home
+        </Link>
       </footer>
     </div>
+  );
+}
+
+function FolderCard({
+  project,
+  index,
+  onPreview,
+}: {
+  project: Project;
+  index: number;
+  onPreview: () => void;
+}) {
+  const cover = project.image_url;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.55, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
+      className="group relative block w-full overflow-hidden rounded-2xl border border-border hover:border-primary/45 transition-all duration-500 hover:-translate-y-1 bg-card"
+    >
+      <button
+        type="button"
+        onClick={onPreview}
+        aria-label={`Open ${project.title}`}
+        className="block w-full text-left"
+      >
+        <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-muted via-card to-background">
+          {cover ? (
+            <img
+              src={cover}
+              alt={project.title}
+              loading="lazy"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Folder
+                className="h-20 w-20 text-primary/25 transition-all duration-500 group-hover:text-primary/45 group-hover:scale-110"
+                strokeWidth={0.9}
+              />
+              <span className="absolute font-serif-display italic font-light text-7xl text-primary/10 select-none">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+            </div>
+          )}
+
+          {/* Folder tab */}
+          <div className="absolute top-4 left-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/70 backdrop-blur-md border border-primary/30 text-primary">
+            <Folder className="h-3 w-3" strokeWidth={1.6} />
+            <span className="font-mono text-[10px] uppercase tracking-[0.22em]">Folder</span>
+          </div>
+
+          {project.featured && (
+            <div className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-[0.2em]">
+              Featured
+            </div>
+          )}
+
+          {/* Hover overlay */}
+          <div
+            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6 pointer-events-none"
+            style={{
+              background:
+                "linear-gradient(to top, color-mix(in oklab, var(--background) 96%, transparent) 0%, color-mix(in oklab, var(--background) 35%, transparent) 60%, transparent 100%)",
+            }}
+          >
+            <h3 className="font-serif-display text-2xl tracking-tight font-light">
+              {project.title}
+            </h3>
+            {project.summary && (
+              <p className="mt-1.5 text-sm text-foreground/70 line-clamp-2">{project.summary}</p>
+            )}
+            <span className="mt-3 inline-flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.22em] text-primary">
+              Open folder <FolderOpen className="h-3.5 w-3.5" strokeWidth={1.6} />
+            </span>
+          </div>
+        </div>
+
+        {/* Always-visible footer */}
+        <div className="px-5 py-4 flex items-center justify-between gap-3 border-t border-border">
+          <div className="min-w-0">
+            <h3 className="text-base font-bold tracking-tight truncate">{project.title}</h3>
+            <p className="text-[11px] font-mono uppercase tracking-[0.22em] text-muted-foreground mt-0.5">
+              {project.category || "View gallery"}
+            </p>
+          </div>
+          <span className="shrink-0 inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary/35 text-primary group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors duration-300">
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </span>
+        </div>
+      </button>
+
+      {/* Quick preview */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onPreview();
+        }}
+        aria-label={`Quick preview ${project.title}`}
+        className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 h-8 rounded-full bg-background/70 backdrop-blur-md border border-primary/30 text-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-primary hover:text-primary-foreground hover:border-primary text-[10px] font-mono uppercase tracking-[0.22em]"
+      >
+        <Eye className="h-3 w-3" strokeWidth={1.8} />
+        Preview
+      </button>
+    </motion.div>
+  );
+}
+
+function ProjectModal({ project, onClose }: { project: Project; onClose: () => void }) {
+  const gallery = Array.isArray(project.gallery) ? (project.gallery as string[]) : [];
+  const tools = Array.isArray(project.tools) ? (project.tools as string[]) : [];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.22 }}
+      className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-start sm:items-center justify-center p-4 sm:p-8 overflow-auto"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ y: 24, opacity: 0, scale: 0.97 }}
+        animate={{ y: 0, opacity: 1, scale: 1 }}
+        exit={{ y: 18, opacity: 0, scale: 0.97 }}
+        transition={{ duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
+        className="relative w-full max-w-5xl bg-card border border-primary/30 rounded-2xl my-4 text-foreground"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between gap-4 p-6 sm:p-7 border-b border-border">
+          <div className="flex items-center gap-4 min-w-0">
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 border border-primary/30 text-primary shrink-0">
+              <FolderOpen className="h-5 w-5" strokeWidth={1.5} />
+            </span>
+            <div className="min-w-0">
+              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-primary">
+                {project.category || "Project"}
+              </p>
+              <h3 className="font-serif-display text-2xl sm:text-3xl tracking-tight font-light truncate">
+                {project.title}
+              </h3>
+              {project.summary && (
+                <p className="mt-1 text-sm text-muted-foreground line-clamp-1">
+                  {project.summary}
+                </p>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="shrink-0 h-10 w-10 rounded-full border border-border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors duration-300 inline-flex items-center justify-center"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="p-6 sm:p-7 max-h-[70vh] overflow-y-auto space-y-6">
+          {project.image_url && (
+            <div className="rounded-xl overflow-hidden border border-border">
+              <img src={project.image_url} alt={project.title} className="w-full h-auto" />
+            </div>
+          )}
+
+          {project.description && (
+            <p className="text-sm sm:text-[15px] text-muted-foreground leading-relaxed whitespace-pre-line">
+              {project.description}
+            </p>
+          )}
+
+          {tools.length > 0 && (
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground mb-3">
+                Tools & Tech
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {tools.map((t) => (
+                  <span
+                    key={t}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-full border border-border bg-background/40"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {gallery.length > 0 && (
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground mb-3">
+                Gallery
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {gallery.map((src, i) => (
+                  <a
+                    key={`${src}-${i}`}
+                    href={src}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group block relative aspect-square overflow-hidden border border-border hover:border-primary/50 rounded-lg"
+                  >
+                    <img
+                      src={src}
+                      alt={`${project.title} ${i + 1}`}
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {(project.live_url || project.github_url) && (
+            <div className="flex flex-wrap gap-2.5 pt-2">
+              {project.live_url && (
+                <a
+                  href={project.live_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-bold hover:opacity-90 transition-opacity shadow-glow"
+                >
+                  <ExternalLink className="w-4 h-4" /> Visit live
+                </a>
+              )}
+              {project.github_url && (
+                <a
+                  href={project.github_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-bold hover:border-primary hover:text-primary transition-colors"
+                >
+                  <Github className="w-4 h-4" /> GitHub
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }

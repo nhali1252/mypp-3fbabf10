@@ -3,10 +3,8 @@ import { Pencil } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 /**
- * Floating "Edit in admin" button shown on every public page,
- * but only when the visitor is signed in as an admin or editor.
- *
- * The target admin route is chosen based on the current pathname.
+ * Floating "Edit in admin" pill, visible only to signed-in admins/editors.
+ * Resolves to the most relevant admin page for the current public route.
  */
 export function AdminEditFab() {
   const { user, isAdmin, isEditor, loading } = useAuth();
@@ -31,9 +29,12 @@ export function AdminEditFab() {
 }
 
 function resolveAdminTarget(pathname: string): { to: string; label: string } {
-  if (pathname.startsWith("/B")) return { to: "/admin/hero", label: "Page B" };
-  if (pathname.startsWith("/F")) return { to: "/admin/f-page", label: "Page F" };
-  if (pathname.startsWith("/P")) return { to: "/admin/projects", label: "Page P" };
+  if (pathname.startsWith("/basic")) return { to: "/admin/hero", label: "Basic" };
+  if (pathname.startsWith("/about-and-skills")) return { to: "/admin/about", label: "About & Skills" };
+  if (pathname.startsWith("/portfolio")) return { to: "/admin/portfolio", label: "Portfolio" };
+  if (pathname.startsWith("/projects")) return { to: "/admin/projects", label: "Projects" };
+  if (pathname.startsWith("/services")) return { to: "/admin/skills", label: "Services" };
+  if (pathname.startsWith("/contact")) return { to: "/admin/contact", label: "Contact" };
   if (pathname === "/" || pathname === "") return { to: "/admin/launcher", label: "Launcher" };
   return { to: "/admin", label: "Admin" };
 }

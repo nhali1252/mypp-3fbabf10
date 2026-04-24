@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Sparkles, User, GraduationCap, Lightbulb, FolderKanban,
   Activity, Megaphone, PhoneCall, Inbox, Image as ImageIcon,
   Search, Settings, Users, LogOut, ExternalLink, Compass, AppWindow, ClipboardCheck,
-  Folder, LayoutGrid, Car, Rocket, Briefcase, Wrench, Loader2,
+  Folder, LayoutGrid, Rocket, Briefcase, Loader2, Star,
 } from "lucide-react";
 
 type Item = { to: string; label: string; Icon: any; end?: boolean };
@@ -21,22 +21,20 @@ const groups: Group[] = [
   {
     label: "Home page",
     items: [
-      { to: "/admin/welcome", label: "Welcome header", Icon: Sparkles },
-      { to: "/admin/launcher", label: "Launcher cards", Icon: Rocket },
+      { to: "/admin/launcher", label: "Welcome / Launcher", Icon: Rocket },
     ],
   },
   {
     label: "Public pages",
     items: [
-      { to: "/admin/portfolio-page", label: "Portfolio page", Icon: Briefcase },
-      { to: "/admin/services-page", label: "Services page", Icon: Wrench },
-      { to: "/admin/f-page", label: "About & Skills page", Icon: Lightbulb },
       { to: "/admin/hero", label: "Basic info hero", Icon: Sparkles },
       { to: "/admin/about", label: "About content", Icon: User },
       { to: "/admin/education", label: "Education", Icon: GraduationCap },
-      { to: "/admin/skills", label: "Skills (legacy)", Icon: Lightbulb },
-      { to: "/admin/projects", label: "Projects (legacy)", Icon: FolderKanban },
+      { to: "/admin/skills", label: "Skills", Icon: Lightbulb },
       { to: "/admin/activities", label: "Activities", Icon: Activity },
+      { to: "/admin/portfolio", label: "Portfolio", Icon: Briefcase },
+      { to: "/admin/projects", label: "Projects", Icon: FolderKanban },
+      { to: "/admin/reviews", label: "Reviews", Icon: Star },
     ],
   },
   {
@@ -44,7 +42,6 @@ const groups: Group[] = [
     items: [
       { to: "/admin/folders", label: "Folders", Icon: Folder },
       { to: "/admin/slots", label: "Slots", Icon: LayoutGrid },
-      { to: "/admin/services-cms", label: "Taxi Services", Icon: Car },
     ],
   },
   {

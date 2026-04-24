@@ -164,7 +164,7 @@ function AdminLauncher() {
 
       <AdminCard title="Tips">
         <ul className="text-sm text-muted-foreground space-y-1.5 list-disc pl-5">
-          <li>Use <code className="text-foreground">/B</code>, <code className="text-foreground">/F</code>, <code className="text-foreground">/P</code> for the existing pages.</li>
+          <li>Use real public routes like <code className="text-foreground">/basic</code>, <code className="text-foreground">/about-and-skills</code>, <code className="text-foreground">/portfolio</code>, <code className="text-foreground">/projects</code>, <code className="text-foreground">/services</code>, <code className="text-foreground">/contact</code>.</li>
           <li>Lower <strong>sort order</strong> appears first.</li>
           <li>Inactive cards stay in the database but are hidden from visitors.</li>
         </ul>
@@ -270,7 +270,7 @@ function CardDialog({
               <Input
                 value={v.route ?? ""}
                 onChange={(e) => setV({ ...v, route: e.target.value })}
-                placeholder="/B"
+                placeholder="/basic"
               />
             </div>
             <div>

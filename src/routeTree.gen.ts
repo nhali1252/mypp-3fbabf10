@@ -9,9 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ServicesDesignRouteImport } from './routes/services-design'
 import { Route as ServicesRouteImport } from './routes/services'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -19,25 +17,17 @@ import { Route as BasicRouteImport } from './routes/basic'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AboutAndSkillsRouteImport } from './routes/about-and-skills'
 import { Route as AdminRouteImport } from './routes/_admin'
-import { Route as PRouteImport } from './routes/P'
-import { Route as FRouteImport } from './routes/F'
-import { Route as BRouteImport } from './routes/B'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PAuthRouteImport } from './routes/P.auth'
-import { Route as FAuthRouteImport } from './routes/F.auth'
-import { Route as BAuthRouteImport } from './routes/B.auth'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin.admin.index'
-import { Route as AdminAdminWelcomeRouteImport } from './routes/_admin.admin.welcome'
 import { Route as AdminAdminUsersRouteImport } from './routes/_admin.admin.users'
 import { Route as AdminAdminTickerRouteImport } from './routes/_admin.admin.ticker'
 import { Route as AdminAdminSlotsRouteImport } from './routes/_admin.admin.slots'
 import { Route as AdminAdminSkillsRouteImport } from './routes/_admin.admin.skills'
 import { Route as AdminAdminSettingsRouteImport } from './routes/_admin.admin.settings'
-import { Route as AdminAdminServicesPageRouteImport } from './routes/_admin.admin.services-page'
-import { Route as AdminAdminServicesCmsRouteImport } from './routes/_admin.admin.services-cms'
 import { Route as AdminAdminSeoRouteImport } from './routes/_admin.admin.seo'
+import { Route as AdminAdminReviewsRouteImport } from './routes/_admin.admin.reviews'
 import { Route as AdminAdminProjectsRouteImport } from './routes/_admin.admin.projects'
-import { Route as AdminAdminPortfolioPageRouteImport } from './routes/_admin.admin.portfolio-page'
+import { Route as AdminAdminPortfolioRouteImport } from './routes/_admin.admin.portfolio'
 import { Route as AdminAdminPageLoaderRouteImport } from './routes/_admin.admin.page-loader'
 import { Route as AdminAdminNavigationRouteImport } from './routes/_admin.admin.navigation'
 import { Route as AdminAdminMessagesRouteImport } from './routes/_admin.admin.messages'
@@ -47,26 +37,15 @@ import { Route as AdminAdminHeroRouteImport } from './routes/_admin.admin.hero'
 import { Route as AdminAdminFooterCtaRouteImport } from './routes/_admin.admin.footer-cta'
 import { Route as AdminAdminFooterAppsRouteImport } from './routes/_admin.admin.footer-apps'
 import { Route as AdminAdminFoldersRouteImport } from './routes/_admin.admin.folders'
-import { Route as AdminAdminFPageRouteImport } from './routes/_admin.admin.f-page'
 import { Route as AdminAdminEducationRouteImport } from './routes/_admin.admin.education'
 import { Route as AdminAdminContactRouteImport } from './routes/_admin.admin.contact'
 import { Route as AdminAdminChecklistRouteImport } from './routes/_admin.admin.checklist'
 import { Route as AdminAdminActivitiesRouteImport } from './routes/_admin.admin.activities'
 import { Route as AdminAdminAboutRouteImport } from './routes/_admin.admin.about'
 
-const ServicesDesignRoute = ServicesDesignRouteImport.update({
-  id: '/services-design',
-  path: '/services-design',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectsRoute = ProjectsRouteImport.update({
@@ -103,49 +82,14 @@ const AdminRoute = AdminRouteImport.update({
   id: '/_admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PRoute = PRouteImport.update({
-  id: '/P',
-  path: '/P',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FRoute = FRouteImport.update({
-  id: '/F',
-  path: '/F',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BRoute = BRouteImport.update({
-  id: '/B',
-  path: '/B',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PAuthRoute = PAuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => PRoute,
-} as any)
-const FAuthRoute = FAuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => FRoute,
-} as any)
-const BAuthRoute = BAuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => BRoute,
-} as any)
 const AdminAdminIndexRoute = AdminAdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAdminWelcomeRoute = AdminAdminWelcomeRouteImport.update({
-  id: '/admin/welcome',
-  path: '/admin/welcome',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAdminUsersRoute = AdminAdminUsersRouteImport.update({
@@ -173,19 +117,14 @@ const AdminAdminSettingsRoute = AdminAdminSettingsRouteImport.update({
   path: '/admin/settings',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminAdminServicesPageRoute = AdminAdminServicesPageRouteImport.update({
-  id: '/admin/services-page',
-  path: '/admin/services-page',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAdminServicesCmsRoute = AdminAdminServicesCmsRouteImport.update({
-  id: '/admin/services-cms',
-  path: '/admin/services-cms',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminAdminSeoRoute = AdminAdminSeoRouteImport.update({
   id: '/admin/seo',
   path: '/admin/seo',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdminReviewsRoute = AdminAdminReviewsRouteImport.update({
+  id: '/admin/reviews',
+  path: '/admin/reviews',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAdminProjectsRoute = AdminAdminProjectsRouteImport.update({
@@ -193,9 +132,9 @@ const AdminAdminProjectsRoute = AdminAdminProjectsRouteImport.update({
   path: '/admin/projects',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminAdminPortfolioPageRoute = AdminAdminPortfolioPageRouteImport.update({
-  id: '/admin/portfolio-page',
-  path: '/admin/portfolio-page',
+const AdminAdminPortfolioRoute = AdminAdminPortfolioRouteImport.update({
+  id: '/admin/portfolio',
+  path: '/admin/portfolio',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAdminPageLoaderRoute = AdminAdminPageLoaderRouteImport.update({
@@ -243,11 +182,6 @@ const AdminAdminFoldersRoute = AdminAdminFoldersRouteImport.update({
   path: '/admin/folders',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminAdminFPageRoute = AdminAdminFPageRouteImport.update({
-  id: '/admin/f-page',
-  path: '/admin/f-page',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminAdminEducationRoute = AdminAdminEducationRouteImport.update({
   id: '/admin/education',
   path: '/admin/education',
@@ -276,27 +210,18 @@ const AdminAdminAboutRoute = AdminAdminAboutRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/B': typeof BRouteWithChildren
-  '/F': typeof FRouteWithChildren
-  '/P': typeof PRouteWithChildren
   '/about-and-skills': typeof AboutAndSkillsRoute
   '/auth': typeof AuthRoute
   '/basic': typeof BasicRoute
   '/contact': typeof ContactRoute
   '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
-  '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
-  '/services-design': typeof ServicesDesignRoute
-  '/B/auth': typeof BAuthRoute
-  '/F/auth': typeof FAuthRoute
-  '/P/auth': typeof PAuthRoute
   '/admin/about': typeof AdminAdminAboutRoute
   '/admin/activities': typeof AdminAdminActivitiesRoute
   '/admin/checklist': typeof AdminAdminChecklistRoute
   '/admin/contact': typeof AdminAdminContactRoute
   '/admin/education': typeof AdminAdminEducationRoute
-  '/admin/f-page': typeof AdminAdminFPageRoute
   '/admin/folders': typeof AdminAdminFoldersRoute
   '/admin/footer-apps': typeof AdminAdminFooterAppsRoute
   '/admin/footer-cta': typeof AdminAdminFooterCtaRoute
@@ -306,42 +231,31 @@ export interface FileRoutesByFullPath {
   '/admin/messages': typeof AdminAdminMessagesRoute
   '/admin/navigation': typeof AdminAdminNavigationRoute
   '/admin/page-loader': typeof AdminAdminPageLoaderRoute
-  '/admin/portfolio-page': typeof AdminAdminPortfolioPageRoute
+  '/admin/portfolio': typeof AdminAdminPortfolioRoute
   '/admin/projects': typeof AdminAdminProjectsRoute
+  '/admin/reviews': typeof AdminAdminReviewsRoute
   '/admin/seo': typeof AdminAdminSeoRoute
-  '/admin/services-cms': typeof AdminAdminServicesCmsRoute
-  '/admin/services-page': typeof AdminAdminServicesPageRoute
   '/admin/settings': typeof AdminAdminSettingsRoute
   '/admin/skills': typeof AdminAdminSkillsRoute
   '/admin/slots': typeof AdminAdminSlotsRoute
   '/admin/ticker': typeof AdminAdminTickerRoute
   '/admin/users': typeof AdminAdminUsersRoute
-  '/admin/welcome': typeof AdminAdminWelcomeRoute
   '/admin/': typeof AdminAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/B': typeof BRouteWithChildren
-  '/F': typeof FRouteWithChildren
-  '/P': typeof PRouteWithChildren
   '/about-and-skills': typeof AboutAndSkillsRoute
   '/auth': typeof AuthRoute
   '/basic': typeof BasicRoute
   '/contact': typeof ContactRoute
   '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
-  '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
-  '/services-design': typeof ServicesDesignRoute
-  '/B/auth': typeof BAuthRoute
-  '/F/auth': typeof FAuthRoute
-  '/P/auth': typeof PAuthRoute
   '/admin/about': typeof AdminAdminAboutRoute
   '/admin/activities': typeof AdminAdminActivitiesRoute
   '/admin/checklist': typeof AdminAdminChecklistRoute
   '/admin/contact': typeof AdminAdminContactRoute
   '/admin/education': typeof AdminAdminEducationRoute
-  '/admin/f-page': typeof AdminAdminFPageRoute
   '/admin/folders': typeof AdminAdminFoldersRoute
   '/admin/footer-apps': typeof AdminAdminFooterAppsRoute
   '/admin/footer-cta': typeof AdminAdminFooterCtaRoute
@@ -351,25 +265,20 @@ export interface FileRoutesByTo {
   '/admin/messages': typeof AdminAdminMessagesRoute
   '/admin/navigation': typeof AdminAdminNavigationRoute
   '/admin/page-loader': typeof AdminAdminPageLoaderRoute
-  '/admin/portfolio-page': typeof AdminAdminPortfolioPageRoute
+  '/admin/portfolio': typeof AdminAdminPortfolioRoute
   '/admin/projects': typeof AdminAdminProjectsRoute
+  '/admin/reviews': typeof AdminAdminReviewsRoute
   '/admin/seo': typeof AdminAdminSeoRoute
-  '/admin/services-cms': typeof AdminAdminServicesCmsRoute
-  '/admin/services-page': typeof AdminAdminServicesPageRoute
   '/admin/settings': typeof AdminAdminSettingsRoute
   '/admin/skills': typeof AdminAdminSkillsRoute
   '/admin/slots': typeof AdminAdminSlotsRoute
   '/admin/ticker': typeof AdminAdminTickerRoute
   '/admin/users': typeof AdminAdminUsersRoute
-  '/admin/welcome': typeof AdminAdminWelcomeRoute
   '/admin': typeof AdminAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/B': typeof BRouteWithChildren
-  '/F': typeof FRouteWithChildren
-  '/P': typeof PRouteWithChildren
   '/_admin': typeof AdminRouteWithChildren
   '/about-and-skills': typeof AboutAndSkillsRoute
   '/auth': typeof AuthRoute
@@ -377,18 +286,12 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
-  '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
-  '/services-design': typeof ServicesDesignRoute
-  '/B/auth': typeof BAuthRoute
-  '/F/auth': typeof FAuthRoute
-  '/P/auth': typeof PAuthRoute
   '/_admin/admin/about': typeof AdminAdminAboutRoute
   '/_admin/admin/activities': typeof AdminAdminActivitiesRoute
   '/_admin/admin/checklist': typeof AdminAdminChecklistRoute
   '/_admin/admin/contact': typeof AdminAdminContactRoute
   '/_admin/admin/education': typeof AdminAdminEducationRoute
-  '/_admin/admin/f-page': typeof AdminAdminFPageRoute
   '/_admin/admin/folders': typeof AdminAdminFoldersRoute
   '/_admin/admin/footer-apps': typeof AdminAdminFooterAppsRoute
   '/_admin/admin/footer-cta': typeof AdminAdminFooterCtaRoute
@@ -398,44 +301,33 @@ export interface FileRoutesById {
   '/_admin/admin/messages': typeof AdminAdminMessagesRoute
   '/_admin/admin/navigation': typeof AdminAdminNavigationRoute
   '/_admin/admin/page-loader': typeof AdminAdminPageLoaderRoute
-  '/_admin/admin/portfolio-page': typeof AdminAdminPortfolioPageRoute
+  '/_admin/admin/portfolio': typeof AdminAdminPortfolioRoute
   '/_admin/admin/projects': typeof AdminAdminProjectsRoute
+  '/_admin/admin/reviews': typeof AdminAdminReviewsRoute
   '/_admin/admin/seo': typeof AdminAdminSeoRoute
-  '/_admin/admin/services-cms': typeof AdminAdminServicesCmsRoute
-  '/_admin/admin/services-page': typeof AdminAdminServicesPageRoute
   '/_admin/admin/settings': typeof AdminAdminSettingsRoute
   '/_admin/admin/skills': typeof AdminAdminSkillsRoute
   '/_admin/admin/slots': typeof AdminAdminSlotsRoute
   '/_admin/admin/ticker': typeof AdminAdminTickerRoute
   '/_admin/admin/users': typeof AdminAdminUsersRoute
-  '/_admin/admin/welcome': typeof AdminAdminWelcomeRoute
   '/_admin/admin/': typeof AdminAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/B'
-    | '/F'
-    | '/P'
     | '/about-and-skills'
     | '/auth'
     | '/basic'
     | '/contact'
     | '/portfolio'
     | '/projects'
-    | '/reset-password'
     | '/services'
-    | '/services-design'
-    | '/B/auth'
-    | '/F/auth'
-    | '/P/auth'
     | '/admin/about'
     | '/admin/activities'
     | '/admin/checklist'
     | '/admin/contact'
     | '/admin/education'
-    | '/admin/f-page'
     | '/admin/folders'
     | '/admin/footer-apps'
     | '/admin/footer-cta'
@@ -445,42 +337,31 @@ export interface FileRouteTypes {
     | '/admin/messages'
     | '/admin/navigation'
     | '/admin/page-loader'
-    | '/admin/portfolio-page'
+    | '/admin/portfolio'
     | '/admin/projects'
+    | '/admin/reviews'
     | '/admin/seo'
-    | '/admin/services-cms'
-    | '/admin/services-page'
     | '/admin/settings'
     | '/admin/skills'
     | '/admin/slots'
     | '/admin/ticker'
     | '/admin/users'
-    | '/admin/welcome'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/B'
-    | '/F'
-    | '/P'
     | '/about-and-skills'
     | '/auth'
     | '/basic'
     | '/contact'
     | '/portfolio'
     | '/projects'
-    | '/reset-password'
     | '/services'
-    | '/services-design'
-    | '/B/auth'
-    | '/F/auth'
-    | '/P/auth'
     | '/admin/about'
     | '/admin/activities'
     | '/admin/checklist'
     | '/admin/contact'
     | '/admin/education'
-    | '/admin/f-page'
     | '/admin/folders'
     | '/admin/footer-apps'
     | '/admin/footer-cta'
@@ -490,24 +371,19 @@ export interface FileRouteTypes {
     | '/admin/messages'
     | '/admin/navigation'
     | '/admin/page-loader'
-    | '/admin/portfolio-page'
+    | '/admin/portfolio'
     | '/admin/projects'
+    | '/admin/reviews'
     | '/admin/seo'
-    | '/admin/services-cms'
-    | '/admin/services-page'
     | '/admin/settings'
     | '/admin/skills'
     | '/admin/slots'
     | '/admin/ticker'
     | '/admin/users'
-    | '/admin/welcome'
     | '/admin'
   id:
     | '__root__'
     | '/'
-    | '/B'
-    | '/F'
-    | '/P'
     | '/_admin'
     | '/about-and-skills'
     | '/auth'
@@ -515,18 +391,12 @@ export interface FileRouteTypes {
     | '/contact'
     | '/portfolio'
     | '/projects'
-    | '/reset-password'
     | '/services'
-    | '/services-design'
-    | '/B/auth'
-    | '/F/auth'
-    | '/P/auth'
     | '/_admin/admin/about'
     | '/_admin/admin/activities'
     | '/_admin/admin/checklist'
     | '/_admin/admin/contact'
     | '/_admin/admin/education'
-    | '/_admin/admin/f-page'
     | '/_admin/admin/folders'
     | '/_admin/admin/footer-apps'
     | '/_admin/admin/footer-cta'
@@ -536,25 +406,20 @@ export interface FileRouteTypes {
     | '/_admin/admin/messages'
     | '/_admin/admin/navigation'
     | '/_admin/admin/page-loader'
-    | '/_admin/admin/portfolio-page'
+    | '/_admin/admin/portfolio'
     | '/_admin/admin/projects'
+    | '/_admin/admin/reviews'
     | '/_admin/admin/seo'
-    | '/_admin/admin/services-cms'
-    | '/_admin/admin/services-page'
     | '/_admin/admin/settings'
     | '/_admin/admin/skills'
     | '/_admin/admin/slots'
     | '/_admin/admin/ticker'
     | '/_admin/admin/users'
-    | '/_admin/admin/welcome'
     | '/_admin/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  BRoute: typeof BRouteWithChildren
-  FRoute: typeof FRouteWithChildren
-  PRoute: typeof PRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
   AboutAndSkillsRoute: typeof AboutAndSkillsRoute
   AuthRoute: typeof AuthRoute
@@ -562,32 +427,16 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   PortfolioRoute: typeof PortfolioRoute
   ProjectsRoute: typeof ProjectsRoute
-  ResetPasswordRoute: typeof ResetPasswordRoute
   ServicesRoute: typeof ServicesRoute
-  ServicesDesignRoute: typeof ServicesDesignRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/services-design': {
-      id: '/services-design'
-      path: '/services-design'
-      fullPath: '/services-design'
-      preLoaderRoute: typeof ServicesDesignRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/services': {
       id: '/services'
       path: '/services'
       fullPath: '/services'
       preLoaderRoute: typeof ServicesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects': {
@@ -639,27 +488,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/P': {
-      id: '/P'
-      path: '/P'
-      fullPath: '/P'
-      preLoaderRoute: typeof PRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/F': {
-      id: '/F'
-      path: '/F'
-      fullPath: '/F'
-      preLoaderRoute: typeof FRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/B': {
-      id: '/B'
-      path: '/B'
-      fullPath: '/B'
-      preLoaderRoute: typeof BRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -667,39 +495,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/P/auth': {
-      id: '/P/auth'
-      path: '/auth'
-      fullPath: '/P/auth'
-      preLoaderRoute: typeof PAuthRouteImport
-      parentRoute: typeof PRoute
-    }
-    '/F/auth': {
-      id: '/F/auth'
-      path: '/auth'
-      fullPath: '/F/auth'
-      preLoaderRoute: typeof FAuthRouteImport
-      parentRoute: typeof FRoute
-    }
-    '/B/auth': {
-      id: '/B/auth'
-      path: '/auth'
-      fullPath: '/B/auth'
-      preLoaderRoute: typeof BAuthRouteImport
-      parentRoute: typeof BRoute
-    }
     '/_admin/admin/': {
       id: '/_admin/admin/'
       path: '/admin'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminAdminIndexRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/_admin/admin/welcome': {
-      id: '/_admin/admin/welcome'
-      path: '/admin/welcome'
-      fullPath: '/admin/welcome'
-      preLoaderRoute: typeof AdminAdminWelcomeRouteImport
       parentRoute: typeof AdminRoute
     }
     '/_admin/admin/users': {
@@ -737,25 +537,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminSettingsRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/_admin/admin/services-page': {
-      id: '/_admin/admin/services-page'
-      path: '/admin/services-page'
-      fullPath: '/admin/services-page'
-      preLoaderRoute: typeof AdminAdminServicesPageRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/_admin/admin/services-cms': {
-      id: '/_admin/admin/services-cms'
-      path: '/admin/services-cms'
-      fullPath: '/admin/services-cms'
-      preLoaderRoute: typeof AdminAdminServicesCmsRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/_admin/admin/seo': {
       id: '/_admin/admin/seo'
       path: '/admin/seo'
       fullPath: '/admin/seo'
       preLoaderRoute: typeof AdminAdminSeoRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/admin/reviews': {
+      id: '/_admin/admin/reviews'
+      path: '/admin/reviews'
+      fullPath: '/admin/reviews'
+      preLoaderRoute: typeof AdminAdminReviewsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/_admin/admin/projects': {
@@ -765,11 +558,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminProjectsRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/_admin/admin/portfolio-page': {
-      id: '/_admin/admin/portfolio-page'
-      path: '/admin/portfolio-page'
-      fullPath: '/admin/portfolio-page'
-      preLoaderRoute: typeof AdminAdminPortfolioPageRouteImport
+    '/_admin/admin/portfolio': {
+      id: '/_admin/admin/portfolio'
+      path: '/admin/portfolio'
+      fullPath: '/admin/portfolio'
+      preLoaderRoute: typeof AdminAdminPortfolioRouteImport
       parentRoute: typeof AdminRoute
     }
     '/_admin/admin/page-loader': {
@@ -835,13 +628,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminFoldersRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/_admin/admin/f-page': {
-      id: '/_admin/admin/f-page'
-      path: '/admin/f-page'
-      fullPath: '/admin/f-page'
-      preLoaderRoute: typeof AdminAdminFPageRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/_admin/admin/education': {
       id: '/_admin/admin/education'
       path: '/admin/education'
@@ -880,43 +666,12 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface BRouteChildren {
-  BAuthRoute: typeof BAuthRoute
-}
-
-const BRouteChildren: BRouteChildren = {
-  BAuthRoute: BAuthRoute,
-}
-
-const BRouteWithChildren = BRoute._addFileChildren(BRouteChildren)
-
-interface FRouteChildren {
-  FAuthRoute: typeof FAuthRoute
-}
-
-const FRouteChildren: FRouteChildren = {
-  FAuthRoute: FAuthRoute,
-}
-
-const FRouteWithChildren = FRoute._addFileChildren(FRouteChildren)
-
-interface PRouteChildren {
-  PAuthRoute: typeof PAuthRoute
-}
-
-const PRouteChildren: PRouteChildren = {
-  PAuthRoute: PAuthRoute,
-}
-
-const PRouteWithChildren = PRoute._addFileChildren(PRouteChildren)
-
 interface AdminRouteChildren {
   AdminAdminAboutRoute: typeof AdminAdminAboutRoute
   AdminAdminActivitiesRoute: typeof AdminAdminActivitiesRoute
   AdminAdminChecklistRoute: typeof AdminAdminChecklistRoute
   AdminAdminContactRoute: typeof AdminAdminContactRoute
   AdminAdminEducationRoute: typeof AdminAdminEducationRoute
-  AdminAdminFPageRoute: typeof AdminAdminFPageRoute
   AdminAdminFoldersRoute: typeof AdminAdminFoldersRoute
   AdminAdminFooterAppsRoute: typeof AdminAdminFooterAppsRoute
   AdminAdminFooterCtaRoute: typeof AdminAdminFooterCtaRoute
@@ -926,17 +681,15 @@ interface AdminRouteChildren {
   AdminAdminMessagesRoute: typeof AdminAdminMessagesRoute
   AdminAdminNavigationRoute: typeof AdminAdminNavigationRoute
   AdminAdminPageLoaderRoute: typeof AdminAdminPageLoaderRoute
-  AdminAdminPortfolioPageRoute: typeof AdminAdminPortfolioPageRoute
+  AdminAdminPortfolioRoute: typeof AdminAdminPortfolioRoute
   AdminAdminProjectsRoute: typeof AdminAdminProjectsRoute
+  AdminAdminReviewsRoute: typeof AdminAdminReviewsRoute
   AdminAdminSeoRoute: typeof AdminAdminSeoRoute
-  AdminAdminServicesCmsRoute: typeof AdminAdminServicesCmsRoute
-  AdminAdminServicesPageRoute: typeof AdminAdminServicesPageRoute
   AdminAdminSettingsRoute: typeof AdminAdminSettingsRoute
   AdminAdminSkillsRoute: typeof AdminAdminSkillsRoute
   AdminAdminSlotsRoute: typeof AdminAdminSlotsRoute
   AdminAdminTickerRoute: typeof AdminAdminTickerRoute
   AdminAdminUsersRoute: typeof AdminAdminUsersRoute
-  AdminAdminWelcomeRoute: typeof AdminAdminWelcomeRoute
   AdminAdminIndexRoute: typeof AdminAdminIndexRoute
 }
 
@@ -946,7 +699,6 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminChecklistRoute: AdminAdminChecklistRoute,
   AdminAdminContactRoute: AdminAdminContactRoute,
   AdminAdminEducationRoute: AdminAdminEducationRoute,
-  AdminAdminFPageRoute: AdminAdminFPageRoute,
   AdminAdminFoldersRoute: AdminAdminFoldersRoute,
   AdminAdminFooterAppsRoute: AdminAdminFooterAppsRoute,
   AdminAdminFooterCtaRoute: AdminAdminFooterCtaRoute,
@@ -956,17 +708,15 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminMessagesRoute: AdminAdminMessagesRoute,
   AdminAdminNavigationRoute: AdminAdminNavigationRoute,
   AdminAdminPageLoaderRoute: AdminAdminPageLoaderRoute,
-  AdminAdminPortfolioPageRoute: AdminAdminPortfolioPageRoute,
+  AdminAdminPortfolioRoute: AdminAdminPortfolioRoute,
   AdminAdminProjectsRoute: AdminAdminProjectsRoute,
+  AdminAdminReviewsRoute: AdminAdminReviewsRoute,
   AdminAdminSeoRoute: AdminAdminSeoRoute,
-  AdminAdminServicesCmsRoute: AdminAdminServicesCmsRoute,
-  AdminAdminServicesPageRoute: AdminAdminServicesPageRoute,
   AdminAdminSettingsRoute: AdminAdminSettingsRoute,
   AdminAdminSkillsRoute: AdminAdminSkillsRoute,
   AdminAdminSlotsRoute: AdminAdminSlotsRoute,
   AdminAdminTickerRoute: AdminAdminTickerRoute,
   AdminAdminUsersRoute: AdminAdminUsersRoute,
-  AdminAdminWelcomeRoute: AdminAdminWelcomeRoute,
   AdminAdminIndexRoute: AdminAdminIndexRoute,
 }
 
@@ -974,9 +724,6 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  BRoute: BRouteWithChildren,
-  FRoute: FRouteWithChildren,
-  PRoute: PRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
   AboutAndSkillsRoute: AboutAndSkillsRoute,
   AuthRoute: AuthRoute,
@@ -984,9 +731,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   PortfolioRoute: PortfolioRoute,
   ProjectsRoute: ProjectsRoute,
-  ResetPasswordRoute: ResetPasswordRoute,
   ServicesRoute: ServicesRoute,
-  ServicesDesignRoute: ServicesDesignRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -46,6 +47,11 @@ import { Route as AdminAdminAboutRouteImport } from './routes/_admin.admin.about
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReviewsRoute = ReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectsRoute = ProjectsRouteImport.update({
@@ -216,6 +222,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
+  '/reviews': typeof ReviewsRoute
   '/services': typeof ServicesRoute
   '/admin/about': typeof AdminAdminAboutRoute
   '/admin/activities': typeof AdminAdminActivitiesRoute
@@ -250,6 +257,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
+  '/reviews': typeof ReviewsRoute
   '/services': typeof ServicesRoute
   '/admin/about': typeof AdminAdminAboutRoute
   '/admin/activities': typeof AdminAdminActivitiesRoute
@@ -286,6 +294,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
+  '/reviews': typeof ReviewsRoute
   '/services': typeof ServicesRoute
   '/_admin/admin/about': typeof AdminAdminAboutRoute
   '/_admin/admin/activities': typeof AdminAdminActivitiesRoute
@@ -322,6 +331,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/portfolio'
     | '/projects'
+    | '/reviews'
     | '/services'
     | '/admin/about'
     | '/admin/activities'
@@ -356,6 +366,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/portfolio'
     | '/projects'
+    | '/reviews'
     | '/services'
     | '/admin/about'
     | '/admin/activities'
@@ -391,6 +402,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/portfolio'
     | '/projects'
+    | '/reviews'
     | '/services'
     | '/_admin/admin/about'
     | '/_admin/admin/activities'
@@ -427,6 +439,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   PortfolioRoute: typeof PortfolioRoute
   ProjectsRoute: typeof ProjectsRoute
+  ReviewsRoute: typeof ReviewsRoute
   ServicesRoute: typeof ServicesRoute
 }
 
@@ -437,6 +450,13 @@ declare module '@tanstack/react-router' {
       path: '/services'
       fullPath: '/services'
       preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reviews': {
+      id: '/reviews'
+      path: '/reviews'
+      fullPath: '/reviews'
+      preLoaderRoute: typeof ReviewsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects': {
@@ -731,6 +751,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   PortfolioRoute: PortfolioRoute,
   ProjectsRoute: ProjectsRoute,
+  ReviewsRoute: ReviewsRoute,
   ServicesRoute: ServicesRoute,
 }
 export const routeTree = rootRouteImport

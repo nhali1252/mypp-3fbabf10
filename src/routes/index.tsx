@@ -72,7 +72,7 @@ const FALLBACK: LauncherCard[] = [
   },
   {
     id: "fb-portfolio",
-    label: "Page P",
+    label: "Portfolio",
     title: "Portfolio",
     subtitle: "Client & design work",
     description: "Branding, posters, packaging, invitations and digital design — selected client and TasTaj projects.",
@@ -85,7 +85,7 @@ const FALLBACK: LauncherCard[] = [
   },
   {
     id: "fb-projects",
-    label: "Page J",
+    label: "Projects",
     title: "Projects",
     subtitle: "Personal & code projects",
     description: "Pocketo personal-finance app, Hazi Enterprise automation site and other things I build with code.",

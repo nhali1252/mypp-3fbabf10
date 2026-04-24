@@ -25,7 +25,9 @@ import { Route as AdminAdminSlotsRouteImport } from './routes/_admin.admin.slots
 import { Route as AdminAdminSkillsRouteImport } from './routes/_admin.admin.skills'
 import { Route as AdminAdminSettingsRouteImport } from './routes/_admin.admin.settings'
 import { Route as AdminAdminSeoRouteImport } from './routes/_admin.admin.seo'
+import { Route as AdminAdminReviewsRouteImport } from './routes/_admin.admin.reviews'
 import { Route as AdminAdminProjectsRouteImport } from './routes/_admin.admin.projects'
+import { Route as AdminAdminPortfolioRouteImport } from './routes/_admin.admin.portfolio'
 import { Route as AdminAdminPageLoaderRouteImport } from './routes/_admin.admin.page-loader'
 import { Route as AdminAdminNavigationRouteImport } from './routes/_admin.admin.navigation'
 import { Route as AdminAdminMessagesRouteImport } from './routes/_admin.admin.messages'
@@ -120,9 +122,19 @@ const AdminAdminSeoRoute = AdminAdminSeoRouteImport.update({
   path: '/admin/seo',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminReviewsRoute = AdminAdminReviewsRouteImport.update({
+  id: '/admin/reviews',
+  path: '/admin/reviews',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAdminProjectsRoute = AdminAdminProjectsRouteImport.update({
   id: '/admin/projects',
   path: '/admin/projects',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdminPortfolioRoute = AdminAdminPortfolioRouteImport.update({
+  id: '/admin/portfolio',
+  path: '/admin/portfolio',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAdminPageLoaderRoute = AdminAdminPageLoaderRouteImport.update({
@@ -219,7 +231,9 @@ export interface FileRoutesByFullPath {
   '/admin/messages': typeof AdminAdminMessagesRoute
   '/admin/navigation': typeof AdminAdminNavigationRoute
   '/admin/page-loader': typeof AdminAdminPageLoaderRoute
+  '/admin/portfolio': typeof AdminAdminPortfolioRoute
   '/admin/projects': typeof AdminAdminProjectsRoute
+  '/admin/reviews': typeof AdminAdminReviewsRoute
   '/admin/seo': typeof AdminAdminSeoRoute
   '/admin/settings': typeof AdminAdminSettingsRoute
   '/admin/skills': typeof AdminAdminSkillsRoute
@@ -251,7 +265,9 @@ export interface FileRoutesByTo {
   '/admin/messages': typeof AdminAdminMessagesRoute
   '/admin/navigation': typeof AdminAdminNavigationRoute
   '/admin/page-loader': typeof AdminAdminPageLoaderRoute
+  '/admin/portfolio': typeof AdminAdminPortfolioRoute
   '/admin/projects': typeof AdminAdminProjectsRoute
+  '/admin/reviews': typeof AdminAdminReviewsRoute
   '/admin/seo': typeof AdminAdminSeoRoute
   '/admin/settings': typeof AdminAdminSettingsRoute
   '/admin/skills': typeof AdminAdminSkillsRoute
@@ -285,7 +301,9 @@ export interface FileRoutesById {
   '/_admin/admin/messages': typeof AdminAdminMessagesRoute
   '/_admin/admin/navigation': typeof AdminAdminNavigationRoute
   '/_admin/admin/page-loader': typeof AdminAdminPageLoaderRoute
+  '/_admin/admin/portfolio': typeof AdminAdminPortfolioRoute
   '/_admin/admin/projects': typeof AdminAdminProjectsRoute
+  '/_admin/admin/reviews': typeof AdminAdminReviewsRoute
   '/_admin/admin/seo': typeof AdminAdminSeoRoute
   '/_admin/admin/settings': typeof AdminAdminSettingsRoute
   '/_admin/admin/skills': typeof AdminAdminSkillsRoute
@@ -319,7 +337,9 @@ export interface FileRouteTypes {
     | '/admin/messages'
     | '/admin/navigation'
     | '/admin/page-loader'
+    | '/admin/portfolio'
     | '/admin/projects'
+    | '/admin/reviews'
     | '/admin/seo'
     | '/admin/settings'
     | '/admin/skills'
@@ -351,7 +371,9 @@ export interface FileRouteTypes {
     | '/admin/messages'
     | '/admin/navigation'
     | '/admin/page-loader'
+    | '/admin/portfolio'
     | '/admin/projects'
+    | '/admin/reviews'
     | '/admin/seo'
     | '/admin/settings'
     | '/admin/skills'
@@ -384,7 +406,9 @@ export interface FileRouteTypes {
     | '/_admin/admin/messages'
     | '/_admin/admin/navigation'
     | '/_admin/admin/page-loader'
+    | '/_admin/admin/portfolio'
     | '/_admin/admin/projects'
+    | '/_admin/admin/reviews'
     | '/_admin/admin/seo'
     | '/_admin/admin/settings'
     | '/_admin/admin/skills'
@@ -520,11 +544,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminSeoRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/reviews': {
+      id: '/_admin/admin/reviews'
+      path: '/admin/reviews'
+      fullPath: '/admin/reviews'
+      preLoaderRoute: typeof AdminAdminReviewsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/projects': {
       id: '/_admin/admin/projects'
       path: '/admin/projects'
       fullPath: '/admin/projects'
       preLoaderRoute: typeof AdminAdminProjectsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/admin/portfolio': {
+      id: '/_admin/admin/portfolio'
+      path: '/admin/portfolio'
+      fullPath: '/admin/portfolio'
+      preLoaderRoute: typeof AdminAdminPortfolioRouteImport
       parentRoute: typeof AdminRoute
     }
     '/_admin/admin/page-loader': {
@@ -643,7 +681,9 @@ interface AdminRouteChildren {
   AdminAdminMessagesRoute: typeof AdminAdminMessagesRoute
   AdminAdminNavigationRoute: typeof AdminAdminNavigationRoute
   AdminAdminPageLoaderRoute: typeof AdminAdminPageLoaderRoute
+  AdminAdminPortfolioRoute: typeof AdminAdminPortfolioRoute
   AdminAdminProjectsRoute: typeof AdminAdminProjectsRoute
+  AdminAdminReviewsRoute: typeof AdminAdminReviewsRoute
   AdminAdminSeoRoute: typeof AdminAdminSeoRoute
   AdminAdminSettingsRoute: typeof AdminAdminSettingsRoute
   AdminAdminSkillsRoute: typeof AdminAdminSkillsRoute
@@ -668,7 +708,9 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminMessagesRoute: AdminAdminMessagesRoute,
   AdminAdminNavigationRoute: AdminAdminNavigationRoute,
   AdminAdminPageLoaderRoute: AdminAdminPageLoaderRoute,
+  AdminAdminPortfolioRoute: AdminAdminPortfolioRoute,
   AdminAdminProjectsRoute: AdminAdminProjectsRoute,
+  AdminAdminReviewsRoute: AdminAdminReviewsRoute,
   AdminAdminSeoRoute: AdminAdminSeoRoute,
   AdminAdminSettingsRoute: AdminAdminSettingsRoute,
   AdminAdminSkillsRoute: AdminAdminSkillsRoute,

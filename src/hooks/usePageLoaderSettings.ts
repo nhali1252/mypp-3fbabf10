@@ -27,6 +27,7 @@ export const PAGE_LOADER_DEFAULTS: PageLoaderSettings = {
     "/projects": { label: "Projects", tagline: "Personal & code projects" },
     "/services": { label: "Services", tagline: "What I offer" },
     "/contact": { label: "Contact", tagline: "Start a project" },
+    "/reviews": { label: "Reviews", tagline: "Read & leave reviews" },
     "/auth": { label: "Sign in", tagline: "Admin access" },
     "/admin": { label: "Admin", tagline: "Content management" },
   },

@@ -110,6 +110,19 @@ const FALLBACK: LauncherCard[] = [
     active: true,
   },
   {
+    id: "fb-reviews",
+    label: "Reviews",
+    title: "Client Reviews",
+    subtitle: "What people say",
+    description: "Honest reviews from clients — read others or leave your own with a star rating in seconds.",
+    badge: "Voices",
+    route: "/reviews",
+    accent: "from-yellow-400/40 to-orange-500/10",
+    thumbnail_url: null,
+    sort_order: 6,
+    active: true,
+  },
+  {
     id: "fb-c",
     label: "Contact",
     title: "Contact",
@@ -119,7 +132,7 @@ const FALLBACK: LauncherCard[] = [
     route: "/contact",
     accent: "from-rose-500/40 to-orange-500/10",
     thumbnail_url: null,
-    sort_order: 6,
+    sort_order: 7,
     active: true,
   },
 ];

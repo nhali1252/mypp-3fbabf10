@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { ArrowUpRight, Code2, ExternalLink, Github, Star, Terminal } from "lucide-react";
+import { ArrowUpRight, Check, Code2, ExternalLink, Github, Star, Terminal } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Footer } from "@/components/Footer";
 
@@ -16,6 +16,7 @@ type Project = {
   live_url?: string | null;
   github_url?: string | null;
   tools?: string[] | null;
+  features?: string[] | null;
   featured?: boolean | null;
 };
 
@@ -105,6 +106,7 @@ export function ProjectsPage() {
 
 function ProjectRow({ project, index }: { project: Project; index: number }) {
   const tools = Array.isArray(project.tools) ? project.tools : [];
+  const features = Array.isArray(project.features) ? project.features : [];
 
   return (
     <motion.article
@@ -158,6 +160,17 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
             <ArrowUpRight className="h-3.5 w-3.5" />
           </span>
         </div>
+
+        {features.length > 0 && (
+          <ul className="grid sm:grid-cols-2 gap-x-4 gap-y-1.5 pt-1">
+            {features.map((f) => (
+              <li key={f} className="flex items-start gap-2 text-[12.5px] leading-snug text-foreground/85">
+                <Check className="w-3.5 h-3.5 mt-0.5 text-primary shrink-0" />
+                <span>{f}</span>
+              </li>
+            ))}
+          </ul>
+        )}
 
         {tools.length > 0 && (
           <div className="flex flex-wrap gap-1.5">

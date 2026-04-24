@@ -21,7 +21,7 @@ function AdminProjects() {
   const t = useTable("projects");
   const rows = t.data ?? [];
   const [creating, setCreating] = useState(false);
-  const [draft, setDraft] = useState<any>({ featured: false, published: true, tools: [] });
+  const [draft, setDraft] = useState<any>({ featured: false, published: true, tools: [], features: [] });
   const [edits, setEdits] = useState<Record<string, any>>({});
 
   const get = (r: any) => edits[r.id] ?? r;
@@ -33,8 +33,8 @@ function AdminProjects() {
   async function add() {
     if (!draft.title?.trim()) return;
     const slug = (draft.slug?.trim() || slugify(draft.title)) || `project-${Date.now()}`;
-    const ok = await t.insert({ ...draft, slug, tools: draft.tools || [], sort_order: rows.length + 1 });
-    if (ok) { setDraft({ featured: false, published: true, tools: [] }); setCreating(false); }
+    const ok = await t.insert({ ...draft, slug, tools: draft.tools || [], features: draft.features || [], sort_order: rows.length + 1 });
+    if (ok) { setDraft({ featured: false, published: true, tools: [], features: [] }); setCreating(false); }
   }
 
   async function save(id: string) {
@@ -42,6 +42,7 @@ function AdminProjects() {
     const ok = await t.update(id, {
       title: p.title, slug: p.slug, category: p.category, summary: p.summary,
       description: p.description, image_url: p.image_url, tools: Array.isArray(p.tools) ? p.tools : [],
+      features: Array.isArray(p.features) ? p.features : [],
       live_url: p.live_url, github_url: p.github_url, featured: p.featured, published: p.published,
     });
     if (ok) setEdits((e) => { const n = { ...e }; delete n[id]; return n; });
@@ -66,6 +67,7 @@ function AdminProjects() {
             <div className="sm:col-span-2"><FormRow label="Description"><Textarea rows={4} value={draft.description || ""} onChange={(e) => setDraft({ ...draft, description: e.target.value })} /></FormRow></div>
             <div className="sm:col-span-2"><FormRow label="Cover image"><MediaPicker value={draft.image_url} onChange={(u: string | null) => setDraft({ ...draft, image_url: u })} /></FormRow></div>
             <div className="sm:col-span-2"><FormRow label="Tools / Tech"><TagListEditor value={draft.tools || []} onChange={(v: string[]) => setDraft({ ...draft, tools: v })} /></FormRow></div>
+            <div className="sm:col-span-2"><FormRow label="Features / Highlights" hint="Bulleted list shown on the project card"><TagListEditor value={draft.features || []} onChange={(v: string[]) => setDraft({ ...draft, features: v })} /></FormRow></div>
           </div>
           <div className="flex gap-2 mt-4">
             <Button onClick={add}>Create</Button>
@@ -77,6 +79,7 @@ function AdminProjects() {
         rows.map((r: any, i: number) => {
           const row = get(r); const dirty = !!edits[r.id];
           const tools: string[] = Array.isArray(row.tools) ? row.tools : [];
+          const features: string[] = Array.isArray(row.features) ? row.features : [];
           return (
             <AdminCard key={r.id} title={row.title || "Untitled"}>
               <div className="grid sm:grid-cols-2 gap-3">
@@ -93,6 +96,7 @@ function AdminProjects() {
                 <div className="sm:col-span-2"><FormRow label="Description"><Textarea rows={4} value={row.description || ""} onChange={(e) => setEdit(r.id, { description: e.target.value })} /></FormRow></div>
                 <div className="sm:col-span-2"><FormRow label="Cover image"><MediaPicker value={row.image_url} onChange={(u: string | null) => setEdit(r.id, { image_url: u })} /></FormRow></div>
                 <div className="sm:col-span-2"><FormRow label="Tools / Tech"><TagListEditor value={tools} onChange={(v: string[]) => setEdit(r.id, { tools: v })} /></FormRow></div>
+                <div className="sm:col-span-2"><FormRow label="Features / Highlights" hint="Bulleted list shown on the project card"><TagListEditor value={features} onChange={(v: string[]) => setEdit(r.id, { features: v })} /></FormRow></div>
               </div>
               <div className="flex gap-2 mt-4 flex-wrap">
                 <Button onClick={() => save(r.id)} disabled={!dirty}><Save className="w-4 h-4 mr-1.5" />Save</Button>

@@ -34,6 +34,7 @@ function resolveAdminTarget(pathname: string): { to: string; label: string } {
   if (pathname.startsWith("/portfolio")) return { to: "/admin/portfolio", label: "Portfolio" };
   if (pathname.startsWith("/projects")) return { to: "/admin/projects", label: "Projects" };
   if (pathname.startsWith("/services")) return { to: "/admin/skills", label: "Services" };
+  if (pathname.startsWith("/reviews")) return { to: "/admin/reviews", label: "Reviews" };
   if (pathname.startsWith("/contact")) return { to: "/admin/contact", label: "Contact" };
   if (pathname === "/" || pathname === "") return { to: "/admin/launcher", label: "Launcher" };
   return { to: "/admin", label: "Admin" };

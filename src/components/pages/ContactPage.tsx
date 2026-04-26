@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useSearch } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Mail, Phone, MessageCircle, Sparkles, Send, Loader2, Calendar, Clock } from "lucide-react";
 import { toast } from "sonner";

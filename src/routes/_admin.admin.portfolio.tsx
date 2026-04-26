@@ -1,16 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { presignUpload } from "@/server/r2.functions";
 import { AdminPage, AdminCard, FormRow, EmptyState } from "@/components/admin/AdminPage";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
-import { MediaPicker } from "@/components/admin/MediaPicker";
+import { MediaPicker, uploadToR2 } from "@/components/admin/MediaPicker";
 import { TagListEditor } from "@/components/admin/TagListEditor";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Trash2, ArrowUp, ArrowDown, Save, FolderOpen, ChevronRight, Image as ImageIcon, Star, Eye, MessageSquare, Shield, GripVertical, CircleDot, CheckCircle2 } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Save, FolderOpen, ChevronRight, Image as ImageIcon, Star, Eye, MessageSquare, Shield, GripVertical, CircleDot, CheckCircle2, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_admin/admin/portfolio")({ component: AdminPortfolio });
@@ -23,6 +25,7 @@ type Folder = {
   cover_url: string | null;
   sort_order: number;
   active: boolean;
+  parent_id: string | null;
 };
 
 type Item = {
@@ -87,11 +90,23 @@ function AdminPortfolio() {
   const items = itemsQ.data ?? [];
 
   // ---- Folder CRUD ------------------------------------------------------
-  const [newFolder, setNewFolder] = useState<Partial<Folder>>({ active: true });
+  const [newFolder, setNewFolder] = useState<Partial<Folder>>({ active: true, parent_id: null });
   const [folderEdits, setFolderEdits] = useState<Record<string, Partial<Folder>>>({});
   const fGet = (f: Folder) => ({ ...f, ...(folderEdits[f.id] ?? {}) });
   const fSet = (id: string, patch: Partial<Folder>) =>
     setFolderEdits((e) => ({ ...e, [id]: { ...(e[id] ?? {}), ...patch } }));
+
+  // Group folders by parent for tree rendering
+  const childrenByParent = useMemo(() => {
+    const map = new Map<string | null, Folder[]>();
+    for (const f of folders) {
+      const k = f.parent_id ?? null;
+      const arr = map.get(k) ?? [];
+      arr.push(f);
+      map.set(k, arr);
+    }
+    return map;
+  }, [folders]);
 
   const createFolder = useMutation({
     mutationFn: async () => {
@@ -103,13 +118,14 @@ function AdminPortfolio() {
         description: newFolder.description ?? null,
         cover_url: newFolder.cover_url ?? null,
         active: newFolder.active ?? true,
+        parent_id: newFolder.parent_id ?? null,
         sort_order: folders.length + 1,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Folder created");
-      setNewFolder({ active: true });
+      setNewFolder({ active: true, parent_id: null });
       qc.invalidateQueries({ queryKey: ["admin_portfolio_folders"] });
       qc.invalidateQueries({ queryKey: ["public_portfolio_folders"] });
     },
@@ -193,6 +209,53 @@ function AdminPortfolio() {
       qc.invalidateQueries({ queryKey: ["public_portfolio_items"] });
     },
     onError: (e: any) => toast.error(e.message),
+  });
+
+  // ---- Bulk multi-file upload ------------------------------------------
+  // Uploads many image files at once into the active folder. Each file becomes
+  // a portfolio item titled after the file's base name. Useful for quickly
+  // populating a brand-new folder from a folder of finished work.
+  const presign = useServerFn(presignUpload);
+  const [bulkProgress, setBulkProgress] = useState<{ done: number; total: number } | null>(null);
+
+  const bulkUpload = useMutation({
+    mutationFn: async (files: File[]) => {
+      if (!activeFolderId) throw new Error("Pick a folder first");
+      if (files.length === 0) return;
+      setBulkProgress({ done: 0, total: files.length });
+      const baseSort = items.length;
+      for (let idx = 0; idx < files.length; idx++) {
+        const file = files[idx];
+        try {
+          const url = await uploadToR2(file, "projects", presign);
+          const baseName = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim() || `Item ${idx + 1}`;
+          const { error } = await (supabase as any).from("portfolio_items").insert({
+            folder_id: activeFolderId,
+            title: baseName,
+            image_url: url,
+            tags: [],
+            active: true,
+            show_in_feed: true,
+            featured: false,
+            sort_order: baseSort + idx + 1,
+          });
+          if (error) throw error;
+        } catch (e: any) {
+          toast.error(`${file.name}: ${e?.message ?? "failed"}`);
+        }
+        setBulkProgress({ done: idx + 1, total: files.length });
+      }
+    },
+    onSuccess: () => {
+      toast.success("Bulk upload complete");
+      qc.invalidateQueries({ queryKey: ["admin_portfolio_items", activeFolderId] });
+      qc.invalidateQueries({ queryKey: ["public_portfolio_items"] });
+      setTimeout(() => setBulkProgress(null), 1200);
+    },
+    onError: (e: any) => {
+      toast.error(e.message);
+      setBulkProgress(null);
+    },
   });
 
   const saveItem = useMutation({
@@ -305,90 +368,23 @@ function AdminPortfolio() {
             ) : folders.length === 0 ? (
               <EmptyState message="No folders yet — add one below." />
             ) : (
-              <ul className="space-y-1.5">
-                {folders.map((f, i) => {
-                  const row = fGet(f);
-                  const dirty = !!folderEdits[f.id];
-                  const isActive = activeFolderId === f.id;
-                  return (
-                    <li
-                      key={f.id}
-                      draggable
-                      onDragStart={() => onFolderDragStart(f.id)}
-                      onDragOver={onDragOver}
-                      onDrop={() => onFolderDrop(f.id)}
-                      className={`rounded-xl border ${isActive ? "border-primary bg-primary/5" : "border-border bg-card"} transition-colors`}
-                    >
-                      <div className="flex items-center">
-                        <span
-                          aria-hidden
-                          className="pl-2 pr-1 py-3 text-muted-foreground/70 cursor-grab active:cursor-grabbing"
-                          title="Drag to reorder"
-                        >
-                          <GripVertical className="w-4 h-4" />
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => setActiveFolderId(f.id)}
-                          className="flex-1 flex items-center justify-between gap-2 p-3 pl-1 text-left"
-                        >
-                          <div className="flex items-center gap-2 min-w-0">
-                            <FolderOpen className="w-4 h-4 text-primary shrink-0" />
-                            <div className="min-w-0">
-                              <div className="text-sm font-semibold truncate flex items-center gap-2">
-                                {row.name}
-                                <StatusPill published={!!row.active} />
-                              </div>
-                              <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                                /{row.slug}
-                              </div>
-                            </div>
-                          </div>
-                          <ChevronRight className={`w-4 h-4 shrink-0 transition-transform ${isActive ? "rotate-90 text-primary" : "text-muted-foreground"}`} />
-                        </button>
-                      </div>
-
-                      {isActive && (
-                        <div className="border-t border-border p-3 space-y-3">
-                          <FormRow label="Name">
-                            <Input value={row.name} onChange={(e) => fSet(f.id, { name: e.target.value })} />
-                          </FormRow>
-                          <FormRow label="Slug">
-                            <Input value={row.slug} onChange={(e) => fSet(f.id, { slug: e.target.value })} />
-                          </FormRow>
-                          <FormRow label="Description">
-                            <Textarea rows={2} value={row.description ?? ""} onChange={(e) => fSet(f.id, { description: e.target.value })} />
-                          </FormRow>
-                          <FormRow label="Cover image">
-                            <MediaPicker value={row.cover_url ?? undefined} onChange={(u: string | null) => fSet(f.id, { cover_url: u })} />
-                          </FormRow>
-                          <FormRow label="Status" hint="Drafts are hidden from the public site.">
-                            <DraftPublishedToggle
-                              published={!!row.active}
-                              onChange={(v) => fSet(f.id, { active: v })}
-                            />
-                          </FormRow>
-                          <div className="flex flex-wrap gap-2 pt-1">
-                            <Button size="sm" onClick={() => saveFolder.mutate(f.id)} disabled={!dirty}>
-                              <Save className="w-3.5 h-3.5 mr-1.5" /> Save
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={() => moveFolder(f.id, -1)} disabled={i === 0}>
-                              <ArrowUp className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={() => moveFolder(f.id, 1)} disabled={i === folders.length - 1}>
-                              <ArrowDown className="w-3.5 h-3.5" />
-                            </Button>
-                            <ConfirmDelete
-                              onConfirm={() => deleteFolder.mutate(f.id)}
-                              trigger={<Button size="sm" variant="outline"><Trash2 className="w-3.5 h-3.5 mr-1.5" />Delete</Button>}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
+              <FolderTree
+                parentId={null}
+                depth={0}
+                childrenByParent={childrenByParent}
+                folders={folders}
+                activeFolderId={activeFolderId}
+                setActiveFolderId={setActiveFolderId}
+                fGet={fGet}
+                fSet={fSet}
+                folderEdits={folderEdits}
+                onFolderDragStart={onFolderDragStart}
+                onDragOver={onDragOver}
+                onFolderDrop={onFolderDrop}
+                saveFolder={saveFolder}
+                deleteFolder={deleteFolder}
+                moveFolder={moveFolder}
+              />
             )}
           </AdminCard>
 
@@ -405,6 +401,14 @@ function AdminPortfolio() {
               </FormRow>
               <FormRow label="Cover image">
                 <MediaPicker value={newFolder.cover_url ?? undefined} onChange={(u: string | null) => setNewFolder({ ...newFolder, cover_url: u })} />
+              </FormRow>
+              <FormRow label="Parent folder (optional)" hint="Leave empty for a top-level folder.">
+                <ParentSelect
+                  folders={folders}
+                  value={newFolder.parent_id ?? null}
+                  excludeId={null}
+                  onChange={(v) => setNewFolder({ ...newFolder, parent_id: v })}
+                />
               </FormRow>
               <Button onClick={() => createFolder.mutate()} disabled={createFolder.isPending}>
                 <Plus className="w-4 h-4 mr-1.5" /> Create folder
@@ -516,6 +520,44 @@ function AdminPortfolio() {
                 )}
               </AdminCard>
 
+              <AdminCard title="Bulk upload" >
+                <p className="text-xs text-muted-foreground mb-3">
+                  Drop or pick multiple images at once. Each becomes a new item titled after the file name. You can edit titles, tags, and captions afterwards.
+                </p>
+                <label className="block">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    disabled={bulkUpload.isPending}
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files ?? []);
+                      e.currentTarget.value = "";
+                      if (files.length > 0) bulkUpload.mutate(files);
+                    }}
+                  />
+                  <div className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${bulkUpload.isPending ? "border-primary bg-primary/5" : "border-border hover:bg-muted/40"}`}>
+                    {bulkUpload.isPending ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mx-auto mb-2 animate-spin text-primary" />
+                        <p className="text-sm font-semibold">
+                          Uploading {bulkProgress?.done ?? 0} / {bulkProgress?.total ?? 0}…
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-5 h-5 mx-auto mb-2 text-muted-foreground" />
+                        <p className="text-sm font-semibold">Click to select multiple images</p>
+                        <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider">
+                          Adds new items to “{activeFolder.name}”
+                        </p>
+                      </>
+                    )}
+                  </div>
+                </label>
+              </AdminCard>
+
               <AdminCard title="Add item">
                 <div className="grid gap-3">
                   <FormRow label="Title"><Input value={newItem.title ?? ""} onChange={(e) => setNewItem({ ...newItem, title: e.target.value })} /></FormRow>
@@ -598,5 +640,190 @@ function DraftPublishedToggle({
         <CheckCircle2 className="w-3.5 h-3.5" /> Published
       </button>
     </div>
+  );
+}
+
+// --- Hierarchical folder tree -------------------------------------------
+// Renders folders as a tree; each node can be expanded inline to edit its
+// metadata (name, slug, description, cover, parent, status). Drag-reordering
+// is preserved per parent group via the existing onFolderDrop handler.
+function FolderTree(props: {
+  parentId: string | null;
+  depth: number;
+  childrenByParent: Map<string | null, Folder[]>;
+  folders: Folder[];
+  activeFolderId: string | null;
+  setActiveFolderId: (id: string | null) => void;
+  fGet: (f: Folder) => Folder;
+  fSet: (id: string, patch: Partial<Folder>) => void;
+  folderEdits: Record<string, Partial<Folder>>;
+  onFolderDragStart: (id: string) => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onFolderDrop: (id: string) => void;
+  saveFolder: { mutate: (id: string) => void };
+  deleteFolder: { mutate: (id: string) => void };
+  moveFolder: (id: string, dir: -1 | 1) => void;
+}) {
+  const {
+    parentId, depth, childrenByParent, folders,
+    activeFolderId, setActiveFolderId, fGet, fSet, folderEdits,
+    onFolderDragStart, onDragOver, onFolderDrop,
+    saveFolder, deleteFolder, moveFolder,
+  } = props;
+  const list = childrenByParent.get(parentId) ?? [];
+  if (list.length === 0) {
+    if (depth > 0) return null;
+    return <EmptyState message="No folders yet — add one below." />;
+  }
+  return (
+    <ul className={depth === 0 ? "space-y-1.5" : "space-y-1.5 mt-2 ml-4 border-l border-border pl-3"}>
+      {list.map((f, i) => {
+        const row = fGet(f);
+        const dirty = !!folderEdits[f.id];
+        const isActive = activeFolderId === f.id;
+        const hasChildren = (childrenByParent.get(f.id) ?? []).length > 0;
+        return (
+          <li key={f.id}>
+            <div
+              draggable
+              onDragStart={() => onFolderDragStart(f.id)}
+              onDragOver={onDragOver}
+              onDrop={() => onFolderDrop(f.id)}
+              className={`rounded-xl border ${isActive ? "border-primary bg-primary/5" : "border-border bg-card"} transition-colors`}
+            >
+              <div className="flex items-center">
+                <span aria-hidden className="pl-2 pr-1 py-3 text-muted-foreground/70 cursor-grab active:cursor-grabbing" title="Drag to reorder">
+                  <GripVertical className="w-4 h-4" />
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setActiveFolderId(f.id)}
+                  className="flex-1 flex items-center justify-between gap-2 p-3 pl-1 text-left"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <FolderOpen className="w-4 h-4 text-primary shrink-0" />
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold truncate flex items-center gap-2">
+                        {row.name}
+                        <StatusPill published={!!row.active} />
+                      </div>
+                      <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                        /{row.slug}
+                      </div>
+                    </div>
+                  </div>
+                  <ChevronRight className={`w-4 h-4 shrink-0 transition-transform ${isActive ? "rotate-90 text-primary" : "text-muted-foreground"}`} />
+                </button>
+              </div>
+
+              {isActive && (
+                <div className="border-t border-border p-3 space-y-3">
+                  <FormRow label="Name">
+                    <Input value={row.name} onChange={(e) => fSet(f.id, { name: e.target.value })} />
+                  </FormRow>
+                  <FormRow label="Slug">
+                    <Input value={row.slug} onChange={(e) => fSet(f.id, { slug: e.target.value })} />
+                  </FormRow>
+                  <FormRow label="Description">
+                    <Textarea rows={2} value={row.description ?? ""} onChange={(e) => fSet(f.id, { description: e.target.value })} />
+                  </FormRow>
+                  <FormRow label="Cover image">
+                    <MediaPicker value={row.cover_url ?? undefined} onChange={(u: string | null) => fSet(f.id, { cover_url: u })} />
+                  </FormRow>
+                  <FormRow label="Parent folder" hint="Move under another folder. Cannot pick itself or its descendants.">
+                    <ParentSelect
+                      folders={folders}
+                      value={row.parent_id ?? null}
+                      excludeId={f.id}
+                      onChange={(v: string | null) => fSet(f.id, { parent_id: v })}
+                    />
+                  </FormRow>
+                  <FormRow label="Status" hint="Drafts are hidden from the public site.">
+                    <DraftPublishedToggle published={!!row.active} onChange={(v) => fSet(f.id, { active: v })} />
+                  </FormRow>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    <Button size="sm" onClick={() => saveFolder.mutate(f.id)} disabled={!dirty}>
+                      <Save className="w-3.5 h-3.5 mr-1.5" /> Save
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => moveFolder(f.id, -1)} disabled={i === 0}>
+                      <ArrowUp className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => moveFolder(f.id, 1)} disabled={i === list.length - 1}>
+                      <ArrowDown className="w-3.5 h-3.5" />
+                    </Button>
+                    <ConfirmDelete
+                      onConfirm={() => deleteFolder.mutate(f.id)}
+                      trigger={<Button size="sm" variant="outline"><Trash2 className="w-3.5 h-3.5 mr-1.5" />Delete</Button>}
+                    />
+                  </div>
+                  {hasChildren && (
+                    <p className="text-[10px] text-amber-400/80 uppercase tracking-wider">
+                      Has subfolders — they must be deleted or moved first.
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+            {hasChildren && (
+              <FolderTree {...props} parentId={f.id} depth={depth + 1} />
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+// Computes the set of descendant folder IDs for the given root, used to
+// prevent picking a folder's own descendant as its parent (would create a cycle).
+function collectDescendants(folders: Folder[], rootId: string): Set<string> {
+  const out = new Set<string>();
+  const stack = [rootId];
+  while (stack.length) {
+    const cur = stack.pop()!;
+    for (const f of folders) {
+      if (f.parent_id === cur && !out.has(f.id)) {
+        out.add(f.id);
+        stack.push(f.id);
+      }
+    }
+  }
+  return out;
+}
+
+function ParentSelect({
+  folders,
+  value,
+  excludeId,
+  onChange,
+}: {
+  folders: Folder[];
+  value: string | null;
+  excludeId: string | null;
+  onChange: (v: string | null) => void;
+}) {
+  const blocked = excludeId
+    ? new Set<string>([excludeId, ...collectDescendants(folders, excludeId)])
+    : new Set<string>();
+  const rendered: { id: string; label: string }[] = [];
+  function walk(parentId: string | null, depth: number) {
+    for (const f of folders.filter((x) => (x.parent_id ?? null) === parentId)) {
+      if (!blocked.has(f.id)) rendered.push({ id: f.id, label: `${"— ".repeat(depth)}${f.name}` });
+      walk(f.id, depth + 1);
+    }
+  }
+  walk(null, 0);
+
+  return (
+    <select
+      value={value ?? ""}
+      onChange={(e) => onChange(e.target.value || null)}
+      className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+    >
+      <option value="">— Top level —</option>
+      {rendered.map((r) => (
+        <option key={r.id} value={r.id}>{r.label}</option>
+      ))}
+    </select>
   );
 }

@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { useR2Content } from "@/hooks/useR2Content";
 import { getContent } from "@/server/r2.functions";
@@ -18,10 +18,26 @@ export const Route = createFileRoute("/")({
   // payload is validated client + server side via `safeParseLauncherDoc`,
   // so we just pass through the raw value here.
   loader: async () => {
+    const startedAt = Date.now();
     try {
       const res = await getContent({ data: { key: "launcher" } });
-      return { launcherDoc: (res?.data ?? null) as unknown };
-    } catch {
+      const ms = Date.now() - startedAt;
+      const raw = res?.data ?? null;
+      if (raw == null) {
+        // Visible in both server (SSR) and client (hydration) consoles.
+        console.warn(
+          `[launcher.loader] R2 returned empty launcher doc — homepage will use fallback cards (${ms}ms)`,
+        );
+      } else {
+        console.info(`[launcher.loader] ok (${ms}ms)`);
+      }
+      return { launcherDoc: raw as unknown };
+    } catch (err) {
+      const ms = Date.now() - startedAt;
+      console.error(
+        `[launcher.loader] FAILED to fetch R2 launcher doc — homepage will use fallback cards (${ms}ms):`,
+        err instanceof Error ? `${err.name}: ${err.message}` : err,
+      );
       return { launcherDoc: null };
     }
   },
@@ -243,7 +259,16 @@ export function safeParseLauncherDoc(input: unknown): LauncherDoc {
   }
 
   if (typeof console !== "undefined") {
-    console.warn("[launcher] R2 document failed validation, using empty fallback", parsed.error?.issues);
+    let snippet = "";
+    try {
+      snippet = JSON.stringify(input).slice(0, 240);
+    } catch {
+      snippet = "<unserializable>";
+    }
+    console.warn(
+      "[launcher.validate] R2 document failed validation — homepage will use fallback cards.",
+      { issues: parsed.error?.issues, inputSnippet: snippet },
+    );
   }
   return EMPTY_LAUNCHER_DOC;
 }
@@ -316,6 +341,17 @@ function Launcher() {
   // prefetch returned null AND the client query is still resolving.
   const hasRealData = rawDoc != null;
   const showSkeleton = !hasRealData && (isLoading || isFetching);
+
+  // Surface fallback usage in the browser console so it's obvious why a
+  // user is seeing the default cards instead of their R2-managed ones.
+  useEffect(() => {
+    if (showSkeleton) return;
+    if (!launcherDoc.pages.length) {
+      console.warn(
+        "[launcher] Rendering FALLBACK cards — R2 launcher doc was missing/empty/invalid. Check server logs for [r2.getContent] / [launcher.loader] / [launcher.validate].",
+      );
+    }
+  }, [showSkeleton, launcherDoc.pages.length]);
 
   const cards: LauncherCard[] = deriveLauncherCards(launcherDoc.pages);
   const hero: LauncherHero = launcherDoc.hero ?? HERO_FALLBACK;

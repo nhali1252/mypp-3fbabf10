@@ -22,8 +22,32 @@ export const getContent = createServerFn({ method: "GET" })
   .inputValidator((data: { key: R2ContentKey }) => ({ key: contentKeySchema.parse(data.key) }))
   .handler(async ({ data }) => {
     const objKey = R2_KEYS[data.key];
-    const value = await readJson<any>(objKey);
-    return { key: data.key, data: (value ?? null) as any };
+    const startedAt = Date.now();
+    try {
+      const value = await readJson<any>(objKey);
+      const ms = Date.now() - startedAt;
+      if (value == null) {
+        // Not an error per se, but worth surfacing — empty R2 doc means the
+        // homepage will fall back to defaults.
+        console.warn(
+          `[r2.getContent] empty doc key=${data.key} objKey=${objKey} (${ms}ms)`,
+        );
+      } else if (data.key === "launcher") {
+        console.info(
+          `[r2.getContent] ok key=${data.key} bytes=${JSON.stringify(value).length} (${ms}ms)`,
+        );
+      }
+      return { key: data.key, data: (value ?? null) as any };
+    } catch (err) {
+      const ms = Date.now() - startedAt;
+      console.error(
+        `[r2.getContent] FAILED key=${data.key} objKey=${objKey} (${ms}ms):`,
+        err instanceof Error ? `${err.name}: ${err.message}` : err,
+      );
+      // Re-throw so the client loader's catch branch can log it too and the
+      // UI can fall back gracefully.
+      throw err;
+    }
   });
 
 /** Update a content JSON file. Admin/editor only. */

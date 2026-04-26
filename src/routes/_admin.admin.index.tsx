@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { listMessages } from "@/server/messages.functions";
 import { useAuth } from "@/hooks/useAuth";
 import {
   FolderKanban, GraduationCap, Activity, Inbox, Image as ImageIcon,
@@ -15,31 +17,28 @@ export const Route = createFileRoute("/_admin/admin/")({
 function AdminDashboard() {
   const { user, isAdmin, isEditor, roles, loading: authLoading } = useAuth();
   const [stats, setStats] = useState({
-    projects: 0, education: 0, activities: 0, messages: 0,
-    media: 0, unread: 0,
+    projects: 0, education: 0, activities: 0, messages: 0, unread: 0,
   });
   const [recent, setRecent] = useState<any[]>([]);
+  const list = useServerFn(listMessages);
 
   useEffect(() => {
     (async () => {
-      const [p, ed, ac, m, md, unread, recentMsgs] = await Promise.all([
+      const [p, ed, ac, msgs] = await Promise.all([
         supabase.from("projects").select("id", { count: "exact", head: true }),
         supabase.from("education").select("id", { count: "exact", head: true }),
         supabase.from("activities").select("id", { count: "exact", head: true }),
-        supabase.from("messages").select("id", { count: "exact", head: true }),
-        supabase.from("media").select("id", { count: "exact", head: true }),
-        supabase.from("messages").select("id", { count: "exact", head: true }).eq("is_read", false),
-        supabase.from("messages").select("*").order("created_at", { ascending: false }).limit(5),
+        list().catch(() => [] as any[]),
       ]);
+      const messagesArr = Array.isArray(msgs) ? msgs : [];
       setStats({
         projects: p.count ?? 0,
         education: ed.count ?? 0,
         activities: ac.count ?? 0,
-        messages: m.count ?? 0,
-        media: md.count ?? 0,
-        unread: unread.count ?? 0,
+        messages: messagesArr.length,
+        unread: messagesArr.filter((m: any) => !m.is_read).length,
       });
-      setRecent(recentMsgs.data ?? []);
+      setRecent(messagesArr.slice(0, 5));
     })();
   }, []);
 
@@ -54,7 +53,6 @@ function AdminDashboard() {
       Icon: Inbox,
       to: "/admin/messages" as const,
     },
-    { label: "Media items", value: stats.media, Icon: ImageIcon, to: "/admin/media" as const },
   ];
 
   const quickEdits = [

@@ -22,8 +22,8 @@ export const getContent = createServerFn({ method: "GET" })
   .inputValidator((data: { key: R2ContentKey }) => ({ key: contentKeySchema.parse(data.key) }))
   .handler(async ({ data }) => {
     const objKey = R2_KEYS[data.key];
-    const value = await readJson(objKey);
-    return { key: data.key, data: value };
+    const value = await readJson<any>(objKey);
+    return { key: data.key, data: (value ?? null) as any };
   });
 
 /** Update a content JSON file. Admin/editor only. */

@@ -60,12 +60,12 @@ const inputSchema = z.object({
   folder: z.string().min(1).max(120).optional(),
   media: z.enum(["all", "image", "video"]).optional().default("all"),
   featured: z.boolean().optional().default(false),
-  sort: z.enum(["newest", "featured-first"]).optional().default("newest"),
+  sort: z.enum(["newest", "featured-first", "oldest"]).optional().default("newest"),
   offset: z.number().int().min(0).max(10_000).optional().default(0),
   limit: z.number().int().min(1).max(MAX_LIMIT).optional().default(24),
 });
 
-export type FeedSort = "newest" | "featured-first";
+export type FeedSort = "newest" | "featured-first" | "oldest";
 
 function detectKind(url: string | null | undefined): "image" | "video" {
   if (!url) return "image";

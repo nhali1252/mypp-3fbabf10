@@ -5,9 +5,16 @@ import { seedR2FromDatabase } from "@/server/seed-r2.functions";
 import { getContent } from "@/server/r2.functions";
 import { migrateMediaToR2 } from "@/server/migrate-media.functions";
 import { validateR2Coverage, type CoverageReport } from "@/server/r2-coverage.functions";
+import {
+  suggestR2CoverageFix,
+  type AutoFixResult,
+} from "@/server/r2-coverage-autofix.functions";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Loader2, CloudUpload, CheckCircle2, Image as ImageIcon, ShieldCheck, AlertTriangle } from "lucide-react";
+import {
+  Loader2, CloudUpload, CheckCircle2, Image as ImageIcon, ShieldCheck,
+  AlertTriangle, Wand2, Copy,
+} from "lucide-react";
 
 export const Route = createFileRoute("/_admin/admin/r2-migration")({
   component: R2MigrationPage,

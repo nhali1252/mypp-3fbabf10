@@ -39,11 +39,27 @@ function AdminMessages() {
     onError: (e: any) => toast.error(e?.message || "Delete failed"),
   });
 
+  const migrate = useServerFn(migrateMessagesToR2);
+  const migrateMut = useMutation({
+    mutationFn: () => migrate(),
+    onSuccess: (r: any) => {
+      toast.success(`Migrated ${r.copied} message${r.copied === 1 ? "" : "s"} (total ${r.total}).`);
+      qc.invalidateQueries({ queryKey: ["admin-messages"] });
+    },
+    onError: (e: any) => toast.error(e?.message || "Migration failed"),
+  });
+
   if (isLoading) return <div className="p-6">Loading…</div>;
   const unread = rows.filter((r) => !r.is_read).length;
 
   return (
     <AdminPage title="Messages" description={`Contact form submissions${unread ? ` · ${unread} unread` : ""}.`}>
+      <div className="mb-4">
+        <Button size="sm" variant="outline" onClick={() => migrateMut.mutate()} disabled={migrateMut.isPending}>
+          <DatabaseBackup className="w-3.5 h-3.5 mr-1.5" />
+          {migrateMut.isPending ? "Migrating…" : "Import legacy DB messages"}
+        </Button>
+      </div>
       {rows.length === 0 ? <EmptyState message="No messages yet." /> : (
         rows.map((m) => (
           <AdminCard key={m.id} className={m.is_read ? "" : "ring-1 ring-primary/40"}>

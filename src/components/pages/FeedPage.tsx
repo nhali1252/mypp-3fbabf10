@@ -4,6 +4,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, X, ChevronLeft, ChevronRight, Play, Sparkles, Image as ImageIcon, ExternalLink, Calendar, Folder } from "lucide-react";
 import { useR2Content } from "@/hooks/useR2Content";
 import { Footer } from "@/components/Footer";
+import { Watermark } from "@/components/feed/Watermark";
+import { ReactionsBar } from "@/components/feed/ReactionsBar";
+import { CommentThread } from "@/components/feed/CommentThread";
 
 type PortfolioDoc = (PFolder & { items: PItem[] })[];
 
@@ -242,17 +245,20 @@ function MasonryGrid({ items, onOpen }: { items: FeedItem[]; onOpen: (i: number)
 function FeedCard({ item, index, onOpen }: { item: FeedItem; index: number; onOpen: () => void }) {
   const caption = item.feed_caption ?? item.description ?? "";
   return (
-    <motion.button
-      type="button"
-      onClick={onOpen}
+    <motion.div
       initial={{ opacity: 0, y: 18 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.45, delay: Math.min(index, 12) * 0.03, ease: [0.22, 1, 0.36, 1] }}
       whileHover={{ y: -4 }}
-      className="group mb-4 break-inside-avoid block w-full text-left overflow-hidden rounded-2xl border border-border hover:border-primary/45 bg-card transition-colors duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
-      aria-label={`Open ${item.title}`}
+      className="group mb-4 break-inside-avoid overflow-hidden rounded-2xl border border-border hover:border-primary/45 bg-card transition-colors duration-500"
     >
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-label={`Open ${item.title}`}
+        className="block w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 rounded-t-2xl"
+      >
       <div className="relative w-full overflow-hidden bg-muted">
         {item.media_kind === "video" && item.image_url ? (
           <video
@@ -283,13 +289,16 @@ function FeedCard({ item, index, onOpen }: { item: FeedItem; index: number; onOp
           </div>
         )}
 
-        <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-background/75 backdrop-blur-md border border-primary/30 text-primary">
+        <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-background/75 backdrop-blur-md border border-primary/30 text-primary z-10">
           <Folder className="h-3 w-3" strokeWidth={1.6} />
           <span className="font-mono text-[10px] uppercase tracking-[0.22em] truncate max-w-[140px]">
             {item.folder_name}
           </span>
         </div>
+
+        <Watermark text={item.watermark_text ?? null} size="sm" cornerBadge />
       </div>
+      </button>
 
       <div className="px-4 py-3 border-t border-border">
         <h3 className="text-sm font-bold tracking-tight truncate">{item.title}</h3>
@@ -308,8 +317,11 @@ function FeedCard({ item, index, onOpen }: { item: FeedItem; index: number; onOp
             <span className="truncate">{item.tags.slice(0, 2).join(" · ")}</span>
           )}
         </div>
+        <div className="mt-3" onClick={(e) => e.stopPropagation()}>
+          <ReactionsBar itemId={item.id} variant="light" />
+        </div>
       </div>
-    </motion.button>
+    </motion.div>
   );
 }
 
@@ -414,19 +426,30 @@ function Lightbox({
             className="max-w-full max-h-full flex items-center justify-center"
           >
             {item.media_kind === "video" && item.image_url ? (
-              <video
-                src={item.image_url}
-                controls
-                autoPlay
-                playsInline
-                className="max-w-[92vw] max-h-[72vh] rounded-xl border border-white/10 bg-black"
-              />
+              <div className="relative">
+                <video
+                  src={item.image_url}
+                  controls
+                  autoPlay
+                  playsInline
+                  controlsList="nodownload"
+                  disablePictureInPicture
+                  onContextMenu={(e) => e.preventDefault()}
+                  className="max-w-[92vw] max-h-[72vh] rounded-xl border border-white/10 bg-black"
+                />
+                <Watermark text={item.watermark_text ?? null} size="md" cornerBadge />
+              </div>
             ) : item.image_url ? (
-              <img
-                src={item.image_url}
-                alt={item.title}
-                className="max-w-[92vw] max-h-[72vh] object-contain rounded-xl"
-              />
+              <div className="relative">
+                <img
+                  src={item.image_url}
+                  alt={item.title}
+                  draggable={false}
+                  onContextMenu={(e) => e.preventDefault()}
+                  className="max-w-[92vw] max-h-[72vh] object-contain rounded-xl select-none"
+                />
+                <Watermark text={item.watermark_text ?? null} size="md" cornerBadge />
+              </div>
             ) : (
               <div className="text-white/60 text-sm">No media</div>
             )}
@@ -446,9 +469,9 @@ function Lightbox({
         )}
       </div>
 
-      {/* Bottom meta */}
+      {/* Bottom meta + interactions */}
       <div
-        className="px-4 sm:px-6 py-4 border-t border-white/10 text-white"
+        className="px-4 sm:px-6 py-4 border-t border-white/10 text-white max-h-[42vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="max-w-3xl mx-auto">
@@ -456,7 +479,7 @@ function Lightbox({
             {item.title}
           </h2>
           {caption && (
-            <p className="text-sm text-white/70 mt-2 leading-relaxed line-clamp-3 whitespace-pre-line">
+            <p className="text-sm text-white/70 mt-2 leading-relaxed whitespace-pre-line">
               {caption}
             </p>
           )}
@@ -483,7 +506,6 @@ function Lightbox({
                 <ExternalLink className="w-3 h-3" /> Open link
               </a>
             )}
-            {/* Mobile prev/next */}
             {total > 1 && (
               <div className="ml-auto flex items-center gap-2 sm:hidden">
                 <button
@@ -504,6 +526,14 @@ function Lightbox({
                 </button>
               </div>
             )}
+          </div>
+
+          <div className="mt-4">
+            <ReactionsBar itemId={item.id} variant="dark" />
+          </div>
+
+          <div className="mt-6 pt-5 border-t border-white/10">
+            <CommentThread itemId={item.id} variant="dark" />
           </div>
         </div>
       </div>

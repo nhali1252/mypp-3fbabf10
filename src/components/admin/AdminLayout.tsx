@@ -6,7 +6,7 @@ import R2SyncAlert from "@/components/admin/R2SyncAlert";
 import {
   LayoutDashboard, Inbox, Image as ImageIcon, ClipboardCheck,
   Settings, Users, LogOut, ExternalLink, Loader2, Menu, X, Cloud,
-  RefreshCw, CheckCircle2, AlertTriangle, CircleDashed,
+  RefreshCw, CheckCircle2, AlertTriangle, CircleDashed, MessageSquare,
 } from "lucide-react";
 
 type Item = { to: string; label: string; Icon: any; end?: boolean };
@@ -26,6 +26,7 @@ const groups: Group[] = [
     label: "System",
     items: [
       { to: "/admin/messages", label: "Messages", Icon: Inbox },
+      { to: "/admin/comments", label: "Comments", Icon: MessageSquare },
       { to: "/admin/media", label: "Media library", Icon: ImageIcon },
       { to: "/admin/users", label: "Users", Icon: Users },
       { to: "/admin/r2-migration", label: "R2 migration", Icon: Cloud },

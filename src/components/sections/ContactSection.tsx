@@ -38,15 +38,20 @@ export function ContactSection() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.from("messages").insert({
-      name: parsed.data.name,
-      email: parsed.data.email,
-      subject: parsed.data.subject || null,
-      message: parsed.data.message,
-    });
-    setLoading(false);
-    if (error) {
-      toast.error("Could not send message. Please try again.");
+    setLoading(true);
+    try {
+      await send({
+        data: {
+          name: parsed.data.name,
+          email: parsed.data.email,
+          subject: parsed.data.subject || "",
+          message: parsed.data.message,
+        },
+      });
+      setLoading(false);
+    } catch (err: any) {
+      setLoading(false);
+      toast.error(err?.message || "Could not send message. Please try again.");
       return;
     }
     toast.success("Message sent. I'll be in touch soon.");

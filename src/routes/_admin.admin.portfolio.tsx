@@ -642,3 +642,188 @@ function DraftPublishedToggle({
     </div>
   );
 }
+
+// --- Hierarchical folder tree -------------------------------------------
+// Renders folders as a tree; each node can be expanded inline to edit its
+// metadata (name, slug, description, cover, parent, status). Drag-reordering
+// is preserved per parent group via the existing onFolderDrop handler.
+function FolderTree(props: {
+  parentId: string | null;
+  depth: number;
+  childrenByParent: Map<string | null, Folder[]>;
+  folders: Folder[];
+  activeFolderId: string | null;
+  setActiveFolderId: (id: string | null) => void;
+  fGet: (f: Folder) => Folder;
+  fSet: (id: string, patch: Partial<Folder>) => void;
+  folderEdits: Record<string, Partial<Folder>>;
+  onFolderDragStart: (id: string) => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onFolderDrop: (id: string) => void;
+  saveFolder: { mutate: (id: string) => void };
+  deleteFolder: { mutate: (id: string) => void };
+  moveFolder: (id: string, dir: -1 | 1) => void;
+}) {
+  const {
+    parentId, depth, childrenByParent, folders,
+    activeFolderId, setActiveFolderId, fGet, fSet, folderEdits,
+    onFolderDragStart, onDragOver, onFolderDrop,
+    saveFolder, deleteFolder, moveFolder,
+  } = props;
+  const list = childrenByParent.get(parentId) ?? [];
+  if (list.length === 0) {
+    if (depth > 0) return null;
+    return <EmptyState message="No folders yet — add one below." />;
+  }
+  return (
+    <ul className={depth === 0 ? "space-y-1.5" : "space-y-1.5 mt-2 ml-4 border-l border-border pl-3"}>
+      {list.map((f, i) => {
+        const row = fGet(f);
+        const dirty = !!folderEdits[f.id];
+        const isActive = activeFolderId === f.id;
+        const hasChildren = (childrenByParent.get(f.id) ?? []).length > 0;
+        return (
+          <li key={f.id}>
+            <div
+              draggable
+              onDragStart={() => onFolderDragStart(f.id)}
+              onDragOver={onDragOver}
+              onDrop={() => onFolderDrop(f.id)}
+              className={`rounded-xl border ${isActive ? "border-primary bg-primary/5" : "border-border bg-card"} transition-colors`}
+            >
+              <div className="flex items-center">
+                <span aria-hidden className="pl-2 pr-1 py-3 text-muted-foreground/70 cursor-grab active:cursor-grabbing" title="Drag to reorder">
+                  <GripVertical className="w-4 h-4" />
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setActiveFolderId(f.id)}
+                  className="flex-1 flex items-center justify-between gap-2 p-3 pl-1 text-left"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <FolderOpen className="w-4 h-4 text-primary shrink-0" />
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold truncate flex items-center gap-2">
+                        {row.name}
+                        <StatusPill published={!!row.active} />
+                      </div>
+                      <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                        /{row.slug}
+                      </div>
+                    </div>
+                  </div>
+                  <ChevronRight className={`w-4 h-4 shrink-0 transition-transform ${isActive ? "rotate-90 text-primary" : "text-muted-foreground"}`} />
+                </button>
+              </div>
+
+              {isActive && (
+                <div className="border-t border-border p-3 space-y-3">
+                  <FormRow label="Name">
+                    <Input value={row.name} onChange={(e) => fSet(f.id, { name: e.target.value })} />
+                  </FormRow>
+                  <FormRow label="Slug">
+                    <Input value={row.slug} onChange={(e) => fSet(f.id, { slug: e.target.value })} />
+                  </FormRow>
+                  <FormRow label="Description">
+                    <Textarea rows={2} value={row.description ?? ""} onChange={(e) => fSet(f.id, { description: e.target.value })} />
+                  </FormRow>
+                  <FormRow label="Cover image">
+                    <MediaPicker value={row.cover_url ?? undefined} onChange={(u: string | null) => fSet(f.id, { cover_url: u })} />
+                  </FormRow>
+                  <FormRow label="Parent folder" hint="Move under another folder. Cannot pick itself or its descendants.">
+                    <ParentSelect
+                      folders={folders}
+                      value={row.parent_id ?? null}
+                      excludeId={f.id}
+                      onChange={(v: string | null) => fSet(f.id, { parent_id: v })}
+                    />
+                  </FormRow>
+                  <FormRow label="Status" hint="Drafts are hidden from the public site.">
+                    <DraftPublishedToggle published={!!row.active} onChange={(v) => fSet(f.id, { active: v })} />
+                  </FormRow>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    <Button size="sm" onClick={() => saveFolder.mutate(f.id)} disabled={!dirty}>
+                      <Save className="w-3.5 h-3.5 mr-1.5" /> Save
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => moveFolder(f.id, -1)} disabled={i === 0}>
+                      <ArrowUp className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => moveFolder(f.id, 1)} disabled={i === list.length - 1}>
+                      <ArrowDown className="w-3.5 h-3.5" />
+                    </Button>
+                    <ConfirmDelete
+                      onConfirm={() => deleteFolder.mutate(f.id)}
+                      trigger={<Button size="sm" variant="outline"><Trash2 className="w-3.5 h-3.5 mr-1.5" />Delete</Button>}
+                    />
+                  </div>
+                  {hasChildren && (
+                    <p className="text-[10px] text-amber-400/80 uppercase tracking-wider">
+                      Has subfolders — they must be deleted or moved first.
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+            {hasChildren && (
+              <FolderTree {...props} parentId={f.id} depth={depth + 1} />
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+// Computes the set of descendant folder IDs for the given root, used to
+// prevent picking a folder's own descendant as its parent (would create a cycle).
+function collectDescendants(folders: Folder[], rootId: string): Set<string> {
+  const out = new Set<string>();
+  const stack = [rootId];
+  while (stack.length) {
+    const cur = stack.pop()!;
+    for (const f of folders) {
+      if (f.parent_id === cur && !out.has(f.id)) {
+        out.add(f.id);
+        stack.push(f.id);
+      }
+    }
+  }
+  return out;
+}
+
+function ParentSelect({
+  folders,
+  value,
+  excludeId,
+  onChange,
+}: {
+  folders: Folder[];
+  value: string | null;
+  excludeId: string | null;
+  onChange: (v: string | null) => void;
+}) {
+  const blocked = excludeId
+    ? new Set<string>([excludeId, ...collectDescendants(folders, excludeId)])
+    : new Set<string>();
+  const rendered: { id: string; label: string }[] = [];
+  function walk(parentId: string | null, depth: number) {
+    for (const f of folders.filter((x) => (x.parent_id ?? null) === parentId)) {
+      if (!blocked.has(f.id)) rendered.push({ id: f.id, label: `${"— ".repeat(depth)}${f.name}` });
+      walk(f.id, depth + 1);
+    }
+  }
+  walk(null, 0);
+
+  return (
+    <select
+      value={value ?? ""}
+      onChange={(e) => onChange(e.target.value || null)}
+      className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+    >
+      <option value="">— Top level —</option>
+      {rendered.map((r) => (
+        <option key={r.id} value={r.id}>{r.label}</option>
+      ))}
+    </select>
+  );
+}

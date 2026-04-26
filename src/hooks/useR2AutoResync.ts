@@ -15,36 +15,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { seedR2FromDatabase } from "@/server/seed-r2.functions";
 import type { R2ContentKey } from "@/server/r2-keys";
+import { TABLE_TO_DOCS, ALL_WATCHED_TABLES } from "@/server/r2-coverage";
 
-/** Which R2 docs each watched table maps to. */
-const TABLE_TO_DOCS: Record<string, R2ContentKey[]> = {
-  hero_content: ["basicInfo"],
-  about_content: ["about"],
-  contact_settings: ["basicInfo", "contact"],
-  site_settings: ["basicInfo"],
-  activities: ["about"],
-  education: ["about"],
-  services: ["services"],
-  testimonials: ["reviews"],
-  projects: ["projects"],
-  portfolio_folders: ["portfolio"],
-  portfolio_items: ["portfolio"],
-  nav_links: ["chrome"],
-  footer_links: ["chrome"],
-  footer_apps: ["chrome"],
-  footer_cta: ["chrome"],
-  ticker_items: ["chrome"],
-  seo_settings: ["chrome"],
-  page_loader_settings: ["chrome"],
-  launcher_hero: ["launcher"],
-  launcher_pages: ["launcher"],
-  f_hero: ["fPage"],
-  f_photocard: ["fPage"],
-  f_skills: ["fPage"],
-  f_projects: ["fPage"],
-};
-
-const ALL_TABLES = Object.keys(TABLE_TO_DOCS);
+const ALL_TABLES = ALL_WATCHED_TABLES;
 
 const DEBOUNCE_MS = 1500;
 

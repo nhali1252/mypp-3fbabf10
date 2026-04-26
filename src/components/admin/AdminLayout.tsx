@@ -28,6 +28,7 @@ const groups: Group[] = [
       { to: "/admin/messages", label: "Messages", Icon: Inbox },
       { to: "/admin/comments", label: "Comments", Icon: MessageSquare },
       { to: "/admin/audit", label: "Audit log", Icon: Shield },
+      { to: "/admin/diagnostics", label: "Diagnostics", Icon: Activity },
       { to: "/admin/media", label: "Media library", Icon: ImageIcon },
       { to: "/admin/users", label: "Users", Icon: Users },
       { to: "/admin/r2-migration", label: "R2 migration", Icon: Cloud },

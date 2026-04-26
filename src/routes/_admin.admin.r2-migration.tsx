@@ -4,9 +4,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { seedR2FromDatabase } from "@/server/seed-r2.functions";
 import { getContent } from "@/server/r2.functions";
 import { migrateMediaToR2 } from "@/server/migrate-media.functions";
+import { validateR2Coverage, type CoverageReport } from "@/server/r2-coverage.functions";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Loader2, CloudUpload, CheckCircle2, Image as ImageIcon } from "lucide-react";
+import { Loader2, CloudUpload, CheckCircle2, Image as ImageIcon, ShieldCheck, AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/_admin/admin/r2-migration")({
   component: R2MigrationPage,
@@ -16,11 +17,30 @@ function R2MigrationPage() {
   const seed = useServerFn(seedR2FromDatabase);
   const fetchKey = useServerFn(getContent);
   const migrateMedia = useServerFn(migrateMediaToR2);
+  const checkCoverage = useServerFn(validateR2Coverage);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [mediaResult, setMediaResult] = useState<any>(null);
   const [mediaBusy, setMediaBusy] = useState(false);
   const [previews, setPreviews] = useState<Record<string, any>>({});
+  const [coverage, setCoverage] = useState<CoverageReport | null>(null);
+  const [coverageBusy, setCoverageBusy] = useState(false);
+
+  const runCoverage = async () => {
+    setCoverageBusy(true);
+    try {
+      const res = await checkCoverage();
+      setCoverage(res);
+      if (res.ok) toast.success("Coverage OK — every table is mapped");
+      else toast.warning(
+        `Coverage issues: ${res.missingFromMap.length} unmapped, ${res.staleInMap.length} stale`,
+      );
+    } catch (e: any) {
+      toast.error(e.message ?? "Coverage check failed");
+    } finally {
+      setCoverageBusy(false);
+    }
+  };
 
   const runSeed = async () => {
     setBusy(true);
@@ -124,6 +144,108 @@ function R2MigrationPage() {
                 <CheckCircle2 className="w-4 h-4 text-primary" />
                 Seeded — projects: {result.counts.projects}, portfolio folders: {result.counts.portfolio},
                 services: {result.counts.services}, reviews: {result.counts.reviews}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="flex items-start gap-4">
+          <div className={`grid place-items-center w-12 h-12 rounded-xl ${
+            coverage && !coverage.ok
+              ? "bg-destructive/15 text-destructive"
+              : "bg-primary/15 text-primary"
+          }`}>
+            {coverage && !coverage.ok
+              ? <AlertTriangle className="w-6 h-6" />
+              : <ShieldCheck className="w-6 h-6" />}
+          </div>
+          <div className="flex-1">
+            <h2 className="font-bold">Auto-resync coverage check</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Validates that every public table in the database is either watched by the
+              auto-resync map or explicitly excluded. Run after creating new tables to
+              avoid silent gaps in R2 JSON.
+            </p>
+            <Button onClick={runCoverage} disabled={coverageBusy} className="mt-4" variant="outline">
+              {coverageBusy
+                ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Checking…</>
+                : "Run coverage check"}
+            </Button>
+
+            {coverage && (
+              <div className="mt-4 space-y-3 text-sm">
+                <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+                  <span>DB tables: <strong className="text-foreground">{coverage.dbTableCount}</strong></span>
+                  <span>Watched: <strong className="text-foreground">{coverage.watchedCount}</strong></span>
+                  <span>Excluded: <strong className="text-foreground">{coverage.excludedPresent.length}</strong></span>
+                </div>
+
+                {coverage.ok ? (
+                  <div className="p-3 rounded-lg bg-primary/10 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-primary" />
+                    All tables are mapped — no gaps detected.
+                  </div>
+                ) : (
+                  <>
+                    {coverage.missingFromMap.length > 0 && (
+                      <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30">
+                        <div className="font-semibold text-destructive mb-1">
+                          {coverage.missingFromMap.length} table(s) missing from auto-resync map
+                        </div>
+                        <ul className="list-disc pl-5 space-y-0.5">
+                          {coverage.missingFromMap.map((t) => (
+                            <li key={t}><code className="text-xs">{t}</code></li>
+                          ))}
+                        </ul>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Add these to <code>TABLE_TO_DOCS</code> in
+                          {" "}<code>src/server/r2-coverage.ts</code> (and to the seed function),
+                          or list them in <code>R2_EXCLUDED_TABLES</code> if they should not feed R2.
+                        </p>
+                      </div>
+                    )}
+                    {coverage.staleInMap.length > 0 && (
+                      <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30">
+                        <div className="font-semibold text-destructive mb-1">
+                          {coverage.staleInMap.length} stale entry/entries in map (table no longer exists)
+                        </div>
+                        <ul className="list-disc pl-5 space-y-0.5">
+                          {coverage.staleInMap.map((t) => (
+                            <li key={t}><code className="text-xs">{t}</code></li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {coverage.docsWithoutSource.length > 0 && (
+                      <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
+                        <div className="font-semibold mb-1">
+                          {coverage.docsWithoutSource.length} R2 doc(s) with no source table
+                        </div>
+                        <ul className="list-disc pl-5 space-y-0.5">
+                          {coverage.docsWithoutSource.map((d) => (
+                            <li key={d}><code className="text-xs">{d}</code></li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                <details>
+                  <summary className="cursor-pointer text-xs font-semibold text-muted-foreground">
+                    View doc → tables map
+                  </summary>
+                  <div className="mt-2 space-y-1 text-xs">
+                    {Object.entries(coverage.docToTables).map(([doc, tables]) => (
+                      <div key={doc} className="flex gap-2">
+                        <code className="text-primary min-w-[100px]">{doc}</code>
+                        <span className="text-muted-foreground">{tables.join(", ") || "—"}</span>
+                      </div>
+                    ))}
+                  </div>
+                </details>
               </div>
             )}
           </div>

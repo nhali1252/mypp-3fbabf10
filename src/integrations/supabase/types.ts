@@ -1211,6 +1211,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      list_public_tables: {
+        Args: never
+        Returns: {
+          table_name: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "editor"

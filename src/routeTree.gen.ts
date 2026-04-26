@@ -41,6 +41,7 @@ import { Route as AdminAdminFooterCtaRouteImport } from './routes/_admin.admin.f
 import { Route as AdminAdminFooterAppsRouteImport } from './routes/_admin.admin.footer-apps'
 import { Route as AdminAdminFoldersRouteImport } from './routes/_admin.admin.folders'
 import { Route as AdminAdminEducationRouteImport } from './routes/_admin.admin.education'
+import { Route as AdminAdminDiagnosticsRouteImport } from './routes/_admin.admin.diagnostics'
 import { Route as AdminAdminContactRouteImport } from './routes/_admin.admin.contact'
 import { Route as AdminAdminCommentsRouteImport } from './routes/_admin.admin.comments'
 import { Route as AdminAdminChecklistRouteImport } from './routes/_admin.admin.checklist'
@@ -208,6 +209,11 @@ const AdminAdminEducationRoute = AdminAdminEducationRouteImport.update({
   path: '/admin/education',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminDiagnosticsRoute = AdminAdminDiagnosticsRouteImport.update({
+  id: '/admin/diagnostics',
+  path: '/admin/diagnostics',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAdminContactRoute = AdminAdminContactRouteImport.update({
   id: '/admin/contact',
   path: '/admin/contact',
@@ -261,6 +267,7 @@ export interface FileRoutesByFullPath {
   '/admin/checklist': typeof AdminAdminChecklistRoute
   '/admin/comments': typeof AdminAdminCommentsRoute
   '/admin/contact': typeof AdminAdminContactRoute
+  '/admin/diagnostics': typeof AdminAdminDiagnosticsRoute
   '/admin/education': typeof AdminAdminEducationRoute
   '/admin/folders': typeof AdminAdminFoldersRoute
   '/admin/footer-apps': typeof AdminAdminFooterAppsRoute
@@ -301,6 +308,7 @@ export interface FileRoutesByTo {
   '/admin/checklist': typeof AdminAdminChecklistRoute
   '/admin/comments': typeof AdminAdminCommentsRoute
   '/admin/contact': typeof AdminAdminContactRoute
+  '/admin/diagnostics': typeof AdminAdminDiagnosticsRoute
   '/admin/education': typeof AdminAdminEducationRoute
   '/admin/folders': typeof AdminAdminFoldersRoute
   '/admin/footer-apps': typeof AdminAdminFooterAppsRoute
@@ -343,6 +351,7 @@ export interface FileRoutesById {
   '/_admin/admin/checklist': typeof AdminAdminChecklistRoute
   '/_admin/admin/comments': typeof AdminAdminCommentsRoute
   '/_admin/admin/contact': typeof AdminAdminContactRoute
+  '/_admin/admin/diagnostics': typeof AdminAdminDiagnosticsRoute
   '/_admin/admin/education': typeof AdminAdminEducationRoute
   '/_admin/admin/folders': typeof AdminAdminFoldersRoute
   '/_admin/admin/footer-apps': typeof AdminAdminFooterAppsRoute
@@ -385,6 +394,7 @@ export interface FileRouteTypes {
     | '/admin/checklist'
     | '/admin/comments'
     | '/admin/contact'
+    | '/admin/diagnostics'
     | '/admin/education'
     | '/admin/folders'
     | '/admin/footer-apps'
@@ -425,6 +435,7 @@ export interface FileRouteTypes {
     | '/admin/checklist'
     | '/admin/comments'
     | '/admin/contact'
+    | '/admin/diagnostics'
     | '/admin/education'
     | '/admin/folders'
     | '/admin/footer-apps'
@@ -466,6 +477,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/checklist'
     | '/_admin/admin/comments'
     | '/_admin/admin/contact'
+    | '/_admin/admin/diagnostics'
     | '/_admin/admin/education'
     | '/_admin/admin/folders'
     | '/_admin/admin/footer-apps'
@@ -730,6 +742,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminEducationRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/diagnostics': {
+      id: '/_admin/admin/diagnostics'
+      path: '/admin/diagnostics'
+      fullPath: '/admin/diagnostics'
+      preLoaderRoute: typeof AdminAdminDiagnosticsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/contact': {
       id: '/_admin/admin/contact'
       path: '/admin/contact'
@@ -789,6 +808,7 @@ interface AdminRouteChildren {
   AdminAdminChecklistRoute: typeof AdminAdminChecklistRoute
   AdminAdminCommentsRoute: typeof AdminAdminCommentsRoute
   AdminAdminContactRoute: typeof AdminAdminContactRoute
+  AdminAdminDiagnosticsRoute: typeof AdminAdminDiagnosticsRoute
   AdminAdminEducationRoute: typeof AdminAdminEducationRoute
   AdminAdminFoldersRoute: typeof AdminAdminFoldersRoute
   AdminAdminFooterAppsRoute: typeof AdminAdminFooterAppsRoute
@@ -820,6 +840,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminChecklistRoute: AdminAdminChecklistRoute,
   AdminAdminCommentsRoute: AdminAdminCommentsRoute,
   AdminAdminContactRoute: AdminAdminContactRoute,
+  AdminAdminDiagnosticsRoute: AdminAdminDiagnosticsRoute,
   AdminAdminEducationRoute: AdminAdminEducationRoute,
   AdminAdminFoldersRoute: AdminAdminFoldersRoute,
   AdminAdminFooterAppsRoute: AdminAdminFooterAppsRoute,

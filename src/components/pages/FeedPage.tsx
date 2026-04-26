@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
+import { useInfiniteQuery, useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
   ArrowLeft, X, ChevronLeft, ChevronRight, Play, Sparkles,
   Image as ImageIcon, ExternalLink, Calendar, Folder, Star,
   Filter, LayoutGrid, Film, ImagePlay,
 } from "lucide-react";
-import { useR2Content } from "@/hooks/useR2Content";
+import { getFeedSlice, type FeedItem as ServerFeedItem, type FeedFolder } from "@/server/feed.functions";
 import { Footer } from "@/components/Footer";
 import { Watermark } from "@/components/feed/Watermark";
 import { ReactionsBar } from "@/components/feed/ReactionsBar";

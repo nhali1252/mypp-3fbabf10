@@ -3,7 +3,8 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Mail, Phone, MessageCircle, Sparkles, Send, Loader2, Calendar, Clock } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { submitMessage } from "@/server/messages.functions";
 import { useContactSettings } from "@/hooks/useContent";
 import { Footer } from "@/components/Footer";
 

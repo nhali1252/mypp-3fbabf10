@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, Folder, FolderOpen, X, ExternalLink, Sparkles, Image as ImageIcon } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useR2Content } from "@/hooks/useR2Content";
 import { Footer } from "@/components/Footer";
+
+type PortfolioDoc = (PFolder & { items: PItem[] })[];
 
 type PFolder = {
   id: string;

@@ -434,6 +434,25 @@ function AdminPortfolio() {
                   <FormRow label="Image"><MediaPicker value={newItem.image_url ?? undefined} onChange={(u: string | null) => setNewItem({ ...newItem, image_url: u })} /></FormRow>
                   <FormRow label="External link (optional)"><Input value={newItem.external_url ?? ""} onChange={(e) => setNewItem({ ...newItem, external_url: e.target.value })} placeholder="https://…" /></FormRow>
                   <FormRow label="Tags"><TagListEditor value={newItem.tags ?? []} onChange={(v: string[]) => setNewItem({ ...newItem, tags: v })} /></FormRow>
+                  <div className="rounded-lg border border-border bg-muted/30 p-3 grid gap-2.5">
+                    <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground inline-flex items-center gap-1.5">
+                      <MessageSquare className="w-3 h-3" /> Feed options
+                    </div>
+                    <label className="flex items-center justify-between gap-3 text-xs font-semibold">
+                      <span className="inline-flex items-center gap-2"><Eye className="w-3.5 h-3.5 text-muted-foreground" />Show in feed</span>
+                      <Switch checked={newItem.show_in_feed !== false} onCheckedChange={(v) => setNewItem({ ...newItem, show_in_feed: v })} />
+                    </label>
+                    <label className="flex items-center justify-between gap-3 text-xs font-semibold">
+                      <span className="inline-flex items-center gap-2"><Star className="w-3.5 h-3.5 text-primary" />Featured</span>
+                      <Switch checked={!!newItem.featured} onCheckedChange={(v) => setNewItem({ ...newItem, featured: v })} />
+                    </label>
+                    <FormRow label="Feed caption (optional)">
+                      <Textarea rows={2} value={newItem.feed_caption ?? ""} onChange={(e) => setNewItem({ ...newItem, feed_caption: e.target.value || null })} />
+                    </FormRow>
+                    <FormRow label="Watermark text (optional)">
+                      <Input value={newItem.watermark_text ?? ""} onChange={(e) => setNewItem({ ...newItem, watermark_text: e.target.value || null })} placeholder="© Ali Nur Hasan" />
+                    </FormRow>
+                  </div>
                   <Button onClick={() => createItem.mutate()} disabled={createItem.isPending}>
                     <Plus className="w-4 h-4 mr-1.5" /> Add to “{activeFolder.name}”
                   </Button>

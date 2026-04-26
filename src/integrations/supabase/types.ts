@@ -711,6 +711,39 @@ export type Database = {
         }
         Relationships: []
       }
+      moderation_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          moderator_id: string
+          reason: string | null
+          snapshot: Json | null
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          moderator_id: string
+          reason?: string | null
+          snapshot?: Json | null
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          moderator_id?: string
+          reason?: string | null
+          snapshot?: Json | null
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: []
+      }
       nav_links: {
         Row: {
           active: boolean

@@ -12,6 +12,17 @@ function env(name: string): string {
 }
 
 let _client: S3Client | null = null;
+let _clientCreatedAt: number | null = null;
+let _clientFingerprint: string | null = null;
+
+function fingerprint(): string {
+  // Stable identity for the credential set without leaking the secret.
+  const ak = process.env.R2_ACCESS_KEY_ID || "";
+  const ep = process.env.R2_ENDPOINT || "";
+  const bk = process.env.R2_BUCKET || "";
+  return `${ep}|${ak.slice(0, 6)}…${ak.slice(-4)}|${bk}`;
+}
+
 export function r2(): S3Client {
   if (_client) return _client;
   _client = new S3Client({
@@ -22,7 +33,39 @@ export function r2(): S3Client {
       secretAccessKey: env("R2_SECRET_ACCESS_KEY"),
     },
   });
+  _clientCreatedAt = Date.now();
+  _clientFingerprint = fingerprint();
   return _client;
+}
+
+/** Drop the cached S3 client so the next r2() call rebuilds it from current env. */
+export function resetR2Client(): { previousFingerprint: string | null; previousAgeMs: number | null } {
+  const prevFp = _clientFingerprint;
+  const prevAge = _clientCreatedAt ? Date.now() - _clientCreatedAt : null;
+  try {
+    _client?.destroy();
+  } catch {
+    // ignore — destroy is best-effort
+  }
+  _client = null;
+  _clientCreatedAt = null;
+  _clientFingerprint = null;
+  return { previousFingerprint: prevFp, previousAgeMs: prevAge };
+}
+
+/** Diagnostic info about the currently cached client (does not create one). */
+export function r2ClientInfo(): {
+  initialized: boolean;
+  fingerprint: string | null;
+  ageMs: number | null;
+  envFingerprint: string;
+} {
+  return {
+    initialized: _client !== null,
+    fingerprint: _clientFingerprint,
+    ageMs: _clientCreatedAt ? Date.now() - _clientCreatedAt : null,
+    envFingerprint: fingerprint(),
+  };
 }
 
 export function bucket(): string {

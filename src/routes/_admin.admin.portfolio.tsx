@@ -402,6 +402,14 @@ function AdminPortfolio() {
               <FormRow label="Cover image">
                 <MediaPicker value={newFolder.cover_url ?? undefined} onChange={(u: string | null) => setNewFolder({ ...newFolder, cover_url: u })} />
               </FormRow>
+              <FormRow label="Parent folder (optional)" hint="Leave empty for a top-level folder.">
+                <ParentSelect
+                  folders={folders}
+                  value={newFolder.parent_id ?? null}
+                  excludeId={null}
+                  onChange={(v) => setNewFolder({ ...newFolder, parent_id: v })}
+                />
+              </FormRow>
               <Button onClick={() => createFolder.mutate()} disabled={createFolder.isPending}>
                 <Plus className="w-4 h-4 mr-1.5" /> Create folder
               </Button>

@@ -122,8 +122,9 @@ export const migrateMediaToR2 = createServerFn({ method: "POST" })
       rewritten++;
     }
 
-    // 4. Resync R2 content JSON so public reads pick up the new URLs immediately.
-    await seedR2FromDatabase({ data: { scope: undefined } });
+    // 4. (Auto-resync hook in the admin UI will rebuild R2 content JSON
+    //    automatically because the rewrites above triggered postgres_changes
+    //    on the affected tables.)
 
     return {
       ok: true,

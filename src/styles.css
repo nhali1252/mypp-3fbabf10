@@ -340,6 +340,14 @@
   html { scroll-behavior: smooth; }
   section[id] { scroll-margin-top: 96px; }
 
+  /* Numeric typography — Lora for stats, counters, percentages, metrics */
+  .font-numeric {
+    font-family: var(--font-numeric);
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    font-variant-numeric: tabular-nums lining-nums;
+    letter-spacing: -0.005em;
+  }
+
   /* Respect users who prefer reduced motion */
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }

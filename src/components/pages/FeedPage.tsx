@@ -119,9 +119,23 @@ export function FeedPage() {
   const featured = featuredQuery.data ?? [];
 
   // Lightbox runs over the *visible* items for predictable index/total.
+  // `soloItem` lets us open items that aren't in the current slice (e.g. from
+  // the Featured strip when filters hide them) without disturbing filters.
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
-  const open = useCallback((i: number) => setActiveIdx(i), []);
-  const close = useCallback(() => setActiveIdx(null), []);
+  const [soloItem, setSoloItem] = useState<FeedItem | null>(null);
+  const lastFocusRef = useRef<HTMLElement | null>(null);
+
+  const rememberFocus = useCallback(() => {
+    lastFocusRef.current = (document.activeElement as HTMLElement | null) ?? null;
+  }, []);
+  const open = useCallback((i: number) => { rememberFocus(); setSoloItem(null); setActiveIdx(i); }, [rememberFocus]);
+  const openSolo = useCallback((it: FeedItem) => { rememberFocus(); setActiveIdx(null); setSoloItem(it); }, [rememberFocus]);
+  const close = useCallback(() => {
+    setActiveIdx(null);
+    setSoloItem(null);
+    // Restore focus to the trigger after the modal unmounts.
+    requestAnimationFrame(() => lastFocusRef.current?.focus?.());
+  }, []);
   const next = useCallback(
     () => setActiveIdx((i) => (i === null ? null : (i + 1) % visibleItems.length)),
     [visibleItems.length],
@@ -131,12 +145,14 @@ export function FeedPage() {
     [visibleItems.length],
   );
 
+  const lightboxOpen = activeIdx !== null || soloItem !== null;
+
   useEffect(() => {
-    if (activeIdx === null) return;
+    if (!lightboxOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();
-      else if (e.key === "ArrowRight") next();
-      else if (e.key === "ArrowLeft") prev();
+      else if (soloItem === null && e.key === "ArrowRight") next();
+      else if (soloItem === null && e.key === "ArrowLeft") prev();
     };
     window.addEventListener("keydown", onKey);
     const prevOverflow = document.body.style.overflow;
@@ -145,9 +161,11 @@ export function FeedPage() {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
     };
-  }, [activeIdx, close, next, prev]);
+  }, [lightboxOpen, soloItem, close, next, prev]);
 
-  const active = activeIdx !== null ? visibleItems[activeIdx] ?? null : null;
+  const active: FeedItem | null = soloItem ?? (activeIdx !== null ? visibleItems[activeIdx] ?? null : null);
+  const lbIndex = soloItem ? 0 : (activeIdx ?? 0);
+  const lbTotal = soloItem ? 1 : visibleItems.length;
 
   return (
     <div className="min-h-screen bg-background text-foreground">

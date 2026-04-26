@@ -39,6 +39,7 @@
   --shadow-elevated: var(--shadow-elevated);
   --font-sans: 'Inter', sans-serif;
   --font-serif-display: 'Cormorant Garamond', serif;
+  --font-numeric: 'Lora', Georgia, serif;
 
   /* Motion tokens — keep all animation in one consistent language */
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);

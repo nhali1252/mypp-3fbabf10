@@ -119,9 +119,23 @@ export function FeedPage() {
   const featured = featuredQuery.data ?? [];
 
   // Lightbox runs over the *visible* items for predictable index/total.
+  // `soloItem` lets us open items that aren't in the current slice (e.g. from
+  // the Featured strip when filters hide them) without disturbing filters.
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
-  const open = useCallback((i: number) => setActiveIdx(i), []);
-  const close = useCallback(() => setActiveIdx(null), []);
+  const [soloItem, setSoloItem] = useState<FeedItem | null>(null);
+  const lastFocusRef = useRef<HTMLElement | null>(null);
+
+  const rememberFocus = useCallback(() => {
+    lastFocusRef.current = (document.activeElement as HTMLElement | null) ?? null;
+  }, []);
+  const open = useCallback((i: number) => { rememberFocus(); setSoloItem(null); setActiveIdx(i); }, [rememberFocus]);
+  const openSolo = useCallback((it: FeedItem) => { rememberFocus(); setActiveIdx(null); setSoloItem(it); }, [rememberFocus]);
+  const close = useCallback(() => {
+    setActiveIdx(null);
+    setSoloItem(null);
+    // Restore focus to the trigger after the modal unmounts.
+    requestAnimationFrame(() => lastFocusRef.current?.focus?.());
+  }, []);
   const next = useCallback(
     () => setActiveIdx((i) => (i === null ? null : (i + 1) % visibleItems.length)),
     [visibleItems.length],
@@ -131,12 +145,14 @@ export function FeedPage() {
     [visibleItems.length],
   );
 
+  const lightboxOpen = activeIdx !== null || soloItem !== null;
+
   useEffect(() => {
-    if (activeIdx === null) return;
+    if (!lightboxOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();
-      else if (e.key === "ArrowRight") next();
-      else if (e.key === "ArrowLeft") prev();
+      else if (soloItem === null && e.key === "ArrowRight") next();
+      else if (soloItem === null && e.key === "ArrowLeft") prev();
     };
     window.addEventListener("keydown", onKey);
     const prevOverflow = document.body.style.overflow;
@@ -145,9 +161,11 @@ export function FeedPage() {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
     };
-  }, [activeIdx, close, next, prev]);
+  }, [lightboxOpen, soloItem, close, next, prev]);
 
-  const active = activeIdx !== null ? visibleItems[activeIdx] ?? null : null;
+  const active: FeedItem | null = soloItem ?? (activeIdx !== null ? visibleItems[activeIdx] ?? null : null);
+  const lbIndex = soloItem ? 0 : (activeIdx ?? 0);
+  const lbTotal = soloItem ? 1 : visibleItems.length;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -214,12 +232,7 @@ export function FeedPage() {
           onOpen={(item) => {
             const i = visibleItems.findIndex((x) => x.id === item.id);
             if (i >= 0) open(i);
-            else {
-              // Reset filters so the item appears in the next slice fetch.
-              setFolderFilter("all");
-              setMediaFilter("all");
-              setFeaturedOnly(false);
-            }
+            else openSolo(item);
           }}
         />
       )}
@@ -281,14 +294,22 @@ export function FeedPage() {
       </section>
 
       <AnimatePresence>
-        {active && activeIdx !== null && (
+        {active && (
           <Lightbox
             item={active}
-            index={activeIdx}
-            total={visibleItems.length}
+            index={lbIndex}
+            total={lbTotal}
             onClose={close}
             onNext={next}
             onPrev={prev}
+            neighbors={
+              soloItem
+                ? []
+                : [
+                    visibleItems[(lbIndex + 1) % visibleItems.length],
+                    visibleItems[(lbIndex - 1 + visibleItems.length) % visibleItems.length],
+                  ].filter(Boolean) as FeedItem[]
+            }
           />
         )}
       </AnimatePresence>
@@ -677,11 +698,13 @@ function FeedCard({ item, index, onOpen }: { item: FeedItem; index: number; onOp
 }
 
 // ---------------------------------------------------------------------------
-// Lightbox (unchanged behavior)
+// Lightbox — accessible: focus trap, focus restoration, keyboard nav,
+// roledescription="carousel", high-DPI image rendering, "Back" close button,
+// neighbor preloading for snappy nav.
 // ---------------------------------------------------------------------------
 
 function Lightbox({
-  item, index, total, onClose, onNext, onPrev,
+  item, index, total, onClose, onNext, onPrev, neighbors = [],
 }: {
   item: FeedItem;
   index: number;
@@ -689,7 +712,42 @@ function Lightbox({
   onClose: () => void;
   onNext: () => void;
   onPrev: () => void;
+  neighbors?: FeedItem[];
 }) {
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const closeBtnRef = useRef<HTMLButtonElement | null>(null);
+
+  // Auto-focus the close ("Back") button on open so keyboard users land here.
+  useEffect(() => {
+    closeBtnRef.current?.focus();
+  }, []);
+
+  // Simple focus trap: cycle Tab within the dialog's focusable elements.
+  useEffect(() => {
+    const root = dialogRef.current;
+    if (!root) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      const focusables = root.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"]), input, video, [contenteditable="true"]',
+      );
+      const list = Array.from(focusables).filter((el) => !el.hasAttribute("inert") && el.offsetParent !== null);
+      if (list.length === 0) return;
+      const first = list[0];
+      const last = list[list.length - 1];
+      const activeEl = document.activeElement as HTMLElement | null;
+      if (e.shiftKey && activeEl === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && activeEl === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    root.addEventListener("keydown", onKeyDown);
+    return () => root.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const onTouchStart = (e: React.TouchEvent) => {
     const t = e.touches[0];
@@ -701,7 +759,7 @@ function Lightbox({
     const dx = t.clientX - touchStart.current.x;
     const dy = t.clientY - touchStart.current.y;
     touchStart.current = null;
-    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+    if (total > 1 && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
       if (dx < 0) onNext();
       else onPrev();
     } else if (dy > 80 && Math.abs(dy) > Math.abs(dx)) {
@@ -713,6 +771,7 @@ function Lightbox({
 
   return (
     <motion.div
+      ref={dialogRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -723,8 +782,16 @@ function Lightbox({
       onTouchEnd={onTouchEnd}
       role="dialog"
       aria-modal="true"
-      aria-label={`Viewer: ${item.title}`}
+      aria-roledescription={total > 1 ? "carousel" : undefined}
+      aria-label={`Media viewer: ${item.title}${total > 1 ? `, item ${index + 1} of ${total}` : ""}`}
     >
+      {/* Preload immediate neighbors so prev/next feels instant on slow links. */}
+      {neighbors.map((n) =>
+        n.image_url && n.media_kind === "image" ? (
+          <link key={n.id} rel="preload" as="image" href={n.image_url} />
+        ) : null,
+      )}
+
       <div
         className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3 border-b border-white/10 text-white"
         onClick={(e) => e.stopPropagation()}
@@ -738,17 +805,25 @@ function Lightbox({
               <Star className="w-3 h-3 fill-current" /> Featured
             </span>
           )}
-          <span className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/60">
+          <span
+            className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/60"
+            aria-live="polite"
+            aria-atomic="true"
+          >
             {index + 1} / {total}
           </span>
         </div>
         <button
+          ref={closeBtnRef}
           type="button"
           onClick={onClose}
-          className="h-10 w-10 rounded-full border border-white/20 hover:bg-white hover:text-black transition-colors inline-flex items-center justify-center"
-          aria-label="Close viewer"
+          className="inline-flex items-center gap-2 h-10 pl-3 pr-4 rounded-full border border-white/20 hover:bg-white hover:text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 transition-colors"
+          aria-label="Back to feed (Escape)"
+          autoFocus
         >
-          <X className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          <span className="text-[11px] font-bold uppercase tracking-[0.22em] hidden sm:inline">Back</span>
+          <X className="h-4 w-4 sm:hidden" aria-hidden="true" />
         </button>
       </div>
 
@@ -760,10 +835,11 @@ function Lightbox({
           <button
             type="button"
             onClick={onPrev}
-            aria-label="Previous"
-            className="hidden sm:inline-flex absolute left-3 top-1/2 -translate-y-1/2 h-12 w-12 items-center justify-center rounded-full bg-white/10 border border-white/20 text-white hover:bg-white hover:text-black transition-colors"
+            aria-label={`Previous item (${((index - 1 + total) % total) + 1} of ${total})`}
+            aria-keyshortcuts="ArrowLeft"
+            className="hidden sm:inline-flex absolute left-3 top-1/2 -translate-y-1/2 h-12 w-12 items-center justify-center rounded-full bg-white/10 border border-white/20 text-white hover:bg-white hover:text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 transition-colors"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-5 h-5" aria-hidden="true" />
           </button>
         )}
 
@@ -775,6 +851,9 @@ function Lightbox({
             exit={{ opacity: 0, scale: 0.97 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             className="max-w-full max-h-full flex items-center justify-center"
+            role="group"
+            aria-roledescription={total > 1 ? "slide" : undefined}
+            aria-label={total > 1 ? `${index + 1} of ${total}` : undefined}
           >
             {item.media_kind === "video" && item.image_url ? (
               <div className="relative">
@@ -792,12 +871,25 @@ function Lightbox({
               </div>
             ) : item.image_url ? (
               <div className="relative">
+                {/*
+                  High-DPI rendering: request the image at native resolution and
+                  let the browser scale down. fetchPriority=high + decoding=sync
+                  + a same-URL srcSet at 1x/2x signals retina/HiDPI displays to
+                  prefer the full-resolution asset, while CSS object-contain
+                  keeps it crisp without upscaling beyond the source.
+                */}
                 <img
                   src={item.image_url}
+                  srcSet={`${item.image_url} 1x, ${item.image_url} 2x`}
                   alt={item.title}
                   draggable={false}
+                  loading="eager"
+                  decoding="sync"
+                  // @ts-expect-error — valid HTML attr, types lag in React 19
+                  fetchpriority="high"
                   onContextMenu={(e) => e.preventDefault()}
-                  className="max-w-[92vw] max-h-[72vh] object-contain rounded-xl select-none"
+                  className="max-w-[92vw] max-h-[82vh] object-contain rounded-xl select-none [image-rendering:auto]"
+                  style={{ imageRendering: "auto" }}
                 />
                 <Watermark text={item.watermark_text ?? null} size="md" cornerBadge />
               </div>
@@ -811,10 +903,11 @@ function Lightbox({
           <button
             type="button"
             onClick={onNext}
-            aria-label="Next"
-            className="hidden sm:inline-flex absolute right-3 top-1/2 -translate-y-1/2 h-12 w-12 items-center justify-center rounded-full bg-white/10 border border-white/20 text-white hover:bg-white hover:text-black transition-colors"
+            aria-label={`Next item (${(index + 1) % total + 1} of ${total})`}
+            aria-keyshortcuts="ArrowRight"
+            className="hidden sm:inline-flex absolute right-3 top-1/2 -translate-y-1/2 h-12 w-12 items-center justify-center rounded-full bg-white/10 border border-white/20 text-white hover:bg-white hover:text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 transition-colors"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-5 h-5" aria-hidden="true" />
           </button>
         )}
       </div>

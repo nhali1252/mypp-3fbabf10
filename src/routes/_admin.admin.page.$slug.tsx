@@ -73,10 +73,10 @@ function PageEditor() {
 
       <Accordion
         type="multiple"
-        defaultValue={block.sections.map((s) => s.id)}
+        defaultValue={block.sections.map((s: { id: string }) => s.id)}
         className="space-y-3"
       >
-        {block.sections.map((section) => {
+        {block.sections.map((section: { id: string; title: string; description?: string }) => {
           const Editor = getSectionEditor(slug, section.id);
           return (
             <AccordionItem

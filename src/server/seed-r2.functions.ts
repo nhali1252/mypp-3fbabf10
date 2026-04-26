@@ -39,6 +39,7 @@ export const seedR2FromDatabase = createServerFn({ method: "POST" })
       launcherHero, launcherPages,
       fHero, fPhotocard, fSkills, fProjects,
       activities, education,
+      pageQuotes,
     ] = await Promise.all([
       supabaseAdmin.from("hero_content").select("*").limit(1).maybeSingle(),
       supabaseAdmin.from("about_content").select("*").limit(1).maybeSingle(),
@@ -64,7 +65,15 @@ export const seedR2FromDatabase = createServerFn({ method: "POST" })
       supabaseAdmin.from("f_projects").select("*").eq("active", true).order("sort_order"),
       supabaseAdmin.from("activities").select("*").eq("active", true).order("sort_order"),
       supabaseAdmin.from("education").select("*").eq("active", true).order("sort_order"),
+      supabaseAdmin.from("page_quotes").select("*").eq("active", true),
     ]);
+
+    // Page-quotes JSON: a slug-keyed map so the public side can do
+    // `pageQuotes[slug]` without scanning an array.
+    const pageQuotesDoc: Record<string, any> = {};
+    for (const row of pageQuotes.data ?? []) {
+      if (row?.page_slug) pageQuotesDoc[row.page_slug] = row;
+    }
 
     const h = hero.data ?? ({} as any);
     const a = about.data ?? ({} as any);
@@ -125,6 +134,7 @@ export const seedR2FromDatabase = createServerFn({ method: "POST" })
     if (want("launcher")) writes.push(writeJson(R2_KEYS.launcher, launcherDoc));
     if (want("chrome")) writes.push(writeJson(R2_KEYS.chrome, chromeDoc));
     if (want("fPage")) writes.push(writeJson(R2_KEYS.fPage, fPageDoc));
+    if (want("pageQuotes")) writes.push(writeJson(R2_KEYS.pageQuotes, pageQuotesDoc));
 
     await Promise.all(writes);
 

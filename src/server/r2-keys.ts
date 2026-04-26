@@ -11,6 +11,8 @@ export const R2_KEYS = {
   launcher: "content/launcher.json",
   chrome: "content/chrome.json",
   fPage: "content/f-page.json",
+  /** Per-page quote/highlight blocks, keyed by page slug. */
+  pageQuotes: "content/page-quotes.json",
 } as const;
 
 export type R2ContentKey = keyof typeof R2_KEYS;

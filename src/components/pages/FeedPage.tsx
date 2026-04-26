@@ -1,14 +1,20 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, X, ChevronLeft, ChevronRight, Play, Sparkles, Image as ImageIcon, ExternalLink, Calendar, Folder } from "lucide-react";
+import {
+  ArrowLeft, X, ChevronLeft, ChevronRight, Play, Sparkles,
+  Image as ImageIcon, ExternalLink, Calendar, Folder, Star,
+  Filter, LayoutGrid, Film, ImagePlay,
+} from "lucide-react";
 import { useR2Content } from "@/hooks/useR2Content";
 import { Footer } from "@/components/Footer";
 import { Watermark } from "@/components/feed/Watermark";
 import { ReactionsBar } from "@/components/feed/ReactionsBar";
 import { CommentThread } from "@/components/feed/CommentThread";
 
-type PortfolioDoc = (PFolder & { items: PItem[] })[];
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 type PFolder = {
   id: string;
@@ -30,21 +36,31 @@ type PItem = {
   sort_order: number;
   created_at?: string | null;
   updated_at?: string | null;
-  // Optional future fields (forward-compat, ignored if missing):
   show_in_feed?: boolean;
   feed_caption?: string | null;
+  featured?: boolean;
   published_at?: string | null;
   watermark_text?: string | null;
 };
+
+type PortfolioDoc = (PFolder & { items: PItem[] })[];
 
 type FeedItem = PItem & {
   folder_name: string;
   folder_slug: string;
   media_kind: "image" | "video";
   date: string | null;
+  featured: boolean;
 };
 
+type MediaFilter = "all" | "image" | "video";
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
 const VIDEO_EXT = /\.(mp4|webm|mov|m4v|ogv)(\?|#|$)/i;
+const PAGE_SIZE = 24;
 
 function detectKind(url: string | null | undefined): "image" | "video" {
   if (!url) return "image";
@@ -56,7 +72,6 @@ function flattenFeed(doc: PortfolioDoc | null | undefined): FeedItem[] {
   const out: FeedItem[] = [];
   for (const f of doc) {
     for (const it of f.items ?? []) {
-      // Honor show_in_feed when present; default true for backward-compat.
       if (it.show_in_feed === false) continue;
       if (!it.image_url) continue;
       out.push({
@@ -66,10 +81,10 @@ function flattenFeed(doc: PortfolioDoc | null | undefined): FeedItem[] {
         folder_slug: f.slug,
         media_kind: detectKind(it.image_url),
         date: it.published_at ?? it.updated_at ?? it.created_at ?? null,
+        featured: !!it.featured,
       });
     }
   }
-  // Newest first; missing date sinks to the bottom.
   out.sort((a, b) => {
     const ta = a.date ? Date.parse(a.date) : 0;
     const tb = b.date ? Date.parse(b.date) : 0;
@@ -85,23 +100,54 @@ function formatDate(iso: string | null): string {
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 }
 
+// ---------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------
+
 export function FeedPage() {
   const { data, isLoading, isError } = useR2Content<PortfolioDoc>("portfolio", { staleTime: 5_000 });
-  const items = useMemo(() => flattenFeed(data ?? null), [data]);
-  const [activeIdx, setActiveIdx] = useState<number | null>(null);
+  const allItems = useMemo(() => flattenFeed(data ?? null), [data]);
 
+  // Filters
+  const [folderFilter, setFolderFilter] = useState<string>("all"); // folder slug
+  const [mediaFilter, setMediaFilter] = useState<MediaFilter>("all");
+  const [visibleCount, setVisibleCount] = useState<number>(PAGE_SIZE);
+
+  // Reset pagination when filters change
+  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [folderFilter, mediaFilter]);
+
+  const folders = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const it of allItems) map.set(it.folder_slug, it.folder_name);
+    return Array.from(map, ([slug, name]) => ({ slug, name }));
+  }, [allItems]);
+
+  const featured = useMemo(() => allItems.filter((it) => it.featured), [allItems]);
+
+  const filtered = useMemo(() => {
+    return allItems.filter((it) => {
+      if (folderFilter !== "all" && it.folder_slug !== folderFilter) return false;
+      if (mediaFilter !== "all" && it.media_kind !== mediaFilter) return false;
+      return true;
+    });
+  }, [allItems, folderFilter, mediaFilter]);
+
+  const visibleItems = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
+  const canLoadMore = visibleCount < filtered.length;
+
+  // Lightbox runs over the *visible* items for predictable index/total.
+  const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const open = useCallback((i: number) => setActiveIdx(i), []);
   const close = useCallback(() => setActiveIdx(null), []);
   const next = useCallback(
-    () => setActiveIdx((i) => (i === null ? null : (i + 1) % items.length)),
-    [items.length],
+    () => setActiveIdx((i) => (i === null ? null : (i + 1) % visibleItems.length)),
+    [visibleItems.length],
   );
   const prev = useCallback(
-    () => setActiveIdx((i) => (i === null ? null : (i - 1 + items.length) % items.length)),
-    [items.length],
+    () => setActiveIdx((i) => (i === null ? null : (i - 1 + visibleItems.length) % visibleItems.length)),
+    [visibleItems.length],
   );
 
-  // Keyboard nav.
   useEffect(() => {
     if (activeIdx === null) return;
     const onKey = (e: KeyboardEvent) => {
@@ -110,7 +156,6 @@ export function FeedPage() {
       else if (e.key === "ArrowLeft") prev();
     };
     window.addEventListener("keydown", onKey);
-    // Lock body scroll while viewer open.
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
@@ -119,7 +164,7 @@ export function FeedPage() {
     };
   }, [activeIdx, close, next, prev]);
 
-  const active = activeIdx !== null ? items[activeIdx] ?? null : null;
+  const active = activeIdx !== null ? visibleItems[activeIdx] ?? null : null;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -174,28 +219,79 @@ export function FeedPage() {
             transition={{ duration: 0.6, delay: 0.15 }}
             className="text-muted-foreground mt-5 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed"
           >
-            A live social-style feed of every image and video uploaded across all portfolio folders.
-            Newest first — synced automatically with the portfolio CMS.
+            A curated stream of recent work — newest first, synced live with the portfolio.
           </motion.p>
         </div>
       </section>
+
+      {/* Featured strip */}
+      {!isLoading && !isError && featured.length > 0 && (
+        <FeaturedStrip
+          items={featured}
+          onOpen={(item) => {
+            const i = visibleItems.findIndex((x) => x.id === item.id);
+            if (i >= 0) open(i);
+            else {
+              // Ensure it's in the visible window if filters hide it
+              setFolderFilter("all");
+              setMediaFilter("all");
+              setVisibleCount((c) => Math.max(c, PAGE_SIZE));
+              // Defer until next paint so visibleItems updates
+              setTimeout(() => {
+                setActiveIdx(allItems.findIndex((x) => x.id === item.id));
+              }, 0);
+            }
+          }}
+        />
+      )}
+
+      {/* Toolbar */}
+      {!isLoading && !isError && allItems.length > 0 && (
+        <FilterToolbar
+          folders={folders}
+          folderFilter={folderFilter}
+          setFolderFilter={setFolderFilter}
+          mediaFilter={mediaFilter}
+          setMediaFilter={setMediaFilter}
+          totalCount={allItems.length}
+          filteredCount={filtered.length}
+        />
+      )}
 
       <section className="px-5 sm:px-6 md:px-10 pb-16">
         <div className="max-w-[1240px] mx-auto">
           {isLoading ? (
             <FeedSkeleton />
           ) : isError ? (
-            <div className="text-center py-20">
-              <ImageIcon className="w-14 h-14 mx-auto text-destructive/40 mb-4" strokeWidth={0.9} />
-              <p className="text-base font-bold tracking-tight">Couldn't load the feed</p>
-              <p className="text-xs text-muted-foreground mt-2">Please refresh the page to try again.</p>
-            </div>
-          ) : items.length === 0 ? (
-            <div className="text-center py-20 text-sm text-muted-foreground border border-dashed border-border rounded-2xl">
-              No uploads yet — add items inside any folder at <code>/admin/portfolio</code> and they'll appear here automatically.
-            </div>
+            <ErrorState />
+          ) : allItems.length === 0 ? (
+            <EmptyState
+              title="No uploads yet"
+              hint={`Add items inside any portfolio folder and they'll appear here automatically.`}
+            />
+          ) : filtered.length === 0 ? (
+            <EmptyState
+              title="No matches for this filter"
+              hint="Try changing the folder or media-type filter above."
+            />
           ) : (
-            <MasonryGrid items={items} onOpen={open} />
+            <>
+              <MasonryGrid items={visibleItems} onOpen={open} />
+              {canLoadMore && (
+                <div className="flex justify-center mt-10">
+                  <button
+                    type="button"
+                    onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+                    className="group inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border bg-card hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 text-xs font-bold uppercase tracking-[0.22em]"
+                  >
+                    Load more
+                    <span className="text-[10px] opacity-60 group-hover:opacity-100">
+                      {filtered.length - visibleCount} remaining
+                    </span>
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
@@ -205,7 +301,7 @@ export function FeedPage() {
           <Lightbox
             item={active}
             index={activeIdx}
-            total={items.length}
+            total={visibleItems.length}
             onClose={close}
             onNext={next}
             onPrev={prev}
@@ -218,19 +314,260 @@ export function FeedPage() {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Toolbar
+// ---------------------------------------------------------------------------
+
+function FilterToolbar({
+  folders,
+  folderFilter,
+  setFolderFilter,
+  mediaFilter,
+  setMediaFilter,
+  totalCount,
+  filteredCount,
+}: {
+  folders: { slug: string; name: string }[];
+  folderFilter: string;
+  setFolderFilter: (v: string) => void;
+  mediaFilter: MediaFilter;
+  setMediaFilter: (v: MediaFilter) => void;
+  totalCount: number;
+  filteredCount: number;
+}) {
+  return (
+    <section className="px-5 sm:px-6 md:px-10 pb-6">
+      <div className="max-w-[1240px] mx-auto">
+        <div className="rounded-2xl border border-border bg-card/60 backdrop-blur-sm p-3 sm:p-4 flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-5">
+          {/* Media-type segmented control */}
+          <div className="flex items-center gap-1 p-1 rounded-full border border-border bg-background/50 self-start">
+            <SegBtn active={mediaFilter === "all"} onClick={() => setMediaFilter("all")} icon={LayoutGrid} label="All" />
+            <SegBtn active={mediaFilter === "image"} onClick={() => setMediaFilter("image")} icon={ImagePlay} label="Images" />
+            <SegBtn active={mediaFilter === "video"} onClick={() => setMediaFilter("video")} icon={Film} label="Videos" />
+          </div>
+
+          {/* Folder chips */}
+          <div className="flex-1 min-w-0 flex items-center gap-2 overflow-x-auto scrollbar-thin pb-1 -mb-1">
+            <Filter className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+            <Chip active={folderFilter === "all"} onClick={() => setFolderFilter("all")}>All folders</Chip>
+            {folders.map((f) => (
+              <Chip key={f.slug} active={folderFilter === f.slug} onClick={() => setFolderFilter(f.slug)}>
+                {f.name}
+              </Chip>
+            ))}
+          </div>
+
+          <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground shrink-0">
+            {filteredCount === totalCount ? `${totalCount} items` : `${filteredCount} of ${totalCount}`}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SegBtn({
+  active, onClick, icon: Icon, label,
+}: { active: boolean; onClick: () => void; icon: any; label: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] transition-colors ${
+        active
+          ? "bg-primary text-primary-foreground shadow-sm"
+          : "text-muted-foreground hover:text-foreground"
+      }`}
+      aria-pressed={active}
+    >
+      <Icon className="w-3.5 h-3.5" /> {label}
+    </button>
+  );
+}
+
+function Chip({
+  active, onClick, children,
+}: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`whitespace-nowrap px-3 py-1.5 rounded-full border text-[11px] font-bold uppercase tracking-[0.2em] transition-colors ${
+        active
+          ? "border-primary bg-primary/10 text-primary"
+          : "border-border bg-background/40 text-muted-foreground hover:text-foreground hover:border-primary/40"
+      }`}
+      aria-pressed={active}
+    >
+      {children}
+    </button>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Featured strip
+// ---------------------------------------------------------------------------
+
+function FeaturedStrip({
+  items, onOpen,
+}: { items: FeedItem[]; onOpen: (it: FeedItem) => void }) {
+  return (
+    <section className="px-5 sm:px-6 md:px-10 pb-6">
+      <div className="max-w-[1240px] mx-auto">
+        <div className="flex items-center gap-2 mb-4">
+          <Star className="w-3.5 h-3.5 text-primary fill-primary" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary">Featured</span>
+          <span className="h-px flex-1 bg-gradient-to-r from-primary/30 to-transparent" />
+        </div>
+        <div className="flex gap-4 overflow-x-auto pb-3 -mx-5 sm:-mx-6 md:-mx-10 px-5 sm:px-6 md:px-10 snap-x snap-mandatory scrollbar-thin">
+          {items.map((it) => (
+            <button
+              key={it.id}
+              type="button"
+              onClick={() => onOpen(it)}
+              className="group relative shrink-0 w-[260px] sm:w-[300px] aspect-[4/5] rounded-2xl overflow-hidden border border-border hover:border-primary/60 bg-card snap-start text-left transition-colors"
+              aria-label={`Open featured: ${it.title}`}
+            >
+              <LazyMedia item={it} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
+              <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-[0.22em]">
+                <Star className="w-3 h-3 fill-current" /> Featured
+              </div>
+              {it.media_kind === "video" && (
+                <div className="absolute top-3 right-3 inline-flex items-center justify-center h-8 w-8 rounded-full bg-background/80 backdrop-blur border border-primary/40 text-primary">
+                  <Play className="w-3.5 h-3.5 ml-0.5" />
+                </div>
+              )}
+              <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-white/70 mb-1 truncate">
+                  {it.folder_name}
+                </div>
+                <h3 className="font-serif-display text-lg leading-snug font-light line-clamp-2">{it.title}</h3>
+              </div>
+              <Watermark text={it.watermark_text ?? null} size="sm" cornerBadge />
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Empty / error / skeleton states
+// ---------------------------------------------------------------------------
+
 function FeedSkeleton() {
   return (
-    <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 [column-fill:_balance]">
+    <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 [column-fill:_balance]">
       {Array.from({ length: 9 }).map((_, i) => (
         <div
           key={i}
-          className="mb-4 break-inside-avoid rounded-2xl border border-border bg-card animate-pulse"
-          style={{ height: 180 + ((i * 53) % 220) }}
-        />
+          className="mb-4 break-inside-avoid rounded-2xl border border-border bg-card overflow-hidden"
+        >
+          <div
+            className="bg-gradient-to-br from-muted via-muted/60 to-muted animate-pulse"
+            style={{ height: 180 + ((i * 53) % 220) }}
+          />
+          <div className="p-4 space-y-2">
+            <div className="h-3 w-3/4 bg-muted animate-pulse rounded" />
+            <div className="h-2.5 w-1/2 bg-muted/60 animate-pulse rounded" />
+          </div>
+        </div>
       ))}
     </div>
   );
 }
+
+function ErrorState() {
+  return (
+    <div className="text-center py-24 max-w-md mx-auto">
+      <div className="mx-auto h-16 w-16 rounded-full border border-destructive/30 bg-destructive/5 grid place-items-center mb-5">
+        <ImageIcon className="w-7 h-7 text-destructive/60" strokeWidth={1.2} />
+      </div>
+      <p className="text-base font-bold tracking-tight">Couldn't load the feed</p>
+      <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+        Please refresh the page to try again. If the problem persists, the content service may be temporarily offline.
+      </p>
+    </div>
+  );
+}
+
+function EmptyState({ title, hint }: { title: string; hint: string }) {
+  return (
+    <div className="text-center py-24 max-w-md mx-auto border border-dashed border-border rounded-2xl px-6">
+      <div className="mx-auto h-16 w-16 rounded-full border border-border bg-muted/30 grid place-items-center mb-5">
+        <Sparkles className="w-7 h-7 text-muted-foreground" strokeWidth={1.2} />
+      </div>
+      <p className="text-base font-bold tracking-tight">{title}</p>
+      <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{hint}</p>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Lazy media — IntersectionObserver wrapper
+// ---------------------------------------------------------------------------
+
+function LazyMedia({
+  item, className,
+}: { item: FeedItem; className?: string }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || visible) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            setVisible(true);
+            io.disconnect();
+            break;
+          }
+        }
+      },
+      { rootMargin: "300px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [visible]);
+
+  return (
+    <div ref={ref} className={className ? "" : "w-full h-full"}>
+      {visible ? (
+        item.media_kind === "video" && item.image_url ? (
+          <video
+            src={item.image_url}
+            muted
+            playsInline
+            preload="metadata"
+            className={className ?? "w-full h-auto block"}
+          />
+        ) : item.image_url ? (
+          <img
+            src={item.image_url}
+            alt={item.title}
+            loading="lazy"
+            decoding="async"
+            className={className ?? "w-full h-auto block"}
+          />
+        ) : (
+          <div className="w-full aspect-square grid place-items-center bg-muted">
+            <ImageIcon className="w-8 h-8 text-muted-foreground" />
+          </div>
+        )
+      ) : (
+        <div className={className ?? "w-full aspect-square bg-muted/40 animate-pulse"} />
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Grid + Card
+// ---------------------------------------------------------------------------
 
 function MasonryGrid({ items, onOpen }: { items: FeedItem[]; onOpen: (i: number) => void }) {
   return (
@@ -259,45 +596,35 @@ function FeedCard({ item, index, onOpen }: { item: FeedItem; index: number; onOp
         aria-label={`Open ${item.title}`}
         className="block w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 rounded-t-2xl"
       >
-      <div className="relative w-full overflow-hidden bg-muted">
-        {item.media_kind === "video" && item.image_url ? (
-          <video
-            src={item.image_url}
-            muted
-            playsInline
-            preload="metadata"
+        <div className="relative w-full overflow-hidden bg-muted">
+          <LazyMedia
+            item={item}
             className="w-full h-auto block transition-transform duration-700 ease-out group-hover:scale-[1.04]"
           />
-        ) : item.image_url ? (
-          <img
-            src={item.image_url}
-            alt={item.title}
-            loading="lazy"
-            className="w-full h-auto block transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-          />
-        ) : (
-          <div className="w-full aspect-square grid place-items-center">
-            <ImageIcon className="w-8 h-8 text-muted-foreground" />
-          </div>
-        )}
 
-        {item.media_kind === "video" && (
-          <div className="absolute inset-0 grid place-items-center pointer-events-none">
-            <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-background/80 backdrop-blur border border-primary/40 text-primary shadow-lg">
-              <Play className="w-5 h-5 ml-0.5" />
+          {item.media_kind === "video" && (
+            <div className="absolute inset-0 grid place-items-center pointer-events-none">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-background/80 backdrop-blur border border-primary/40 text-primary shadow-lg">
+                <Play className="w-5 h-5 ml-0.5" />
+              </span>
+            </div>
+          )}
+
+          <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-background/75 backdrop-blur-md border border-primary/30 text-primary z-10">
+            <Folder className="h-3 w-3" strokeWidth={1.6} />
+            <span className="font-mono text-[10px] uppercase tracking-[0.22em] truncate max-w-[140px]">
+              {item.folder_name}
             </span>
           </div>
-        )}
 
-        <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-background/75 backdrop-blur-md border border-primary/30 text-primary z-10">
-          <Folder className="h-3 w-3" strokeWidth={1.6} />
-          <span className="font-mono text-[10px] uppercase tracking-[0.22em] truncate max-w-[140px]">
-            {item.folder_name}
-          </span>
+          {item.featured && (
+            <div className="absolute top-3 right-3 inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-[0.22em] z-10">
+              <Star className="w-3 h-3 fill-current" />
+            </div>
+          )}
+
+          <Watermark text={item.watermark_text ?? null} size="sm" cornerBadge />
         </div>
-
-        <Watermark text={item.watermark_text ?? null} size="sm" cornerBadge />
-      </div>
       </button>
 
       <div className="px-4 py-3 border-t border-border">
@@ -325,13 +652,12 @@ function FeedCard({ item, index, onOpen }: { item: FeedItem; index: number; onOp
   );
 }
 
+// ---------------------------------------------------------------------------
+// Lightbox (unchanged behavior)
+// ---------------------------------------------------------------------------
+
 function Lightbox({
-  item,
-  index,
-  total,
-  onClose,
-  onNext,
-  onPrev,
+  item, index, total, onClose, onNext, onPrev,
 }: {
   item: FeedItem;
   index: number;
@@ -340,7 +666,6 @@ function Lightbox({
   onNext: () => void;
   onPrev: () => void;
 }) {
-  // Touch-swipe support.
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const onTouchStart = (e: React.TouchEvent) => {
     const t = e.touches[0];
@@ -376,7 +701,6 @@ function Lightbox({
       aria-modal="true"
       aria-label={`Viewer: ${item.title}`}
     >
-      {/* Top bar */}
       <div
         className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3 border-b border-white/10 text-white"
         onClick={(e) => e.stopPropagation()}
@@ -385,6 +709,11 @@ function Lightbox({
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] font-mono uppercase tracking-[0.22em]">
             <Folder className="w-3 h-3" /> {item.folder_name}
           </span>
+          {item.featured && (
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-[0.22em]">
+              <Star className="w-3 h-3 fill-current" /> Featured
+            </span>
+          )}
           <span className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/60">
             {index + 1} / {total}
           </span>
@@ -399,12 +728,10 @@ function Lightbox({
         </button>
       </div>
 
-      {/* Media stage */}
       <div
         className="relative flex-1 flex items-center justify-center px-2 sm:px-12 py-4 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Prev */}
         {total > 1 && (
           <button
             type="button"
@@ -456,7 +783,6 @@ function Lightbox({
           </motion.div>
         </AnimatePresence>
 
-        {/* Next */}
         {total > 1 && (
           <button
             type="button"
@@ -469,7 +795,6 @@ function Lightbox({
         )}
       </div>
 
-      {/* Bottom meta + interactions */}
       <div
         className="px-4 sm:px-6 py-4 border-t border-white/10 text-white max-h-[42vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}

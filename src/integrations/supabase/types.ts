@@ -843,9 +843,12 @@ export type Database = {
           created_at: string
           description: string | null
           external_url: string | null
+          featured: boolean
+          feed_caption: string | null
           folder_id: string
           id: string
           image_url: string | null
+          show_in_feed: boolean
           sort_order: number
           tags: Json
           title: string
@@ -857,9 +860,12 @@ export type Database = {
           created_at?: string
           description?: string | null
           external_url?: string | null
+          featured?: boolean
+          feed_caption?: string | null
           folder_id: string
           id?: string
           image_url?: string | null
+          show_in_feed?: boolean
           sort_order?: number
           tags?: Json
           title: string
@@ -871,9 +877,12 @@ export type Database = {
           created_at?: string
           description?: string | null
           external_url?: string | null
+          featured?: boolean
+          feed_caption?: string | null
           folder_id?: string
           id?: string
           image_url?: string | null
+          show_in_feed?: boolean
           sort_order?: number
           tags?: Json
           title?: string

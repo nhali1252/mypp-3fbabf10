@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Trash2, ArrowUp, ArrowDown, Save, FolderOpen, ChevronRight, Image as ImageIcon } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Save, FolderOpen, ChevronRight, Image as ImageIcon, Star, Eye, MessageSquare, Shield } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_admin/admin/portfolio")({ component: AdminPortfolio });
@@ -35,6 +35,10 @@ type Item = {
   tags: string[];
   sort_order: number;
   active: boolean;
+  show_in_feed: boolean;
+  feed_caption: string | null;
+  featured: boolean;
+  watermark_text: string | null;
 };
 
 function slugify(s: string) {
@@ -72,6 +76,10 @@ function AdminPortfolio() {
       return ((data ?? []) as any[]).map((r) => ({
         ...r,
         tags: Array.isArray(r.tags) ? r.tags : [],
+        show_in_feed: r.show_in_feed ?? true,
+        feed_caption: r.feed_caption ?? null,
+        featured: r.featured ?? false,
+        watermark_text: r.watermark_text ?? null,
       })) as Item[];
     },
     enabled: !!activeFolderId,
@@ -152,7 +160,7 @@ function AdminPortfolio() {
   }
 
   // ---- Item CRUD --------------------------------------------------------
-  const [newItem, setNewItem] = useState<Partial<Item>>({ active: true, tags: [] });
+  const [newItem, setNewItem] = useState<Partial<Item>>({ active: true, tags: [], show_in_feed: true, featured: false });
   const [itemEdits, setItemEdits] = useState<Record<string, Partial<Item>>>({});
   const iGet = (it: Item) => ({ ...it, ...(itemEdits[it.id] ?? {}) });
   const iSet = (id: string, patch: Partial<Item>) =>
@@ -170,13 +178,17 @@ function AdminPortfolio() {
         external_url: newItem.external_url ?? null,
         tags: newItem.tags ?? [],
         active: newItem.active ?? true,
+        show_in_feed: newItem.show_in_feed ?? true,
+        feed_caption: newItem.feed_caption ?? null,
+        featured: newItem.featured ?? false,
+        watermark_text: newItem.watermark_text ?? null,
         sort_order: items.length + 1,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Item added");
-      setNewItem({ active: true, tags: [] });
+      setNewItem({ active: true, tags: [], show_in_feed: true, featured: false });
       qc.invalidateQueries({ queryKey: ["admin_portfolio_items", activeFolderId] });
       qc.invalidateQueries({ queryKey: ["public_portfolio_items"] });
     },
@@ -363,9 +375,39 @@ function AdminPortfolio() {
                               <FormRow label="Image"><MediaPicker value={row.image_url ?? undefined} onChange={(u: string | null) => iSet(it.id, { image_url: u })} /></FormRow>
                               <FormRow label="External link (optional)"><Input value={row.external_url ?? ""} onChange={(e) => iSet(it.id, { external_url: e.target.value })} placeholder="https://…" /></FormRow>
                               <FormRow label="Tags"><TagListEditor value={tags} onChange={(v: string[]) => iSet(it.id, { tags: v })} /></FormRow>
-                              <label className="flex items-center gap-2 text-xs font-semibold">
+
+                              <div className="rounded-lg border border-border bg-muted/30 p-3 grid gap-2.5">
+                                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground inline-flex items-center gap-1.5">
+                                  <MessageSquare className="w-3 h-3" /> Feed options
+                                </div>
+                                <label className="flex items-center justify-between gap-3 text-xs font-semibold">
+                                  <span className="inline-flex items-center gap-2"><Eye className="w-3.5 h-3.5 text-muted-foreground" />Show in feed</span>
+                                  <Switch checked={!!row.show_in_feed} onCheckedChange={(v) => iSet(it.id, { show_in_feed: v })} />
+                                </label>
+                                <label className="flex items-center justify-between gap-3 text-xs font-semibold">
+                                  <span className="inline-flex items-center gap-2"><Star className="w-3.5 h-3.5 text-primary" />Featured (pinned strip)</span>
+                                  <Switch checked={!!row.featured} onCheckedChange={(v) => iSet(it.id, { featured: v })} />
+                                </label>
+                                <FormRow label="Feed caption (optional)" hint="Shown only on the feed; falls back to description.">
+                                  <Textarea
+                                    rows={2}
+                                    value={row.feed_caption ?? ""}
+                                    onChange={(e) => iSet(it.id, { feed_caption: e.target.value || null })}
+                                    placeholder="A different caption just for the feed…"
+                                  />
+                                </FormRow>
+                                <FormRow label="Watermark text (optional)" hint="Overrides the site-name diagonal watermark for this item.">
+                                  <Input
+                                    value={row.watermark_text ?? ""}
+                                    onChange={(e) => iSet(it.id, { watermark_text: e.target.value || null })}
+                                    placeholder="© Ali Nur Hasan"
+                                  />
+                                </FormRow>
+                              </div>
+
+                              <label className="flex items-center gap-2 text-xs font-semibold pt-1">
                                 <Switch checked={!!row.active} onCheckedChange={(v) => iSet(it.id, { active: v })} />
-                                Visible
+                                <Shield className="w-3.5 h-3.5 text-muted-foreground" /> Visible on portfolio
                               </label>
                               <div className="flex flex-wrap gap-2 pt-1">
                                 <Button size="sm" onClick={() => saveItem.mutate(it.id)} disabled={!dirty}><Save className="w-3.5 h-3.5 mr-1.5" />Save</Button>
@@ -392,6 +434,25 @@ function AdminPortfolio() {
                   <FormRow label="Image"><MediaPicker value={newItem.image_url ?? undefined} onChange={(u: string | null) => setNewItem({ ...newItem, image_url: u })} /></FormRow>
                   <FormRow label="External link (optional)"><Input value={newItem.external_url ?? ""} onChange={(e) => setNewItem({ ...newItem, external_url: e.target.value })} placeholder="https://…" /></FormRow>
                   <FormRow label="Tags"><TagListEditor value={newItem.tags ?? []} onChange={(v: string[]) => setNewItem({ ...newItem, tags: v })} /></FormRow>
+                  <div className="rounded-lg border border-border bg-muted/30 p-3 grid gap-2.5">
+                    <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground inline-flex items-center gap-1.5">
+                      <MessageSquare className="w-3 h-3" /> Feed options
+                    </div>
+                    <label className="flex items-center justify-between gap-3 text-xs font-semibold">
+                      <span className="inline-flex items-center gap-2"><Eye className="w-3.5 h-3.5 text-muted-foreground" />Show in feed</span>
+                      <Switch checked={newItem.show_in_feed !== false} onCheckedChange={(v) => setNewItem({ ...newItem, show_in_feed: v })} />
+                    </label>
+                    <label className="flex items-center justify-between gap-3 text-xs font-semibold">
+                      <span className="inline-flex items-center gap-2"><Star className="w-3.5 h-3.5 text-primary" />Featured</span>
+                      <Switch checked={!!newItem.featured} onCheckedChange={(v) => setNewItem({ ...newItem, featured: v })} />
+                    </label>
+                    <FormRow label="Feed caption (optional)">
+                      <Textarea rows={2} value={newItem.feed_caption ?? ""} onChange={(e) => setNewItem({ ...newItem, feed_caption: e.target.value || null })} />
+                    </FormRow>
+                    <FormRow label="Watermark text (optional)">
+                      <Input value={newItem.watermark_text ?? ""} onChange={(e) => setNewItem({ ...newItem, watermark_text: e.target.value || null })} placeholder="© Ali Nur Hasan" />
+                    </FormRow>
+                  </div>
                   <Button onClick={() => createItem.mutate()} disabled={createItem.isPending}>
                     <Plus className="w-4 h-4 mr-1.5" /> Add to “{activeFolder.name}”
                   </Button>

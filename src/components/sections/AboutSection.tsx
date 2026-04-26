@@ -3,9 +3,10 @@ import { SectionHeader } from "../SectionHeader";
 import { Reveal, Stagger, StaggerItem } from "../motion/Reveal";
 import { SocialIcons, type SocialMap } from "../SocialIcons";
 import { motion, useReducedMotion } from "framer-motion";
+import { SectionSkeleton, SectionError } from "./SectionState";
 
 export function AboutSection() {
-  const { data: about } = useAbout();
+  const { data: about, isLoading, isError, error, refetch } = useAbout();
   const { data: contact } = useContactSettings();
   const { data: settings } = useSiteSettings();
   const reduce = useReducedMotion();
@@ -13,6 +14,30 @@ export function AboutSection() {
   const stats = (about?.stats as { label: string; value: string }[]) ?? [];
   const social = (contact?.social_links as SocialMap | undefined) ?? {};
   const homeUrl = "/";
+
+  if (isLoading) {
+    return (
+      <section id="about" className="pt-24">
+        <SectionHeader label="About me" title="Loading…" />
+        <SectionSkeleton count={2} cols={2} label="Loading about…" />
+      </section>
+    );
+  }
+
+  if (isError) {
+    return (
+      <section id="about" className="pt-24">
+        <SectionHeader label="About me" title="Couldn't load profile." />
+        <SectionError
+          title="About content is unavailable"
+          hint="The profile, skills and stats live in storage and couldn't be fetched. Education and Activities below come from the same file and will also retry together."
+          error={error}
+          onRetry={() => refetch()}
+        />
+      </section>
+    );
+  }
+
 
   return (
     <section id="about" className="pt-24">

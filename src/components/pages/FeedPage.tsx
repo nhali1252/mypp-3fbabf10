@@ -298,6 +298,7 @@ function FeedCard({ item, index, onOpen }: { item: FeedItem; index: number; onOp
 
         <Watermark text={item.watermark_text ?? null} size="sm" cornerBadge />
       </div>
+      </button>
 
       <div className="px-4 py-3 border-t border-border">
         <h3 className="text-sm font-bold tracking-tight truncate">{item.title}</h3>

@@ -90,6 +90,7 @@ function AdminSettings() {
         welcome_animation_ms: welcomeMs,
         default_motion_pref: motionPref,
         section_visibility: sectionVisibility,
+        reactions_enabled: form.reactions_enabled !== false,
         page_key: pageKey,
       };
       if (data?.id) {

@@ -139,6 +139,12 @@ export function FeedPage() {
   const totalAll = firstPage?.total ?? 0;
   const filteredTotal = firstPage?.filteredTotal ?? 0;
   const canLoadMore = !!sliceQuery.hasNextPage;
+  // Showing stale items while a new filter combination is being fetched.
+  // Used to fade the grid + overlay a skeleton without unmounting it (which
+  // would cause the visible flicker we're trying to avoid).
+  const isRefetchingForFilters =
+    filtersPending ||
+    (sliceQuery.isFetching && !sliceQuery.isFetchingNextPage && visibleItems.length > 0);
 
   // Featured strip — fetch a small dedicated slice once, independent of filters.
   const featuredQuery = useQuery({

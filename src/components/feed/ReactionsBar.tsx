@@ -6,6 +6,7 @@ import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { listReactions, listMyReactions, toggleReaction } from "@/server/feed-social.functions";
 import { toast } from "sonner";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const REACTIONS = [
   { key: "like", label: "Like", Icon: ThumbsUp, color: "text-sky-400" },
@@ -25,7 +26,8 @@ export function ReactionsBar({
 }) {
   const qc = useQueryClient();
   const { user } = useAuth();
-
+  const site = useSiteSettings("B");
+  const reactionsEnabled = site.reactions_enabled !== false;
   const countsQ = useQuery({
     queryKey: ["feed_reactions", itemId],
     queryFn: () => listReactions({ data: { item_id: itemId } }),
@@ -111,6 +113,8 @@ export function ReactionsBar({
     variant === "dark"
       ? "bg-white/10 border-white/15 hover:bg-white/20 text-white"
       : "bg-card border-border hover:bg-muted text-foreground";
+
+  if (!reactionsEnabled) return null;
 
   return (
     <div className="flex items-center gap-1.5 flex-wrap">

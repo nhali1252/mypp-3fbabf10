@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, Folder, FolderOpen, X, ExternalLink, Sparkles, Image as ImageIcon } from "lucide-react";
 import { useR2Content } from "@/hooks/useR2Content";
 import { Footer } from "@/components/Footer";
+import { Watermark } from "@/components/feed/Watermark";
 
 type PortfolioDoc = (PFolder & { items: PItem[] })[];
 
@@ -25,6 +26,8 @@ type PItem = {
   external_url: string | null;
   tags: string[];
   sort_order: number;
+  watermark_text?: string | null;
+  featured?: boolean;
 };
 
 export function PortfolioPage() {
@@ -358,6 +361,9 @@ function FolderViewer({
                         <ImageIcon className="w-8 h-8 text-muted-foreground" />
                       </div>
                     )}
+                    {it.image_url && (
+                      <Watermark text={it.watermark_text ?? null} size="sm" cornerBadge />
+                    )}
                   </div>
                   <div className="p-3">
                     <h4 className="text-sm font-bold tracking-tight truncate">{it.title}</h4>
@@ -407,8 +413,9 @@ function ItemPreview({ item, onClose }: { item: PItem; onClose: () => void }) {
         </div>
         <div className="p-5 sm:p-6 max-h-[72vh] overflow-y-auto space-y-5">
           {item.image_url && (
-            <div className="rounded-xl overflow-hidden border border-border">
+            <div className="relative rounded-xl overflow-hidden border border-border">
               <img src={item.image_url} alt={item.title} className="w-full h-auto" />
+              <Watermark text={item.watermark_text ?? null} size="md" cornerBadge />
             </div>
           )}
           {item.description && (

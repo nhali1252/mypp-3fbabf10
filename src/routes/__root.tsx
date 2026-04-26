@@ -7,6 +7,7 @@ import { PageLoader } from "@/components/PageLoader";
 import { RouteTransition } from "@/components/RouteTransition";
 import { SiteHead } from "@/components/SiteHead";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { StaleBuildBanner } from "@/components/dev/StaleBuildBanner";
 
 import appCss from "../styles.css?url";
 
@@ -104,6 +105,7 @@ function RootComponent() {
           <PageLoader />
           <RouteTransition />
           <Toaster richColors position="top-right" />
+          <StaleBuildBanner />
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

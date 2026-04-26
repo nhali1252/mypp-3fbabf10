@@ -14,14 +14,13 @@ import { Footer } from "@/components/Footer";
 export const Route = createFileRoute("/")({
   component: Launcher,
   // SSR-prefetch the R2 launcher doc so the first paint already has the
-  // correct cards — no flash of fallback content on hydration.
+  // correct cards — no flash of fallback content on hydration. The raw R2
+  // payload is validated client + server side via `safeParseLauncherDoc`,
+  // so we just pass through the raw value here.
   loader: async () => {
     try {
       const res = await getContent({ data: { key: "launcher" } });
-      return { launcherDoc: (res?.data ?? null) as {
-        hero: LauncherHero | null;
-        pages: LauncherCard[];
-      } | null };
+      return { launcherDoc: (res?.data ?? null) as unknown };
     } catch {
       return { launcherDoc: null };
     }

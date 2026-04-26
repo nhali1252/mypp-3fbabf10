@@ -2,6 +2,7 @@ import { Link, Outlet, useNavigate, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useR2AutoResync } from "@/hooks/useR2AutoResync";
+import R2SyncAlert from "@/components/admin/R2SyncAlert";
 import {
   LayoutDashboard, Sparkles, User, GraduationCap, Lightbulb, FolderKanban,
   Activity, Megaphone, PhoneCall, Inbox, Image as ImageIcon,
@@ -178,6 +179,7 @@ export default function AdminLayout() {
       )}
 
       <main className="flex-1 p-4 sm:p-6 md:p-10 overflow-x-auto pt-[72px] lg:pt-6">
+        <R2SyncAlert sync={sync} />
         <Outlet />
       </main>
     </div>

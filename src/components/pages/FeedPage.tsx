@@ -309,13 +309,38 @@ export function FeedPage() {
               hint={`Add items inside any portfolio folder and they'll appear here automatically.`}
             />
           ) : filteredTotal === 0 ? (
-            <EmptyState
-              title="No matches for this filter"
-              hint="Try changing the folder, media-type, or featured filter above."
-            />
+            isRefetchingForFilters ? (
+              <FeedSkeleton />
+            ) : (
+              <EmptyState
+                title="No matches for this filter"
+                hint="Try changing the folder, media-type, or featured filter above."
+              />
+            )
           ) : (
             <>
-              <MasonryGrid items={visibleItems} onOpen={open} />
+              <div className="relative">
+                <div
+                  className={
+                    isRefetchingForFilters
+                      ? "transition-opacity duration-200 opacity-40 pointer-events-none"
+                      : "transition-opacity duration-200 opacity-100"
+                  }
+                  aria-busy={isRefetchingForFilters}
+                >
+                  <MasonryGrid items={visibleItems} onOpen={open} />
+                </div>
+                {isRefetchingForFilters && (
+                  <div
+                    className="pointer-events-none absolute inset-0 flex items-start justify-center pt-8"
+                    aria-hidden="true"
+                  >
+                    <div className="rounded-full border border-border bg-card/90 backdrop-blur px-4 py-2 text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground shadow-sm">
+                      Updating…
+                    </div>
+                  </div>
+                )}
+              </div>
               {nextPageErrorMessage ? (
                 <div className="flex flex-col items-center gap-3 mt-10">
                   <p className="text-xs text-destructive font-medium text-center max-w-sm">

@@ -78,7 +78,7 @@ export function ReviewsPage() {
       setSubmitted(true);
       setName(""); setRole(""); setText(""); setRating(5);
       toast.success("Thanks! Your review is awaiting approval.");
-      qc.invalidateQueries({ queryKey: ["public_reviews"] });
+      qc.invalidateQueries({ queryKey: ["r2-content", "reviews"] });
     },
     onError: (e: any) => toast.error(e.message ?? "Could not send"),
   });

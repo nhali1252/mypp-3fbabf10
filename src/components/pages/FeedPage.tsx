@@ -97,6 +97,14 @@ export function FeedPage() {
 
   const isLoading = sliceQuery.isLoading;
   const isError = sliceQuery.isError;
+  const nextPageErrorMessage: string | null =
+    sliceQuery.isFetchNextPageError && sliceQuery.error instanceof Error
+      ? sliceQuery.error.message
+      : sliceQuery.isFetchNextPageError
+        ? "Unknown error"
+        : null;
+  const initialErrorMessage: string | undefined =
+    sliceQuery.error instanceof Error ? sliceQuery.error.message : undefined;
   const visibleItems: FeedItem[] = useMemo(
     () => (sliceQuery.data?.pages ?? []).flatMap((p) => p.items),
     [sliceQuery.data],

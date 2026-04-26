@@ -18,10 +18,26 @@ export const Route = createFileRoute("/")({
   // payload is validated client + server side via `safeParseLauncherDoc`,
   // so we just pass through the raw value here.
   loader: async () => {
+    const startedAt = Date.now();
     try {
       const res = await getContent({ data: { key: "launcher" } });
-      return { launcherDoc: (res?.data ?? null) as unknown };
-    } catch {
+      const ms = Date.now() - startedAt;
+      const raw = res?.data ?? null;
+      if (raw == null) {
+        // Visible in both server (SSR) and client (hydration) consoles.
+        console.warn(
+          `[launcher.loader] R2 returned empty launcher doc — homepage will use fallback cards (${ms}ms)`,
+        );
+      } else {
+        console.info(`[launcher.loader] ok (${ms}ms)`);
+      }
+      return { launcherDoc: raw as unknown };
+    } catch (err) {
+      const ms = Date.now() - startedAt;
+      console.error(
+        `[launcher.loader] FAILED to fetch R2 launcher doc — homepage will use fallback cards (${ms}ms):`,
+        err instanceof Error ? `${err.name}: ${err.message}` : err,
+      );
       return { launcherDoc: null };
     }
   },

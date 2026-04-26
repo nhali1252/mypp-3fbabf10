@@ -90,11 +90,23 @@ function AdminPortfolio() {
   const items = itemsQ.data ?? [];
 
   // ---- Folder CRUD ------------------------------------------------------
-  const [newFolder, setNewFolder] = useState<Partial<Folder>>({ active: true });
+  const [newFolder, setNewFolder] = useState<Partial<Folder>>({ active: true, parent_id: null });
   const [folderEdits, setFolderEdits] = useState<Record<string, Partial<Folder>>>({});
   const fGet = (f: Folder) => ({ ...f, ...(folderEdits[f.id] ?? {}) });
   const fSet = (id: string, patch: Partial<Folder>) =>
     setFolderEdits((e) => ({ ...e, [id]: { ...(e[id] ?? {}), ...patch } }));
+
+  // Group folders by parent for tree rendering
+  const childrenByParent = useMemo(() => {
+    const map = new Map<string | null, Folder[]>();
+    for (const f of folders) {
+      const k = f.parent_id ?? null;
+      const arr = map.get(k) ?? [];
+      arr.push(f);
+      map.set(k, arr);
+    }
+    return map;
+  }, [folders]);
 
   const createFolder = useMutation({
     mutationFn: async () => {
@@ -106,13 +118,14 @@ function AdminPortfolio() {
         description: newFolder.description ?? null,
         cover_url: newFolder.cover_url ?? null,
         active: newFolder.active ?? true,
+        parent_id: newFolder.parent_id ?? null,
         sort_order: folders.length + 1,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Folder created");
-      setNewFolder({ active: true });
+      setNewFolder({ active: true, parent_id: null });
       qc.invalidateQueries({ queryKey: ["admin_portfolio_folders"] });
       qc.invalidateQueries({ queryKey: ["public_portfolio_folders"] });
     },

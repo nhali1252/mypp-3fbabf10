@@ -175,6 +175,66 @@ function AdminSettings() {
         </div>
       </AdminCard>
 
+      <AdminCard title="Homepage behavior">
+        <div className="grid gap-4">
+          <FormRow
+            label="Welcome animation duration (ms)"
+            hint="How long the hero entrance fade/slide plays. 0 disables it. Range 0–5000."
+          >
+            <Input
+              type="number"
+              min={0}
+              max={5000}
+              step={50}
+              value={form.welcome_animation_ms ?? 600}
+              onChange={(e) => set("welcome_animation_ms", Number(e.target.value))}
+            />
+          </FormRow>
+          <FormRow
+            label="Default motion preference"
+            hint="What new visitors see before they choose. Users can still override via the Motion toggle."
+          >
+            <select
+              value={form.default_motion_pref ?? "auto"}
+              onChange={(e) => set("default_motion_pref", e.target.value)}
+              className="w-full h-10 rounded-md border border-border bg-background px-3 text-sm"
+            >
+              <option value="auto">Auto (follow OS)</option>
+              <option value="on">On (always animate)</option>
+              <option value="off">Off (reduce motion)</option>
+            </select>
+          </FormRow>
+          <FormRow
+            label="Homepage section visibility"
+            hint="Toggle which sections render on the public site. Off = hidden for everyone."
+          >
+            <div className="grid sm:grid-cols-2 gap-2">
+              {HOMEPAGE_SECTION_KEYS.map((s) => {
+                const map =
+                  form.section_visibility && typeof form.section_visibility === "object"
+                    ? form.section_visibility
+                    : {};
+                const visible = map[s.key] !== false;
+                return (
+                  <label
+                    key={s.key}
+                    className="flex items-center justify-between gap-3 rounded-md border border-border bg-card/40 px-3 py-2 text-sm"
+                  >
+                    <span>{s.label}</span>
+                    <Switch
+                      checked={visible}
+                      onCheckedChange={(v) =>
+                        set("section_visibility", { ...map, [s.key]: v })
+                      }
+                    />
+                  </label>
+                );
+              })}
+            </div>
+          </FormRow>
+        </div>
+      </AdminCard>
+
       <AdminCard title="Services hero (used on /services page)">
         <div className="grid gap-4">
           <FormRow label="Hero title"><Input value={form.hero_title || ""} onChange={(e) => set("hero_title", e.target.value)} placeholder="Premium Taxi & Service Bookings" /></FormRow>

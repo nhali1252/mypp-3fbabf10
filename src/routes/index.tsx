@@ -179,6 +179,75 @@ const HERO_FALLBACK: LauncherHero = {
     "A curated launcher for Ali Nur Hasan's portfolio. Each card opens an independent page — managed and editable from the admin panel.",
 };
 
+// ---- Runtime validation ----------------------------------------------------
+// The R2 launcher document is user-editable JSON, so it can drift, be missing
+// fields, contain stale shapes, or be outright malformed. We validate it with
+// Zod and fall back to a safe empty document `{ hero: null, pages: [] }` when
+// validation fails. The downstream `deriveLauncherCards` + `HERO_FALLBACK`
+// already handle empty input gracefully.
+
+const launcherCardSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  title: z.string(),
+  subtitle: z.string().nullable().optional().transform((v) => v ?? null),
+  description: z.string().nullable().optional().transform((v) => v ?? null),
+  badge: z.string().nullable().optional().transform((v) => v ?? null),
+  route: z.string().min(1),
+  accent: z.string().nullable().optional().transform((v) => v ?? null),
+  thumbnail_url: z.string().nullable().optional().transform((v) => v ?? null),
+  sort_order: z.number().default(0),
+  active: z.boolean().default(true),
+});
+
+const launcherHeroSchema = z.object({
+  eyebrow: z.string(),
+  headline_top: z.string(),
+  headline_bottom: z.string(),
+  intro: z.string(),
+});
+
+const launcherDocSchema = z.object({
+  hero: launcherHeroSchema.nullable().optional().transform((v) => v ?? null),
+  pages: z.array(launcherCardSchema).default([]),
+});
+
+export type LauncherDoc = { hero: LauncherHero | null; pages: LauncherCard[] };
+
+const EMPTY_LAUNCHER_DOC: LauncherDoc = { hero: null, pages: [] };
+
+/**
+ * Validate an unknown R2 payload against the launcher document schema.
+ * Returns a safe empty doc if the input is null/malformed. Bad individual
+ * cards are dropped rather than poisoning the whole document.
+ */
+export function safeParseLauncherDoc(input: unknown): LauncherDoc {
+  if (input == null) return EMPTY_LAUNCHER_DOC;
+  const parsed = launcherDocSchema.safeParse(input);
+  if (parsed.success) return parsed.data as LauncherDoc;
+
+  // Soft-recover: salvage individual valid cards so one bad row doesn't
+  // blank the homepage.
+  if (typeof input === "object" && input !== null) {
+    const maybe = input as { hero?: unknown; pages?: unknown };
+    const hero = launcherHeroSchema.safeParse(maybe.hero);
+    const rawPages = Array.isArray(maybe.pages) ? maybe.pages : [];
+    const pages: LauncherCard[] = [];
+    for (const row of rawPages) {
+      const r = launcherCardSchema.safeParse(row);
+      if (r.success) pages.push(r.data as LauncherCard);
+    }
+    if (pages.length || hero.success) {
+      return { hero: hero.success ? (hero.data as LauncherHero) : null, pages };
+    }
+  }
+
+  if (typeof console !== "undefined") {
+    console.warn("[launcher] R2 document failed validation, using empty fallback", parsed.error?.issues);
+  }
+  return EMPTY_LAUNCHER_DOC;
+}
+
 /**
  * Deterministically derive the launcher card list:
  *  1. Start from the saved cards (or fallback if empty).

@@ -179,6 +179,7 @@ export default function AdminLayout() {
       )}
 
       <main className="flex-1 p-4 sm:p-6 md:p-10 overflow-x-auto pt-[72px] lg:pt-6">
+        <R2SyncAlert sync={sync} />
         <Outlet />
       </main>
     </div>

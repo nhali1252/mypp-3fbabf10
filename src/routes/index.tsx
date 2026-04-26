@@ -462,3 +462,46 @@ function Launcher() {
     </div>
   );
 }
+
+/**
+ * Lightweight skeleton card shown while the R2 launcher document is being
+ * fetched. Mirrors the real card's geometry (rounded border, badge row,
+ * heading, body, CTA bar) so the layout doesn't shift when real cards land.
+ */
+function LauncherSkeleton({ index, reduceMotion }: { index: number; reduceMotion: boolean }) {
+  const pulse = reduceMotion ? "" : "animate-pulse";
+  return (
+    <div
+      aria-hidden
+      className="relative rounded-[26px] border border-border bg-card p-7 md:p-8 overflow-hidden h-full"
+      style={{
+        opacity: 0,
+        animation: reduceMotion
+          ? "none"
+          : `launcher-skel-in 600ms ${0.05 + index * 0.06}s cubic-bezier(0.22,1,0.36,1) forwards`,
+      }}
+    >
+      <div
+        className="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl bg-gradient-to-br from-primary/15 to-primary/0"
+      />
+      <div className="relative flex flex-col h-full min-h-[260px]">
+        <div className="flex items-center justify-between mb-7">
+          <div className={`h-3 w-20 rounded-full bg-muted ${pulse}`} />
+          <div className={`h-5 w-14 rounded-full bg-muted ${pulse}`} />
+        </div>
+        <div className={`h-7 w-3/4 rounded-md bg-muted mb-3 ${pulse}`} />
+        <div className={`h-3 w-1/2 rounded-full bg-muted/80 mb-5 ${pulse}`} />
+        <div className="space-y-2 flex-1">
+          <div className={`h-3 w-full rounded-full bg-muted/70 ${pulse}`} />
+          <div className={`h-3 w-11/12 rounded-full bg-muted/70 ${pulse}`} />
+          <div className={`h-3 w-2/3 rounded-full bg-muted/70 ${pulse}`} />
+        </div>
+        <div className="mt-auto pt-5 border-t border-border/60 flex items-center justify-between">
+          <div className={`h-3 w-24 rounded-full bg-muted ${pulse}`} />
+          <div className={`h-4 w-4 rounded-full bg-muted ${pulse}`} />
+        </div>
+      </div>
+      <style>{`@keyframes launcher-skel-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+    </div>
+  );
+}

@@ -315,8 +315,26 @@ export function MediaPicker({
  * Thumbnail with skeleton + graceful error fallback. Never renders a broken
  * image icon — replaces with a "image unavailable" pill instead.
  */
+function resolveImageSrc(url: string, useProxy: boolean): string {
+  if (!url) return url;
+  if (url.startsWith("data:") || url.startsWith("blob:")) return url;
+  // Same-origin URLs don't need proxying
+  try {
+    const u = new URL(url, typeof window !== "undefined" ? window.location.href : "http://localhost");
+    if (typeof window !== "undefined" && u.origin === window.location.origin) return url;
+    if (!useProxy) return url;
+    return `/api/public/media/?url=${encodeURIComponent(url)}`;
+  } catch {
+    return url;
+  }
+}
+
 function Thumbnail({ url, alt, className }: { url: string; alt: string; className?: string }) {
   const [state, setState] = useState<"loading" | "ok" | "error">("loading");
+  // First try via server-side R2 proxy (bypasses Cloudflare hotlink challenges
+  // on the public R2 domain). If that fails, fall back to the direct URL.
+  const [useProxy, setUseProxy] = useState(true);
+  const src = resolveImageSrc(url, useProxy);
   return (
     <div className={`relative overflow-hidden bg-muted ${className ?? "w-full h-full"}`}>
       {state === "loading" && <div className="absolute inset-0 skeleton-shimmer" />}
@@ -326,12 +344,21 @@ function Thumbnail({ url, alt, className }: { url: string; alt: string; classNam
         </div>
       ) : (
         <img
-          src={url}
+          key={src}
+          src={src}
           alt={alt}
           loading="lazy"
           decoding="async"
           onLoad={() => setState("ok")}
-          onError={() => setState("error")}
+          onError={() => {
+            if (useProxy) {
+              // Retry without proxy (e.g. external non-R2 image)
+              setUseProxy(false);
+              setState("loading");
+            } else {
+              setState("error");
+            }
+          }}
           className={`w-full h-full object-cover transition-opacity duration-300 ${state === "ok" ? "opacity-100" : "opacity-0"}`}
         />
       )}

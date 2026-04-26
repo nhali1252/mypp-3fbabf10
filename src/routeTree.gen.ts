@@ -49,6 +49,7 @@ import { Route as AdminAdminChecklistRouteImport } from './routes/_admin.admin.c
 import { Route as AdminAdminAuditRouteImport } from './routes/_admin.admin.audit'
 import { Route as AdminAdminActivitiesRouteImport } from './routes/_admin.admin.activities'
 import { Route as AdminAdminAboutRouteImport } from './routes/_admin.admin.about'
+import { Route as ApiPublicMediaSplatRouteImport } from './routes/api.public.media.$'
 import { Route as AdminAdminPageSlugRouteImport } from './routes/_admin.admin.page.$slug'
 
 const ServicesRoute = ServicesRouteImport.update({
@@ -250,6 +251,11 @@ const AdminAdminAboutRoute = AdminAdminAboutRouteImport.update({
   path: '/admin/about',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiPublicMediaSplatRoute = ApiPublicMediaSplatRouteImport.update({
+  id: '/api/public/media/$',
+  path: '/api/public/media/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminAdminPageSlugRoute = AdminAdminPageSlugRouteImport.update({
   id: '/admin/page/$slug',
   path: '/admin/page/$slug',
@@ -297,6 +303,7 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AdminAdminUsersRoute
   '/admin/': typeof AdminAdminIndexRoute
   '/admin/page/$slug': typeof AdminAdminPageSlugRoute
+  '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -339,6 +346,7 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AdminAdminUsersRoute
   '/admin': typeof AdminAdminIndexRoute
   '/admin/page/$slug': typeof AdminAdminPageSlugRoute
+  '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -383,6 +391,7 @@ export interface FileRoutesById {
   '/_admin/admin/users': typeof AdminAdminUsersRoute
   '/_admin/admin/': typeof AdminAdminIndexRoute
   '/_admin/admin/page/$slug': typeof AdminAdminPageSlugRoute
+  '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -427,6 +436,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/admin/'
     | '/admin/page/$slug'
+    | '/api/public/media/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -469,6 +479,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/admin'
     | '/admin/page/$slug'
+    | '/api/public/media/$'
   id:
     | '__root__'
     | '/'
@@ -512,6 +523,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/users'
     | '/_admin/admin/'
     | '/_admin/admin/page/$slug'
+    | '/api/public/media/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -526,6 +538,7 @@ export interface RootRouteChildren {
   ProjectsRoute: typeof ProjectsRoute
   ReviewsRoute: typeof ReviewsRoute
   ServicesRoute: typeof ServicesRoute
+  ApiPublicMediaSplatRoute: typeof ApiPublicMediaSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -810,6 +823,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminAboutRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/public/media/$': {
+      id: '/api/public/media/$'
+      path: '/api/public/media/$'
+      fullPath: '/api/public/media/$'
+      preLoaderRoute: typeof ApiPublicMediaSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_admin/admin/page/$slug': {
       id: '/_admin/admin/page/$slug'
       path: '/admin/page/$slug'
@@ -900,6 +920,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsRoute: ProjectsRoute,
   ReviewsRoute: ReviewsRoute,
   ServicesRoute: ServicesRoute,
+  ApiPublicMediaSplatRoute: ApiPublicMediaSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -67,23 +67,48 @@ function formatDate(iso: string | null): string {
 // Page
 // ---------------------------------------------------------------------------
 
+// Debounce a value so rapid filter toggles don't fire a network request per click.
+function useDebouncedValue<T>(value: T, delayMs: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(t);
+  }, [value, delayMs]);
+  return debounced;
+}
+
+const FILTER_DEBOUNCE_MS = 180;
+
 export function FeedPage() {
-  // Filters
+  // Filters (instant — drives the UI). Debounced copies drive the network.
   const [folderFilter, setFolderFilter] = useState<string>("all"); // folder slug
   const [mediaFilter, setMediaFilter] = useState<MediaFilter>("all");
   const [featuredOnly, setFeaturedOnly] = useState<boolean>(false);
   const [sort, setSort] = useState<"newest" | "featured-first">("newest");
 
+  const dFolder = useDebouncedValue(folderFilter, FILTER_DEBOUNCE_MS);
+  const dMedia = useDebouncedValue(mediaFilter, FILTER_DEBOUNCE_MS);
+  const dFeatured = useDebouncedValue(featuredOnly, FILTER_DEBOUNCE_MS);
+  const dSort = useDebouncedValue(sort, FILTER_DEBOUNCE_MS);
+
+  // True while the user has changed a filter but the debounced value hasn't
+  // caught up yet — used to surface the skeleton overlay immediately.
+  const filtersPending =
+    dFolder !== folderFilter ||
+    dMedia !== mediaFilter ||
+    dFeatured !== featuredOnly ||
+    dSort !== sort;
+
   // Server-paginated feed slice. Each "Load more" fetches only the next page.
   const sliceQuery = useInfiniteQuery({
-    queryKey: ["feed-slice", { folder: folderFilter, media: mediaFilter, featured: featuredOnly, sort }],
+    queryKey: ["feed-slice", { folder: dFolder, media: dMedia, featured: dFeatured, sort: dSort }],
     queryFn: async ({ pageParam = 0 }) => {
       return await getFeedSlice({
         data: {
-          folder: folderFilter === "all" ? undefined : folderFilter,
-          media: mediaFilter,
-          featured: featuredOnly,
-          sort,
+          folder: dFolder === "all" ? undefined : dFolder,
+          media: dMedia,
+          featured: dFeatured,
+          sort: dSort,
           offset: pageParam,
           limit: PAGE_SIZE,
         },
@@ -114,6 +139,12 @@ export function FeedPage() {
   const totalAll = firstPage?.total ?? 0;
   const filteredTotal = firstPage?.filteredTotal ?? 0;
   const canLoadMore = !!sliceQuery.hasNextPage;
+  // Showing stale items while a new filter combination is being fetched.
+  // Used to fade the grid + overlay a skeleton without unmounting it (which
+  // would cause the visible flicker we're trying to avoid).
+  const isRefetchingForFilters =
+    filtersPending ||
+    (sliceQuery.isFetching && !sliceQuery.isFetchingNextPage && visibleItems.length > 0);
 
   // Featured strip — fetch a small dedicated slice once, independent of filters.
   const featuredQuery = useQuery({
@@ -278,13 +309,38 @@ export function FeedPage() {
               hint={`Add items inside any portfolio folder and they'll appear here automatically.`}
             />
           ) : filteredTotal === 0 ? (
-            <EmptyState
-              title="No matches for this filter"
-              hint="Try changing the folder, media-type, or featured filter above."
-            />
+            isRefetchingForFilters ? (
+              <FeedSkeleton />
+            ) : (
+              <EmptyState
+                title="No matches for this filter"
+                hint="Try changing the folder, media-type, or featured filter above."
+              />
+            )
           ) : (
             <>
-              <MasonryGrid items={visibleItems} onOpen={open} />
+              <div className="relative">
+                <div
+                  className={
+                    isRefetchingForFilters
+                      ? "transition-opacity duration-200 opacity-40 pointer-events-none"
+                      : "transition-opacity duration-200 opacity-100"
+                  }
+                  aria-busy={isRefetchingForFilters}
+                >
+                  <MasonryGrid items={visibleItems} onOpen={open} />
+                </div>
+                {isRefetchingForFilters && (
+                  <div
+                    className="pointer-events-none absolute inset-0 flex items-start justify-center pt-8"
+                    aria-hidden="true"
+                  >
+                    <div className="rounded-full border border-border bg-card/90 backdrop-blur px-4 py-2 text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground shadow-sm">
+                      Updating…
+                    </div>
+                  </div>
+                )}
+              </div>
               {nextPageErrorMessage ? (
                 <div className="flex flex-col items-center gap-3 mt-10">
                   <p className="text-xs text-destructive font-medium text-center max-w-sm">

@@ -705,7 +705,9 @@ function MasonryGrid({ items, onOpen }: { items: FeedItem[]; onOpen: (i: number)
   );
 }
 
-function FeedCard({ item, index, onOpen }: { item: FeedItem; index: number; onOpen: () => void }) {
+function FeedCard({
+  item, index, onOpen, eager = false,
+}: { item: FeedItem; index: number; onOpen: () => void; eager?: boolean }) {
   const caption = item.feed_caption ?? item.description ?? "";
   return (
     <motion.div
@@ -714,7 +716,7 @@ function FeedCard({ item, index, onOpen }: { item: FeedItem; index: number; onOp
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.45, delay: Math.min(index, 12) * 0.03, ease: [0.22, 1, 0.36, 1] }}
       whileHover={{ y: -4 }}
-      className="group mb-4 break-inside-avoid overflow-hidden rounded-2xl border border-border hover:border-primary/45 bg-card transition-colors duration-500"
+      className="group overflow-hidden rounded-2xl border border-border hover:border-primary/45 bg-card transition-colors duration-500"
     >
       <button
         type="button"
@@ -725,6 +727,7 @@ function FeedCard({ item, index, onOpen }: { item: FeedItem; index: number; onOp
         <div className="relative w-full overflow-hidden bg-muted">
           <LazyMedia
             item={item}
+            eager={eager}
             className="w-full h-auto block transition-transform duration-700 ease-out group-hover:scale-[1.04]"
           />
 

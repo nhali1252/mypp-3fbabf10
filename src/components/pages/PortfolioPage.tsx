@@ -28,7 +28,8 @@ type PItem = {
 };
 
 export function PortfolioPage() {
-  const { data: portfolioDoc, isLoading: foldersLoading } = useR2Content<PortfolioDoc>("portfolio");
+  // Short staleTime so admin uploads appear without a hard refresh.
+  const { data: portfolioDoc, isLoading: foldersLoading } = useR2Content<PortfolioDoc>("portfolio", { staleTime: 5_000 });
   const folders: PFolder[] = (portfolioDoc ?? []).map(({ items: _items, ...f }) => f);
 
   const [openFolder, setOpenFolder] = useState<PFolder | null>(null);

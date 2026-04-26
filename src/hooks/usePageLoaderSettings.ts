@@ -1,5 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useR2Content } from "./useR2Content";
 
 export type PageLoaderRouteEntry = { label?: string; tagline?: string };
 export type PageLoaderRoutesMap = Record<string, PageLoaderRouteEntry>;
@@ -34,24 +33,17 @@ export const PAGE_LOADER_DEFAULTS: PageLoaderSettings = {
 };
 
 export function usePageLoaderSettings() {
-  return useQuery({
-    queryKey: ["page_loader_settings"],
-    queryFn: async (): Promise<PageLoaderSettings> => {
-      const { data, error } = await supabase
-        .from("page_loader_settings")
-        .select("*")
-        .maybeSingle();
-      if (error) throw error;
-      if (!data) return PAGE_LOADER_DEFAULTS;
-      return {
-        id: data.id,
+  const q = useR2Content<any>("chrome");
+  const data = q.data?.pageLoader;
+  const merged: PageLoaderSettings = data
+    ? {
+        id: data.id ?? "",
         initial_ms: data.initial_ms ?? PAGE_LOADER_DEFAULTS.initial_ms,
         route_ms: data.route_ms ?? PAGE_LOADER_DEFAULTS.route_ms,
         default_label: data.default_label ?? "",
         default_tagline: data.default_tagline ?? "",
         routes: (data.routes as PageLoaderRoutesMap) ?? {},
-      };
-    },
-    staleTime: 60_000,
-  });
+      }
+    : PAGE_LOADER_DEFAULTS;
+  return { ...q, data: merged } as Omit<typeof q, "data"> & { data: PageLoaderSettings };
 }

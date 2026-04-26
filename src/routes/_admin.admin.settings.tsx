@@ -10,6 +10,16 @@ import { AdminPage, AdminCard, FormRow } from "@/components/admin/AdminPage";
 import { MediaPicker } from "@/components/admin/MediaPicker";
 import { PageKeySelector, usePageKey } from "@/components/admin/PageKeySelector";
 import { Save, Trash2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+
+const HOMEPAGE_SECTION_KEYS: { key: string; label: string; hint?: string }[] = [
+  { key: "hero", label: "Hero / launcher headline" },
+  { key: "launcher_cards", label: "Launcher cards grid" },
+  { key: "about", label: "About section (Basic page)" },
+  { key: "skills", label: "Skills section (About page)" },
+  { key: "reviews", label: "Reviews / testimonials block" },
+  { key: "footer_cta", label: "Footer CTA block" },
+];
 
 function isValidImageUrl(v: string): boolean {
   if (!v) return false;

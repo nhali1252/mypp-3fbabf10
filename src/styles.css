@@ -233,6 +233,26 @@
   .bg-gradient-gold { background-image: var(--gradient-gold); }
   .font-serif-display { font-family: 'Cormorant Garamond', serif; }
 
+  /* ── 3D hero text ──────────────────────────────────────────────── */
+  .text-3d {
+    text-shadow:
+      0 1px 0 color-mix(in oklab, var(--foreground) 18%, transparent),
+      0 2px 0 color-mix(in oklab, var(--foreground) 14%, transparent),
+      0 3px 0 color-mix(in oklab, var(--foreground) 10%, transparent),
+      0 6px 14px color-mix(in oklab, var(--primary) 22%, transparent),
+      0 14px 30px color-mix(in oklab, var(--foreground) 18%, transparent);
+    transform-style: preserve-3d;
+  }
+  .text-3d-pop {
+    animation: text3dFloat 6s ease-in-out infinite;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+  @keyframes text3dFloat {
+    0%, 100% { transform: perspective(900px) rotateX(0deg) translateZ(0); }
+    50%      { transform: perspective(900px) rotateX(2.4deg) translateZ(8px); }
+  }
+
   /* ── Premium interaction utilities ─────────────────────────────── */
   .ease-smooth { transition-timing-function: var(--ease-smooth); }
   .ease-out-soft { transition-timing-function: var(--ease-out-soft); }

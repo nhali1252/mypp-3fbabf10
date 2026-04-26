@@ -385,13 +385,14 @@ function Launcher() {
         }}
       />
 
+      {showHero && (
       <header className="relative px-5 sm:px-6 md:px-10 pt-10 md:pt-16">
         <div className="max-w-[1240px] mx-auto">
           <div className="flex items-center justify-between gap-4 mb-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: welcomeSec, ease: [0.22, 1, 0.36, 1] }}
               className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.3em] text-primary"
             >
               <Sparkles className="w-3.5 h-3.5" />
@@ -406,7 +407,7 @@ function Launcher() {
           <motion.h1
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+            transition={{ duration: welcomeSec * 1.15, ease: [0.22, 1, 0.36, 1], delay: welcomeSec * 0.07 }}
             className="font-black tracking-tight leading-[1.02]"
             style={{ fontSize: "clamp(38px, 7vw, 88px)" }}
           >
@@ -425,13 +426,14 @@ function Launcher() {
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+            transition={{ duration: welcomeSec, ease: [0.22, 1, 0.36, 1], delay: welcomeSec * 0.22 }}
             className="text-muted-foreground mt-5 max-w-2xl text-sm sm:text-base leading-relaxed"
           >
             {hero.intro}
           </motion.p>
         </div>
       </header>
+      )}
 
       <main className="relative flex-1 px-5 sm:px-6 md:px-10 py-12 md:py-20">
         <div className="max-w-[1240px] mx-auto grid gap-5 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">

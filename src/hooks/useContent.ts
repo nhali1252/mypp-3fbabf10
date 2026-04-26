@@ -12,8 +12,8 @@ const useAboutDoc = () => useR2Content<any>("about");
 
 // Each derived hook re-projects a slice of the cached doc but keeps
 // the React-Query result shape (data/isLoading/error/etc).
-function project<T>(q: ReturnType<typeof useBasicInfo>, picker: (d: any) => T) {
-  return { ...q, data: q.data ? picker(q.data) : null } as Omit<typeof q, "data"> & { data: T | null };
+function project<T>(q: ReturnType<typeof useBasicInfo>, picker: (d: any) => T, fallback: T) {
+  return { ...q, data: q.data ? picker(q.data) : fallback } as Omit<typeof q, "data"> & { data: T };
 }
 
 export const useHero = (_pageKey: PageKey = "B") =>

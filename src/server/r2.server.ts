@@ -29,6 +29,34 @@ export function bucket(): string {
   return env("R2_BUCKET");
 }
 
+/** Private bucket name (no public domain attached). Used for PII like contact messages. */
+export function privateBucket(): string {
+  return env("R2_PRIVATE_BUCKET");
+}
+
+/** Read JSON from a specific bucket. */
+export async function readJsonFrom<T = unknown>(bucketName: string, key: string): Promise<T | null> {
+  try {
+    const out = await r2().send(new GetObjectCommand({ Bucket: bucketName, Key: key }));
+    const text = await out.Body!.transformToString();
+    return JSON.parse(text) as T;
+  } catch (err: any) {
+    if (err?.$metadata?.httpStatusCode === 404 || err?.name === "NoSuchKey") return null;
+    throw err;
+  }
+}
+
+/** Write JSON to a specific bucket. */
+export async function writeJsonTo(bucketName: string, key: string, value: unknown): Promise<void> {
+  await r2().send(new PutObjectCommand({
+    Bucket: bucketName,
+    Key: key,
+    Body: JSON.stringify(value, null, 2),
+    ContentType: "application/json; charset=utf-8",
+    CacheControl: "no-store",
+  }));
+}
+
 /** Build a public URL for a stored object using R2_PUBLIC_BASE_URL. */
 export function publicUrl(key: string): string {
   let base = env("R2_PUBLIC_BASE_URL").trim();

@@ -3,7 +3,8 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Mail, Phone, MessageCircle, Sparkles, Send, Loader2, Calendar, Clock } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { submitMessage } from "@/server/messages.functions";
 import { useContactSettings } from "@/hooks/useContent";
 import { Footer } from "@/components/Footer";
 
@@ -66,6 +67,7 @@ export function ContactPage() {
   const [day, setDay] = useState<string | null>(null);
   const [slot, setSlot] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const send = useServerFn(submitMessage);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -78,15 +80,19 @@ export function ContactPage() {
       [projectType, subject.trim()].filter(Boolean).join(" — ") || projectType;
     const scheduleNote =
       day && slot ? `\n\nPreferred call slot: ${day} at ${slot}` : "";
-    const { error } = await (supabase as any).from("messages").insert({
-      name: name.trim(),
-      email: email.trim(),
-      subject: subjectLine,
-      message: message.trim() + scheduleNote,
-    });
-    setSending(false);
-    if (error) {
-      toast.error(error.message);
+    try {
+      await send({
+        data: {
+          name: name.trim(),
+          email: email.trim(),
+          subject: subjectLine,
+          message: message.trim() + scheduleNote,
+        },
+      });
+      setSending(false);
+    } catch (err: any) {
+      setSending(false);
+      toast.error(err?.message || "Could not send message.");
       return;
     }
     toast.success("Inquiry sent — I'll reply within 24 hours.");

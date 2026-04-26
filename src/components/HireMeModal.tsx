@@ -4,7 +4,8 @@ import { Mail, X, Send as SendIcon } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useContactSettings } from "@/hooks/useContent";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { submitMessage } from "@/server/messages.functions";
 import { SocialIcons, type SocialMap } from "./SocialIcons";
 
 const schema = z.object({
@@ -34,6 +35,7 @@ export function HireMeModal({ open, onClose }: Props) {
   const { data: contact } = useContactSettings();
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [loading, setLoading] = useState(false);
+  const send = useServerFn(submitMessage);
 
   // Close on Escape.
   useEffect(() => {
@@ -79,15 +81,19 @@ export function HireMeModal({ open, onClose }: Props) {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.from("messages").insert({
-      name: parsed.data.name,
-      email: parsed.data.email,
-      subject: "Hire Me — request from popup",
-      message: parsed.data.message,
-    });
-    setLoading(false);
-    if (error) {
-      toast.error("Could not send message. Please try again.");
+    try {
+      await send({
+        data: {
+          name: parsed.data.name,
+          email: parsed.data.email,
+          subject: "Hire Me — request from popup",
+          message: parsed.data.message,
+        },
+      });
+      setLoading(false);
+    } catch (err: any) {
+      setLoading(false);
+      toast.error(err?.message || "Could not send message. Please try again.");
       return;
     }
     toast.success("Message sent. I'll be in touch soon.");

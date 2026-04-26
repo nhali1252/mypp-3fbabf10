@@ -44,6 +44,7 @@ import { Route as AdminAdminContactRouteImport } from './routes/_admin.admin.con
 import { Route as AdminAdminChecklistRouteImport } from './routes/_admin.admin.checklist'
 import { Route as AdminAdminActivitiesRouteImport } from './routes/_admin.admin.activities'
 import { Route as AdminAdminAboutRouteImport } from './routes/_admin.admin.about'
+import { Route as AdminAdminPageSlugRouteImport } from './routes/_admin.admin.page.$slug'
 
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
@@ -219,6 +220,11 @@ const AdminAdminAboutRoute = AdminAdminAboutRouteImport.update({
   path: '/admin/about',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminPageSlugRoute = AdminAdminPageSlugRouteImport.update({
+  id: '/admin/page/$slug',
+  path: '/admin/page/$slug',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -255,6 +261,7 @@ export interface FileRoutesByFullPath {
   '/admin/ticker': typeof AdminAdminTickerRoute
   '/admin/users': typeof AdminAdminUsersRoute
   '/admin/': typeof AdminAdminIndexRoute
+  '/admin/page/$slug': typeof AdminAdminPageSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -291,6 +298,7 @@ export interface FileRoutesByTo {
   '/admin/ticker': typeof AdminAdminTickerRoute
   '/admin/users': typeof AdminAdminUsersRoute
   '/admin': typeof AdminAdminIndexRoute
+  '/admin/page/$slug': typeof AdminAdminPageSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -329,6 +337,7 @@ export interface FileRoutesById {
   '/_admin/admin/ticker': typeof AdminAdminTickerRoute
   '/_admin/admin/users': typeof AdminAdminUsersRoute
   '/_admin/admin/': typeof AdminAdminIndexRoute
+  '/_admin/admin/page/$slug': typeof AdminAdminPageSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -367,6 +376,7 @@ export interface FileRouteTypes {
     | '/admin/ticker'
     | '/admin/users'
     | '/admin/'
+    | '/admin/page/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -403,6 +413,7 @@ export interface FileRouteTypes {
     | '/admin/ticker'
     | '/admin/users'
     | '/admin'
+    | '/admin/page/$slug'
   id:
     | '__root__'
     | '/'
@@ -440,6 +451,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/ticker'
     | '/_admin/admin/users'
     | '/_admin/admin/'
+    | '/_admin/admin/page/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -702,6 +714,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminAboutRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/page/$slug': {
+      id: '/_admin/admin/page/$slug'
+      path: '/admin/page/$slug'
+      fullPath: '/admin/page/$slug'
+      preLoaderRoute: typeof AdminAdminPageSlugRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
@@ -731,6 +750,7 @@ interface AdminRouteChildren {
   AdminAdminTickerRoute: typeof AdminAdminTickerRoute
   AdminAdminUsersRoute: typeof AdminAdminUsersRoute
   AdminAdminIndexRoute: typeof AdminAdminIndexRoute
+  AdminAdminPageSlugRoute: typeof AdminAdminPageSlugRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
@@ -759,6 +779,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminTickerRoute: AdminAdminTickerRoute,
   AdminAdminUsersRoute: AdminAdminUsersRoute,
   AdminAdminIndexRoute: AdminAdminIndexRoute,
+  AdminAdminPageSlugRoute: AdminAdminPageSlugRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)

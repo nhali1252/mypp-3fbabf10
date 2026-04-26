@@ -88,10 +88,7 @@ function AboutSkillsInner() {
           className="pointer-events-none absolute inset-0 grid place-items-center z-0"
         >
           <div className="opacity-60 lg:opacity-50 mix-blend-screen dark:mix-blend-normal">
-            <OrganicCenterpiece
-              size={560}
-              portraitUrl={photocard?.image_url || portrait}
-            />
+            <OrganicCenterpiece size={560} portraitUrl={null} />
           </div>
         </motion.div>
         <div className="max-w-[1200px] mx-auto grid lg:grid-cols-[340px_1fr] gap-8 md:gap-12 items-center relative z-10">

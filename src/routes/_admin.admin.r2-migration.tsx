@@ -3,9 +3,10 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { seedR2FromDatabase } from "@/server/seed-r2.functions";
 import { getContent } from "@/server/r2.functions";
+import { migrateMediaToR2 } from "@/server/migrate-media.functions";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Loader2, CloudUpload, CheckCircle2 } from "lucide-react";
+import { Loader2, CloudUpload, CheckCircle2, Image as ImageIcon } from "lucide-react";
 
 export const Route = createFileRoute("/_admin/admin/r2-migration")({
   component: R2MigrationPage,
@@ -14,8 +15,11 @@ export const Route = createFileRoute("/_admin/admin/r2-migration")({
 function R2MigrationPage() {
   const seed = useServerFn(seedR2FromDatabase);
   const fetchKey = useServerFn(getContent);
+  const migrateMedia = useServerFn(migrateMediaToR2);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [mediaResult, setMediaResult] = useState<any>(null);
+  const [mediaBusy, setMediaBusy] = useState(false);
   const [previews, setPreviews] = useState<Record<string, any>>({});
 
   const runSeed = async () => {

@@ -97,6 +97,14 @@ export function FeedPage() {
 
   const isLoading = sliceQuery.isLoading;
   const isError = sliceQuery.isError;
+  const nextPageErrorMessage: string | null =
+    sliceQuery.isFetchNextPageError && sliceQuery.error instanceof Error
+      ? sliceQuery.error.message
+      : sliceQuery.isFetchNextPageError
+        ? "Unknown error"
+        : null;
+  const initialErrorMessage: string | undefined =
+    sliceQuery.error instanceof Error ? sliceQuery.error.message : undefined;
   const visibleItems: FeedItem[] = useMemo(
     () => (sliceQuery.data?.pages ?? []).flatMap((p) => p.items),
     [sliceQuery.data],
@@ -259,7 +267,11 @@ export function FeedPage() {
           {isLoading ? (
             <FeedSkeleton />
           ) : isError ? (
-            <ErrorState />
+            <ErrorState
+              onRetry={() => sliceQuery.refetch()}
+              isRetrying={sliceQuery.isFetching}
+              message={initialErrorMessage}
+            />
           ) : totalAll === 0 ? (
             <EmptyState
               title="No uploads yet"
@@ -273,7 +285,21 @@ export function FeedPage() {
           ) : (
             <>
               <MasonryGrid items={visibleItems} onOpen={open} />
-              {canLoadMore && (
+              {nextPageErrorMessage ? (
+                <div className="flex flex-col items-center gap-3 mt-10">
+                  <p className="text-xs text-destructive font-medium text-center max-w-sm">
+                    Couldn't load more items. {nextPageErrorMessage}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => sliceQuery.fetchNextPage()}
+                    disabled={sliceQuery.isFetchingNextPage}
+                    className="group inline-flex items-center gap-2 px-6 py-3 rounded-full border border-destructive/40 bg-destructive/5 hover:border-destructive hover:bg-destructive hover:text-destructive-foreground transition-all duration-300 text-xs font-bold uppercase tracking-[0.22em] disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {sliceQuery.isFetchingNextPage ? "Retrying…" : "Retry"}
+                  </button>
+                </div>
+              ) : canLoadMore ? (
                 <div className="flex justify-center mt-10">
                   <button
                     type="button"
@@ -287,7 +313,7 @@ export function FeedPage() {
                     </span>
                   </button>
                 </div>
-              )}
+              ) : null}
             </>
           )}
         </div>
@@ -524,7 +550,15 @@ function FeedSkeleton() {
   );
 }
 
-function ErrorState() {
+function ErrorState({
+  onRetry,
+  isRetrying = false,
+  message,
+}: {
+  onRetry?: () => void;
+  isRetrying?: boolean;
+  message?: string;
+}) {
   return (
     <div className="text-center py-24 max-w-md mx-auto">
       <div className="mx-auto h-16 w-16 rounded-full border border-destructive/30 bg-destructive/5 grid place-items-center mb-5">
@@ -532,8 +566,20 @@ function ErrorState() {
       </div>
       <p className="text-base font-bold tracking-tight">Couldn't load the feed</p>
       <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-        Please refresh the page to try again. If the problem persists, the content service may be temporarily offline.
+        {message
+          ? message
+          : "The content service may be temporarily offline. Try again, or refresh the page if the problem persists."}
       </p>
+      {onRetry && (
+        <button
+          type="button"
+          onClick={onRetry}
+          disabled={isRetrying}
+          className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-border bg-card hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 text-[11px] font-bold uppercase tracking-[0.22em] disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {isRetrying ? "Retrying…" : "Try again"}
+        </button>
+      )}
     </div>
   );
 }

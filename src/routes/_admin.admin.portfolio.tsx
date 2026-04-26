@@ -211,6 +211,53 @@ function AdminPortfolio() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  // ---- Bulk multi-file upload ------------------------------------------
+  // Uploads many image files at once into the active folder. Each file becomes
+  // a portfolio item titled after the file's base name. Useful for quickly
+  // populating a brand-new folder from a folder of finished work.
+  const presign = useServerFn(presignUpload);
+  const [bulkProgress, setBulkProgress] = useState<{ done: number; total: number } | null>(null);
+
+  const bulkUpload = useMutation({
+    mutationFn: async (files: File[]) => {
+      if (!activeFolderId) throw new Error("Pick a folder first");
+      if (files.length === 0) return;
+      setBulkProgress({ done: 0, total: files.length });
+      const baseSort = items.length;
+      for (let idx = 0; idx < files.length; idx++) {
+        const file = files[idx];
+        try {
+          const url = await uploadToR2(file, "projects", presign);
+          const baseName = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim() || `Item ${idx + 1}`;
+          const { error } = await (supabase as any).from("portfolio_items").insert({
+            folder_id: activeFolderId,
+            title: baseName,
+            image_url: url,
+            tags: [],
+            active: true,
+            show_in_feed: true,
+            featured: false,
+            sort_order: baseSort + idx + 1,
+          });
+          if (error) throw error;
+        } catch (e: any) {
+          toast.error(`${file.name}: ${e?.message ?? "failed"}`);
+        }
+        setBulkProgress({ done: idx + 1, total: files.length });
+      }
+    },
+    onSuccess: () => {
+      toast.success("Bulk upload complete");
+      qc.invalidateQueries({ queryKey: ["admin_portfolio_items", activeFolderId] });
+      qc.invalidateQueries({ queryKey: ["public_portfolio_items"] });
+      setTimeout(() => setBulkProgress(null), 1200);
+    },
+    onError: (e: any) => {
+      toast.error(e.message);
+      setBulkProgress(null);
+    },
+  });
+
   const saveItem = useMutation({
     mutationFn: async (id: string) => {
       const patch = itemEdits[id];

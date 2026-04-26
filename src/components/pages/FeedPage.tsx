@@ -304,6 +304,8 @@ function FilterToolbar({
   setFolderFilter,
   mediaFilter,
   setMediaFilter,
+  featuredOnly,
+  setFeaturedOnly,
   totalCount,
   filteredCount,
 }: {
@@ -312,6 +314,8 @@ function FilterToolbar({
   setFolderFilter: (v: string) => void;
   mediaFilter: MediaFilter;
   setMediaFilter: (v: MediaFilter) => void;
+  featuredOnly: boolean;
+  setFeaturedOnly: (v: boolean) => void;
   totalCount: number;
   filteredCount: number;
 }) {
@@ -336,6 +340,20 @@ function FilterToolbar({
               </Chip>
             ))}
           </div>
+
+          <button
+            type="button"
+            onClick={() => setFeaturedOnly(!featuredOnly)}
+            aria-pressed={featuredOnly}
+            className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-bold uppercase tracking-[0.2em] transition-colors ${
+              featuredOnly
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-border bg-background/40 text-muted-foreground hover:text-foreground hover:border-primary/40"
+            }`}
+          >
+            <Star className={`w-3.5 h-3.5 ${featuredOnly ? "fill-current" : ""}`} />
+            Featured
+          </button>
 
           <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground shrink-0">
             {filteredCount === totalCount ? `${totalCount} items` : `${filteredCount} of ${totalCount}`}

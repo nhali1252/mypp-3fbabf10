@@ -4,7 +4,8 @@ import { Mail, X, Send as SendIcon } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useContactSettings } from "@/hooks/useContent";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { submitMessage } from "@/server/messages.functions";
 import { SocialIcons, type SocialMap } from "./SocialIcons";
 
 const schema = z.object({

@@ -38,7 +38,6 @@ export function ContactSection() {
       return;
     }
     setLoading(true);
-    setLoading(true);
     try {
       await send({
         data: {

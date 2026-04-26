@@ -305,6 +305,106 @@ export type Database = {
         }
         Relationships: []
       }
+      feed_comment_reports: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          reason: string
+          reporter_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          reason: string
+          reporter_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          reason?: string
+          reporter_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feed_comment_reports_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "feed_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feed_comments: {
+        Row: {
+          body: string
+          created_at: string
+          edited_at: string | null
+          id: string
+          item_id: string
+          parent_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          edited_at?: string | null
+          id?: string
+          item_id: string
+          parent_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          edited_at?: string | null
+          id?: string
+          item_id?: string
+          parent_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feed_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "feed_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feed_reactions: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          reaction: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          reaction: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          reaction?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       folders: {
         Row: {
           created_at: string
@@ -750,6 +850,7 @@ export type Database = {
           tags: Json
           title: string
           updated_at: string
+          watermark_text: string | null
         }
         Insert: {
           active?: boolean
@@ -763,6 +864,7 @@ export type Database = {
           tags?: Json
           title: string
           updated_at?: string
+          watermark_text?: string | null
         }
         Update: {
           active?: boolean
@@ -776,6 +878,7 @@ export type Database = {
           tags?: Json
           title?: string
           updated_at?: string
+          watermark_text?: string | null
         }
         Relationships: [
           {
@@ -794,6 +897,7 @@ export type Database = {
           display_name: string | null
           id: string
           updated_at: string
+          verified: boolean
         }
         Insert: {
           avatar_url?: string | null
@@ -801,6 +905,7 @@ export type Database = {
           display_name?: string | null
           id: string
           updated_at?: string
+          verified?: boolean
         }
         Update: {
           avatar_url?: string | null
@@ -808,6 +913,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           updated_at?: string
+          verified?: boolean
         }
         Relationships: []
       }

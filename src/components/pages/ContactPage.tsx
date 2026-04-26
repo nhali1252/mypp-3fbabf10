@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Mail, Phone, MessageCircle, Sparkles, Send, Loader2, Calendar, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useContactSettings } from "@/hooks/useContent";
 import { Footer } from "@/components/Footer";
 
 const projectTypes = [
@@ -46,24 +46,17 @@ function nextWeekdays(count: number) {
 export function ContactPage() {
   const days = useMemo(() => nextWeekdays(7), []);
 
-  const contact = useQuery({
-    queryKey: ["public-contact-settings"],
-    queryFn: async () => {
-      const { data } = await (supabase as any)
-        .from("contact_settings")
-        .select("*")
-        .limit(1)
-        .maybeSingle();
-      return data as
-        | {
-            email: string | null;
-            phone: string | null;
-            whatsapp: string | null;
-            address: string | null;
-          }
-        | null;
-    },
-  });
+  const contact = useContactSettings() as {
+    data:
+      | {
+          email: string | null;
+          phone: string | null;
+          whatsapp: string | null;
+          address: string | null;
+        }
+      | null;
+  };
+
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

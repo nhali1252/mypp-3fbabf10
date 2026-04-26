@@ -342,6 +342,17 @@ function Launcher() {
   const hasRealData = rawDoc != null;
   const showSkeleton = !hasRealData && (isLoading || isFetching);
 
+  // Surface fallback usage in the browser console so it's obvious why a
+  // user is seeing the default cards instead of their R2-managed ones.
+  useEffect(() => {
+    if (showSkeleton) return;
+    if (!launcherDoc.pages.length) {
+      console.warn(
+        "[launcher] Rendering FALLBACK cards — R2 launcher doc was missing/empty/invalid. Check server logs for [r2.getContent] / [launcher.loader] / [launcher.validate].",
+      );
+    }
+  }, [showSkeleton, launcherDoc.pages.length]);
+
   const cards: LauncherCard[] = deriveLauncherCards(launcherDoc.pages);
   const hero: LauncherHero = launcherDoc.hero ?? HERO_FALLBACK;
 

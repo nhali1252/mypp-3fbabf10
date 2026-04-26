@@ -1,15 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ProjectsPage } from "@/components/pages/ProjectsPage";
-import { getSeo } from "@/server/seo.functions";
-import { buildSeoMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/projects")({
   component: ProjectsPage,
-  loader: async () => ({ seo: await getSeo({ data: { key: "projects" } }).catch(() => null) }),
-  head: ({ loaderData }) => ({
-    meta: buildSeoMeta(loaderData?.seo ?? null, {
-      title: "Projects — Ali Nur Hasan (TasTaj)",
-      description: "Selected work and projects by Ali Nur Hasan.",
-    }),
+  head: () => ({
+    meta: [
+      { title: "Projects — Ali Nur Hasan (TasTaj)" },
+      { name: "description", content: "Selected work and projects by Ali Nur Hasan." },
+      { property: "og:type", content: "website" },
+      { property: "og:title", content: "Projects — Ali Nur Hasan (TasTaj)" },
+      { property: "og:description", content: "Selected work and projects." },
+      { property: "twitter:card", content: "summary_large_image" },
+    ],
   }),
 });

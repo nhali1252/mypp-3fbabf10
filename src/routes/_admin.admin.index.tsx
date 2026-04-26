@@ -1,3 +1,14 @@
+/**
+ * Admin dashboard — page-block grid.
+ *
+ * One card per entry in PAGE_BLOCKS. Cards overlay metadata from the matching
+ * `launcher_pages` row (thumbnail, accent gradient, badge) when one exists,
+ * so the dashboard mirrors the public "Pick a page" launcher.
+ *
+ * Unknown launcher rows (slugs not in PAGE_BLOCKS) appear at the bottom in
+ * an "Unregistered pages" strip so they're never silently lost — clicking
+ * one routes through /admin/page/$slug with the empty-section placeholder.
+ */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -5,239 +16,251 @@ import { useServerFn } from "@tanstack/react-start";
 import { listMessages } from "@/server/messages.functions";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  FolderKanban, GraduationCap, Activity, Inbox, Image as ImageIcon,
-  Sparkles, User, PhoneCall, ShieldCheck, ShieldAlert, ClipboardCheck,
-  Rocket, Lightbulb, Compass, Search, Settings, Megaphone, AppWindow, Users as UsersIcon,
+  ShieldCheck, ShieldAlert, ClipboardCheck, ArrowRight, Inbox,
+  Sparkles, User, FolderOpen, Layers, Briefcase, Mail, Star,
+  Plus, ChevronDown, ChevronUp,
 } from "lucide-react";
+import { PAGE_BLOCKS, type PageBlock } from "@/admin/page-blocks";
 
 export const Route = createFileRoute("/_admin/admin/")({
   component: AdminDashboard,
 });
 
+const ICON_MAP: Record<string, any> = {
+  Sparkles, User, FolderOpen, Layers, Briefcase, Mail, Star,
+};
+
+type LauncherRow = {
+  id: string;
+  label: string | null;
+  title: string | null;
+  description: string | null;
+  thumbnail_url: string | null;
+  accent: string | null;
+  badge: string | null;
+  route: string | null;
+};
+
 function AdminDashboard() {
   const { user, isAdmin, isEditor, roles, loading: authLoading } = useAuth();
-  const [stats, setStats] = useState({
-    projects: 0, education: 0, activities: 0, messages: 0, unread: 0,
-  });
-  const [recent, setRecent] = useState<any[]>([]);
   const list = useServerFn(listMessages);
+
+  const [unread, setUnread] = useState<number | null>(null);
+  const [launcher, setLauncher] = useState<LauncherRow[]>([]);
+  const [showLegacy, setShowLegacy] = useState(false);
 
   useEffect(() => {
     (async () => {
-      const [p, ed, ac, msgs] = await Promise.all([
-        supabase.from("projects").select("id", { count: "exact", head: true }),
-        supabase.from("education").select("id", { count: "exact", head: true }),
-        supabase.from("activities").select("id", { count: "exact", head: true }),
+      const [msgs, lp] = await Promise.all([
         list().catch(() => [] as any[]),
+        supabase.from("launcher_pages").select("*").order("sort_order"),
       ]);
-      const messagesArr = Array.isArray(msgs) ? msgs : [];
-      setStats({
-        projects: p.count ?? 0,
-        education: ed.count ?? 0,
-        activities: ac.count ?? 0,
-        messages: messagesArr.length,
-        unread: messagesArr.filter((m: any) => !m.is_read).length,
-      });
-      setRecent(messagesArr.slice(0, 5));
+      const arr = Array.isArray(msgs) ? msgs : [];
+      setUnread(arr.filter((m: any) => !m.is_read).length);
+      setLauncher((lp.data ?? []) as LauncherRow[]);
     })();
-  }, []);
+  }, [list]);
 
-  const cards = [
-    { label: "Projects", value: stats.projects, Icon: FolderKanban, to: "/admin/projects" as const },
-    { label: "Education", value: stats.education, Icon: GraduationCap, to: "/admin/education" as const },
-    { label: "Activities", value: stats.activities, Icon: Activity, to: "/admin/activities" as const },
-    {
-      label: "Messages",
-      value: stats.messages,
-      sub: stats.unread ? `${stats.unread} unread` : undefined,
-      Icon: Inbox,
-      to: "/admin/messages" as const,
-    },
-  ];
+  // Match launcher rows to PAGE_BLOCKS by slug == lowercased label.
+  const launcherBySlug = new Map<string, LauncherRow>();
+  for (const row of launcher) {
+    const slug = (row.label ?? "").toLowerCase().trim();
+    if (slug) launcherBySlug.set(slug, row);
+  }
 
-  const quickEdits = [
-    { label: "Welcome / Launcher", Icon: Rocket, to: "/admin/launcher" as const },
-    { label: "Edit Hero", Icon: Sparkles, to: "/admin/hero" as const },
-    { label: "Edit About", Icon: User, to: "/admin/about" as const },
-    { label: "Edit Portfolio", Icon: FolderKanban, to: "/admin/portfolio" as const },
-    { label: "Edit Projects", Icon: FolderKanban, to: "/admin/projects" as const },
-    { label: "Edit Education", Icon: GraduationCap, to: "/admin/education" as const },
-    { label: "Edit Skills", Icon: Lightbulb, to: "/admin/skills" as const },
-    { label: "Edit Activities", Icon: Activity, to: "/admin/activities" as const },
-    { label: "Edit Reviews", Icon: Sparkles, to: "/admin/reviews" as const },
-    { label: "Edit Ticker", Icon: Megaphone, to: "/admin/ticker" as const },
-    { label: "Edit Navigation", Icon: Compass, to: "/admin/navigation" as const },
-    { label: "Edit Contact", Icon: PhoneCall, to: "/admin/contact" as const },
-    { label: "Footer Apps", Icon: AppWindow, to: "/admin/footer-apps" as const },
-    { label: "Media Library", Icon: ImageIcon, to: "/admin/media" as const },
-    { label: "SEO Settings", Icon: Search, to: "/admin/seo" as const },
-    { label: "Site Settings", Icon: Settings, to: "/admin/settings" as const },
-    { label: "Manage Users", Icon: UsersIcon, to: "/admin/users" as const },
-  ];
-
-  const pageEditors = [
-    {
-      label: "Welcome page (/)",
-      sub: "Launcher cards",
-      Icon: Rocket,
-      to: "/admin/launcher" as const,
-      accent: "from-amber-400/30 to-rose-500/10",
-    },
-    {
-      label: "About & Skills",
-      sub: "Skills · About",
-      Icon: Lightbulb,
-      to: "/admin/about" as const,
-      accent: "from-violet-500/30 to-fuchsia-500/10",
-    },
-    {
-      label: "Portfolio",
-      sub: "Folders & items",
-      Icon: FolderKanban,
-      to: "/admin/portfolio" as const,
-      accent: "from-emerald-400/30 to-cyan-500/10",
-    },
-    {
-      label: "Page /B",
-      sub: "Hero · About · Contact",
-      Icon: Sparkles,
-      to: "/admin/hero" as const,
-      accent: "from-sky-400/30 to-indigo-500/10",
-    },
-  ];
+  const knownSlugs = new Set(PAGE_BLOCKS.map((b) => b.slug));
+  const unregistered = launcher.filter(
+    (r) => !knownSlugs.has((r.label ?? "").toLowerCase().trim()),
+  );
 
   return (
-    <div className="space-y-8 max-w-5xl">
-      <header>
-        <h1 className="text-3xl font-black mb-1">Dashboard</h1>
-        <p className="text-muted-foreground text-sm">Overview of your portfolio content.</p>
+    <div className="space-y-8">
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black mb-1">Pages</h1>
+          <p className="text-muted-foreground text-sm">
+            One card per page. Click to edit everything for that page in one place.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/admin/messages"
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:border-primary/40"
+          >
+            <Inbox className="h-3.5 w-3.5" />
+            Inbox
+            {unread ? (
+              <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                {unread}
+              </span>
+            ) : null}
+          </Link>
+          <Link
+            to="/admin/checklist"
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:border-primary/40"
+          >
+            <ClipboardCheck className="h-3.5 w-3.5" /> Checklist
+          </Link>
+        </div>
       </header>
 
       <section
-        className={`rounded-2xl p-5 border flex flex-wrap items-center justify-between gap-4 ${
+        className={`rounded-2xl p-4 border flex flex-wrap items-center gap-3 text-sm ${
           isAdmin
-            ? "border-primary/40 bg-primary/5"
+            ? "border-primary/30 bg-primary/5"
             : "border-destructive/40 bg-destructive/5"
         }`}
       >
-        <div className="flex items-center gap-3 min-w-0">
-          {isAdmin ? (
-            <ShieldCheck className="w-6 h-6 text-primary shrink-0" />
-          ) : (
-            <ShieldAlert className="w-6 h-6 text-destructive shrink-0" />
-          )}
-          <div className="min-w-0">
-            <div className="font-bold text-sm">
-              {authLoading
-                ? "Verifying admin access…"
-                : isAdmin
-                  ? "Admin access verified"
-                  : "Admin role missing"}
-            </div>
-            <div className="text-xs text-muted-foreground truncate">
-              Signed in as <span className="font-mono">{user?.email}</span>
-              {" · "}
-              Roles: {roles.length ? roles.join(", ") : isEditor ? "editor" : "none"}
-            </div>
+        {isAdmin
+          ? <ShieldCheck className="w-5 h-5 text-primary shrink-0" />
+          : <ShieldAlert className="w-5 h-5 text-destructive shrink-0" />}
+        <div className="min-w-0 flex-1">
+          <div className="font-semibold">
+            {authLoading
+              ? "Verifying admin access…"
+              : isAdmin ? "Admin access verified" : "Admin role missing"}
+          </div>
+          <div className="text-xs text-muted-foreground truncate">
+            <span className="font-mono">{user?.email}</span>
+            {" · "}
+            Roles: {roles.length ? roles.join(", ") : isEditor ? "editor" : "none"}
           </div>
         </div>
-        <Link
-          to="/admin/checklist"
-          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary hover:underline"
-        >
-          <ClipboardCheck className="w-4 h-4" /> Pre-publish checklist
-        </Link>
       </section>
 
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        {cards.map((c) => (
-          <Link
-            key={c.label}
-            to={c.to}
-            className="bg-card border border-border rounded-2xl p-5 hover:border-primary/50 transition"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground">{c.label}</span>
-              <div className="w-9 h-9 rounded-xl bg-primary/15 grid place-items-center">
-                <c.Icon size={16} className="text-primary" />
-              </div>
-            </div>
-            <div className="text-3xl font-black">{c.value}</div>
-            {c.sub && <div className="text-xs text-primary mt-1">{c.sub}</div>}
-          </Link>
+      {/* Page-block grid — the heart of the new admin. */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {PAGE_BLOCKS.map((block) => (
+          <PageCard
+            key={block.slug}
+            block={block}
+            launcher={launcherBySlug.get(block.slug)}
+          />
         ))}
       </div>
 
-      <section className="bg-card border border-border rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold">Edit pages</h2>
-          <span className="text-xs text-muted-foreground">Jump straight into a page editor</span>
-        </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {pageEditors.map((p) => (
-            <Link
-              key={p.label}
-              to={p.to}
-              className={`relative overflow-hidden border border-border rounded-2xl p-5 hover:border-primary/50 transition group bg-gradient-to-br ${p.accent}`}
-            >
-              <div className="flex items-center justify-between mb-6">
-                <div className="w-10 h-10 rounded-xl bg-background/60 backdrop-blur grid place-items-center">
-                  <p.Icon size={18} className="text-primary" />
-                </div>
-                <span className="text-[10px] uppercase tracking-wider text-muted-foreground opacity-0 group-hover:opacity-100 transition">
-                  Open →
-                </span>
-              </div>
-              <div className="font-bold text-sm">{p.label}</div>
-              <div className="text-xs text-muted-foreground">{p.sub}</div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="bg-card border border-border rounded-2xl p-6">
-        <h2 className="font-bold mb-4">Quick edits</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          {quickEdits.map((q) => (
-            <Link
-              key={q.label}
-              to={q.to}
-              className="border border-border rounded-xl p-4 hover:bg-muted/40 transition flex flex-col items-center gap-2 text-center"
-            >
-              <q.Icon className="w-5 h-5 text-primary" />
-              <span className="text-sm font-semibold">{q.label}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="bg-card border border-border rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold">Recent messages</h2>
-          <Link to="/admin/messages" className="text-xs font-semibold text-primary hover:underline">
-            View all →
-          </Link>
-        </div>
-        {recent.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No messages yet.</p>
-        ) : (
-          <ul className="divide-y divide-border">
-            {recent.map((m) => (
-              <li key={m.id} className="py-3 flex justify-between gap-4 text-sm">
-                <div className="min-w-0">
-                  <div className="font-semibold truncate">
-                    {m.name} <span className="text-muted-foreground font-normal">· {m.email}</span>
+      {unregistered.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            Unregistered launcher pages
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {unregistered.map((row) => {
+              const slug = (row.label ?? "").toLowerCase().trim() || row.id;
+              return (
+                <Link
+                  key={row.id}
+                  to="/admin/page/$slug"
+                  params={{ slug }}
+                  className="rounded-2xl border border-dashed border-border bg-card/60 p-4 hover:border-primary/40 transition"
+                >
+                  <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground mb-2">
+                    <Plus className="h-3.5 w-3.5" /> Auto-card
                   </div>
-                  <div className="text-muted-foreground truncate">{m.subject || m.message}</div>
-                </div>
-                <div className="text-xs text-muted-foreground shrink-0">
-                  {new Date(m.created_at).toLocaleDateString()}
-                </div>
-              </li>
+                  <div className="font-semibold truncate">{row.title || row.label}</div>
+                  <div className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                    {row.description ?? "No editors registered yet — quote block available."}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      <section className="rounded-2xl border border-border bg-card">
+        <button
+          onClick={() => setShowLegacy((v) => !v)}
+          className="w-full flex items-center justify-between px-5 py-3 text-sm font-semibold"
+        >
+          <span>Legacy editors (still available while we migrate)</span>
+          {showLegacy ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        </button>
+        {showLegacy && (
+          <div className="px-5 pb-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 text-sm">
+            {LEGACY_LINKS.map((l) => (
+              <Link
+                key={l.to}
+                to={l.to as any}
+                className="rounded-lg border border-border px-3 py-2 hover:bg-muted/40"
+              >
+                {l.label}
+              </Link>
             ))}
-          </ul>
+          </div>
         )}
       </section>
     </div>
   );
 }
+
+function PageCard({ block, launcher }: { block: PageBlock; launcher?: LauncherRow }) {
+  const Icon = ICON_MAP[block.icon] ?? Sparkles;
+  const accent = launcher?.accent ?? "from-primary/30 to-primary/5";
+  const thumbnail = launcher?.thumbnail_url ?? null;
+  const badge = launcher?.badge ?? null;
+
+  return (
+    <Link
+      to="/admin/page/$slug"
+      params={{ slug: block.slug }}
+      className={`group relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br ${accent} p-5 transition hover:border-primary/50 hover:shadow-[0_20px_60px_-30px_color-mix(in_oklab,var(--primary)_60%,transparent)]`}
+    >
+      {thumbnail && (
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-20 group-hover:opacity-30 transition"
+          style={{
+            backgroundImage: `url(${thumbnail})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+      )}
+      <div className="relative flex items-start justify-between mb-8">
+        <div className="h-11 w-11 rounded-xl bg-background/70 backdrop-blur grid place-items-center">
+          <Icon className="h-5 w-5 text-primary" />
+        </div>
+        {badge && (
+          <span className="rounded-full bg-background/70 backdrop-blur px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+            {badge}
+          </span>
+        )}
+      </div>
+      <div className="relative">
+        <div className="font-bold text-lg">{block.title}</div>
+        <div className="text-xs text-muted-foreground mt-1 line-clamp-2">{block.description}</div>
+        <div className="mt-4 flex items-center justify-between text-xs">
+          <span className="text-muted-foreground">
+            {block.sections.length} section{block.sections.length === 1 ? "" : "s"}
+          </span>
+          <span className="inline-flex items-center gap-1 font-semibold text-primary opacity-0 group-hover:opacity-100 transition">
+            Edit <ArrowRight className="h-3.5 w-3.5" />
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+/** Per-feature admin routes that haven't been migrated yet. Removed in Step 4. */
+const LEGACY_LINKS: { to: string; label: string }[] = [
+  { to: "/admin/launcher",     label: "Launcher" },
+  { to: "/admin/hero",         label: "Hero" },
+  { to: "/admin/about",        label: "About" },
+  { to: "/admin/skills",       label: "Skills" },
+  { to: "/admin/activities",   label: "Activities" },
+  { to: "/admin/education",    label: "Education" },
+  { to: "/admin/portfolio",    label: "Portfolio" },
+  { to: "/admin/projects",     label: "Projects" },
+  { to: "/admin/contact",      label: "Contact" },
+  { to: "/admin/reviews",      label: "Reviews" },
+  { to: "/admin/navigation",   label: "Navigation" },
+  { to: "/admin/footer-apps",  label: "Footer apps" },
+  { to: "/admin/footer-cta",   label: "Footer CTA" },
+  { to: "/admin/ticker",       label: "Ticker" },
+  { to: "/admin/seo",          label: "SEO" },
+  { to: "/admin/page-loader",  label: "Page loader" },
+  { to: "/admin/folders",      label: "Folders" },
+  { to: "/admin/slots",        label: "Slots" },
+];

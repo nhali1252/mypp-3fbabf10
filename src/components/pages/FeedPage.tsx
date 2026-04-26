@@ -555,14 +555,15 @@ function EmptyState({ title, hint }: { title: string; hint: string }) {
 // ---------------------------------------------------------------------------
 
 function LazyMedia({
-  item, className,
-}: { item: FeedItem; className?: string }) {
+  item, className, eager = false,
+}: { item: FeedItem; className?: string; eager?: boolean }) {
   const ref = useRef<HTMLDivElement | null>(null);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(eager);
 
   useEffect(() => {
+    if (visible) return;
     const el = ref.current;
-    if (!el || visible) return;
+    if (!el) return;
     const io = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
@@ -594,8 +595,10 @@ function LazyMedia({
           <img
             src={item.image_url}
             alt={item.title}
-            loading="lazy"
+            loading={eager ? "eager" : "lazy"}
             decoding="async"
+            // @ts-expect-error — fetchpriority is a valid HTML attribute, React types lag.
+            fetchpriority={eager ? "high" : "low"}
             className={className ?? "w-full h-auto block"}
           />
         ) : (
@@ -611,14 +614,92 @@ function LazyMedia({
 }
 
 // ---------------------------------------------------------------------------
+// ViewportRender — defer rendering of off-screen card chrome
+//
+// Beyond lazy media, this skips rendering the entire children subtree until
+// the placeholder is near the viewport. Combined with `content-visibility:
+// auto`, the browser also skips style/layout/paint for cards far below the
+// fold, dramatically lowering DOM work for long feeds before pagination
+// virtualization lands.
+// ---------------------------------------------------------------------------
+
+function ViewportRender({
+  children,
+  eager = false,
+  estimatedMinHeight = 360,
+  rootMargin = "600px 0px",
+  className,
+}: {
+  children: React.ReactNode;
+  eager?: boolean;
+  estimatedMinHeight?: number;
+  rootMargin?: string;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [rendered, setRendered] = useState(eager);
+
+  useEffect(() => {
+    if (rendered) return;
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setRendered(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            setRendered(true);
+            io.disconnect();
+            break;
+          }
+        }
+      },
+      { rootMargin },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [rendered, rootMargin]);
+
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={
+        rendered
+          ? undefined
+          : {
+              minHeight: estimatedMinHeight,
+              // Skip style/layout/paint while offscreen.
+              contentVisibility: "auto",
+              containIntrinsicSize: `${estimatedMinHeight}px`,
+            } as React.CSSProperties
+      }
+    >
+      {rendered ? children : null}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Grid + Card
 // ---------------------------------------------------------------------------
+
+const EAGER_CARD_COUNT = 4;
 
 function MasonryGrid({ items, onOpen }: { items: FeedItem[]; onOpen: (i: number) => void }) {
   return (
     <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 [column-fill:_balance]">
       {items.map((it, i) => (
-        <FeedCard key={it.id} item={it} index={i} onOpen={() => onOpen(i)} />
+        <ViewportRender
+          key={it.id}
+          eager={i < EAGER_CARD_COUNT}
+          className="mb-4 break-inside-avoid"
+          estimatedMinHeight={420}
+        >
+          <FeedCard item={it} index={i} onOpen={() => onOpen(i)} eager={i < EAGER_CARD_COUNT} />
+        </ViewportRender>
       ))}
     </div>
   );

@@ -35,6 +35,7 @@ export const TABLE_TO_DOCS: Record<string, R2ContentKey[]> = {
   f_photocard: ["fPage"],
   f_skills: ["fPage"],
   f_projects: ["fPage"],
+  page_quotes: ["pageQuotes"],
 };
 
 /**

@@ -10,7 +10,6 @@ import { ContactSection } from "@/components/sections/ContactSection";
 import { HireMeProvider } from "@/components/HireMeProvider";
 import { useSmoothAnchors } from "@/hooks/useSmoothAnchors";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { R2StatusBanner } from "@/components/R2StatusBanner";
 
 export function BasicPage() {
   useSmoothAnchors();
@@ -24,9 +23,6 @@ export function BasicPage() {
         <Hero showHireMe={false} />
         <Ticker />
         <main className="max-w-[1320px] mx-auto px-3.5 md:px-7 pb-16">
-          <div className="pt-6">
-            <R2StatusBanner />
-          </div>
           <AboutSection />
           <EducationSection />
           <SkillsSection />

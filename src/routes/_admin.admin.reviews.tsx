@@ -170,6 +170,32 @@ function AdminReviews() {
             <Input placeholder="Search name or review…" value={q} onChange={(e) => setQ(e.target.value)} />
           </div>
         </div>
+        {selected.size > 0 && (
+          <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 p-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-primary px-1">
+              {selected.size} selected
+            </span>
+            <Button size="sm" variant="outline" onClick={() => bulkUpdate({ status: "approved", published: true }, "Approved")}>
+              <Check className="w-3.5 h-3.5 mr-1" /> Approve
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => bulkUpdate({ status: "featured", published: true, featured: true }, "Featured")}>
+              <Sparkles className="w-3.5 h-3.5 mr-1" /> Feature
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => bulkUpdate({ status: "rejected", published: false, featured: false }, "Rejected")}>
+              <X className="w-3.5 h-3.5 mr-1" /> Reject
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => bulkUpdate({ published: true }, "Published")}>
+              <Eye className="w-3.5 h-3.5 mr-1" /> Show
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => bulkUpdate({ published: false }, "Hidden")}>
+              <EyeOff className="w-3.5 h-3.5 mr-1" /> Hide
+            </Button>
+            <Button size="sm" variant="outline" onClick={bulkDelete}>
+              <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete
+            </Button>
+            <Button size="sm" variant="ghost" onClick={clearSelection} className="ml-auto">Clear</Button>
+          </div>
+        )}
       </AdminCard>
 
       {creating && (

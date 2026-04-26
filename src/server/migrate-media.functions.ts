@@ -111,7 +111,7 @@ export const migrateMediaToR2 = createServerFn({ method: "POST" })
     for (const ref of refs) {
       const newUrl = urlMap.get(ref.url);
       if (!newUrl) continue;
-      const { error } = await supabaseAdmin
+      const { error } = await (supabaseAdmin as any)
         .from(ref.table)
         .update({ [ref.col]: newUrl })
         .eq("id", ref.id);

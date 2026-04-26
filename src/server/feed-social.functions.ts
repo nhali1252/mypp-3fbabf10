@@ -305,6 +305,33 @@ async function assertAdmin(userId: string) {
   if (!data) throw new Error("Forbidden — admin only");
 }
 
+/**
+ * Append-only moderation audit log writer. Failures are swallowed (logged) so
+ * a logging hiccup never blocks the actual moderation action — the underlying
+ * `moderation_log` table also enforces append-only access via RLS.
+ */
+async function logModeration(
+  moderatorId: string,
+  targetType: "comment" | "review",
+  targetId: string,
+  action: "approve" | "hide" | "delete" | "feature" | "reject" | "restore" | "publish" | "unpublish",
+  reason: string | undefined,
+  snapshot: unknown,
+) {
+  try {
+    await supabaseAdmin.from("moderation_log").insert({
+      moderator_id: moderatorId,
+      target_type: targetType,
+      target_id: targetId,
+      action,
+      reason: reason ?? null,
+      snapshot: (snapshot as object | null) ?? null,
+    });
+  } catch (err) {
+    console.error("[moderation_log] failed to record action", { action, targetType, targetId, err });
+  }
+}
+
 export const adminListComments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { status?: "visible" | "hidden" | "reported" } | undefined) => ({

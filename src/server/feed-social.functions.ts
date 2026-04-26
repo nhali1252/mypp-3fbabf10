@@ -382,18 +382,114 @@ export const adminListComments = createServerFn({ method: "GET" })
 
 export const adminSetCommentStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { id: string; status: "visible" | "hidden" }) => ({
+  .inputValidator((data: { id: string; status: "visible" | "hidden"; reason?: string }) => ({
     id: z.string().uuid().parse(data.id),
     status: z.enum(["visible", "hidden"]).parse(data.status),
+    reason: data.reason ? z.string().trim().max(500).parse(data.reason) : undefined,
   }))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
+    const { data: snap } = await supabaseAdmin
+      .from("feed_comments")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
     const { error } = await supabaseAdmin
       .from("feed_comments")
       .update({ status: data.status })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
+    await logModeration(
+      context.userId,
+      "comment",
+      data.id,
+      data.status === "visible" ? "approve" : "hide",
+      data.reason,
+      snap,
+    );
     return { ok: true };
+  });
+
+// --- Reviews moderation (audited) -----------------------------------------
+
+export const adminModerateReview = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (data: {
+      id: string;
+      action: "approve" | "feature" | "reject" | "publish" | "unpublish";
+      reason?: string;
+    }) => ({
+      id: z.string().uuid().parse(data.id),
+      action: z.enum(["approve", "feature", "reject", "publish", "unpublish"]).parse(data.action),
+      reason: data.reason ? z.string().trim().max(500).parse(data.reason) : undefined,
+    }),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const { data: snap } = await supabaseAdmin
+      .from("testimonials")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
+
+    let patch: Record<string, unknown> = {};
+    switch (data.action) {
+      case "approve":
+        patch = { status: "approved", published: true };
+        break;
+      case "feature":
+        patch = { status: "featured", published: true, featured: true };
+        break;
+      case "reject":
+        patch = { status: "rejected", published: false, featured: false };
+        break;
+      case "publish":
+        patch = { published: true };
+        break;
+      case "unpublish":
+        patch = { published: false };
+        break;
+    }
+    const { error } = await supabaseAdmin.from("testimonials").update(patch).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    await logModeration(context.userId, "review", data.id, data.action, data.reason, snap);
+    return { ok: true };
+  });
+
+// --- Audit log read --------------------------------------------------------
+
+export const adminListModerationLog = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (data: { target_type?: "comment" | "review"; limit?: number } | undefined) => ({
+      target_type: data?.target_type,
+      limit: Math.min(200, Math.max(1, data?.limit ?? 100)),
+    }),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    let q = (supabaseAdmin as any)
+      .from("moderation_log")
+      .select("id, moderator_id, target_type, target_id, action, reason, created_at")
+      .order("created_at", { ascending: false })
+      .limit(data.limit);
+    if (data.target_type) q = q.eq("target_type", data.target_type);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+
+    const modIds = Array.from(new Set((rows ?? []).map((r: any) => r.moderator_id)));
+    let profiles: Record<string, any> = {};
+    if (modIds.length) {
+      const { data: profs } = await supabaseAdmin
+        .from("profiles")
+        .select("id, display_name, avatar_url")
+        .in("id", modIds);
+      for (const p of profs ?? []) profiles[p.id] = p;
+    }
+    return {
+      entries: (rows ?? []).map((r: any) => ({ ...r, moderator: profiles[r.moderator_id] ?? null })),
+    };
   });
 
 export const adminVerifyUser = createServerFn({ method: "POST" })

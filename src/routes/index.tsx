@@ -303,19 +303,22 @@ export function deriveLauncherCards(
 
 function Launcher() {
   const { launcherDoc: initialLauncherDoc } = Route.useLoaderData();
-  const { data: launcherDoc, isLoading, isFetching } = useR2Content<{
-    hero: LauncherHero | null;
-    pages: LauncherCard[];
-  }>("launcher", { initialData: initialLauncherDoc });
+  const { data: rawDoc, isLoading, isFetching } = useR2Content<unknown>(
+    "launcher",
+    { initialData: initialLauncherDoc },
+  );
+
+  // Validate the raw R2 payload at runtime. Malformed docs collapse to a
+  // safe empty doc so the UI keeps rendering instead of crashing.
+  const launcherDoc = useMemo(() => safeParseLauncherDoc(rawDoc), [rawDoc]);
 
   // Show skeleton when we genuinely have no launcher data yet — i.e. SSR
-  // prefetch returned null AND the client query is still resolving. Once
-  // R2 data arrives (or definitively comes back empty), we render real cards.
-  const hasRealData = !!launcherDoc;
+  // prefetch returned null AND the client query is still resolving.
+  const hasRealData = rawDoc != null;
   const showSkeleton = !hasRealData && (isLoading || isFetching);
 
-  const cards: LauncherCard[] = deriveLauncherCards(launcherDoc?.pages);
-  const hero: LauncherHero = launcherDoc?.hero ?? HERO_FALLBACK;
+  const cards: LauncherCard[] = deriveLauncherCards(launcherDoc.pages);
+  const hero: LauncherHero = launcherDoc.hero ?? HERO_FALLBACK;
 
   const [hovered, setHovered] = useState<number | null>(null);
   const { reduceMotion } = useMotionPref();

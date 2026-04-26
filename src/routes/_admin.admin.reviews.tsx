@@ -77,6 +77,58 @@ function AdminReviews() {
     setEdits((e) => { const n = { ...e }; delete n[id]; return n; });
   }
 
+  // ----- Bulk actions ---------------------------------------------------
+  async function bulkUpdate(patch: any, label: string) {
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+    const { error } = await (supabase as any).from("testimonials").update(patch).in("id", ids);
+    if (error) return toast.error(error.message);
+    toast.success(`${label} ${ids.length} review${ids.length === 1 ? "" : "s"}`);
+    clearSelection();
+    qc.invalidateQueries({ queryKey: ["admin-table", "testimonials"] });
+    qc.invalidateQueries({ queryKey: ["testimonials"] });
+  }
+  async function bulkDelete() {
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+    if (!confirm(`Delete ${ids.length} review${ids.length === 1 ? "" : "s"}? This can't be undone.`)) return;
+    const { error } = await (supabase as any).from("testimonials").delete().in("id", ids);
+    if (error) return toast.error(error.message);
+    toast.success(`Deleted ${ids.length}`);
+    clearSelection();
+    qc.invalidateQueries({ queryKey: ["admin-table", "testimonials"] });
+    qc.invalidateQueries({ queryKey: ["testimonials"] });
+  }
+
+  // ----- Drag & drop reorder -------------------------------------------
+  // Persists a new order by writing sequential sort_orders. Optimistic
+  // cache update keeps the UI from snapping back during writes.
+  const dragId = useRef<string | null>(null);
+  function onDragStart(id: string) { dragId.current = id; }
+  function onDragOver(e: React.DragEvent) { e.preventDefault(); }
+  async function onDrop(targetId: string) {
+    const from = dragId.current;
+    dragId.current = null;
+    if (!from || from === targetId) return;
+    const next = [...rows];
+    const fromIdx = next.findIndex((r) => r.id === from);
+    const toIdx = next.findIndex((r) => r.id === targetId);
+    if (fromIdx < 0 || toIdx < 0) return;
+    const [moved] = next.splice(fromIdx, 1);
+    next.splice(toIdx, 0, moved);
+    qc.setQueryData(["admin-table", "testimonials"], next.map((r, i) => ({ ...r, sort_order: i + 1 })));
+    try {
+      await Promise.all(
+        next.map((r, i) => (supabase as any).from("testimonials").update({ sort_order: i + 1 }).eq("id", r.id)),
+      );
+      qc.invalidateQueries({ queryKey: ["admin-table", "testimonials"] });
+      qc.invalidateQueries({ queryKey: ["testimonials"] });
+    } catch (err: any) {
+      toast.error(err?.message ?? "Couldn't save order");
+      qc.invalidateQueries({ queryKey: ["admin-table", "testimonials"] });
+    }
+  }
+
   const counts = useMemo(() => {
     const c = { all: rows.length, pending: 0, approved: 0, rejected: 0, featured: 0 };
     rows.forEach((r: any) => { c[(r.status as Status) ?? "approved"] = (c[(r.status as Status) ?? "approved"] ?? 0) + 1; });

@@ -71,6 +71,14 @@ function AdminSettings() {
     }
     setSaving(true);
     try {
+      const welcomeMs = Math.max(0, Math.min(5000, Number(form.welcome_animation_ms ?? 600) || 0));
+      const motionPref = ["on", "off", "auto"].includes(form.default_motion_pref)
+        ? form.default_motion_pref
+        : "auto";
+      const sectionVisibility =
+        form.section_visibility && typeof form.section_visibility === "object"
+          ? form.section_visibility
+          : {};
       const payload: any = {
         site_title: form.site_title || "Portfolio",
         logo_url: logo || null,
@@ -79,6 +87,9 @@ function AdminSettings() {
         site_name: form.site_name, primary_color: form.primary_color,
         secondary_color: form.secondary_color,
         hero_title: form.hero_title, hero_subtitle: form.hero_subtitle,
+        welcome_animation_ms: welcomeMs,
+        default_motion_pref: motionPref,
+        section_visibility: sectionVisibility,
         page_key: pageKey,
       };
       if (data?.id) {

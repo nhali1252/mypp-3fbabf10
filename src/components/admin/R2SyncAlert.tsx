@@ -23,6 +23,8 @@ export default function R2SyncAlert({
     retry,
     dismissFailures,
     status,
+    retryCooldownRemaining,
+    canRetry,
   } = sync;
 
   const [open, setOpen] = useState(false);
@@ -31,6 +33,7 @@ export default function R2SyncAlert({
   if (consecutiveFailures < FAILURE_ALERT_THRESHOLD) return null;
 
   const onRetry = async () => {
+    if (!canRetry || retrying) return;
     setRetrying(true);
     try {
       await retry();

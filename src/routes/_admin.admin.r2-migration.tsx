@@ -45,6 +45,23 @@ function R2MigrationPage() {
     }
   };
 
+  const runMediaMigration = async () => {
+    setMediaBusy(true);
+    try {
+      const res = await migrateMedia();
+      setMediaResult(res);
+      if (res.errors.length) {
+        toast.warning(`Migrated ${res.filesCopied} file(s) with ${res.errors.length} error(s)`);
+      } else {
+        toast.success(`Migrated ${res.filesCopied} file(s), rewrote ${res.rowsRewritten} row(s)`);
+      }
+    } catch (e: any) {
+      toast.error(e.message ?? "Media migration failed");
+    } finally {
+      setMediaBusy(false);
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-6">
       <header>
@@ -54,6 +71,38 @@ function R2MigrationPage() {
           Safe to re-run — overwrites the JSON files in R2 from the live database.
         </p>
       </header>
+
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="flex items-start gap-4">
+          <div className="grid place-items-center w-12 h-12 rounded-xl bg-primary/15 text-primary">
+            <ImageIcon className="w-6 h-6" />
+          </div>
+          <div className="flex-1">
+            <h2 className="font-bold">Migrate legacy media files to R2</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Finds every image URL still pointing at the old Supabase <code>media</code> bucket,
+              copies the file into R2, and rewrites the DB row to use the new R2 URL.
+              Run this <strong>before</strong> dropping the legacy bucket.
+            </p>
+            <Button onClick={runMediaMigration} disabled={mediaBusy} className="mt-4">
+              {mediaBusy ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Migrating…</> : "Migrate media"}
+            </Button>
+            {mediaResult && (
+              <div className="mt-4 p-3 rounded-lg bg-primary/10 text-sm space-y-1">
+                <div>Files copied: <strong>{mediaResult.filesCopied}</strong></div>
+                <div>Rows rewritten: <strong>{mediaResult.rowsRewritten}</strong></div>
+                <div>Unique URLs: <strong>{mediaResult.uniqueUrls}</strong></div>
+                {mediaResult.errors.length > 0 && (
+                  <details>
+                    <summary className="cursor-pointer text-destructive">{mediaResult.errors.length} error(s)</summary>
+                    <pre className="mt-2 text-[11px] whitespace-pre-wrap">{mediaResult.errors.join("\n")}</pre>
+                  </details>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
       <div className="rounded-2xl border border-border bg-card p-6">
         <div className="flex items-start gap-4">

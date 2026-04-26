@@ -425,8 +425,8 @@ function FilterToolbar({
   setMediaFilter: (v: MediaFilter) => void;
   featuredOnly: boolean;
   setFeaturedOnly: (v: boolean) => void;
-  sort: "newest" | "featured-first";
-  setSort: (v: "newest" | "featured-first") => void;
+  sort: FeedSort;
+  setSort: (v: FeedSort) => void;
   totalCount: number;
   filteredCount: number;
 }) {

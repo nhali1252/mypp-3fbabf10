@@ -32,7 +32,8 @@ export function bucket(): string {
 /** Private bucket name (no public domain attached). Used for PII like contact messages. */
 export function privateBucket(): string {
   const configured = process.env.R2_PRIVATE_BUCKET?.trim().replace(/[.\s]+$/g, "");
-  if (configured && configured !== process.env.R2_ACCOUNT_ID) return configured;
+  const looksLikeSecretValue = /^[a-f0-9]{64}$/i.test(configured ?? "") || configured?.startsWith("cfat_");
+  if (configured && configured !== process.env.R2_ACCOUNT_ID && !looksLikeSecretValue) return configured;
   return "private";
 }
 

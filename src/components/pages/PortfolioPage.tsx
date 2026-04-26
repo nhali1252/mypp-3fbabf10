@@ -195,10 +195,21 @@ function FolderViewer({
   onClose: () => void;
   onPreview: (item: PItem) => void;
 }) {
-  const { data: portfolioDoc, isLoading } = useR2Content<PortfolioDoc>("portfolio");
-  const items: PItem[] = (
-    (portfolioDoc ?? []).find((f) => f.id === folder.id)?.items ?? []
-  ).map((r) => ({ ...r, tags: Array.isArray(r.tags) ? r.tags : [] }));
+  const { data: portfolioDoc, isLoading, isError } = useR2Content<PortfolioDoc>("portfolio");
+  // Look up items for this folder. Match by id first, fall back to slug
+  // (handles edge cases where the folder reference was rebuilt by a re-seed).
+  const matched =
+    (portfolioDoc ?? []).find((f) => f.id === folder.id) ??
+    (portfolioDoc ?? []).find((f) => f.slug && f.slug === folder.slug) ??
+    null;
+  const items: PItem[] = (matched?.items ?? []).map((r) => ({
+    ...r,
+    tags: Array.isArray(r.tags) ? r.tags : [],
+  }));
+  // Only declare the folder empty when we actually have data loaded AND
+  // the matched folder exists in it AND it really has zero items.
+  const hasLoaded = !isLoading && !isError && portfolioDoc !== undefined && portfolioDoc !== null;
+  const isTrulyEmpty = hasLoaded && matched !== null && items.length === 0;
 
 
   return (

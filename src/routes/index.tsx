@@ -167,7 +167,17 @@ const HERO_FALLBACK: LauncherHero = {
 function Launcher() {
   const { data: launcherDoc } = useR2Content<{ hero: LauncherHero | null; pages: LauncherCard[] }>("launcher");
 
-  const cards: LauncherCard[] = (launcherDoc?.pages?.length ? launcherDoc.pages : FALLBACK) as LauncherCard[];
+  const rawCards: LauncherCard[] = (launcherDoc?.pages?.length ? launcherDoc.pages : FALLBACK) as LauncherCard[];
+  // Ensure the Feed card is always present even when the R2-managed launcher
+  // doc was saved before Feed existed. Insert right after Portfolio.
+  const cards: LauncherCard[] = (() => {
+    if (rawCards.some((c) => c.route === "/feed")) return rawCards;
+    const feedCard = FALLBACK.find((c) => c.route === "/feed")!;
+    const portfolioIdx = rawCards.findIndex((c) => c.route === "/portfolio");
+    const next = [...rawCards];
+    next.splice(portfolioIdx >= 0 ? portfolioIdx + 1 : next.length, 0, feedCard);
+    return next;
+  })();
   const hero: LauncherHero = launcherDoc?.hero ?? HERO_FALLBACK;
 
   const [hovered, setHovered] = useState<number | null>(null);

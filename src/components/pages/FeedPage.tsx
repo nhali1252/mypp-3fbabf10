@@ -232,12 +232,7 @@ export function FeedPage() {
           onOpen={(item) => {
             const i = visibleItems.findIndex((x) => x.id === item.id);
             if (i >= 0) open(i);
-            else {
-              // Reset filters so the item appears in the next slice fetch.
-              setFolderFilter("all");
-              setMediaFilter("all");
-              setFeaturedOnly(false);
-            }
+            else openSolo(item);
           }}
         />
       )}

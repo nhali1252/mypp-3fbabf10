@@ -10,6 +10,16 @@ import { AdminPage, AdminCard, FormRow } from "@/components/admin/AdminPage";
 import { MediaPicker } from "@/components/admin/MediaPicker";
 import { PageKeySelector, usePageKey } from "@/components/admin/PageKeySelector";
 import { Save, Trash2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+
+const HOMEPAGE_SECTION_KEYS: { key: string; label: string; hint?: string }[] = [
+  { key: "hero", label: "Hero / launcher headline" },
+  { key: "launcher_cards", label: "Launcher cards grid" },
+  { key: "about", label: "About section (Basic page)" },
+  { key: "skills", label: "Skills section (About page)" },
+  { key: "reviews", label: "Reviews / testimonials block" },
+  { key: "footer_cta", label: "Footer CTA block" },
+];
 
 function isValidImageUrl(v: string): boolean {
   if (!v) return false;
@@ -61,6 +71,14 @@ function AdminSettings() {
     }
     setSaving(true);
     try {
+      const welcomeMs = Math.max(0, Math.min(5000, Number(form.welcome_animation_ms ?? 600) || 0));
+      const motionPref = ["on", "off", "auto"].includes(form.default_motion_pref)
+        ? form.default_motion_pref
+        : "auto";
+      const sectionVisibility =
+        form.section_visibility && typeof form.section_visibility === "object"
+          ? form.section_visibility
+          : {};
       const payload: any = {
         site_title: form.site_title || "Portfolio",
         logo_url: logo || null,
@@ -69,6 +87,9 @@ function AdminSettings() {
         site_name: form.site_name, primary_color: form.primary_color,
         secondary_color: form.secondary_color,
         hero_title: form.hero_title, hero_subtitle: form.hero_subtitle,
+        welcome_animation_ms: welcomeMs,
+        default_motion_pref: motionPref,
+        section_visibility: sectionVisibility,
         page_key: pageKey,
       };
       if (data?.id) {
@@ -151,6 +172,66 @@ function AdminSettings() {
           <FormRow label="Brand primary color (hex)"><Input value={form.theme_primary || ""} onChange={(e) => set("theme_primary", e.target.value)} placeholder="#D9FF3D" /></FormRow>
           <FormRow label="Primary color (taxi CMS)"><Input value={form.primary_color || ""} onChange={(e) => set("primary_color", e.target.value)} placeholder="#B89B6F" /></FormRow>
           <FormRow label="Secondary color (taxi CMS)"><Input value={form.secondary_color || ""} onChange={(e) => set("secondary_color", e.target.value)} placeholder="#1B1C1F" /></FormRow>
+        </div>
+      </AdminCard>
+
+      <AdminCard title="Homepage behavior">
+        <div className="grid gap-4">
+          <FormRow
+            label="Welcome animation duration (ms)"
+            hint="How long the hero entrance fade/slide plays. 0 disables it. Range 0–5000."
+          >
+            <Input
+              type="number"
+              min={0}
+              max={5000}
+              step={50}
+              value={form.welcome_animation_ms ?? 600}
+              onChange={(e) => set("welcome_animation_ms", Number(e.target.value))}
+            />
+          </FormRow>
+          <FormRow
+            label="Default motion preference"
+            hint="What new visitors see before they choose. Users can still override via the Motion toggle."
+          >
+            <select
+              value={form.default_motion_pref ?? "auto"}
+              onChange={(e) => set("default_motion_pref", e.target.value)}
+              className="w-full h-10 rounded-md border border-border bg-background px-3 text-sm"
+            >
+              <option value="auto">Auto (follow OS)</option>
+              <option value="on">On (always animate)</option>
+              <option value="off">Off (reduce motion)</option>
+            </select>
+          </FormRow>
+          <FormRow
+            label="Homepage section visibility"
+            hint="Toggle which sections render on the public site. Off = hidden for everyone."
+          >
+            <div className="grid sm:grid-cols-2 gap-2">
+              {HOMEPAGE_SECTION_KEYS.map((s) => {
+                const map =
+                  form.section_visibility && typeof form.section_visibility === "object"
+                    ? form.section_visibility
+                    : {};
+                const visible = map[s.key] !== false;
+                return (
+                  <label
+                    key={s.key}
+                    className="flex items-center justify-between gap-3 rounded-md border border-border bg-card/40 px-3 py-2 text-sm"
+                  >
+                    <span>{s.label}</span>
+                    <Switch
+                      checked={visible}
+                      onCheckedChange={(v) =>
+                        set("section_visibility", { ...map, [s.key]: v })
+                      }
+                    />
+                  </label>
+                );
+              })}
+            </div>
+          </FormRow>
         </div>
       </AdminCard>
 

@@ -1084,6 +1084,7 @@ export type Database = {
       }
       site_settings: {
         Row: {
+          default_motion_pref: string
           favicon_url: string | null
           footer_text: string | null
           hero_subtitle: string | null
@@ -1093,12 +1094,15 @@ export type Database = {
           page_key: string
           primary_color: string | null
           secondary_color: string | null
+          section_visibility: Json
           site_name: string | null
           site_title: string
           theme_primary: string | null
           updated_at: string
+          welcome_animation_ms: number
         }
         Insert: {
+          default_motion_pref?: string
           favicon_url?: string | null
           footer_text?: string | null
           hero_subtitle?: string | null
@@ -1108,12 +1112,15 @@ export type Database = {
           page_key?: string
           primary_color?: string | null
           secondary_color?: string | null
+          section_visibility?: Json
           site_name?: string | null
           site_title?: string
           theme_primary?: string | null
           updated_at?: string
+          welcome_animation_ms?: number
         }
         Update: {
+          default_motion_pref?: string
           favicon_url?: string | null
           footer_text?: string | null
           hero_subtitle?: string | null
@@ -1123,10 +1130,12 @@ export type Database = {
           page_key?: string
           primary_color?: string | null
           secondary_color?: string | null
+          section_visibility?: Json
           site_name?: string | null
           site_title?: string
           theme_primary?: string | null
           updated_at?: string
+          welcome_animation_ms?: number
         }
         Relationships: []
       }

@@ -76,6 +76,10 @@ function AdminPortfolio() {
       return ((data ?? []) as any[]).map((r) => ({
         ...r,
         tags: Array.isArray(r.tags) ? r.tags : [],
+        show_in_feed: r.show_in_feed ?? true,
+        feed_caption: r.feed_caption ?? null,
+        featured: r.featured ?? false,
+        watermark_text: r.watermark_text ?? null,
       })) as Item[];
     },
     enabled: !!activeFolderId,

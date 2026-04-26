@@ -9,10 +9,14 @@ import { R2_KEYS } from "./r2-keys";
 
 export const seedR2FromDatabase = createServerFn({ method: "POST" })
   .handler(async () => {
-    // Adopt admin-key access — we are running an irreversible content export.
-    // Anonymous callers get blocked at the publish layer + we rate-limit by writing once.
-
-    const [hero, about, contact, services, reviews, projects, folders, items] = await Promise.all([
+    const [
+      hero, about, contact, services, reviews, projects, folders, items,
+      navLinks, footerLinks, footerApps, footerCta, ticker,
+      siteSettings, seoSettings, pageLoader,
+      launcherHero, launcherPages,
+      fHero, fPhotocard, fSkills, fProjects,
+      activities, education,
+    ] = await Promise.all([
       supabaseAdmin.from("hero_content").select("*").limit(1).maybeSingle(),
       supabaseAdmin.from("about_content").select("*").limit(1).maybeSingle(),
       supabaseAdmin.from("contact_settings").select("*").limit(1).maybeSingle(),
@@ -21,39 +25,53 @@ export const seedR2FromDatabase = createServerFn({ method: "POST" })
       supabaseAdmin.from("projects").select("*").eq("published", true).order("sort_order"),
       supabaseAdmin.from("portfolio_folders").select("*").eq("active", true).order("sort_order"),
       supabaseAdmin.from("portfolio_items").select("*").eq("active", true).order("sort_order"),
+      supabaseAdmin.from("nav_links").select("*").eq("active", true).order("sort_order"),
+      supabaseAdmin.from("footer_links").select("*").eq("active", true).order("sort_order"),
+      supabaseAdmin.from("footer_apps").select("*").eq("active", true).order("sort_order"),
+      supabaseAdmin.from("footer_cta").select("*").limit(1).maybeSingle(),
+      supabaseAdmin.from("ticker_items").select("*").eq("active", true).order("sort_order"),
+      supabaseAdmin.from("site_settings").select("*"),
+      supabaseAdmin.from("seo_settings").select("*"),
+      supabaseAdmin.from("page_loader_settings").select("*").limit(1).maybeSingle(),
+      supabaseAdmin.from("launcher_hero").select("*").limit(1).maybeSingle(),
+      supabaseAdmin.from("launcher_pages").select("*").eq("active", true).order("sort_order"),
+      supabaseAdmin.from("f_hero").select("*").limit(1).maybeSingle(),
+      supabaseAdmin.from("f_photocard").select("*").limit(1).maybeSingle(),
+      supabaseAdmin.from("f_skills").select("*").eq("active", true).order("sort_order"),
+      supabaseAdmin.from("f_projects").select("*").eq("active", true).order("sort_order"),
+      supabaseAdmin.from("activities").select("*").eq("active", true).order("sort_order"),
+      supabaseAdmin.from("education").select("*").eq("active", true).order("sort_order"),
     ]);
 
     const h = hero.data ?? ({} as any);
     const a = about.data ?? ({} as any);
     const c = contact.data ?? ({} as any);
 
+    // Group site_settings & seo_settings by page_key for direct lookup.
+    const siteByKey: Record<string, any> = {};
+    (siteSettings.data ?? []).forEach((row) => { siteByKey[row.page_key ?? "B"] = row; });
+    const seoByKey: Record<string, any> = {};
+    (seoSettings.data ?? []).forEach((row) => { seoByKey[row.page_key] = row; });
+
     const basicInfo = {
+      // page-keyed shapes preserved so admin/edit forms keep working
+      hero: h,
+      about: a,
+      contact: c,
+      siteSettings: siteByKey,
+      // Legacy convenience
       name: "Ali Nur Hasan",
       title: h.headline ?? "",
       shortIntro: h.subheadline ?? "",
       eyebrow: h.eyebrow ?? "",
       profileImage: h.portrait_url ?? "",
-      resumeUrl: "",
       socials: c.social_links ?? {},
-      cta: {
-        primaryText: h.primary_cta_label ?? "View Projects",
-        primaryUrl: h.primary_cta_url ?? "/projects",
-        secondaryText: h.secondary_cta_label ?? "",
-        secondaryUrl: h.secondary_cta_url ?? "",
-      },
     };
 
     const aboutDoc = {
-      title: a.title ?? "About me",
-      intro: a.intro ?? "",
-      bio: a.bio ?? "",
-      experienceSummary: a.experience_summary ?? "",
-      image: a.image_url ?? "",
-      skills: Array.isArray(a.skills) ? a.skills : [],
-      stats: Array.isArray(a.stats) ? a.stats : [],
-      tools: [],
-      highlights: [],
-      education: "",
+      ...a,
+      activities: activities.data ?? [],
+      education: education.data ?? [],
     };
 
     const portfolioDoc = (folders.data ?? []).map((f) => ({
@@ -61,69 +79,51 @@ export const seedR2FromDatabase = createServerFn({ method: "POST" })
       name: f.name,
       slug: f.slug,
       description: f.description ?? "",
-      cover: f.cover_url ?? "",
+      cover_url: f.cover_url ?? "",
       icon: f.icon ?? "",
-      sort: f.sort_order ?? 0,
+      sort_order: f.sort_order ?? 0,
+      active: f.active,
       items: (items.data ?? [])
         .filter((it) => it.folder_id === f.id)
         .map((it) => ({
           id: it.id,
+          folder_id: it.folder_id,
           title: it.title,
           description: it.description ?? "",
-          image: it.image_url ?? "",
-          externalUrl: it.external_url ?? "",
+          image_url: it.image_url ?? "",
+          external_url: it.external_url ?? "",
           tags: Array.isArray(it.tags) ? it.tags : [],
+          sort_order: it.sort_order ?? 0,
+          active: it.active,
         })),
     }));
 
-    const projectsDoc = (projects.data ?? []).map((p) => ({
-      id: p.id,
-      title: p.title,
-      slug: p.slug,
-      category: p.category ?? "",
-      summary: p.summary ?? "",
-      description: p.description ?? "",
-      image: p.image_url ?? "",
-      liveUrl: p.live_url ?? "",
-      githubUrl: p.github_url ?? "",
-      tools: Array.isArray(p.tools) ? p.tools : [],
-      features: Array.isArray(p.features) ? p.features : [],
-      gallery: Array.isArray(p.gallery) ? p.gallery : [],
-      featured: !!p.featured,
-    }));
+    const projectsDoc = projects.data ?? [];
+    const servicesDoc = services.data ?? [];
+    const contactDoc = { ...c };
+    const reviewsDoc = reviews.data ?? [];
 
-    const servicesDoc = (services.data ?? []).map((s) => ({
-      id: s.id,
-      title: s.title,
-      description: s.description ?? "",
-      icon: s.icon ?? "Sparkles",
-      price: "",
-      ctaText: "Contact Me",
-      ctaUrl: "/contact",
-    }));
-
-    const contactDoc = {
-      email: c.email ?? "",
-      phone: c.phone ?? "",
-      whatsapp: c.whatsapp ?? "",
-      location: c.address ?? "",
-      mapLink: c.map_link ?? "",
-      socials: c.social_links ?? {},
-      formReceiver: c.form_receiver_email ?? c.email ?? "",
+    const launcherDoc = {
+      hero: launcherHero.data ?? null,
+      pages: launcherPages.data ?? [],
     };
 
-    const reviewsDoc = (reviews.data ?? []).map((r) => ({
-      id: r.id,
-      name: r.client_name,
-      role: r.role ?? "",
-      company: r.company ?? "",
-      review: r.review,
-      rating: r.rating ?? 5,
-      avatar: r.avatar_url ?? "",
-      featured: !!r.featured,
-      published: true,
-      created_at: r.created_at,
-    }));
+    const chromeDoc = {
+      navLinks: navLinks.data ?? [],
+      footerLinks: footerLinks.data ?? [],
+      footerApps: footerApps.data ?? [],
+      footerCta: footerCta.data ?? null,
+      tickerItems: ticker.data ?? [],
+      seoSettings: seoByKey,
+      pageLoader: pageLoader.data ?? null,
+    };
+
+    const fPageDoc = {
+      hero: fHero.data ?? null,
+      photocard: fPhotocard.data ?? null,
+      skills: fSkills.data ?? [],
+      projects: fProjects.data ?? [],
+    };
 
     await Promise.all([
       writeJson(R2_KEYS.basicInfo, basicInfo),
@@ -133,6 +133,9 @@ export const seedR2FromDatabase = createServerFn({ method: "POST" })
       writeJson(R2_KEYS.services, servicesDoc),
       writeJson(R2_KEYS.contact, contactDoc),
       writeJson(R2_KEYS.reviews, reviewsDoc),
+      writeJson(R2_KEYS.launcher, launcherDoc),
+      writeJson(R2_KEYS.chrome, chromeDoc),
+      writeJson(R2_KEYS.fPage, fPageDoc),
     ]);
 
     return {
@@ -142,6 +145,15 @@ export const seedR2FromDatabase = createServerFn({ method: "POST" })
         projects: projectsDoc.length,
         services: servicesDoc.length,
         reviews: reviewsDoc.length,
+        launcherPages: launcherDoc.pages.length,
+        navLinks: chromeDoc.navLinks.length,
+        footerLinks: chromeDoc.footerLinks.length,
+        footerApps: chromeDoc.footerApps.length,
+        tickerItems: chromeDoc.tickerItems.length,
+        fSkills: fPageDoc.skills.length,
+        fProjects: fPageDoc.projects.length,
+        activities: (aboutDoc.activities as any[]).length,
+        education: (aboutDoc.education as any[]).length,
       },
     };
   });

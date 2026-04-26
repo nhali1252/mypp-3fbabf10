@@ -48,35 +48,16 @@ const fallbackOffers = [
 ];
 
 export function ServicesTasTajPage() {
-  const services = useQuery({
-    queryKey: ["public-services"],
-    queryFn: async () => {
-      const { data } = await (supabase as any)
-        .from("services")
-        .select("*")
-        .eq("active", true)
-        .order("sort_order", { ascending: true });
-      return (data ?? []) as ServiceRow[];
-    },
-  });
-
-  const skills = useQuery({
-    queryKey: ["public-f-skills"],
-    queryFn: async () => {
-      const { data } = await (supabase as any)
-        .from("f_skills")
-        .select("*")
-        .eq("active", true)
-        .order("sort_order", { ascending: true });
-      return (data ?? []) as FSkillRow[];
-    },
-  });
+  const services = useR2Content<ServiceRow[]>("services");
+  const fPage = useR2Content<{ skills: FSkillRow[] }>("fPage");
 
   const offers = (services.data?.length ? services.data : fallbackOffers) as Array<
     Pick<ServiceRow, "id" | "title" | "description" | "icon">
   >;
-  const designSkills = (skills.data ?? []).filter((s) => s.kind === "design");
-  const softSkills = (skills.data ?? []).filter((s) => s.kind !== "design");
+  const allSkills: FSkillRow[] = fPage.data?.skills ?? [];
+  const designSkills = allSkills.filter((s) => s.kind === "design");
+  const softSkills = allSkills.filter((s) => s.kind !== "design");
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">

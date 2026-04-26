@@ -195,22 +195,11 @@ function FolderViewer({
   onClose: () => void;
   onPreview: (item: PItem) => void;
 }) {
-  const { data: items = [], isLoading } = useQuery({
-    queryKey: ["public_portfolio_items", folder.id],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("portfolio_items")
-        .select("*")
-        .eq("folder_id", folder.id)
-        .eq("active", true)
-        .order("sort_order", { ascending: true });
-      if (error) throw error;
-      return ((data ?? []) as any[]).map((r) => ({
-        ...r,
-        tags: Array.isArray(r.tags) ? r.tags : [],
-      })) as PItem[];
-    },
-  });
+  const { data: portfolioDoc, isLoading } = useR2Content<PortfolioDoc>("portfolio");
+  const items: PItem[] = (
+    (portfolioDoc ?? []).find((f) => f.id === folder.id)?.items ?? []
+  ).map((r) => ({ ...r, tags: Array.isArray(r.tags) ? r.tags : [] }));
+
 
   return (
     <motion.div

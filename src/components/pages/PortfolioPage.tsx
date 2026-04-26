@@ -413,8 +413,9 @@ function ItemPreview({ item, onClose }: { item: PItem; onClose: () => void }) {
         </div>
         <div className="p-5 sm:p-6 max-h-[72vh] overflow-y-auto space-y-5">
           {item.image_url && (
-            <div className="rounded-xl overflow-hidden border border-border">
+            <div className="relative rounded-xl overflow-hidden border border-border">
               <img src={item.image_url} alt={item.title} className="w-full h-auto" />
+              <Watermark text={item.watermark_text ?? null} size="md" cornerBadge />
             </div>
           )}
           {item.description && (

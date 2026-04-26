@@ -161,7 +161,7 @@ function FolderCard({ folder, index, onOpen }: { folder: PFolder; index: number;
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
             <Folder className="h-20 w-20 text-primary/25 transition-all duration-500 group-hover:text-primary/45 group-hover:scale-110" strokeWidth={0.9} />
-            <span className="absolute font-serif-display italic font-light text-7xl text-primary/10 select-none">
+            <span className="absolute font-serif-display italic font-light text-7xl text-primary/10 select-none font-numeric">
               {String(index + 1).padStart(2, "0")}
             </span>
           </div>

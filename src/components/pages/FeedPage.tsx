@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
+import { useInfiniteQuery, useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
   ArrowLeft, X, ChevronLeft, ChevronRight, Play, Sparkles,
   Image as ImageIcon, ExternalLink, Calendar, Folder, Star,
   Filter, LayoutGrid, Film, ImagePlay,
 } from "lucide-react";
-import { useR2Content } from "@/hooks/useR2Content";
+import { getFeedSlice, type FeedItem as ServerFeedItem, type FeedFolder } from "@/server/feed.functions";
 import { Footer } from "@/components/Footer";
 import { Watermark } from "@/components/feed/Watermark";
 import { ReactionsBar } from "@/components/feed/ReactionsBar";
@@ -45,13 +46,7 @@ type PItem = {
 
 type PortfolioDoc = (PFolder & { items: PItem[] })[];
 
-type FeedItem = PItem & {
-  folder_name: string;
-  folder_slug: string;
-  media_kind: "image" | "video";
-  date: string | null;
-  featured: boolean;
-};
+type FeedItem = ServerFeedItem;
 
 type MediaFilter = "all" | "image" | "video";
 
@@ -59,39 +54,7 @@ type MediaFilter = "all" | "image" | "video";
 // Helpers
 // ---------------------------------------------------------------------------
 
-const VIDEO_EXT = /\.(mp4|webm|mov|m4v|ogv)(\?|#|$)/i;
 const PAGE_SIZE = 24;
-
-function detectKind(url: string | null | undefined): "image" | "video" {
-  if (!url) return "image";
-  return VIDEO_EXT.test(url) ? "video" : "image";
-}
-
-function flattenFeed(doc: PortfolioDoc | null | undefined): FeedItem[] {
-  if (!doc) return [];
-  const out: FeedItem[] = [];
-  for (const f of doc) {
-    for (const it of f.items ?? []) {
-      if (it.show_in_feed === false) continue;
-      if (!it.image_url) continue;
-      out.push({
-        ...it,
-        tags: Array.isArray(it.tags) ? it.tags : [],
-        folder_name: f.name,
-        folder_slug: f.slug,
-        media_kind: detectKind(it.image_url),
-        date: it.published_at ?? it.updated_at ?? it.created_at ?? null,
-        featured: !!it.featured,
-      });
-    }
-  }
-  out.sort((a, b) => {
-    const ta = a.date ? Date.parse(a.date) : 0;
-    const tb = b.date ? Date.parse(b.date) : 0;
-    return tb - ta;
-  });
-  return out;
-}
 
 function formatDate(iso: string | null): string {
   if (!iso) return "";
@@ -105,35 +68,53 @@ function formatDate(iso: string | null): string {
 // ---------------------------------------------------------------------------
 
 export function FeedPage() {
-  const { data, isLoading, isError } = useR2Content<PortfolioDoc>("portfolio", { staleTime: 5_000 });
-  const allItems = useMemo(() => flattenFeed(data ?? null), [data]);
-
   // Filters
   const [folderFilter, setFolderFilter] = useState<string>("all"); // folder slug
   const [mediaFilter, setMediaFilter] = useState<MediaFilter>("all");
-  const [visibleCount, setVisibleCount] = useState<number>(PAGE_SIZE);
+  const [featuredOnly, setFeaturedOnly] = useState<boolean>(false);
 
-  // Reset pagination when filters change
-  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [folderFilter, mediaFilter]);
+  // Server-paginated feed slice. Each "Load more" fetches only the next page.
+  const sliceQuery = useInfiniteQuery({
+    queryKey: ["feed-slice", { folder: folderFilter, media: mediaFilter, featured: featuredOnly }],
+    queryFn: async ({ pageParam = 0 }) => {
+      return await getFeedSlice({
+        data: {
+          folder: folderFilter === "all" ? undefined : folderFilter,
+          media: mediaFilter,
+          featured: featuredOnly,
+          offset: pageParam,
+          limit: PAGE_SIZE,
+        },
+      });
+    },
+    getNextPageParam: (last) => (last.hasMore ? last.offset + last.items.length : undefined),
+    initialPageParam: 0,
+    staleTime: 30_000,
+    placeholderData: keepPreviousData,
+  });
 
-  const folders = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const it of allItems) map.set(it.folder_slug, it.folder_name);
-    return Array.from(map, ([slug, name]) => ({ slug, name }));
-  }, [allItems]);
+  const isLoading = sliceQuery.isLoading;
+  const isError = sliceQuery.isError;
+  const visibleItems: FeedItem[] = useMemo(
+    () => (sliceQuery.data?.pages ?? []).flatMap((p) => p.items),
+    [sliceQuery.data],
+  );
+  const firstPage = sliceQuery.data?.pages?.[0];
+  const folders: { slug: string; name: string }[] = firstPage?.folders ?? [];
+  const totalAll = firstPage?.total ?? 0;
+  const filteredTotal = firstPage?.filteredTotal ?? 0;
+  const canLoadMore = !!sliceQuery.hasNextPage;
 
-  const featured = useMemo(() => allItems.filter((it) => it.featured), [allItems]);
-
-  const filtered = useMemo(() => {
-    return allItems.filter((it) => {
-      if (folderFilter !== "all" && it.folder_slug !== folderFilter) return false;
-      if (mediaFilter !== "all" && it.media_kind !== mediaFilter) return false;
-      return true;
-    });
-  }, [allItems, folderFilter, mediaFilter]);
-
-  const visibleItems = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
-  const canLoadMore = visibleCount < filtered.length;
+  // Featured strip — fetch a small dedicated slice once, independent of filters.
+  const featuredQuery = useQuery({
+    queryKey: ["feed-featured"],
+    queryFn: async () => {
+      const res = await getFeedSlice({ data: { featured: true, limit: 12, offset: 0 } });
+      return res.items;
+    },
+    staleTime: 60_000,
+  });
+  const featured = featuredQuery.data ?? [];
 
   // Lightbox runs over the *visible* items for predictable index/total.
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
@@ -232,29 +213,27 @@ export function FeedPage() {
             const i = visibleItems.findIndex((x) => x.id === item.id);
             if (i >= 0) open(i);
             else {
-              // Ensure it's in the visible window if filters hide it
+              // Reset filters so the item appears in the next slice fetch.
               setFolderFilter("all");
               setMediaFilter("all");
-              setVisibleCount((c) => Math.max(c, PAGE_SIZE));
-              // Defer until next paint so visibleItems updates
-              setTimeout(() => {
-                setActiveIdx(allItems.findIndex((x) => x.id === item.id));
-              }, 0);
+              setFeaturedOnly(false);
             }
           }}
         />
       )}
 
       {/* Toolbar */}
-      {!isLoading && !isError && allItems.length > 0 && (
+      {!isLoading && !isError && totalAll > 0 && (
         <FilterToolbar
           folders={folders}
           folderFilter={folderFilter}
           setFolderFilter={setFolderFilter}
           mediaFilter={mediaFilter}
           setMediaFilter={setMediaFilter}
-          totalCount={allItems.length}
-          filteredCount={filtered.length}
+          featuredOnly={featuredOnly}
+          setFeaturedOnly={setFeaturedOnly}
+          totalCount={totalAll}
+          filteredCount={filteredTotal}
         />
       )}
 
@@ -264,15 +243,15 @@ export function FeedPage() {
             <FeedSkeleton />
           ) : isError ? (
             <ErrorState />
-          ) : allItems.length === 0 ? (
+          ) : totalAll === 0 ? (
             <EmptyState
               title="No uploads yet"
               hint={`Add items inside any portfolio folder and they'll appear here automatically.`}
             />
-          ) : filtered.length === 0 ? (
+          ) : filteredTotal === 0 ? (
             <EmptyState
               title="No matches for this filter"
-              hint="Try changing the folder or media-type filter above."
+              hint="Try changing the folder, media-type, or featured filter above."
             />
           ) : (
             <>
@@ -281,12 +260,13 @@ export function FeedPage() {
                 <div className="flex justify-center mt-10">
                   <button
                     type="button"
-                    onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-                    className="group inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border bg-card hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 text-xs font-bold uppercase tracking-[0.22em]"
+                    onClick={() => sliceQuery.fetchNextPage()}
+                    disabled={sliceQuery.isFetchingNextPage}
+                    className="group inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border bg-card hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 text-xs font-bold uppercase tracking-[0.22em] disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    Load more
+                    {sliceQuery.isFetchingNextPage ? "Loading…" : "Load more"}
                     <span className="text-[10px] opacity-60 group-hover:opacity-100">
-                      {filtered.length - visibleCount} remaining
+                      {Math.max(0, filteredTotal - visibleItems.length)} remaining
                     </span>
                   </button>
                 </div>
@@ -324,6 +304,8 @@ function FilterToolbar({
   setFolderFilter,
   mediaFilter,
   setMediaFilter,
+  featuredOnly,
+  setFeaturedOnly,
   totalCount,
   filteredCount,
 }: {
@@ -332,6 +314,8 @@ function FilterToolbar({
   setFolderFilter: (v: string) => void;
   mediaFilter: MediaFilter;
   setMediaFilter: (v: MediaFilter) => void;
+  featuredOnly: boolean;
+  setFeaturedOnly: (v: boolean) => void;
   totalCount: number;
   filteredCount: number;
 }) {
@@ -356,6 +340,20 @@ function FilterToolbar({
               </Chip>
             ))}
           </div>
+
+          <button
+            type="button"
+            onClick={() => setFeaturedOnly(!featuredOnly)}
+            aria-pressed={featuredOnly}
+            className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-bold uppercase tracking-[0.2em] transition-colors ${
+              featuredOnly
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-border bg-background/40 text-muted-foreground hover:text-foreground hover:border-primary/40"
+            }`}
+          >
+            <Star className={`w-3.5 h-3.5 ${featuredOnly ? "fill-current" : ""}`} />
+            Featured
+          </button>
 
           <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground shrink-0">
             {filteredCount === totalCount ? `${totalCount} items` : `${filteredCount} of ${totalCount}`}

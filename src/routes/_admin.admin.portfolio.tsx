@@ -236,6 +236,61 @@ function AdminPortfolio() {
     qc.invalidateQueries({ queryKey: ["admin_portfolio_items", activeFolderId] });
   }
 
+  // ---- Drag & drop reorder ---------------------------------------------
+  // Persists a new ordering by writing sequential sort_orders (1..N) for the
+  // affected rows. Optimistically applies the order via React Query cache so
+  // the UI doesn't snap back while the writes are in flight.
+  async function persistReorder<T extends { id: string }>(
+    table: "portfolio_folders" | "portfolio_items",
+    nextOrder: T[],
+    queryKey: any[],
+  ) {
+    qc.setQueryData(queryKey, nextOrder.map((row, i) => ({ ...row, sort_order: i + 1 })));
+    try {
+      await Promise.all(
+        nextOrder.map((row, i) =>
+          (supabase as any).from(table).update({ sort_order: i + 1 }).eq("id", row.id),
+        ),
+      );
+      qc.invalidateQueries({ queryKey });
+      qc.invalidateQueries({ queryKey: ["public_portfolio_folders"] });
+      qc.invalidateQueries({ queryKey: ["public_portfolio_items"] });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Couldn't save new order");
+      qc.invalidateQueries({ queryKey });
+    }
+  }
+
+  const dragRef = useRef<{ kind: "folder" | "item"; id: string } | null>(null);
+
+  function onFolderDragStart(id: string) { dragRef.current = { kind: "folder", id }; }
+  function onItemDragStart(id: string) { dragRef.current = { kind: "item", id }; }
+  function onDragOver(e: React.DragEvent) { e.preventDefault(); }
+  async function onFolderDrop(targetId: string) {
+    const drag = dragRef.current;
+    dragRef.current = null;
+    if (!drag || drag.kind !== "folder" || drag.id === targetId) return;
+    const fromIdx = folders.findIndex((f) => f.id === drag.id);
+    const toIdx = folders.findIndex((f) => f.id === targetId);
+    if (fromIdx < 0 || toIdx < 0) return;
+    const next = [...folders];
+    const [moved] = next.splice(fromIdx, 1);
+    next.splice(toIdx, 0, moved);
+    await persistReorder("portfolio_folders", next, ["admin_portfolio_folders"]);
+  }
+  async function onItemDrop(targetId: string) {
+    const drag = dragRef.current;
+    dragRef.current = null;
+    if (!drag || drag.kind !== "item" || drag.id === targetId) return;
+    const fromIdx = items.findIndex((i) => i.id === drag.id);
+    const toIdx = items.findIndex((i) => i.id === targetId);
+    if (fromIdx < 0 || toIdx < 0) return;
+    const next = [...items];
+    const [moved] = next.splice(fromIdx, 1);
+    next.splice(toIdx, 0, moved);
+    await persistReorder("portfolio_items", next, ["admin_portfolio_items", activeFolderId]);
+  }
+
   return (
     <AdminPage
       title="Portfolio"

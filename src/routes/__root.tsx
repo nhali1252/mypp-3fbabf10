@@ -105,6 +105,7 @@ function RootComponent() {
           <PageLoader />
           <RouteTransition />
           <Toaster richColors position="top-right" />
+          <StaleBuildBanner />
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

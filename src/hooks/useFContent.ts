@@ -48,8 +48,8 @@ export const F_KEYS = {
 
 const useFDoc = () => useR2Content<any>("fPage");
 
-function pick(q: ReturnType<typeof useFDoc>, value: any) {
-  return { ...q, data: value } as any;
+function pick<T>(q: ReturnType<typeof useFDoc>, value: T) {
+  return { ...q, data: value } as Omit<typeof q, "data"> & { data: T };
 }
 
 export function useFPhotocard() {

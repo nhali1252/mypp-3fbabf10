@@ -189,6 +189,20 @@ export function useR2AutoResync() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Cooldown ticker — counts down `retryCooldownRemaining` once per second
+  // while a retry was recently attempted. Stops cleanly when it hits zero.
+  useEffect(() => {
+    if (!lastRetryAt) return;
+    const tick = () => {
+      const elapsed = Date.now() - lastRetryAt;
+      const remaining = Math.max(0, Math.ceil((RETRY_COOLDOWN_MS - elapsed) / 1000));
+      setRetryCooldownRemaining(remaining);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [lastRetryAt]);
+
   return {
     status,
     lastSyncedAt,
@@ -199,5 +213,7 @@ export function useR2AutoResync() {
     consecutiveFailures,
     failureHistory,
     lastFailedScope,
+    retryCooldownRemaining,
+    canRetry: retryCooldownRemaining === 0,
   };
 }

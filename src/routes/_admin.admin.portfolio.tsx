@@ -375,9 +375,39 @@ function AdminPortfolio() {
                               <FormRow label="Image"><MediaPicker value={row.image_url ?? undefined} onChange={(u: string | null) => iSet(it.id, { image_url: u })} /></FormRow>
                               <FormRow label="External link (optional)"><Input value={row.external_url ?? ""} onChange={(e) => iSet(it.id, { external_url: e.target.value })} placeholder="https://…" /></FormRow>
                               <FormRow label="Tags"><TagListEditor value={tags} onChange={(v: string[]) => iSet(it.id, { tags: v })} /></FormRow>
-                              <label className="flex items-center gap-2 text-xs font-semibold">
+
+                              <div className="rounded-lg border border-border bg-muted/30 p-3 grid gap-2.5">
+                                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground inline-flex items-center gap-1.5">
+                                  <MessageSquare className="w-3 h-3" /> Feed options
+                                </div>
+                                <label className="flex items-center justify-between gap-3 text-xs font-semibold">
+                                  <span className="inline-flex items-center gap-2"><Eye className="w-3.5 h-3.5 text-muted-foreground" />Show in feed</span>
+                                  <Switch checked={!!row.show_in_feed} onCheckedChange={(v) => iSet(it.id, { show_in_feed: v })} />
+                                </label>
+                                <label className="flex items-center justify-between gap-3 text-xs font-semibold">
+                                  <span className="inline-flex items-center gap-2"><Star className="w-3.5 h-3.5 text-primary" />Featured (pinned strip)</span>
+                                  <Switch checked={!!row.featured} onCheckedChange={(v) => iSet(it.id, { featured: v })} />
+                                </label>
+                                <FormRow label="Feed caption (optional)" hint="Shown only on the feed; falls back to description.">
+                                  <Textarea
+                                    rows={2}
+                                    value={row.feed_caption ?? ""}
+                                    onChange={(e) => iSet(it.id, { feed_caption: e.target.value || null })}
+                                    placeholder="A different caption just for the feed…"
+                                  />
+                                </FormRow>
+                                <FormRow label="Watermark text (optional)" hint="Overrides the site-name diagonal watermark for this item.">
+                                  <Input
+                                    value={row.watermark_text ?? ""}
+                                    onChange={(e) => iSet(it.id, { watermark_text: e.target.value || null })}
+                                    placeholder="© Ali Nur Hasan"
+                                  />
+                                </FormRow>
+                              </div>
+
+                              <label className="flex items-center gap-2 text-xs font-semibold pt-1">
                                 <Switch checked={!!row.active} onCheckedChange={(v) => iSet(it.id, { active: v })} />
-                                Visible
+                                <Shield className="w-3.5 h-3.5 text-muted-foreground" /> Visible on portfolio
                               </label>
                               <div className="flex flex-wrap gap-2 pt-1">
                                 <Button size="sm" onClick={() => saveItem.mutate(it.id)} disabled={!dirty}><Save className="w-3.5 h-3.5 mr-1.5" />Save</Button>

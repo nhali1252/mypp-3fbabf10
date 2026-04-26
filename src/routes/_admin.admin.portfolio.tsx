@@ -35,6 +35,10 @@ type Item = {
   tags: string[];
   sort_order: number;
   active: boolean;
+  show_in_feed: boolean;
+  feed_caption: string | null;
+  featured: boolean;
+  watermark_text: string | null;
 };
 
 function slugify(s: string) {

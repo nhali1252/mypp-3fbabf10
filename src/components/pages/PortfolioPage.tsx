@@ -201,17 +201,22 @@ function FolderCard({ folder, index, onOpen }: { folder: PFolder; index: number;
 }
 
 function FolderViewer({
-  folder,
+  allFolders,
+  folderStack,
+  onNavigate,
   onClose,
   onPreview,
 }: {
-  folder: PFolder;
+  allFolders: PFolder[];
+  folderStack: PFolder[];
+  onNavigate: (next: PFolder[]) => void;
   onClose: () => void;
   onPreview: (item: PItem) => void;
 }) {
+  const folder = folderStack[folderStack.length - 1];
   const { data: portfolioDoc, isLoading, isError } = useR2Content<PortfolioDoc>("portfolio", { staleTime: 5_000 });
-  // Look up items for this folder. Match by id first, fall back to slug
-  // (handles edge cases where the folder reference was rebuilt by a re-seed).
+
+  // Look up items for the active folder. Match by id first, fall back to slug.
   const matched =
     (portfolioDoc ?? []).find((f) => f.id === folder.id) ??
     (portfolioDoc ?? []).find((f) => f.slug && f.slug === folder.slug) ??
@@ -220,11 +225,23 @@ function FolderViewer({
     ...r,
     tags: Array.isArray(r.tags) ? r.tags : [],
   }));
-  // Only declare the folder empty when we actually have data loaded AND
-  // the matched folder exists in it AND it really has zero items.
-  const hasLoaded = !isLoading && !isError && portfolioDoc !== undefined && portfolioDoc !== null;
-  const isTrulyEmpty = hasLoaded && matched !== null && items.length === 0;
 
+  // Direct subfolders of the active folder, sorted by sort_order.
+  const subfolders: PFolder[] = allFolders
+    .filter((f) => f.parent_id === folder.id)
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+
+  const hasLoaded = !isLoading && !isError && portfolioDoc !== undefined && portfolioDoc !== null;
+  const isTrulyEmpty = hasLoaded && matched !== null && items.length === 0 && subfolders.length === 0;
+
+  function openSubfolder(sub: PFolder) {
+    onNavigate([...folderStack, sub]);
+  }
+  function navigateToDepth(depth: number) {
+    // depth = -1 → close; otherwise truncate stack to depth+1 entries.
+    if (depth < 0) onClose();
+    else onNavigate(folderStack.slice(0, depth + 1));
+  }
 
   return (
     <motion.div
@@ -235,7 +252,6 @@ function FolderViewer({
       className="fixed inset-0 z-[90] bg-black/85 backdrop-blur-md overflow-auto"
       onClick={onClose}
     >
-      {/* Animated VFX backdrop */}
       <motion.div
         aria-hidden
         initial={{ scale: 0.6, opacity: 0 }}
@@ -257,7 +273,6 @@ function FolderViewer({
         className="relative z-10 max-w-5xl mx-auto my-6 sm:my-12 mx-4 sm:mx-auto bg-card border border-primary/30 rounded-2xl overflow-hidden shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Sweep shine on open */}
         <motion.div
           aria-hidden
           initial={{ x: "-110%" }}
@@ -273,9 +288,9 @@ function FolderViewer({
         <div className="flex items-center justify-between gap-3 p-5 sm:p-7 border-b border-border">
           <div className="flex items-center gap-3 min-w-0 flex-1">
             <button
-              onClick={onClose}
+              onClick={() => (folderStack.length > 1 ? navigateToDepth(folderStack.length - 2) : onClose())}
               className="shrink-0 inline-flex items-center gap-1.5 h-9 px-3 rounded-full border border-border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors duration-300 text-xs font-bold uppercase tracking-[0.2em]"
-              aria-label="Back to all folders"
+              aria-label="Back"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               Back
@@ -284,17 +299,27 @@ function FolderViewer({
               <FolderOpen className="h-5 w-5" strokeWidth={1.5} />
             </span>
             <div className="min-w-0">
-              {/* Breadcrumb */}
-              <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="hover:text-primary transition-colors"
-                >
+              {/* Multi-level breadcrumb — every crumb is clickable */}
+              <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground flex-wrap">
+                <button type="button" onClick={onClose} className="hover:text-primary transition-colors">
                   Portfolio
                 </button>
-                <span aria-hidden>/</span>
-                <span className="text-primary truncate">{folder.name}</span>
+                {folderStack.map((f, idx) => (
+                  <span key={f.id} className="inline-flex items-center gap-1.5">
+                    <span aria-hidden>/</span>
+                    {idx === folderStack.length - 1 ? (
+                      <span className="text-primary truncate max-w-[160px]">{f.name}</span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => navigateToDepth(idx)}
+                        className="hover:text-primary transition-colors truncate max-w-[140px]"
+                      >
+                        {f.name}
+                      </button>
+                    )}
+                  </span>
+                ))}
               </nav>
               <h3 className="font-serif-display text-2xl sm:text-3xl tracking-tight font-light truncate mt-0.5">{folder.name}</h3>
             </div>
@@ -308,7 +333,49 @@ function FolderViewer({
           </button>
         </div>
 
-        <div className="p-5 sm:p-7 max-h-[72vh] overflow-y-auto">
+        <div className="p-5 sm:p-7 max-h-[72vh] overflow-y-auto space-y-7">
+          {/* Subfolders strip — shown when this folder has children. */}
+          {subfolders.length > 0 && (
+            <div>
+              <p className="text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground mb-3">
+                Subfolders ({subfolders.length})
+              </p>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {subfolders.map((sub, i) => (
+                  <button
+                    key={sub.id}
+                    type="button"
+                    onClick={() => openSubfolder(sub)}
+                    className="group relative text-left overflow-hidden rounded-xl border border-border bg-background hover:border-primary/45 transition-colors"
+                  >
+                    <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-muted via-card to-background">
+                      {sub.cover_url ? (
+                        <img
+                          src={sub.cover_url}
+                          alt={sub.name}
+                          loading="lazy"
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 grid place-items-center">
+                          <Folder className="h-12 w-12 text-primary/30" strokeWidth={0.9} />
+                          <span className="absolute font-serif-display italic font-light text-5xl text-primary/10 select-none">
+                            {String(i + 1).padStart(2, "0")}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="px-4 py-3 flex items-center justify-between gap-3 border-t border-border">
+                      <h4 className="text-sm font-bold tracking-tight truncate">{sub.name}</h4>
+                      <ArrowUpRight className="h-3.5 w-3.5 text-primary shrink-0" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Items grid */}
           {isLoading || !hasLoaded ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
@@ -319,73 +386,74 @@ function FolderViewer({
             <div className="text-center py-16">
               <Folder className="w-14 h-14 mx-auto text-destructive/40 mb-4" strokeWidth={0.9} />
               <p className="text-base font-bold tracking-tight">Couldn't load this folder</p>
-              <p className="text-xs text-muted-foreground mt-2">
-                Please refresh the page to try again.
-              </p>
+              <p className="text-xs text-muted-foreground mt-2">Please refresh the page to try again.</p>
             </div>
           ) : isTrulyEmpty ? (
             <div className="text-center py-16">
               <Folder className="w-14 h-14 mx-auto text-primary/30 mb-4" strokeWidth={0.9} />
               <p className="text-base font-bold tracking-tight">No Data, will be uploaded soon</p>
-              <p className="text-xs text-muted-foreground mt-2">
-                This folder is empty for now — check back shortly.
-              </p>
+              <p className="text-xs text-muted-foreground mt-2">This folder is empty for now — check back shortly.</p>
             </div>
-          ) : items.length === 0 ? (
-            // Folder reference not found in the current snapshot — likely
-            // mid-resync. Show loading skeletons instead of a misleading "empty".
+          ) : items.length === 0 && subfolders.length === 0 ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="aspect-square rounded-xl border border-border bg-background animate-pulse" />
               ))}
             </div>
-          ) : (
-            <motion.div
-              initial="hidden"
-              animate="show"
-              variants={{ show: { transition: { staggerChildren: 0.05 } } }}
-              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
-            >
-              {items.map((it) => (
-                <motion.button
-                  key={it.id}
-                  type="button"
-                  variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}
-                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  whileHover={{ y: -4 }}
-                  onClick={() => onPreview(it)}
-                  className="group relative text-left overflow-hidden rounded-xl border border-border bg-background hover:border-primary/45 transition-colors"
-                  aria-label={`Preview ${it.title}`}
-                >
-                  <div className="relative aspect-square overflow-hidden bg-muted">
-                    {it.image_url ? (
-                      <img
-                        src={it.image_url}
-                        alt={it.title}
-                        loading="lazy"
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="w-full h-full grid place-items-center">
-                        <ImageIcon className="w-8 h-8 text-muted-foreground" />
-                      </div>
-                    )}
-                    {it.image_url && (
-                      <Watermark text={it.watermark_text ?? null} size="sm" cornerBadge />
-                    )}
-                  </div>
-                  <div className="p-3">
-                    <h4 className="text-sm font-bold tracking-tight truncate">{it.title}</h4>
-                    {it.tags.length > 0 && (
-                      <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground mt-1 truncate">
-                        {it.tags.slice(0, 3).join(" · ")}
-                      </p>
-                    )}
-                  </div>
-                </motion.button>
-              ))}
-            </motion.div>
-          )}
+          ) : items.length > 0 ? (
+            <div>
+              {subfolders.length > 0 && (
+                <p className="text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground mb-3">
+                  Items ({items.length})
+                </p>
+              )}
+              <motion.div
+                initial="hidden"
+                animate="show"
+                variants={{ show: { transition: { staggerChildren: 0.05 } } }}
+                className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
+              >
+                {items.map((it) => (
+                  <motion.button
+                    key={it.id}
+                    type="button"
+                    variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}
+                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                    whileHover={{ y: -4 }}
+                    onClick={() => onPreview(it)}
+                    className="group relative text-left overflow-hidden rounded-xl border border-border bg-background hover:border-primary/45 transition-colors"
+                    aria-label={`Preview ${it.title}`}
+                  >
+                    <div className="relative aspect-square overflow-hidden bg-muted">
+                      {it.image_url ? (
+                        <img
+                          src={it.image_url}
+                          alt={it.title}
+                          loading="lazy"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full grid place-items-center">
+                          <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                      )}
+                      {it.image_url && (
+                        <Watermark text={it.watermark_text ?? null} size="sm" cornerBadge />
+                      )}
+                    </div>
+                    <div className="p-3">
+                      <h4 className="text-sm font-bold tracking-tight truncate">{it.title}</h4>
+                      {it.tags.length > 0 && (
+                        <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground mt-1 truncate">
+                          {it.tags.slice(0, 3).join(" · ")}
+                        </p>
+                      )}
+                    </div>
+                  </motion.button>
+                ))}
+              </motion.div>
+            </div>
+          ) : null}
         </div>
       </motion.div>
     </motion.div>

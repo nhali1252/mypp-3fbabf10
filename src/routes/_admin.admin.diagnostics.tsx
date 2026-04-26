@@ -3,15 +3,20 @@ import { useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import {
   CheckCircle2, AlertTriangle, RefreshCw, GitBranch, Hash,
-  Clock, Cpu, FileCode2, Terminal, Loader2,
+  Clock, Cpu, FileCode2, Terminal, Loader2, ExternalLink, Activity, Eraser,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
   BUILD_MANIFEST,
   RUNTIME_BOOTED_AT,
+  buildErrorLink,
+  parseTscOutput,
   summarizeDiagnostics,
   type BuildManifest,
+  type TsError,
+  type TsErrorSource,
 } from "@/lib/build-info";
+import { clearLiveErrors, useLiveTsErrors } from "@/lib/live-ts-errors";
 import { refreshDiagnostics } from "@/server/diagnostics.functions";
 
 export const Route = createFileRoute("/_admin/admin/diagnostics")({

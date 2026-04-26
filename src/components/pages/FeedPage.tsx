@@ -283,21 +283,38 @@ export function FeedPage() {
               hint="Try changing the folder, media-type, or featured filter above."
             />
           ) : (
-            <FeedGrid
-              items={visibleItems}
-              onOpen={open}
-              canLoadMore={canLoadMore}
-              isFetchingNextPage={sliceQuery.isFetchingNextPage}
-              nextPageError={
-                sliceQuery.isError && visibleItems.length > 0
-                  ? sliceQuery.error instanceof Error
-                    ? sliceQuery.error.message
-                    : "Unknown error"
-                  : null
-              }
-              onLoadMore={() => sliceQuery.fetchNextPage()}
-              filteredTotal={filteredTotal}
-            />
+            <>
+              <MasonryGrid items={visibleItems} onOpen={open} />
+              {nextPageErrorMessage ? (
+                <div className="flex flex-col items-center gap-3 mt-10">
+                  <p className="text-xs text-destructive font-medium text-center max-w-sm">
+                    Couldn't load more items. {nextPageErrorMessage}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => sliceQuery.fetchNextPage()}
+                    disabled={sliceQuery.isFetchingNextPage}
+                    className="group inline-flex items-center gap-2 px-6 py-3 rounded-full border border-destructive/40 bg-destructive/5 hover:border-destructive hover:bg-destructive hover:text-destructive-foreground transition-all duration-300 text-xs font-bold uppercase tracking-[0.22em] disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {sliceQuery.isFetchingNextPage ? "Retrying…" : "Retry"}
+                  </button>
+                </div>
+              ) : canLoadMore ? (
+                <div className="flex justify-center mt-10">
+                  <button
+                    type="button"
+                    onClick={() => sliceQuery.fetchNextPage()}
+                    disabled={sliceQuery.isFetchingNextPage}
+                    className="group inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border bg-card hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 text-xs font-bold uppercase tracking-[0.22em] disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {sliceQuery.isFetchingNextPage ? "Loading…" : "Load more"}
+                    <span className="text-[10px] opacity-60 group-hover:opacity-100">
+                      {Math.max(0, filteredTotal - visibleItems.length)} remaining
+                    </span>
+                  </button>
+                </div>
+              ) : null}
+            </>
           )}
         </div>
       </section>

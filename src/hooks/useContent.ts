@@ -1,83 +1,56 @@
 /**
  * Public content hooks — now read from R2 JSON via the `getContent` server function.
- * Public API is preserved so consumer components don't change.
+ * Public API (return shape) is preserved so consumer components don't change.
  */
 import { useR2Content } from "./useR2Content";
 
 type PageKey = "B" | "F" | string;
 
-type BasicInfoDoc = {
-  hero?: any;
-  about?: any;
-  contact?: any;
-  siteSettings?: Record<string, any>;
+const useBasicInfo = () => useR2Content<any>("basicInfo");
+const useChromeDoc = () => useR2Content<any>("chrome");
+const useAboutDoc = () => useR2Content<any>("about");
+
+// Each derived hook re-projects a slice of the cached doc but keeps
+// the React-Query result shape (data/isLoading/error/etc).
+function project<T>(q: ReturnType<typeof useBasicInfo>, picker: (d: any) => T) {
+  return { ...q, data: q.data ? picker(q.data) : null } as Omit<typeof q, "data"> & { data: T | null };
+}
+
+export const useHero = (_pageKey: PageKey = "B") =>
+  project(useBasicInfo(), (d) => d?.hero ?? null);
+
+export const useAbout = (_pageKey: PageKey = "B") => useAboutDoc();
+
+export const useContactSettings = (_pageKey: PageKey = "B") =>
+  useR2Content<any>("contact");
+
+export const useSiteSettings = (pageKey: PageKey = "B") =>
+  project(useBasicInfo(), (d) => d?.siteSettings?.[pageKey] ?? null);
+
+export const useServices = () => {
+  const q = useR2Content<any[]>("services");
+  return { ...q, data: q.data ?? [] };
 };
 
-type ChromeDoc = {
-  navLinks: any[];
-  footerLinks: any[];
-  footerApps: any[];
-  footerCta: any | null;
-  tickerItems: any[];
-  seoSettings: Record<string, any>;
-  pageLoader: any | null;
+export const useProjects = () => {
+  const q = useR2Content<any[]>("projects");
+  return { ...q, data: q.data ?? [] };
 };
 
-type AboutDoc = any & { activities?: any[]; education?: any[] };
+export const useNavLinks = () =>
+  project(useChromeDoc(), (d) => (d?.navLinks ?? []) as any[]);
 
-const useBasicInfo = () => useR2Content<BasicInfoDoc>("basicInfo");
-const useChrome = () => useR2Content<ChromeDoc>("chrome");
-const useAboutDoc = () => useR2Content<AboutDoc>("about");
+export const useFooterLinks = () =>
+  project(useChromeDoc(), (d) => (d?.footerLinks ?? []) as any[]);
 
-// Shape the basic-info hero doc by page key (defaults to "B").
-export const useHero = (_pageKey: PageKey = "B") => {
-  const q = useBasicInfo();
-  return { ...q, data: q.data?.hero ?? null } as typeof q;
-};
+export const useEducation = () =>
+  project(useAboutDoc(), (d) => (d?.education ?? []) as any[]);
 
-export const useAbout = (_pageKey: PageKey = "B") => {
-  return useAboutDoc();
-};
+export const useActivities = () =>
+  project(useAboutDoc(), (d) => (d?.activities ?? []) as any[]);
 
-export const useContactSettings = (_pageKey: PageKey = "B") => {
-  return useR2Content<any>("contact");
-};
+export const useTickerItems = () =>
+  project(useChromeDoc(), (d) => (d?.tickerItems ?? []) as any[]);
 
-export const useSiteSettings = (pageKey: PageKey = "B") => {
-  const q = useBasicInfo();
-  return { ...q, data: q.data?.siteSettings?.[pageKey] ?? null } as typeof q;
-};
-
-export const useServices = () => useR2Content<any[]>("services");
-
-export const useProjects = () => useR2Content<any[]>("projects");
-
-export const useNavLinks = () => {
-  const q = useChrome();
-  return { ...q, data: q.data?.navLinks ?? [] } as typeof q;
-};
-
-export const useFooterLinks = () => {
-  const q = useChrome();
-  return { ...q, data: q.data?.footerLinks ?? [] } as typeof q;
-};
-
-export const useEducation = () => {
-  const q = useAboutDoc();
-  return { ...q, data: q.data?.education ?? [] } as typeof q;
-};
-
-export const useActivities = () => {
-  const q = useAboutDoc();
-  return { ...q, data: q.data?.activities ?? [] } as typeof q;
-};
-
-export const useTickerItems = () => {
-  const q = useChrome();
-  return { ...q, data: q.data?.tickerItems ?? [] } as typeof q;
-};
-
-export const useFooterApps = () => {
-  const q = useChrome();
-  return { ...q, data: q.data?.footerApps ?? [] } as typeof q;
-};
+export const useFooterApps = () =>
+  project(useChromeDoc(), (d) => (d?.footerApps ?? []) as any[]);

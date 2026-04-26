@@ -451,7 +451,7 @@ export const adminModerateReview = createServerFn({ method: "POST" })
         patch = { published: false };
         break;
     }
-    const { error } = await supabaseAdmin.from("testimonials").update(patch).eq("id", data.id);
+    const { error } = await (supabaseAdmin as any).from("testimonials").update(patch).eq("id", data.id);
     if (error) throw new Error(error.message);
     await logModeration(context.userId, "review", data.id, data.action, data.reason, snap);
     return { ok: true };

@@ -575,39 +575,6 @@ export type Database = {
         }
         Relationships: []
       }
-      media: {
-        Row: {
-          created_at: string
-          filename: string
-          id: string
-          mime_type: string | null
-          size_bytes: number | null
-          storage_path: string
-          uploaded_by: string | null
-          url: string
-        }
-        Insert: {
-          created_at?: string
-          filename: string
-          id?: string
-          mime_type?: string | null
-          size_bytes?: number | null
-          storage_path: string
-          uploaded_by?: string | null
-          url: string
-        }
-        Update: {
-          created_at?: string
-          filename?: string
-          id?: string
-          mime_type?: string | null
-          size_bytes?: number | null
-          storage_path?: string
-          uploaded_by?: string | null
-          url?: string
-        }
-        Relationships: []
-      }
       messages: {
         Row: {
           created_at: string

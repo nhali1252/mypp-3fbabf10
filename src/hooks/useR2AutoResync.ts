@@ -138,8 +138,20 @@ export function useR2AutoResync() {
     await flush();
   };
 
-  /** Retry the most recent failed scope (or full resync if unknown). */
+  /**
+   * Retry the most recent failed scope (or full resync if unknown).
+   * Enforces a {@link RETRY_COOLDOWN_MS} cooldown — repeated clicks within the
+   * window are ignored and the existing `error` / `lastFailedScope` are preserved
+   * so the alert keeps showing the original failure context.
+   */
   const retry = async () => {
+    const now = Date.now();
+    if (lastRetryAt && now - lastRetryAt < RETRY_COOLDOWN_MS) {
+      // Cooldown active — no-op. Latest error/scope intentionally untouched.
+      return;
+    }
+    setLastRetryAt(now);
+    setRetryCooldownRemaining(Math.ceil(RETRY_COOLDOWN_MS / 1000));
     if (timer.current) clearTimeout(timer.current);
     if (lastFailedScope.length > 0) {
       lastFailedScope.forEach((d) => pendingDocs.current.add(d));

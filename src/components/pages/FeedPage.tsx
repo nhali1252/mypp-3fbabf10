@@ -234,6 +234,8 @@ export function FeedPage() {
           setMediaFilter={setMediaFilter}
           featuredOnly={featuredOnly}
           setFeaturedOnly={setFeaturedOnly}
+          sort={sort}
+          setSort={setSort}
           totalCount={totalAll}
           filteredCount={filteredTotal}
         />

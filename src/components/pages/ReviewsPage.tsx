@@ -102,7 +102,7 @@ export function ReviewsPage() {
           <motion.h1
             initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
-            className="font-black tracking-tight leading-[1.02] mt-5"
+            className="font-black tracking-tight leading-[1.02] mt-5 text-3d text-3d-pop"
             style={{ fontSize: "clamp(34px, 6.4vw, 78px)" }}
           >
             Trusted by{" "}
@@ -131,7 +131,7 @@ export function ReviewsPage() {
           {isLoading ? (
             <div className="grid sm:grid-cols-2 gap-4">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-44 rounded-2xl border border-border bg-card animate-pulse" />
+                <div key={i} className="h-44 rounded-2xl border border-border skeleton-shimmer" />
               ))}
             </div>
           ) : reviews.length === 0 ? (

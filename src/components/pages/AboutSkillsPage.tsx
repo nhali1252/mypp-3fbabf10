@@ -99,7 +99,7 @@ function AboutSkillsInner() {
               {eyebrow}
             </p>
             <h1
-              className="font-black tracking-tight leading-[1.05] mb-4"
+              className="font-black tracking-tight leading-[1.05] mb-4 text-3d text-3d-pop"
               style={{ fontSize: "clamp(32px, 5.5vw, 64px)" }}
             >
               {renderHeadline(headline, highlight)}

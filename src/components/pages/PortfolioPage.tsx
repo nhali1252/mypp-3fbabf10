@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, Folder, FolderOpen, X, ExternalLink, Sparkles, Image as ImageIcon } from "lucide-react";
 import { useR2Content } from "@/hooks/useR2Content";
 import { Footer } from "@/components/Footer";
-import { Watermark } from "@/components/feed/Watermark";
 
 type PortfolioDoc = (PFolder & { items: PItem[] })[];
 
@@ -15,7 +14,6 @@ type PFolder = {
   description: string | null;
   cover_url: string | null;
   sort_order: number;
-  parent_id?: string | null;
 };
 
 type PItem = {
@@ -27,22 +25,13 @@ type PItem = {
   external_url: string | null;
   tags: string[];
   sort_order: number;
-  watermark_text?: string | null;
-  featured?: boolean;
 };
 
 export function PortfolioPage() {
-  // Short staleTime so admin uploads appear without a hard refresh.
-  const { data: portfolioDoc, isLoading: foldersLoading } = useR2Content<PortfolioDoc>("portfolio", { staleTime: 5_000 });
-  const allFolders: PFolder[] = (portfolioDoc ?? []).map(({ items: _items, ...f }) => f);
-  // Only top-level folders (no parent) are surfaced on the landing grid.
-  // Subfolders are reached by drilling into their parent in the viewer.
-  const folders: PFolder[] = allFolders.filter((f) => !f.parent_id);
+  const { data: portfolioDoc, isLoading: foldersLoading } = useR2Content<PortfolioDoc>("portfolio");
+  const folders: PFolder[] = (portfolioDoc ?? []).map(({ items: _items, ...f }) => f);
 
-  // Breadcrumb stack of currently-open folders. The last entry is the
-  // active folder; tapping any earlier entry navigates back to that level.
-  const [folderStack, setFolderStack] = useState<PFolder[]>([]);
-  const openFolder = folderStack[folderStack.length - 1] ?? null;
+  const [openFolder, setOpenFolder] = useState<PFolder | null>(null);
   const [previewItem, setPreviewItem] = useState<PItem | null>(null);
 
 
@@ -59,7 +48,6 @@ export function PortfolioPage() {
           <nav className="flex items-center gap-3 sm:gap-4 text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em]">
             <Link to="/about-and-skills" className="text-muted-foreground hover:text-foreground transition-colors">About</Link>
             <Link to="/portfolio" className="text-primary">Portfolio</Link>
-            <Link to="/feed" className="text-muted-foreground hover:text-foreground transition-colors">Feed</Link>
             <Link to="/projects" className="text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
             <Link to="/contact" className="text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
           </nav>
@@ -88,7 +76,7 @@ export function PortfolioPage() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.05 }}
-            className="font-black tracking-tight leading-[1.02] mt-5"
+            className="font-black tracking-tight leading-[1.02] mt-5 text-3d text-3d-pop"
             style={{ fontSize: "clamp(34px, 6.4vw, 78px)" }}
           >
             Open a{" "}
@@ -110,7 +98,7 @@ export function PortfolioPage() {
           {foldersLoading ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="aspect-[4/3] rounded-2xl border border-border bg-card animate-pulse" />
+                <div key={i} className="aspect-[4/3] rounded-2xl border border-border skeleton-shimmer" />
               ))}
             </div>
           ) : folders.length === 0 ? (
@@ -120,7 +108,7 @@ export function PortfolioPage() {
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {folders.map((f, i) => (
-                <FolderCard key={f.id} folder={f} index={i} onOpen={() => setFolderStack([f])} />
+                <FolderCard key={f.id} folder={f} index={i} onOpen={() => setOpenFolder(f)} />
               ))}
             </div>
           )}
@@ -130,10 +118,8 @@ export function PortfolioPage() {
       <AnimatePresence>
         {openFolder && (
           <FolderViewer
-            allFolders={allFolders}
-            folderStack={folderStack}
-            onNavigate={setFolderStack}
-            onClose={() => setFolderStack([])}
+            folder={openFolder}
+            onClose={() => setOpenFolder(null)}
             onPreview={setPreviewItem}
           />
         )}
@@ -173,7 +159,7 @@ function FolderCard({ folder, index, onOpen }: { folder: PFolder; index: number;
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
             <Folder className="h-20 w-20 text-primary/25 transition-all duration-500 group-hover:text-primary/45 group-hover:scale-110" strokeWidth={0.9} />
-            <span className="absolute font-serif-display italic font-light text-7xl text-primary/10 select-none font-numeric">
+            <span className="absolute font-serif-display italic font-light text-7xl text-primary/10 select-none">
               {String(index + 1).padStart(2, "0")}
             </span>
           </div>
@@ -201,47 +187,19 @@ function FolderCard({ folder, index, onOpen }: { folder: PFolder; index: number;
 }
 
 function FolderViewer({
-  allFolders,
-  folderStack,
-  onNavigate,
+  folder,
   onClose,
   onPreview,
 }: {
-  allFolders: PFolder[];
-  folderStack: PFolder[];
-  onNavigate: (next: PFolder[]) => void;
+  folder: PFolder;
   onClose: () => void;
   onPreview: (item: PItem) => void;
 }) {
-  const folder = folderStack[folderStack.length - 1];
-  const { data: portfolioDoc, isLoading, isError } = useR2Content<PortfolioDoc>("portfolio", { staleTime: 5_000 });
+  const { data: portfolioDoc, isLoading } = useR2Content<PortfolioDoc>("portfolio");
+  const items: PItem[] = (
+    (portfolioDoc ?? []).find((f) => f.id === folder.id)?.items ?? []
+  ).map((r) => ({ ...r, tags: Array.isArray(r.tags) ? r.tags : [] }));
 
-  // Look up items for the active folder. Match by id first, fall back to slug.
-  const matched =
-    (portfolioDoc ?? []).find((f) => f.id === folder.id) ??
-    (portfolioDoc ?? []).find((f) => f.slug && f.slug === folder.slug) ??
-    null;
-  const items: PItem[] = (matched?.items ?? []).map((r) => ({
-    ...r,
-    tags: Array.isArray(r.tags) ? r.tags : [],
-  }));
-
-  // Direct subfolders of the active folder, sorted by sort_order.
-  const subfolders: PFolder[] = allFolders
-    .filter((f) => f.parent_id === folder.id)
-    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-
-  const hasLoaded = !isLoading && !isError && portfolioDoc !== undefined && portfolioDoc !== null;
-  const isTrulyEmpty = hasLoaded && matched !== null && items.length === 0 && subfolders.length === 0;
-
-  function openSubfolder(sub: PFolder) {
-    onNavigate([...folderStack, sub]);
-  }
-  function navigateToDepth(depth: number) {
-    // depth = -1 → close; otherwise truncate stack to depth+1 entries.
-    if (depth < 0) onClose();
-    else onNavigate(folderStack.slice(0, depth + 1));
-  }
 
   return (
     <motion.div
@@ -252,6 +210,7 @@ function FolderViewer({
       className="fixed inset-0 z-[90] bg-black/85 backdrop-blur-md overflow-auto"
       onClick={onClose}
     >
+      {/* Animated VFX backdrop */}
       <motion.div
         aria-hidden
         initial={{ scale: 0.6, opacity: 0 }}
@@ -273,6 +232,7 @@ function FolderViewer({
         className="relative z-10 max-w-5xl mx-auto my-6 sm:my-12 mx-4 sm:mx-auto bg-card border border-primary/30 rounded-2xl overflow-hidden shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Sweep shine on open */}
         <motion.div
           aria-hidden
           initial={{ x: "-110%" }}
@@ -285,43 +245,14 @@ function FolderViewer({
           }}
         />
 
-        <div className="flex items-center justify-between gap-3 p-5 sm:p-7 border-b border-border">
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <button
-              onClick={() => (folderStack.length > 1 ? navigateToDepth(folderStack.length - 2) : onClose())}
-              className="shrink-0 inline-flex items-center gap-1.5 h-9 px-3 rounded-full border border-border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors duration-300 text-xs font-bold uppercase tracking-[0.2em]"
-              aria-label="Back"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Back
-            </button>
+        <div className="flex items-center justify-between gap-4 p-5 sm:p-7 border-b border-border">
+          <div className="flex items-center gap-4 min-w-0">
             <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 border border-primary/30 text-primary shrink-0">
               <FolderOpen className="h-5 w-5" strokeWidth={1.5} />
             </span>
             <div className="min-w-0">
-              {/* Multi-level breadcrumb — every crumb is clickable */}
-              <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground flex-wrap">
-                <button type="button" onClick={onClose} className="hover:text-primary transition-colors">
-                  Portfolio
-                </button>
-                {folderStack.map((f, idx) => (
-                  <span key={f.id} className="inline-flex items-center gap-1.5">
-                    <span aria-hidden>/</span>
-                    {idx === folderStack.length - 1 ? (
-                      <span className="text-primary truncate max-w-[160px]">{f.name}</span>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => navigateToDepth(idx)}
-                        className="hover:text-primary transition-colors truncate max-w-[140px]"
-                      >
-                        {f.name}
-                      </button>
-                    )}
-                  </span>
-                ))}
-              </nav>
-              <h3 className="font-serif-display text-2xl sm:text-3xl tracking-tight font-light truncate mt-0.5">{folder.name}</h3>
+              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-primary">Folder</p>
+              <h3 className="font-serif-display text-2xl sm:text-3xl tracking-tight font-light truncate">{folder.name}</h3>
             </div>
           </div>
           <button
@@ -333,127 +264,65 @@ function FolderViewer({
           </button>
         </div>
 
-        <div className="p-5 sm:p-7 max-h-[72vh] overflow-y-auto space-y-7">
-          {/* Subfolders strip — shown when this folder has children. */}
-          {subfolders.length > 0 && (
-            <div>
-              <p className="text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground mb-3">
-                Subfolders ({subfolders.length})
-              </p>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {subfolders.map((sub, i) => (
-                  <button
-                    key={sub.id}
-                    type="button"
-                    onClick={() => openSubfolder(sub)}
-                    className="group relative text-left overflow-hidden rounded-xl border border-border bg-background hover:border-primary/45 transition-colors"
-                  >
-                    <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-muted via-card to-background">
-                      {sub.cover_url ? (
-                        <img
-                          src={sub.cover_url}
-                          alt={sub.name}
-                          loading="lazy"
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 grid place-items-center">
-                          <Folder className="h-12 w-12 text-primary/30" strokeWidth={0.9} />
-                          <span className="absolute font-serif-display italic font-light text-5xl text-primary/10 select-none">
-                            {String(i + 1).padStart(2, "0")}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="px-4 py-3 flex items-center justify-between gap-3 border-t border-border">
-                      <h4 className="text-sm font-bold tracking-tight truncate">{sub.name}</h4>
-                      <ArrowUpRight className="h-3.5 w-3.5 text-primary shrink-0" />
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Items grid */}
-          {isLoading || !hasLoaded ? (
+        <div className="p-5 sm:p-7 max-h-[72vh] overflow-y-auto">
+          {isLoading ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="aspect-square rounded-xl border border-border bg-background animate-pulse" />
+                <div key={i} className="aspect-square rounded-xl border border-border skeleton-shimmer" />
               ))}
             </div>
-          ) : isError ? (
-            <div className="text-center py-16">
-              <Folder className="w-14 h-14 mx-auto text-destructive/40 mb-4" strokeWidth={0.9} />
-              <p className="text-base font-bold tracking-tight">Couldn't load this folder</p>
-              <p className="text-xs text-muted-foreground mt-2">Please refresh the page to try again.</p>
-            </div>
-          ) : isTrulyEmpty ? (
+          ) : items.length === 0 ? (
             <div className="text-center py-16">
               <Folder className="w-14 h-14 mx-auto text-primary/30 mb-4" strokeWidth={0.9} />
               <p className="text-base font-bold tracking-tight">No Data, will be uploaded soon</p>
-              <p className="text-xs text-muted-foreground mt-2">This folder is empty for now — check back shortly.</p>
+              <p className="text-xs text-muted-foreground mt-2">
+                This folder is empty for now — check back shortly.
+              </p>
             </div>
-          ) : items.length === 0 && subfolders.length === 0 ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="aspect-square rounded-xl border border-border bg-background animate-pulse" />
+          ) : (
+            <motion.div
+              initial="hidden"
+              animate="show"
+              variants={{ show: { transition: { staggerChildren: 0.05 } } }}
+              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
+            >
+              {items.map((it) => (
+                <motion.button
+                  key={it.id}
+                  type="button"
+                  variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  whileHover={{ y: -4 }}
+                  onClick={() => onPreview(it)}
+                  className="group relative text-left overflow-hidden rounded-xl border border-border bg-background hover:border-primary/45 transition-colors"
+                  aria-label={`Preview ${it.title}`}
+                >
+                  <div className="relative aspect-square overflow-hidden bg-muted">
+                    {it.image_url ? (
+                      <img
+                        src={it.image_url}
+                        alt={it.title}
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full grid place-items-center">
+                        <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <h4 className="text-sm font-bold tracking-tight truncate">{it.title}</h4>
+                    {it.tags.length > 0 && (
+                      <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground mt-1 truncate">
+                        {it.tags.slice(0, 3).join(" · ")}
+                      </p>
+                    )}
+                  </div>
+                </motion.button>
               ))}
-            </div>
-          ) : items.length > 0 ? (
-            <div>
-              {subfolders.length > 0 && (
-                <p className="text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground mb-3">
-                  Items ({items.length})
-                </p>
-              )}
-              <motion.div
-                initial="hidden"
-                animate="show"
-                variants={{ show: { transition: { staggerChildren: 0.05 } } }}
-                className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
-              >
-                {items.map((it) => (
-                  <motion.button
-                    key={it.id}
-                    type="button"
-                    variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}
-                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                    whileHover={{ y: -4 }}
-                    onClick={() => onPreview(it)}
-                    className="group relative text-left overflow-hidden rounded-xl border border-border bg-background hover:border-primary/45 transition-colors"
-                    aria-label={`Preview ${it.title}`}
-                  >
-                    <div className="relative aspect-square overflow-hidden bg-muted">
-                      {it.image_url ? (
-                        <img
-                          src={it.image_url}
-                          alt={it.title}
-                          loading="lazy"
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="w-full h-full grid place-items-center">
-                          <ImageIcon className="w-8 h-8 text-muted-foreground" />
-                        </div>
-                      )}
-                      {it.image_url && (
-                        <Watermark text={it.watermark_text ?? null} size="sm" cornerBadge />
-                      )}
-                    </div>
-                    <div className="p-3">
-                      <h4 className="text-sm font-bold tracking-tight truncate">{it.title}</h4>
-                      {it.tags.length > 0 && (
-                        <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground mt-1 truncate">
-                          {it.tags.slice(0, 3).join(" · ")}
-                        </p>
-                      )}
-                    </div>
-                  </motion.button>
-                ))}
-              </motion.div>
-            </div>
-          ) : null}
+            </motion.div>
+          )}
         </div>
       </motion.div>
     </motion.div>
@@ -490,9 +359,8 @@ function ItemPreview({ item, onClose }: { item: PItem; onClose: () => void }) {
         </div>
         <div className="p-5 sm:p-6 max-h-[72vh] overflow-y-auto space-y-5">
           {item.image_url && (
-            <div className="relative rounded-xl overflow-hidden border border-border">
+            <div className="rounded-xl overflow-hidden border border-border">
               <img src={item.image_url} alt={item.title} className="w-full h-auto" />
-              <Watermark text={item.watermark_text ?? null} size="md" cornerBadge />
             </div>
           )}
           {item.description && (

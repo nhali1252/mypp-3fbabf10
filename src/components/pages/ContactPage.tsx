@@ -1,11 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useSearch } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Mail, Phone, MessageCircle, Sparkles, Send, Loader2, Calendar, Clock } from "lucide-react";
 import { toast } from "sonner";
-import { useServerFn } from "@tanstack/react-start";
-import { submitMessage } from "@/server/messages.functions";
-import { useContactSettings } from "@/hooks/useContent";
+import { supabase } from "@/integrations/supabase/client";
 import { Footer } from "@/components/Footer";
 
 const projectTypes = [
@@ -47,60 +46,33 @@ function nextWeekdays(count: number) {
 export function ContactPage() {
   const days = useMemo(() => nextWeekdays(7), []);
 
-  // Read ?service= from the route. Strict:false so the same component can
-  // also render under other routes (e.g. embedded previews) without crashing.
-  const search = useSearch({ strict: false }) as { service?: string } | undefined;
-  const incomingService = (search?.service ?? "").trim();
-
-  const contact = useContactSettings() as {
-    data:
-      | {
-          email: string | null;
-          phone: string | null;
-          whatsapp: string | null;
-          address: string | null;
-        }
-      | null;
-  };
-
-  // Resolve the initial project type. If the URL specifies a service that
-  // matches one of our known types (case-insensitive), pre-select it.
-  // Otherwise fall back to the first option, but if it's a brand-new value
-  // (e.g. "Web Design" coming from a future service), we accept it as-is.
-  const initialProjectType = useMemo(() => {
-    if (!incomingService) return projectTypes[0];
-    const match = projectTypes.find(
-      (p) => p.toLowerCase() === incomingService.toLowerCase(),
-    );
-    return match ?? incomingService;
-  }, [incomingService]);
+  const contact = useQuery({
+    queryKey: ["public-contact-settings"],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("contact_settings")
+        .select("*")
+        .limit(1)
+        .maybeSingle();
+      return data as
+        | {
+            email: string | null;
+            phone: string | null;
+            whatsapp: string | null;
+            address: string | null;
+          }
+        | null;
+    },
+  });
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [projectType, setProjectType] = useState(initialProjectType);
+  const [projectType, setProjectType] = useState(projectTypes[0]);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [day, setDay] = useState<string | null>(null);
   const [slot, setSlot] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
-  const send = useServerFn(submitMessage);
-
-  // If the user lands on the page and a service is specified, scroll to the
-  // form and focus the name input so the next action is obvious.
-  useEffect(() => {
-    if (!incomingService) return;
-    setProjectType(initialProjectType);
-    const t = window.setTimeout(() => {
-      document.getElementById("contact-form")?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-      window.setTimeout(() => {
-        document.getElementById("contact-name-input")?.focus();
-      }, 500);
-    }, 80);
-    return () => window.clearTimeout(t);
-  }, [incomingService, initialProjectType]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -113,19 +85,15 @@ export function ContactPage() {
       [projectType, subject.trim()].filter(Boolean).join(" — ") || projectType;
     const scheduleNote =
       day && slot ? `\n\nPreferred call slot: ${day} at ${slot}` : "";
-    try {
-      await send({
-        data: {
-          name: name.trim(),
-          email: email.trim(),
-          subject: subjectLine,
-          message: message.trim() + scheduleNote,
-        },
-      });
-      setSending(false);
-    } catch (err: any) {
-      setSending(false);
-      toast.error(err?.message || "Could not send message.");
+    const { error } = await (supabase as any).from("messages").insert({
+      name: name.trim(),
+      email: email.trim(),
+      subject: subjectLine,
+      message: message.trim() + scheduleNote,
+    });
+    setSending(false);
+    if (error) {
+      toast.error(error.message);
       return;
     }
     toast.success("Inquiry sent — I'll reply within 24 hours.");
@@ -170,7 +138,7 @@ export function ContactPage() {
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.05 }}
-            className="font-black tracking-tight leading-[1.02] mt-5"
+            className="font-black tracking-tight leading-[1.02] mt-5 text-3d text-3d-pop"
             style={{ fontSize: "clamp(34px, 6.4vw, 78px)" }}
           >
             Let's design something{" "}
@@ -227,10 +195,7 @@ export function ContactPage() {
 
             <Field label="Project type">
               <div className="flex flex-wrap gap-2">
-                {(projectTypes.includes(projectType)
-                  ? projectTypes
-                  : [projectType, ...projectTypes]
-                ).map((p) => (
+                {projectTypes.map((p) => (
                   <button
                     type="button"
                     key={p}

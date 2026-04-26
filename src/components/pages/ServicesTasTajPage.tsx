@@ -84,7 +84,7 @@ export function ServicesTasTajPage() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
-            className="font-black tracking-tight leading-[1.02] mt-5"
+            className="font-black tracking-tight leading-[1.02] mt-5 text-3d text-3d-pop"
             style={{ fontSize: "clamp(34px, 6.4vw, 78px)" }}
           >
             Every brief, treated like{" "}
@@ -128,47 +128,41 @@ export function ServicesTasTajPage() {
             {offers.map((s, i) => {
               const Icon = getIcon(s.icon || "Sparkles");
               return (
-                <motion.div
+                <motion.article
                   key={s.id}
                   initial={{ opacity: 0, y: 22 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-60px" }}
                   transition={{ duration: 0.55, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
                   whileHover={{ y: -4 }}
+                  className="group relative rounded-2xl border border-border bg-card p-6 sm:p-7 overflow-hidden hover:border-primary/40 transition-colors"
+                  style={{ background: "var(--gradient-card)" }}
                 >
-                  <Link
-                    to="/contact"
-                    search={{ service: s.title }}
-                    className="group relative block rounded-2xl border border-border bg-card p-6 sm:p-7 overflow-hidden hover:border-primary/40 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
-                    style={{ background: "var(--gradient-card)" }}
-                    aria-label={`Start a project: ${s.title}`}
-                  >
-                    <div
-                      aria-hidden
-                      className="pointer-events-none absolute -top-16 -right-16 w-48 h-48 rounded-full blur-3xl opacity-0 group-hover:opacity-60 transition-opacity duration-700"
-                      style={{
-                        background:
-                          "radial-gradient(circle, color-mix(in oklab, var(--primary) 65%, transparent), transparent 70%)",
-                      }}
-                    />
-                    <div className="relative">
-                      <div className="w-12 h-12 rounded-xl grid place-items-center bg-primary/10 text-primary border border-primary/25 mb-5 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <h3 className="text-lg sm:text-xl font-black tracking-tight mb-2 group-hover:text-primary transition-colors">
-                        {s.title}
-                      </h3>
-                      {s.description && (
-                        <p className="text-sm text-muted-foreground leading-relaxed">
-                          {s.description}
-                        </p>
-                      )}
-                      <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.2em] text-primary opacity-70 group-hover:opacity-100 transition-opacity">
-                        Start a project <ArrowRight className="w-3.5 h-3.5" />
-                      </span>
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute -top-16 -right-16 w-48 h-48 rounded-full blur-3xl opacity-0 group-hover:opacity-60 transition-opacity duration-700"
+                    style={{
+                      background:
+                        "radial-gradient(circle, color-mix(in oklab, var(--primary) 65%, transparent), transparent 70%)",
+                    }}
+                  />
+                  <div className="relative">
+                    <div className="w-12 h-12 rounded-xl grid place-items-center bg-primary/10 text-primary border border-primary/25 mb-5 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+                      <Icon className="w-5 h-5" />
                     </div>
-                  </Link>
-                </motion.div>
+                    <h3 className="text-lg sm:text-xl font-black tracking-tight mb-2 group-hover:text-primary transition-colors">
+                      {s.title}
+                    </h3>
+                    {s.description && (
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {s.description}
+                      </p>
+                    )}
+                    <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.2em] text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                      Learn more <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
+                  </div>
+                </motion.article>
               );
             })}
           </div>

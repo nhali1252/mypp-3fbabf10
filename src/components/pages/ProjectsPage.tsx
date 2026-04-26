@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Check, Code2, ExternalLink, Github, Star, Terminal } from "lucide-react";
-import { useProjects } from "@/hooks/useContent";
+import { supabase } from "@/integrations/supabase/client";
 import { Footer } from "@/components/Footer";
 
 type Project = {
@@ -20,11 +21,18 @@ type Project = {
 };
 
 export function ProjectsPage() {
-  const { data: projects = [], isLoading } = useProjects() as {
-    data: Project[];
-    isLoading: boolean;
-  };
-
+  const { data: projects = [], isLoading } = useQuery({
+    queryKey: ["public-projects"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("projects")
+        .select("*")
+        .eq("published", true)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return (data ?? []) as Project[];
+    },
+  });
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -51,7 +59,7 @@ export function ProjectsPage() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
-            className="font-black tracking-tight leading-[1.02] mt-5"
+            className="font-black tracking-tight leading-[1.02] mt-5 text-3d text-3d-pop"
             style={{ fontSize: "clamp(34px, 6.4vw, 78px)" }}
           >
             Things I{" "}
@@ -74,7 +82,7 @@ export function ProjectsPage() {
           {isLoading ? (
             <div className="space-y-4">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-44 rounded-2xl border border-border bg-card animate-pulse" />
+                <div key={i} className="h-44 rounded-2xl border border-border skeleton-shimmer" />
               ))}
             </div>
           ) : projects.length === 0 ? (

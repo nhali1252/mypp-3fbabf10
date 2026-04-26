@@ -233,6 +233,48 @@
   .bg-gradient-gold { background-image: var(--gradient-gold); }
   .font-serif-display { font-family: 'Cormorant Garamond', serif; }
 
+  /* ── 3D hero text ──────────────────────────────────────────────── */
+  .text-3d {
+    text-shadow:
+      0 1px 0 color-mix(in oklab, var(--foreground) 18%, transparent),
+      0 2px 0 color-mix(in oklab, var(--foreground) 14%, transparent),
+      0 3px 0 color-mix(in oklab, var(--foreground) 10%, transparent),
+      0 6px 14px color-mix(in oklab, var(--primary) 22%, transparent),
+      0 14px 30px color-mix(in oklab, var(--foreground) 18%, transparent);
+    transform-style: preserve-3d;
+  }
+  .text-3d-pop {
+    animation: text3dFloat 6s ease-in-out infinite;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+  @keyframes text3dFloat {
+    0%, 100% { transform: perspective(900px) rotateX(0deg) translateZ(0); }
+    50%      { transform: perspective(900px) rotateX(2.4deg) translateZ(8px); }
+  }
+
+  /* Smoother skeleton shimmer (drop-in replacement for animate-pulse) */
+  .skeleton-shimmer {
+    position: relative;
+    overflow: hidden;
+    background: color-mix(in oklab, var(--card) 92%, var(--muted));
+  }
+  .skeleton-shimmer::after {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: linear-gradient(
+      100deg,
+      transparent 20%,
+      color-mix(in oklab, var(--foreground) 8%, transparent) 50%,
+      transparent 80%
+    );
+    transform: translateX(-100%);
+    animation: shimmer 1.6s cubic-bezier(0.4,0,0.2,1) infinite;
+  }
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
+
   /* ── Premium interaction utilities ─────────────────────────────── */
   .ease-smooth { transition-timing-function: var(--ease-smooth); }
   .ease-out-soft { transition-timing-function: var(--ease-out-soft); }

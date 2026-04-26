@@ -41,6 +41,23 @@ function fmtAge(ms: number) {
 function DiagnosticsPage() {
   const [manifest, setManifest] = useState<BuildManifest>(BUILD_MANIFEST);
   const summary = useMemo(() => summarizeDiagnostics(manifest, RUNTIME_BOOTED_AT), [manifest]);
+  const liveErrors = useLiveTsErrors();
+  const buildErrors = useMemo(
+    () =>
+      parseTscOutput(
+        manifest.tsc?.output,
+        manifest.tsc?.ranAt ?? manifest.builtAt,
+        "build",
+      ),
+    [manifest],
+  );
+  const allErrors = useMemo(
+    () =>
+      [...liveErrors, ...buildErrors].sort(
+        (a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime(),
+      ),
+    [liveErrors, buildErrors],
+  );
 
   const refresh = useMutation({
     mutationFn: async () => refreshDiagnostics(),

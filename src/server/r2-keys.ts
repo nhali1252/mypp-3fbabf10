@@ -22,7 +22,7 @@ export const FEED_INDEX_PAGE_SIZE = 24;
 
 /** Build the R2 key for a single prebuilt feed page. */
 export function feedIndexPageKey(opts: {
-  sort: "newest" | "featured-first";
+  sort: "newest" | "featured-first" | "oldest";
   folder: string | null;
   media: "all" | "image" | "video";
   featured: boolean;

@@ -7,7 +7,7 @@ import {
   Image as ImageIcon, ExternalLink, Calendar, Folder, Star,
   Filter, LayoutGrid, Film, ImagePlay,
 } from "lucide-react";
-import { getFeedSlice, type FeedItem as ServerFeedItem, type FeedFolder } from "@/server/feed.functions";
+import { getFeedSlice, type FeedItem as ServerFeedItem, type FeedFolder, type FeedSort } from "@/server/feed.functions";
 import { Footer } from "@/components/Footer";
 import { Watermark } from "@/components/feed/Watermark";
 import { ReactionsBar } from "@/components/feed/ReactionsBar";
@@ -84,7 +84,7 @@ export function FeedPage() {
   const [folderFilter, setFolderFilter] = useState<string>("all"); // folder slug
   const [mediaFilter, setMediaFilter] = useState<MediaFilter>("all");
   const [featuredOnly, setFeaturedOnly] = useState<boolean>(false);
-  const [sort, setSort] = useState<"newest" | "featured-first">("newest");
+  const [sort, setSort] = useState<FeedSort>("newest");
 
   const dFolder = useDebouncedValue(folderFilter, FILTER_DEBOUNCE_MS);
   const dMedia = useDebouncedValue(mediaFilter, FILTER_DEBOUNCE_MS);
@@ -425,8 +425,8 @@ function FilterToolbar({
   setMediaFilter: (v: MediaFilter) => void;
   featuredOnly: boolean;
   setFeaturedOnly: (v: boolean) => void;
-  sort: "newest" | "featured-first";
-  setSort: (v: "newest" | "featured-first") => void;
+  sort: FeedSort;
+  setSort: (v: FeedSort) => void;
   totalCount: number;
   filteredCount: number;
 }) {
@@ -457,7 +457,7 @@ function FilterToolbar({
             <span className="hidden sm:inline">Sort</span>
             <select
               value={sort}
-              onChange={(e) => setSort(e.target.value as "newest" | "featured-first")}
+              onChange={(e) => setSort(e.target.value as FeedSort)}
               aria-label="Sort feed"
               className="appearance-none pl-3 pr-7 py-1.5 rounded-full border border-border bg-background/60 text-foreground text-[11px] font-bold uppercase tracking-[0.2em] hover:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/40 transition-colors bg-no-repeat bg-[right_0.6rem_center] bg-[length:0.65rem]"
               style={{
@@ -467,6 +467,7 @@ function FilterToolbar({
             >
               <option value="newest">Newest</option>
               <option value="featured-first">Featured first</option>
+              <option value="oldest">Oldest</option>
             </select>
           </label>
 

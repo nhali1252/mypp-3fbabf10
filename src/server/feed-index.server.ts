@@ -33,7 +33,7 @@ import {
 import type { FeedItem, FeedFolder, FeedSort } from "./feed.functions";
 
 const VIDEO_EXT = /\.(mp4|webm|mov|m4v|ogv)(\?|#|$)/i;
-const SORTS: FeedSort[] = ["newest", "featured-first"];
+const SORTS: FeedSort[] = ["newest", "featured-first", "oldest"];
 const MEDIA: ("all" | "image" | "video")[] = ["all", "image", "video"];
 const FEATURED_FLAGS = [false, true];
 
@@ -104,6 +104,8 @@ function flattenAndSort(portfolioDoc: any[], sort: FeedSort): FeedItem[] {
       if (a.featured !== b.featured) return a.featured ? -1 : 1;
       return byDateDesc(a, b);
     });
+  } else if (sort === "oldest") {
+    out.sort((a, b) => -byDateDesc(a, b));
   } else {
     out.sort(byDateDesc);
   }
@@ -155,6 +157,7 @@ export async function buildFeedIndex(): Promise<FeedIndexManifest> {
   const bySort: Record<FeedSort, FeedItem[]> = {
     newest: flattenAndSort(portfolioDoc, "newest"),
     "featured-first": flattenAndSort(portfolioDoc, "featured-first"),
+    oldest: flattenAndSort(portfolioDoc, "oldest"),
   };
 
   // Folder index + featured count are computed from the canonical (unfiltered)

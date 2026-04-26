@@ -157,6 +157,7 @@ export async function buildFeedIndex(): Promise<FeedIndexManifest> {
   const bySort: Record<FeedSort, FeedItem[]> = {
     newest: flattenAndSort(portfolioDoc, "newest"),
     "featured-first": flattenAndSort(portfolioDoc, "featured-first"),
+    oldest: flattenAndSort(portfolioDoc, "oldest"),
   };
 
   // Folder index + featured count are computed from the canonical (unfiltered)

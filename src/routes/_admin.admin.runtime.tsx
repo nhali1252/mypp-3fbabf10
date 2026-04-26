@@ -83,6 +83,9 @@ function RuntimePage() {
         </button>
       </header>
 
+      {/* Public-facing content status (same probe used by /basic earlier) */}
+      <R2StatusBanner />
+
       {/* Env presence */}
       <section className="rounded-2xl border border-border bg-card p-5">
         <h2 className="text-sm font-bold uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-2">

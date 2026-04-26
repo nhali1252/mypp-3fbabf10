@@ -254,6 +254,86 @@ function R2MigrationPage() {
                           {" "}<code>src/server/r2-coverage.ts</code> (and to the seed function),
                           or list them in <code>R2_EXCLUDED_TABLES</code> if they should not feed R2.
                         </p>
+
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => runSuggestFix(false)}
+                            disabled={autoFixBusy !== "none"}
+                          >
+                            {autoFixBusy === "suggest"
+                              ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Suggesting…</>
+                              : <><Wand2 className="w-3.5 h-3.5 mr-1.5" /> Suggest mappings</>}
+                          </Button>
+                          {autoFix && autoFix.allConfident && (
+                            <Button
+                              size="sm"
+                              onClick={() => runSuggestFix(true)}
+                              disabled={autoFixBusy !== "none"}
+                            >
+                              {autoFixBusy === "apply"
+                                ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Applying…</>
+                                : <>Apply auto-fix</>}
+                            </Button>
+                          )}
+                        </div>
+
+                        {autoFix && (
+                          <div className="mt-3 space-y-2">
+                            <div className="rounded-lg bg-background/60 border border-border p-2 space-y-1">
+                              {autoFix.suggestions.map((s) => (
+                                <div key={s.table} className="flex items-start gap-2 text-xs">
+                                  <code className="font-mono">{s.table}</code>
+                                  <span className="text-muted-foreground">→</span>
+                                  {s.docs.length > 0 ? (
+                                    <code className={s.confident ? "text-primary" : "text-amber-500"}>
+                                      [{s.docs.join(", ")}]
+                                    </code>
+                                  ) : (
+                                    <span className="text-amber-500 italic">no guess — review</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+
+                            <details>
+                              <summary className="cursor-pointer text-xs font-semibold text-muted-foreground flex items-center gap-2">
+                                Snippet to paste into <code>TABLE_TO_DOCS</code>
+                                <button
+                                  onClick={(e) => { e.preventDefault(); copySnippet(); }}
+                                  className="inline-flex items-center gap-1 text-xs underline"
+                                >
+                                  <Copy className="w-3 h-3" /> copy
+                                </button>
+                              </summary>
+                              <pre className="mt-2 p-3 rounded-lg bg-muted text-[11px] overflow-auto">
+{autoFix.snippet}
+                              </pre>
+                            </details>
+
+                            {autoFix.applied && (
+                              <div
+                                className={`text-xs p-2 rounded-md ${
+                                  autoFix.applied.ok
+                                    ? "bg-primary/10 text-foreground"
+                                    : "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                                }`}
+                              >
+                                {autoFix.applied.ok ? (
+                                  <>
+                                    ✓ Wrote{" "}
+                                    {autoFix.applied.tablesAdded.length > 0
+                                      ? <><strong>{autoFix.applied.tablesAdded.length}</strong> entry/entries to <code>r2-coverage.ts</code></>
+                                      : <>no changes — entries already present</>}
+                                  </>
+                                ) : (
+                                  <>⚠ {autoFix.applied.reason}</>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                     {coverage.staleInMap.length > 0 && (

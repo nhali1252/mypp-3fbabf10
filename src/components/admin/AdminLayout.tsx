@@ -4,70 +4,32 @@ import { useAuth } from "@/hooks/useAuth";
 import { useR2AutoResync } from "@/hooks/useR2AutoResync";
 import R2SyncAlert from "@/components/admin/R2SyncAlert";
 import {
-  LayoutDashboard, Sparkles, User, GraduationCap, Lightbulb, FolderKanban,
-  Activity, Megaphone, PhoneCall, Inbox, Image as ImageIcon,
-  Search, Settings, Users, LogOut, ExternalLink, Compass, AppWindow, ClipboardCheck,
-  Folder, LayoutGrid, Rocket, Briefcase, Loader2, Star, Menu, X, Cloud,
+  LayoutDashboard, Inbox, Image as ImageIcon, ClipboardCheck,
+  Settings, Users, LogOut, ExternalLink, Loader2, Menu, X, Cloud,
   RefreshCw, CheckCircle2, AlertTriangle, CircleDashed,
 } from "lucide-react";
 
 type Item = { to: string; label: string; Icon: any; end?: boolean };
 type Group = { label: string; items: Item[] };
 
+// Page-content editors live behind the dashboard cards now.
+// The sidebar only carries system / cross-page tools.
 const groups: Group[] = [
   {
     label: "Overview",
     items: [
-      { to: "/admin", label: "Dashboard", Icon: LayoutDashboard, end: true },
+      { to: "/admin", label: "Pages", Icon: LayoutDashboard, end: true },
       { to: "/admin/checklist", label: "Pre-publish", Icon: ClipboardCheck },
     ],
   },
   {
-    label: "Home page",
+    label: "System",
     items: [
-      { to: "/admin/launcher", label: "Welcome / Launcher", Icon: Rocket },
-    ],
-  },
-  {
-    label: "Public pages",
-    items: [
-      { to: "/admin/hero", label: "Basic info hero", Icon: Sparkles },
-      { to: "/admin/about", label: "About content", Icon: User },
-      { to: "/admin/education", label: "Education", Icon: GraduationCap },
-      { to: "/admin/skills", label: "Skills", Icon: Lightbulb },
-      { to: "/admin/activities", label: "Activities", Icon: Activity },
-      { to: "/admin/portfolio", label: "Portfolio", Icon: Briefcase },
-      { to: "/admin/projects", label: "Projects", Icon: FolderKanban },
-      { to: "/admin/reviews", label: "Reviews", Icon: Star },
-    ],
-  },
-  {
-    label: "TasTaj services",
-    items: [
-      { to: "/admin/folders", label: "Folders", Icon: Folder },
-      { to: "/admin/slots", label: "Slots", Icon: LayoutGrid },
-    ],
-  },
-  {
-    label: "Site-wide",
-    items: [
-      { to: "/admin/ticker", label: "Ticker", Icon: Megaphone },
-      { to: "/admin/navigation", label: "Navigation", Icon: Compass },
-      { to: "/admin/contact", label: "Contact info", Icon: PhoneCall },
-      { to: "/admin/footer-apps", label: "Footer apps", Icon: AppWindow },
-      { to: "/admin/footer-cta", label: "Footer CTA", Icon: Sparkles },
       { to: "/admin/messages", label: "Messages", Icon: Inbox },
       { to: "/admin/media", label: "Media library", Icon: ImageIcon },
-    ],
-  },
-  {
-    label: "Settings",
-    items: [
-      { to: "/admin/r2-migration", label: "R2 migration", Icon: Cloud },
-      { to: "/admin/seo", label: "SEO", Icon: Search },
-      { to: "/admin/page-loader", label: "Page loader", Icon: Loader2 },
-      { to: "/admin/settings", label: "Site settings", Icon: Settings },
       { to: "/admin/users", label: "Users", Icon: Users },
+      { to: "/admin/r2-migration", label: "R2 migration", Icon: Cloud },
+      { to: "/admin/settings", label: "Site settings", Icon: Settings },
     ],
   },
 ];

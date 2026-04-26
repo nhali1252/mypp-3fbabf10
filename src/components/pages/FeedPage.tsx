@@ -310,6 +310,8 @@ function FilterToolbar({
   setMediaFilter,
   featuredOnly,
   setFeaturedOnly,
+  sort,
+  setSort,
   totalCount,
   filteredCount,
 }: {
@@ -320,6 +322,8 @@ function FilterToolbar({
   setMediaFilter: (v: MediaFilter) => void;
   featuredOnly: boolean;
   setFeaturedOnly: (v: boolean) => void;
+  sort: "newest" | "featured-first";
+  setSort: (v: "newest" | "featured-first") => void;
   totalCount: number;
   filteredCount: number;
 }) {
@@ -344,6 +348,24 @@ function FilterToolbar({
               </Chip>
             ))}
           </div>
+
+          {/* Sort dropdown */}
+          <label className="shrink-0 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+            <span className="hidden sm:inline">Sort</span>
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as "newest" | "featured-first")}
+              aria-label="Sort feed"
+              className="appearance-none pl-3 pr-7 py-1.5 rounded-full border border-border bg-background/60 text-foreground text-[11px] font-bold uppercase tracking-[0.2em] hover:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/40 transition-colors bg-no-repeat bg-[right_0.6rem_center] bg-[length:0.65rem]"
+              style={{
+                backgroundImage:
+                  "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>\")",
+              }}
+            >
+              <option value="newest">Newest</option>
+              <option value="featured-first">Featured first</option>
+            </select>
+          </label>
 
           <button
             type="button"

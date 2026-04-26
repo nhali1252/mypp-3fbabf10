@@ -313,24 +313,40 @@ function AdminPortfolio() {
                   return (
                     <li
                       key={f.id}
+                      draggable
+                      onDragStart={() => onFolderDragStart(f.id)}
+                      onDragOver={onDragOver}
+                      onDrop={() => onFolderDrop(f.id)}
                       className={`rounded-xl border ${isActive ? "border-primary bg-primary/5" : "border-border bg-card"} transition-colors`}
                     >
-                      <button
-                        type="button"
-                        onClick={() => setActiveFolderId(f.id)}
-                        className="w-full flex items-center justify-between gap-2 p-3 text-left"
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <FolderOpen className="w-4 h-4 text-primary shrink-0" />
-                          <div className="min-w-0">
-                            <div className="text-sm font-semibold truncate">{row.name}</div>
-                            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                              /{row.slug} {!row.active && "· hidden"}
+                      <div className="flex items-center">
+                        <span
+                          aria-hidden
+                          className="pl-2 pr-1 py-3 text-muted-foreground/70 cursor-grab active:cursor-grabbing"
+                          title="Drag to reorder"
+                        >
+                          <GripVertical className="w-4 h-4" />
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setActiveFolderId(f.id)}
+                          className="flex-1 flex items-center justify-between gap-2 p-3 pl-1 text-left"
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <FolderOpen className="w-4 h-4 text-primary shrink-0" />
+                            <div className="min-w-0">
+                              <div className="text-sm font-semibold truncate flex items-center gap-2">
+                                {row.name}
+                                <StatusPill published={!!row.active} />
+                              </div>
+                              <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                                /{row.slug}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <ChevronRight className={`w-4 h-4 shrink-0 transition-transform ${isActive ? "rotate-90 text-primary" : "text-muted-foreground"}`} />
-                      </button>
+                          <ChevronRight className={`w-4 h-4 shrink-0 transition-transform ${isActive ? "rotate-90 text-primary" : "text-muted-foreground"}`} />
+                        </button>
+                      </div>
 
                       {isActive && (
                         <div className="border-t border-border p-3 space-y-3">

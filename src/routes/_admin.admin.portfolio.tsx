@@ -433,8 +433,22 @@ function AdminPortfolio() {
                       const dirty = !!itemEdits[it.id];
                       const tags = Array.isArray(row.tags) ? row.tags : [];
                       return (
-                        <li key={it.id} className="rounded-xl border border-border bg-background p-4">
-                          <div className="grid sm:grid-cols-[120px_1fr] gap-4">
+                        <li
+                          key={it.id}
+                          draggable
+                          onDragStart={() => onItemDragStart(it.id)}
+                          onDragOver={onDragOver}
+                          onDrop={() => onItemDrop(it.id)}
+                          className="rounded-xl border border-border bg-background p-4"
+                        >
+                          <div className="grid sm:grid-cols-[24px_120px_1fr] gap-4 items-start">
+                            <span
+                              aria-hidden
+                              className="pt-2 text-muted-foreground/70 cursor-grab active:cursor-grabbing"
+                              title="Drag to reorder"
+                            >
+                              <GripVertical className="w-4 h-4" />
+                            </span>
                             <div className="aspect-square rounded-lg overflow-hidden bg-muted grid place-items-center">
                               {row.image_url ? (
                                 <img src={row.image_url} alt={row.title} className="w-full h-full object-cover" />

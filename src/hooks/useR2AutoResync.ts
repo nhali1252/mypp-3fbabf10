@@ -31,6 +31,8 @@ const DEBOUNCE_MS = 1500;
 const FAILURE_HISTORY_CAP = 5;
 /** After this many back-to-back failures, the admin UI shows a persistent alert. */
 export const FAILURE_ALERT_THRESHOLD = 2;
+/** Minimum gap between successive manual `retry()` calls. */
+export const RETRY_COOLDOWN_MS = 30_000;
 
 export type R2SyncStatus = "idle" | "pending" | "syncing" | "ok" | "error";
 

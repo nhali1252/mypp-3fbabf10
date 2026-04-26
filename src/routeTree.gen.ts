@@ -44,6 +44,7 @@ import { Route as AdminAdminEducationRouteImport } from './routes/_admin.admin.e
 import { Route as AdminAdminContactRouteImport } from './routes/_admin.admin.contact'
 import { Route as AdminAdminCommentsRouteImport } from './routes/_admin.admin.comments'
 import { Route as AdminAdminChecklistRouteImport } from './routes/_admin.admin.checklist'
+import { Route as AdminAdminAuditRouteImport } from './routes/_admin.admin.audit'
 import { Route as AdminAdminActivitiesRouteImport } from './routes/_admin.admin.activities'
 import { Route as AdminAdminAboutRouteImport } from './routes/_admin.admin.about'
 import { Route as AdminAdminPageSlugRouteImport } from './routes/_admin.admin.page.$slug'
@@ -222,6 +223,11 @@ const AdminAdminChecklistRoute = AdminAdminChecklistRouteImport.update({
   path: '/admin/checklist',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminAuditRoute = AdminAdminAuditRouteImport.update({
+  id: '/admin/audit',
+  path: '/admin/audit',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAdminActivitiesRoute = AdminAdminActivitiesRouteImport.update({
   id: '/admin/activities',
   path: '/admin/activities',
@@ -251,6 +257,7 @@ export interface FileRoutesByFullPath {
   '/services': typeof ServicesRoute
   '/admin/about': typeof AdminAdminAboutRoute
   '/admin/activities': typeof AdminAdminActivitiesRoute
+  '/admin/audit': typeof AdminAdminAuditRoute
   '/admin/checklist': typeof AdminAdminChecklistRoute
   '/admin/comments': typeof AdminAdminCommentsRoute
   '/admin/contact': typeof AdminAdminContactRoute
@@ -290,6 +297,7 @@ export interface FileRoutesByTo {
   '/services': typeof ServicesRoute
   '/admin/about': typeof AdminAdminAboutRoute
   '/admin/activities': typeof AdminAdminActivitiesRoute
+  '/admin/audit': typeof AdminAdminAuditRoute
   '/admin/checklist': typeof AdminAdminChecklistRoute
   '/admin/comments': typeof AdminAdminCommentsRoute
   '/admin/contact': typeof AdminAdminContactRoute
@@ -331,6 +339,7 @@ export interface FileRoutesById {
   '/services': typeof ServicesRoute
   '/_admin/admin/about': typeof AdminAdminAboutRoute
   '/_admin/admin/activities': typeof AdminAdminActivitiesRoute
+  '/_admin/admin/audit': typeof AdminAdminAuditRoute
   '/_admin/admin/checklist': typeof AdminAdminChecklistRoute
   '/_admin/admin/comments': typeof AdminAdminCommentsRoute
   '/_admin/admin/contact': typeof AdminAdminContactRoute
@@ -372,6 +381,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/admin/about'
     | '/admin/activities'
+    | '/admin/audit'
     | '/admin/checklist'
     | '/admin/comments'
     | '/admin/contact'
@@ -411,6 +421,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/admin/about'
     | '/admin/activities'
+    | '/admin/audit'
     | '/admin/checklist'
     | '/admin/comments'
     | '/admin/contact'
@@ -451,6 +462,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/_admin/admin/about'
     | '/_admin/admin/activities'
+    | '/_admin/admin/audit'
     | '/_admin/admin/checklist'
     | '/_admin/admin/comments'
     | '/_admin/admin/contact'
@@ -739,6 +751,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminChecklistRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/audit': {
+      id: '/_admin/admin/audit'
+      path: '/admin/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminAdminAuditRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/activities': {
       id: '/_admin/admin/activities'
       path: '/admin/activities'
@@ -766,6 +785,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminAdminAboutRoute: typeof AdminAdminAboutRoute
   AdminAdminActivitiesRoute: typeof AdminAdminActivitiesRoute
+  AdminAdminAuditRoute: typeof AdminAdminAuditRoute
   AdminAdminChecklistRoute: typeof AdminAdminChecklistRoute
   AdminAdminCommentsRoute: typeof AdminAdminCommentsRoute
   AdminAdminContactRoute: typeof AdminAdminContactRoute
@@ -796,6 +816,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminAboutRoute: AdminAdminAboutRoute,
   AdminAdminActivitiesRoute: AdminAdminActivitiesRoute,
+  AdminAdminAuditRoute: AdminAdminAuditRoute,
   AdminAdminChecklistRoute: AdminAdminChecklistRoute,
   AdminAdminCommentsRoute: AdminAdminCommentsRoute,
   AdminAdminContactRoute: AdminAdminContactRoute,

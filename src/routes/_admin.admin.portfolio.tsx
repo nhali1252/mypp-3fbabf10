@@ -520,6 +520,44 @@ function AdminPortfolio() {
                 )}
               </AdminCard>
 
+              <AdminCard title="Bulk upload" >
+                <p className="text-xs text-muted-foreground mb-3">
+                  Drop or pick multiple images at once. Each becomes a new item titled after the file name. You can edit titles, tags, and captions afterwards.
+                </p>
+                <label className="block">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    disabled={bulkUpload.isPending}
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files ?? []);
+                      e.currentTarget.value = "";
+                      if (files.length > 0) bulkUpload.mutate(files);
+                    }}
+                  />
+                  <div className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${bulkUpload.isPending ? "border-primary bg-primary/5" : "border-border hover:bg-muted/40"}`}>
+                    {bulkUpload.isPending ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mx-auto mb-2 animate-spin text-primary" />
+                        <p className="text-sm font-semibold">
+                          Uploading {bulkProgress?.done ?? 0} / {bulkProgress?.total ?? 0}…
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-5 h-5 mx-auto mb-2 text-muted-foreground" />
+                        <p className="text-sm font-semibold">Click to select multiple images</p>
+                        <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider">
+                          Adds new items to “{activeFolder.name}”
+                        </p>
+                      </>
+                    )}
+                  </div>
+                </label>
+              </AdminCard>
+
               <AdminCard title="Add item">
                 <div className="grid gap-3">
                   <FormRow label="Title"><Input value={newItem.title ?? ""} onChange={(e) => setNewItem({ ...newItem, title: e.target.value })} /></FormRow>

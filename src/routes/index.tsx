@@ -1,8 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useR2Content } from "@/hooks/useR2Content";
 import { ArrowUpRight, Sparkles } from "lucide-react";
 import { useMotionPref } from "@/hooks/useMotionPref";
 import { MotionToggle } from "@/components/MotionToggle";
@@ -153,34 +152,11 @@ const HERO_FALLBACK: LauncherHero = {
 };
 
 function Launcher() {
-  const { data } = useQuery({
-    queryKey: ["launcher_pages"],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("launcher_pages")
-        .select("*")
-        .eq("active", true)
-        .order("sort_order", { ascending: true });
-      if (error) return FALLBACK;
-      return (data?.length ? data : FALLBACK) as LauncherCard[];
-    },
-  });
+  const { data: launcherDoc } = useR2Content<{ hero: LauncherHero | null; pages: LauncherCard[] }>("launcher");
 
-  const { data: heroData } = useQuery({
-    queryKey: ["launcher_hero"],
-    queryFn: async (): Promise<LauncherHero> => {
-      const { data, error } = await (supabase as any)
-        .from("launcher_hero")
-        .select("eyebrow, headline_top, headline_bottom, intro")
-        .limit(1)
-        .maybeSingle();
-      if (error || !data) return HERO_FALLBACK;
-      return data as LauncherHero;
-    },
-  });
+  const cards: LauncherCard[] = (launcherDoc?.pages?.length ? launcherDoc.pages : FALLBACK) as LauncherCard[];
+  const hero: LauncherHero = launcherDoc?.hero ?? HERO_FALLBACK;
 
-  const hero = heroData ?? HERO_FALLBACK;
-  const cards = data ?? FALLBACK;
   const [hovered, setHovered] = useState<number | null>(null);
   const { reduceMotion } = useMotionPref();
 

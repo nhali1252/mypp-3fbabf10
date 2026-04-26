@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, Send, Quote, MessageSquareHeart, CheckCircle2 } from "lucide-react";
 import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
+import { useR2Content } from "@/hooks/useR2Content";
+import { submitReview } from "@/server/r2.functions";
 import { Footer } from "@/components/Footer";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -38,24 +39,25 @@ export function ReviewsPage() {
   const [hoverStar, setHoverStar] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
-  const { data: reviews = [], isLoading } = useQuery({
-    queryKey: ["public_reviews"],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("testimonials")
-        .select("*")
-        .eq("published", true)
-        .order("featured", { ascending: false })
-        .order("sort_order", { ascending: true })
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as Review[];
-    },
-  });
+  const { data: rawReviews, isLoading } = useR2Content<any[]>("reviews");
+  const reviews: Review[] = (rawReviews ?? [])
+    .filter((r) => r.published !== false)
+    .map((r) => ({
+      id: r.id,
+      client_name: r.client_name ?? r.name ?? "",
+      role: r.role ?? null,
+      company: r.company ?? null,
+      review: r.review,
+      rating: r.rating ?? 5,
+      avatar_url: r.avatar_url ?? r.avatar ?? null,
+      featured: !!r.featured,
+      created_at: r.created_at,
+    }))
+    .sort((a, b) => Number(b.featured) - Number(a.featured));
 
   const stats = useMemo(() => {
     if (!reviews.length) return { avg: 0, count: 0 };
-    const sum = reviews.reduce((a, r) => a + (r.rating ?? 0), 0);
+    const sum = reviews.reduce((a: number, r: Review) => a + (r.rating ?? 0), 0);
     return { avg: sum / reviews.length, count: reviews.length };
   }, [reviews]);
 
@@ -63,22 +65,20 @@ export function ReviewsPage() {
     mutationFn: async () => {
       const parsed = reviewSchema.safeParse({ client_name: name, review: text, rating, role });
       if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? "Invalid input");
-      const { error } = await (supabase as any).from("testimonials").insert({
-        client_name: parsed.data.client_name,
-        role: parsed.data.role || null,
-        review: parsed.data.review,
-        rating: parsed.data.rating,
-        status: "pending",
-        published: false,
-        featured: false,
+      await submitReview({
+        data: {
+          name: parsed.data.client_name,
+          role: parsed.data.role || "",
+          review: parsed.data.review,
+          rating: parsed.data.rating,
+        },
       });
-      if (error) throw error;
     },
     onSuccess: () => {
       setSubmitted(true);
       setName(""); setRole(""); setText(""); setRating(5);
       toast.success("Thanks! Your review is awaiting approval.");
-      qc.invalidateQueries({ queryKey: ["public_reviews"] });
+      qc.invalidateQueries({ queryKey: ["r2-content", "reviews"] });
     },
     onError: (e: any) => toast.error(e.message ?? "Could not send"),
   });

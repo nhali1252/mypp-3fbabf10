@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
   Sparkles,
@@ -12,7 +11,7 @@ import {
   Palette,
   PenTool,
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useR2Content } from "@/hooks/useR2Content";
 import { getIcon } from "@/lib/iconRegistry";
 import { Footer } from "@/components/Footer";
 
@@ -49,35 +48,16 @@ const fallbackOffers = [
 ];
 
 export function ServicesTasTajPage() {
-  const services = useQuery({
-    queryKey: ["public-services"],
-    queryFn: async () => {
-      const { data } = await (supabase as any)
-        .from("services")
-        .select("*")
-        .eq("active", true)
-        .order("sort_order", { ascending: true });
-      return (data ?? []) as ServiceRow[];
-    },
-  });
-
-  const skills = useQuery({
-    queryKey: ["public-f-skills"],
-    queryFn: async () => {
-      const { data } = await (supabase as any)
-        .from("f_skills")
-        .select("*")
-        .eq("active", true)
-        .order("sort_order", { ascending: true });
-      return (data ?? []) as FSkillRow[];
-    },
-  });
+  const services = useR2Content<ServiceRow[]>("services");
+  const fPage = useR2Content<{ skills: FSkillRow[] }>("fPage");
 
   const offers = (services.data?.length ? services.data : fallbackOffers) as Array<
     Pick<ServiceRow, "id" | "title" | "description" | "icon">
   >;
-  const designSkills = (skills.data ?? []).filter((s) => s.kind === "design");
-  const softSkills = (skills.data ?? []).filter((s) => s.kind !== "design");
+  const allSkills: FSkillRow[] = fPage.data?.skills ?? [];
+  const designSkills = allSkills.filter((s) => s.kind === "design");
+  const softSkills = allSkills.filter((s) => s.kind !== "design");
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -211,7 +191,7 @@ export function ServicesTasTajPage() {
             </p>
           </div>
 
-          {designSkills.length === 0 && !skills.isLoading ? (
+          {designSkills.length === 0 && !fPage.isLoading ? (
             <div className="text-center text-sm text-muted-foreground border border-dashed border-border rounded-2xl py-14">
               No design skills published yet — add them from the admin /F page.
             </div>

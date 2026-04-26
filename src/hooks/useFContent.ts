@@ -1,6 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useR2Content } from "./useR2Content";
 
 export type FHero = {
   id: string;
@@ -42,101 +40,46 @@ export type FPhotocard = {
 };
 
 export const F_KEYS = {
-  hero: ["f_hero"] as const,
-  skills: ["f_skills"] as const,
-  projects: ["f_projects"] as const,
-  photocard: ["f_photocard"] as const,
+  hero: ["r2-content", "fPage", "hero"] as const,
+  skills: ["r2-content", "fPage", "skills"] as const,
+  projects: ["r2-content", "fPage", "projects"] as const,
+  photocard: ["r2-content", "fPage", "photocard"] as const,
 };
 
+const useFDoc = () => useR2Content<any>("fPage");
+
+function pick<T>(q: ReturnType<typeof useFDoc>, value: T) {
+  return { ...q, data: value } as Omit<typeof q, "data"> & { data: T };
+}
+
 export function useFPhotocard() {
-  return useQuery({
-    queryKey: F_KEYS.photocard,
-    queryFn: async (): Promise<FPhotocard | null> => {
-      const { data } = await (supabase as any)
-        .from("f_photocard")
-        .select("*")
-        .limit(1)
-        .maybeSingle();
-      return data;
-    },
-  });
+  const q = useFDoc();
+  return pick(q, (q.data?.photocard ?? null) as FPhotocard | null);
 }
 
 export function useFHero() {
-  return useQuery({
-    queryKey: F_KEYS.hero,
-    queryFn: async (): Promise<FHero | null> => {
-      const { data } = await (supabase as any)
-        .from("f_hero")
-        .select("*")
-        .limit(1)
-        .maybeSingle();
-      return data;
-    },
-  });
+  const q = useFDoc();
+  return pick(q, (q.data?.hero ?? null) as FHero | null);
 }
 
-export function useFSkills(opts: { onlyActive?: boolean } = {}) {
-  const { onlyActive = true } = opts;
-  return useQuery({
-    queryKey: [...F_KEYS.skills, { onlyActive }],
-    queryFn: async (): Promise<FSkill[]> => {
-      let q = (supabase as any).from("f_skills").select("*").order("sort_order");
-      if (onlyActive) q = q.eq("active", true);
-      const { data } = await q;
-      return (data ?? []) as FSkill[];
-    },
-  });
+export function useFSkills(_opts: { onlyActive?: boolean } = {}) {
+  const q = useFDoc();
+  return pick(q, ((q.data?.skills ?? []) as FSkill[]));
 }
 
-export function useFProjects(opts: { onlyActive?: boolean } = {}) {
-  const { onlyActive = true } = opts;
-  return useQuery({
-    queryKey: [...F_KEYS.projects, { onlyActive }],
-    queryFn: async (): Promise<FProject[]> => {
-      let q = (supabase as any).from("f_projects").select("*").order("sort_order");
-      if (onlyActive) q = q.eq("active", true);
-      const { data } = await q;
-      return ((data ?? []) as any[]).map((d) => ({
-        ...d,
-        tags: Array.isArray(d.tags) ? d.tags : [],
-      })) as FProject[];
-    },
-  });
+export function useFProjects(_opts: { onlyActive?: boolean } = {}) {
+  const q = useFDoc();
+  const list = ((q.data?.projects ?? []) as any[]).map((d) => ({
+    ...d,
+    tags: Array.isArray(d.tags) ? d.tags : [],
+  })) as FProject[];
+  return pick(q, list);
 }
 
 /**
- * Subscribe to realtime changes on /F CMS tables and invalidate the query
- * cache so both the public page and the admin preview update instantly.
+ * Realtime sync was DB-driven; with R2 JSON the admin save call invalidates
+ * the cache directly, so this hook is now a no-op kept for backwards compat.
  */
 export function useFRealtimeSync() {
-  const qc = useQueryClient();
-  useEffect(() => {
-    const channel = supabase
-      .channel("f-content-sync")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "f_hero" },
-        () => qc.invalidateQueries({ queryKey: F_KEYS.hero }),
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "f_skills" },
-        () => qc.invalidateQueries({ queryKey: F_KEYS.skills }),
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "f_projects" },
-        () => qc.invalidateQueries({ queryKey: F_KEYS.projects }),
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "f_photocard" },
-        () => qc.invalidateQueries({ queryKey: F_KEYS.photocard }),
-      )
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [qc]);
+  // intentionally empty
 }

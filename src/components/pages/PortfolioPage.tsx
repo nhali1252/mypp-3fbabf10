@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, Folder, FolderOpen, X, ExternalLink, Sparkles, Image as ImageIcon } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useR2Content } from "@/hooks/useR2Content";
 import { Footer } from "@/components/Footer";
+
+type PortfolioDoc = (PFolder & { items: PItem[] })[];
 
 type PFolder = {
   id: string;
@@ -27,21 +28,12 @@ type PItem = {
 };
 
 export function PortfolioPage() {
-  const { data: folders = [], isLoading: foldersLoading } = useQuery({
-    queryKey: ["public_portfolio_folders"],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("portfolio_folders")
-        .select("*")
-        .eq("active", true)
-        .order("sort_order", { ascending: true });
-      if (error) throw error;
-      return (data ?? []) as PFolder[];
-    },
-  });
+  const { data: portfolioDoc, isLoading: foldersLoading } = useR2Content<PortfolioDoc>("portfolio");
+  const folders: PFolder[] = (portfolioDoc ?? []).map(({ items: _items, ...f }) => f);
 
   const [openFolder, setOpenFolder] = useState<PFolder | null>(null);
   const [previewItem, setPreviewItem] = useState<PItem | null>(null);
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -203,22 +195,11 @@ function FolderViewer({
   onClose: () => void;
   onPreview: (item: PItem) => void;
 }) {
-  const { data: items = [], isLoading } = useQuery({
-    queryKey: ["public_portfolio_items", folder.id],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("portfolio_items")
-        .select("*")
-        .eq("folder_id", folder.id)
-        .eq("active", true)
-        .order("sort_order", { ascending: true });
-      if (error) throw error;
-      return ((data ?? []) as any[]).map((r) => ({
-        ...r,
-        tags: Array.isArray(r.tags) ? r.tags : [],
-      })) as PItem[];
-    },
-  });
+  const { data: portfolioDoc, isLoading } = useR2Content<PortfolioDoc>("portfolio");
+  const items: PItem[] = (
+    (portfolioDoc ?? []).find((f) => f.id === folder.id)?.items ?? []
+  ).map((r) => ({ ...r, tags: Array.isArray(r.tags) ? r.tags : [] }));
+
 
   return (
     <motion.div

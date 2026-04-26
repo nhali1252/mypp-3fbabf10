@@ -1,134 +1,70 @@
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+/**
+ * Public content hooks — now read from R2 JSON via the `getContent` server function.
+ * Public API (return shape) is preserved so consumer components don't change.
+ */
+import { useR2Content } from "./useR2Content";
 
-// Page-scoped hooks accept an optional page key ("B" | "F" | ...). Defaults to "B".
 type PageKey = "B" | "F" | string;
 
-export const useHero = (pageKey: PageKey = "B") =>
-  useQuery({
-    queryKey: ["hero", pageKey],
-    queryFn: async () => {
-      const { data } = await (supabase as any)
-        .from("hero_content")
-        .select("*")
-        .eq("page_key", pageKey)
-        .limit(1)
-        .maybeSingle();
-      return data;
-    },
-  });
+const useBasicInfo = () => useR2Content<any>("basicInfo");
+const useChromeDoc = () => useR2Content<any>("chrome");
+const useAboutDoc = () => useR2Content<any>("about");
 
-export const useAbout = (pageKey: PageKey = "B") =>
-  useQuery({
-    queryKey: ["about", pageKey],
-    queryFn: async () => {
-      const { data } = await (supabase as any)
-        .from("about_content")
-        .select("*")
-        .eq("page_key", pageKey)
-        .limit(1)
-        .maybeSingle();
-      return data;
-    },
-  });
+function project(q: { data: any } & Record<string, any>, value: any) {
+  return { ...q, data: value } as any;
+}
 
-export const useContactSettings = (pageKey: PageKey = "B") =>
-  useQuery({
-    queryKey: ["contact_settings", pageKey],
-    queryFn: async () => {
-      const { data } = await (supabase as any)
-        .from("contact_settings")
-        .select("*")
-        .eq("page_key", pageKey)
-        .limit(1)
-        .maybeSingle();
-      return data;
-    },
-  });
+export const useHero = (_pageKey: PageKey = "B") => {
+  const q = useBasicInfo();
+  return project(q, q.data?.hero ?? null);
+};
 
-export const useSiteSettings = (pageKey: PageKey = "B") =>
-  useQuery({
-    queryKey: ["site_settings", pageKey],
-    queryFn: async () => {
-      const { data } = await (supabase as any)
-        .from("site_settings")
-        .select("*")
-        .eq("page_key", pageKey)
-        .limit(1)
-        .maybeSingle();
-      return data;
-    },
-  });
+export const useAbout = (_pageKey: PageKey = "B") => useAboutDoc();
 
-// Shared collection hooks (not page-scoped)
-export const useServices = () =>
-  useQuery({
-    queryKey: ["services"],
-    queryFn: async () => {
-      const { data } = await supabase.from("services").select("*").eq("active", true).order("sort_order");
-      return data ?? [];
-    },
-  });
+export const useContactSettings = (_pageKey: PageKey = "B") =>
+  useR2Content<any>("contact");
 
-export const useProjects = () =>
-  useQuery({
-    queryKey: ["projects"],
-    queryFn: async () => {
-      const { data } = await supabase.from("projects").select("*").eq("published", true).order("sort_order");
-      return data ?? [];
-    },
-  });
+export const useSiteSettings = (pageKey: PageKey = "B") => {
+  const q = useBasicInfo();
+  return project(q, q.data?.siteSettings?.[pageKey] ?? null);
+};
 
-export const useNavLinks = () =>
-  useQuery({
-    queryKey: ["nav_links"],
-    queryFn: async () => {
-      const { data } = await supabase.from("nav_links").select("*").eq("active", true).order("sort_order");
-      return data ?? [];
-    },
-  });
+export const useServices = () => {
+  const q = useR2Content<any[]>("services");
+  return project(q, q.data ?? []);
+};
 
-export const useFooterLinks = () =>
-  useQuery({
-    queryKey: ["footer_links"],
-    queryFn: async () => {
-      const { data } = await supabase.from("footer_links").select("*").eq("active", true).order("sort_order");
-      return data ?? [];
-    },
-  });
+export const useProjects = () => {
+  const q = useR2Content<any[]>("projects");
+  return project(q, q.data ?? []);
+};
 
-export const useEducation = () =>
-  useQuery({
-    queryKey: ["education"],
-    queryFn: async () => {
-      const { data } = await supabase.from("education").select("*").eq("active", true).order("sort_order");
-      return data ?? [];
-    },
-  });
+export const useNavLinks = () => {
+  const q = useChromeDoc();
+  return project(q, q.data?.navLinks ?? []);
+};
 
-export const useActivities = () =>
-  useQuery({
-    queryKey: ["activities"],
-    queryFn: async () => {
-      const { data } = await supabase.from("activities").select("*").eq("active", true).order("sort_order");
-      return data ?? [];
-    },
-  });
+export const useFooterLinks = () => {
+  const q = useChromeDoc();
+  return project(q, q.data?.footerLinks ?? []);
+};
 
-export const useTickerItems = () =>
-  useQuery({
-    queryKey: ["ticker_items"],
-    queryFn: async () => {
-      const { data } = await supabase.from("ticker_items").select("*").eq("active", true).order("sort_order");
-      return data ?? [];
-    },
-  });
+export const useEducation = () => {
+  const q = useAboutDoc();
+  return project(q, q.data?.education ?? []);
+};
 
-export const useFooterApps = () =>
-  useQuery({
-    queryKey: ["footer_apps"],
-    queryFn: async () => {
-      const { data } = await (supabase as any).from("footer_apps").select("*").eq("active", true).order("sort_order");
-      return data ?? [];
-    },
-  });
+export const useActivities = () => {
+  const q = useAboutDoc();
+  return project(q, q.data?.activities ?? []);
+};
+
+export const useTickerItems = () => {
+  const q = useChromeDoc();
+  return project(q, q.data?.tickerItems ?? []);
+};
+
+export const useFooterApps = () => {
+  const q = useChromeDoc();
+  return project(q, q.data?.footerApps ?? []);
+};

@@ -7,6 +7,10 @@ export const R2_KEYS = {
   services: "content/services.json",
   contact: "content/contact.json",
   reviews: "content/reviews.json",
+  // Phase 2 additions
+  launcher: "content/launcher.json",
+  chrome: "content/chrome.json",
+  fPage: "content/f-page.json",
 } as const;
 
 export type R2ContentKey = keyof typeof R2_KEYS;

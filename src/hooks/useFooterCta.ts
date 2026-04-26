@@ -1,5 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useR2Content } from "./useR2Content";
 
 export type FooterCta = {
   id: string;
@@ -34,17 +33,7 @@ export const FOOTER_CTA_DEFAULTS: FooterCta = {
 };
 
 export function useFooterCta() {
-  return useQuery({
-    queryKey: ["footer_cta"],
-    queryFn: async (): Promise<FooterCta> => {
-      const { data, error } = await supabase
-        .from("footer_cta")
-        .select("*")
-        .maybeSingle();
-      if (error) throw error;
-      if (!data) return FOOTER_CTA_DEFAULTS;
-      return { ...FOOTER_CTA_DEFAULTS, ...data } as FooterCta;
-    },
-    staleTime: 60_000,
-  });
+  const q = useR2Content<any>("chrome");
+  const merged: FooterCta = { ...FOOTER_CTA_DEFAULTS, ...(q.data?.footerCta ?? {}) };
+  return { ...q, data: merged } as Omit<typeof q, "data"> & { data: FooterCta };
 }

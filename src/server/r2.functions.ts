@@ -6,7 +6,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { readJson, writeJson, presignPut, publicUrl, listObjects, deleteObject } from "./r2.server";
+import { readJson, writeJson, presignPut, publicUrl, listObjects, deleteObject, putObject } from "./r2.server";
 import { R2_KEYS, R2_ASSET_PREFIXES, type R2ContentKey, type R2AssetFolder } from "./r2-keys";
 
 const contentKeySchema = z.enum(
@@ -99,6 +99,36 @@ export const deleteAsset = createServerFn({ method: "POST" })
     await assertAdminOrEditor(context.userId);
     await deleteObject(data.key);
     return { ok: true };
+  });
+
+/**
+ * Server-side proxy upload. The browser POSTs the raw file bytes; the server
+ * PUTs them to R2 with admin credentials. Bypasses CORS entirely and works
+ * even when R2 bucket-level CORS is not configured for the preview domain.
+ *
+ * Limit: 25 MB. For larger files use the presigned-PUT flow.
+ */
+export const uploadAsset = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { folder: R2AssetFolder; filename: string; contentType: string; base64: string }) => ({
+    folder: assetFolderSchema.parse(data.folder),
+    filename: z.string().min(1).max(200).regex(/^[\w\-. ]+$/, "Invalid filename").parse(data.filename),
+    contentType: z.string().min(1).max(120).parse(data.contentType),
+    base64: z.string().min(1).max(40_000_000).parse(data.base64), // ~30 MB base64 = ~22 MB binary
+  }))
+  .handler(async ({ data, context }) => {
+    await assertAdminOrEditor(context.userId);
+    // Decode base64 → Uint8Array. atob is available in the Worker runtime.
+    const bin = atob(data.base64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    if (bytes.byteLength > 25 * 1024 * 1024) {
+      throw new Error("File too large — max 25 MB for proxy upload");
+    }
+    const safeName = data.filename.replace(/\s+/g, "-");
+    const key = `${R2_ASSET_PREFIXES[data.folder]}${Date.now()}-${safeName}`;
+    const url = await putObject(key, bytes, data.contentType);
+    return { key, publicUrl: url };
   });
 
 /** Public reviews submission — anyone can append a pending review. */

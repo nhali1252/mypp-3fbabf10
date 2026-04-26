@@ -13,14 +13,17 @@
  */
 import type { ComponentType } from "react";
 import QuoteSectionEditor from "@/components/admin/QuoteSectionEditor";
+import HeroEditor from "@/components/admin/HeroEditor";
 import { makeSectionLink } from "@/components/admin/SectionLink";
 
 type SectionProps = { slug: string };
 type SectionComponent = ComponentType<SectionProps>;
 
+const HeroInline = () => <HeroEditor embedded />;
+
 const REGISTRY: Record<string, SectionComponent> = {
   // ── Basic ─────────────────────────────────────────────────────────────
-  "basic:hero": makeSectionLink("/admin/hero", "Hero editor", "Headline, subheadline, CTAs, portrait."),
+  "basic:hero": HeroInline,
   "basic:site-settings": makeSectionLink("/admin/settings", "Site settings", "Site name, theme, logo, favicon."),
   "basic:socials": makeSectionLink("/admin/contact", "Social links", "Managed alongside contact channels."),
   "basic:quote": QuoteSectionEditor,

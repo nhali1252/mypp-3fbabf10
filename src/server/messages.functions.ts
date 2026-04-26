@@ -12,6 +12,23 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { readMessages, writeMessages, type Message } from "./messages.server";
 
+export type MessagesResult =
+  | { ok: true; messages: Message[] }
+  | { ok: false; messages: Message[]; error: string; detail?: string };
+
+function messageStorageError(error: unknown): string {
+  const err = error as any;
+  if (
+    err?.name === "AccessDenied" ||
+    err?.Code === "AccessDenied" ||
+    err?.$metadata?.httpStatusCode === 403 ||
+    /access\s*denied|forbidden/i.test(err?.message ?? "")
+  ) {
+    return "R2 denied access to the private messages bucket. Verify R2_PRIVATE_BUCKET is the bucket name and the R2 token has read/write object permissions for it.";
+  }
+  return "Messages storage is unavailable right now. Verify the R2 settings, then use Runtime → Restart R2 client.";
+}
+
 async function assertAdmin(userId: string) {
   const { data, error } = await supabaseAdmin
     .from("user_roles")
@@ -60,10 +77,20 @@ export const submitMessage = createServerFn({ method: "POST" })
 /** Admin: list all messages, newest first. */
 export const listMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .handler(async ({ context }): Promise<MessagesResult> => {
     await assertAdmin(context.userId);
-    const list = await readMessages();
-    return list.sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+    try {
+      const list = await readMessages();
+      return { ok: true, messages: list.sort((a, b) => (a.created_at < b.created_at ? 1 : -1)) };
+    } catch (error: any) {
+      console.error("[messages.listMessages] storage unavailable", {
+        name: error?.name,
+        code: error?.Code || error?.code,
+        status: error?.$metadata?.httpStatusCode,
+        message: error?.message,
+      });
+      return { ok: false, messages: [], error: messageStorageError(error), detail: error?.message };
+    }
   });
 
 /** Admin: toggle is_read / is_replied flags. */

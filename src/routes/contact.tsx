@@ -1,8 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
 import { ContactPage } from "@/components/pages/ContactPage";
+
+const contactSearchSchema = z.object({
+  service: z.string().trim().min(1).max(120).optional(),
+});
 
 export const Route = createFileRoute("/contact")({
   component: ContactPage,
+  validateSearch: contactSearchSchema,
   head: () => ({
     meta: [
       { title: "Contact — Ali Nur Hasan (TasTaj)" },

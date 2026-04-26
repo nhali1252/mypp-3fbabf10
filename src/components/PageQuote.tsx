@@ -35,7 +35,7 @@ export function PageQuote({ slug, className }: Props) {
       aria-label="Highlighted quote"
       className={`relative mx-auto my-16 w-full max-w-4xl px-6 ${className ?? ""}`}
     >
-      <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-background p-8 sm:p-12 shadow-elegant">
+      <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-background p-8 sm:p-12 shadow-2xl shadow-primary/10">
         <div
           aria-hidden
           className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/20 blur-3xl"

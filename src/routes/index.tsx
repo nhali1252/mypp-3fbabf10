@@ -358,6 +358,11 @@ function Launcher() {
 
   const [hovered, setHovered] = useState<number | null>(null);
   const { reduceMotion } = useMotionPref();
+  const siteSettings = useSiteSettings("B");
+  const welcomeMs = siteSettings.welcome_animation_ms;
+  const welcomeSec = Math.max(0, welcomeMs) / 1000;
+  const showLauncherCards = isSectionVisible(siteSettings, "launcher_cards", true);
+  const showHero = isSectionVisible(siteSettings, "hero", true);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-hidden">

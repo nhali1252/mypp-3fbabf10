@@ -75,6 +75,8 @@ function R2MigrationPage() {
       toast.error("Clipboard unavailable");
     }
   };
+
+  const runCoverage = async () => {
     setCoverageBusy(true);
     try {
       const res = await checkCoverage();

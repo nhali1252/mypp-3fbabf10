@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { AdminPage, AdminCard, EmptyState } from "@/components/admin/AdminPage";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
-import { Mail, MailOpen, Reply, Trash2, DatabaseBackup } from "lucide-react";
+import { Mail, MailOpen, Reply, Trash2, DatabaseBackup, AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/_admin/admin/messages")({ component: AdminMessages });
 
@@ -18,7 +18,7 @@ function AdminMessages() {
   const update = useServerFn(updateMessage);
   const del = useServerFn(deleteMessage);
 
-  const { data: rows = [], isLoading } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["admin-messages"],
     queryFn: () => list(),
   });
@@ -50,10 +50,31 @@ function AdminMessages() {
   });
 
   if (isLoading) return <div className="p-6">Loading…</div>;
+  const rows = data?.messages ?? [];
   const unread = rows.filter((r) => !r.is_read).length;
+  const storageError = data && !data.ok ? data : null;
 
   return (
     <AdminPage title="Messages" description={`Contact form submissions${unread ? ` · ${unread} unread` : ""}.`}>
+      {(isError || storageError) && (
+        <div className="rounded-2xl border border-destructive/35 bg-destructive/10 p-4 text-sm">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
+            <div className="min-w-0 flex-1">
+              <div className="font-semibold text-destructive">Messages could not load</div>
+              <p className="mt-1 text-muted-foreground">
+                {storageError?.error || error?.message || "Unable to reach messages storage."}
+              </p>
+              {storageError?.detail && (
+                <p className="mt-2 break-words font-mono text-xs text-muted-foreground">{storageError.detail}</p>
+              )}
+            </div>
+            <Button size="sm" variant="outline" onClick={() => refetch()}>
+              Retry
+            </Button>
+          </div>
+        </div>
+      )}
       <div className="mb-4">
         <Button size="sm" variant="outline" onClick={() => migrateMut.mutate()} disabled={migrateMut.isPending}>
           <DatabaseBackup className="w-3.5 h-3.5 mr-1.5" />

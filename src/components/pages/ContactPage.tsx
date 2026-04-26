@@ -67,6 +67,7 @@ export function ContactPage() {
   const [day, setDay] = useState<string | null>(null);
   const [slot, setSlot] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const send = useServerFn(submitMessage);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();

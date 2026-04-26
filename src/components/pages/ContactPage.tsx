@@ -227,7 +227,10 @@ export function ContactPage() {
 
             <Field label="Project type">
               <div className="flex flex-wrap gap-2">
-                {projectTypes.map((p) => (
+                {(projectTypes.includes(projectType)
+                  ? projectTypes
+                  : [projectType, ...projectTypes]
+                ).map((p) => (
                   <button
                     type="button"
                     key={p}

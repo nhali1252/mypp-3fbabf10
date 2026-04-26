@@ -100,6 +100,7 @@ export const seedR2FromDatabase = createServerFn({ method: "POST" })
       id: f.id, name: f.name, slug: f.slug,
       description: f.description ?? "", cover_url: f.cover_url ?? "",
       icon: f.icon ?? "", sort_order: f.sort_order ?? 0, active: f.active,
+      parent_id: (f as any).parent_id ?? null,
       items: (items.data ?? [])
         .filter((it) => it.folder_id === f.id)
         .map((it) => ({

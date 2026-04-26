@@ -1,14 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { useTable } from "@/hooks/useTable";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { AdminPage, AdminCard, FormRow, EmptyState } from "@/components/admin/AdminPage";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 import { MediaPicker } from "@/components/admin/MediaPicker";
-import { Plus, Trash2, ArrowUp, ArrowDown, Save, Star, Check, X, Eye, EyeOff, Sparkles } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Save, Star, Check, X, Eye, EyeOff, Sparkles, GripVertical } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_admin/admin/reviews")({ component: AdminReviews });
 
@@ -27,18 +31,30 @@ function statusBadge(s: Status) {
 
 function AdminReviews() {
   const t = useTable("testimonials");
+  const qc = useQueryClient();
   const rows = t.data ?? [];
   const [creating, setCreating] = useState(false);
   const [draft, setDraft] = useState<any>({ rating: 5, published: true, status: "approved" });
   const [edits, setEdits] = useState<Record<string, any>>({});
   const [filter, setFilter] = useState<"all" | Status>("all");
   const [q, setQ] = useState("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const get = (r: any) => edits[r.id] ?? r;
   const setE = (id: string, patch: any) => {
     const base = edits[id] ?? rows.find((r: any) => r.id === id);
     setEdits((e) => ({ ...e, [id]: { ...base, ...patch } }));
   };
+
+  function toggleSelected(id: string) {
+    setSelected((s) => {
+      const n = new Set(s);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+  }
+  function clearSelection() { setSelected(new Set()); }
 
   async function add() {
     if (!draft.client_name?.trim() || !draft.review?.trim()) return;
@@ -59,6 +75,58 @@ function AdminReviews() {
   async function quick(id: string, patch: any) {
     await t.update(id, patch);
     setEdits((e) => { const n = { ...e }; delete n[id]; return n; });
+  }
+
+  // ----- Bulk actions ---------------------------------------------------
+  async function bulkUpdate(patch: any, label: string) {
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+    const { error } = await (supabase as any).from("testimonials").update(patch).in("id", ids);
+    if (error) return toast.error(error.message);
+    toast.success(`${label} ${ids.length} review${ids.length === 1 ? "" : "s"}`);
+    clearSelection();
+    qc.invalidateQueries({ queryKey: ["admin-table", "testimonials"] });
+    qc.invalidateQueries({ queryKey: ["testimonials"] });
+  }
+  async function bulkDelete() {
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+    if (!confirm(`Delete ${ids.length} review${ids.length === 1 ? "" : "s"}? This can't be undone.`)) return;
+    const { error } = await (supabase as any).from("testimonials").delete().in("id", ids);
+    if (error) return toast.error(error.message);
+    toast.success(`Deleted ${ids.length}`);
+    clearSelection();
+    qc.invalidateQueries({ queryKey: ["admin-table", "testimonials"] });
+    qc.invalidateQueries({ queryKey: ["testimonials"] });
+  }
+
+  // ----- Drag & drop reorder -------------------------------------------
+  // Persists a new order by writing sequential sort_orders. Optimistic
+  // cache update keeps the UI from snapping back during writes.
+  const dragId = useRef<string | null>(null);
+  function onDragStart(id: string) { dragId.current = id; }
+  function onDragOver(e: React.DragEvent) { e.preventDefault(); }
+  async function onDrop(targetId: string) {
+    const from = dragId.current;
+    dragId.current = null;
+    if (!from || from === targetId) return;
+    const next = [...rows];
+    const fromIdx = next.findIndex((r) => r.id === from);
+    const toIdx = next.findIndex((r) => r.id === targetId);
+    if (fromIdx < 0 || toIdx < 0) return;
+    const [moved] = next.splice(fromIdx, 1);
+    next.splice(toIdx, 0, moved);
+    qc.setQueryData(["admin-table", "testimonials"], next.map((r, i) => ({ ...r, sort_order: i + 1 })));
+    try {
+      await Promise.all(
+        next.map((r, i) => (supabase as any).from("testimonials").update({ sort_order: i + 1 }).eq("id", r.id)),
+      );
+      qc.invalidateQueries({ queryKey: ["admin-table", "testimonials"] });
+      qc.invalidateQueries({ queryKey: ["testimonials"] });
+    } catch (err: any) {
+      toast.error(err?.message ?? "Couldn't save order");
+      qc.invalidateQueries({ queryKey: ["admin-table", "testimonials"] });
+    }
   }
 
   const counts = useMemo(() => {
@@ -102,6 +170,32 @@ function AdminReviews() {
             <Input placeholder="Search name or review…" value={q} onChange={(e) => setQ(e.target.value)} />
           </div>
         </div>
+        {selected.size > 0 && (
+          <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 p-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-primary px-1">
+              {selected.size} selected
+            </span>
+            <Button size="sm" variant="outline" onClick={() => bulkUpdate({ status: "approved", published: true }, "Approved")}>
+              <Check className="w-3.5 h-3.5 mr-1" /> Approve
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => bulkUpdate({ status: "featured", published: true, featured: true }, "Featured")}>
+              <Sparkles className="w-3.5 h-3.5 mr-1" /> Feature
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => bulkUpdate({ status: "rejected", published: false, featured: false }, "Rejected")}>
+              <X className="w-3.5 h-3.5 mr-1" /> Reject
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => bulkUpdate({ published: true }, "Published")}>
+              <Eye className="w-3.5 h-3.5 mr-1" /> Show
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => bulkUpdate({ published: false }, "Hidden")}>
+              <EyeOff className="w-3.5 h-3.5 mr-1" /> Hide
+            </Button>
+            <Button size="sm" variant="outline" onClick={bulkDelete}>
+              <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete
+            </Button>
+            <Button size="sm" variant="ghost" onClick={clearSelection} className="ml-auto">Clear</Button>
+          </div>
+        )}
       </AdminCard>
 
       {creating && (
@@ -130,9 +224,24 @@ function AdminReviews() {
           const row = get(r); const dirty = !!edits[r.id];
           const status = (row.status ?? "approved") as Status;
           return (
-            <AdminCard key={r.id} title={row.client_name || "Untitled"}>
+            <div
+              key={r.id}
+              draggable
+              onDragStart={() => onDragStart(r.id)}
+              onDragOver={onDragOver}
+              onDrop={() => onDrop(r.id)}
+            >
+              <AdminCard title={row.client_name || "Untitled"}>
               {/* Status + quick actions strip */}
               <div className="flex flex-wrap items-center gap-2 mb-4">
+                <span aria-hidden className="text-muted-foreground/70 cursor-grab active:cursor-grabbing" title="Drag to reorder">
+                  <GripVertical className="w-4 h-4" />
+                </span>
+                <Checkbox
+                  checked={selected.has(r.id)}
+                  onCheckedChange={() => toggleSelected(r.id)}
+                  aria-label="Select review"
+                />
                 <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusBadge(status)}`}>
                   {status}
                 </span>
@@ -191,7 +300,8 @@ function AdminReviews() {
                 <Button variant="outline" size="icon" onClick={() => t.move(rows, r.id, 1)} disabled={i === filtered.length - 1}><ArrowDown className="w-4 h-4" /></Button>
                 <ConfirmDelete onConfirm={() => t.remove(r.id)} trigger={<Button variant="outline"><Trash2 className="w-4 h-4 mr-1.5" />Delete</Button>} />
               </div>
-            </AdminCard>
+              </AdminCard>
+            </div>
           );
         })}
     </AdminPage>

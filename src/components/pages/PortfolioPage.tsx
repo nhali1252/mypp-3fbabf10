@@ -120,7 +120,7 @@ export function PortfolioPage() {
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {folders.map((f, i) => (
-                <FolderCard key={f.id} folder={f} index={i} onOpen={() => setOpenFolder(f)} />
+                <FolderCard key={f.id} folder={f} index={i} onOpen={() => setFolderStack([f])} />
               ))}
             </div>
           )}
@@ -130,8 +130,10 @@ export function PortfolioPage() {
       <AnimatePresence>
         {openFolder && (
           <FolderViewer
-            folder={openFolder}
-            onClose={() => setOpenFolder(null)}
+            allFolders={allFolders}
+            folderStack={folderStack}
+            onNavigate={setFolderStack}
+            onClose={() => setFolderStack([])}
             onPreview={setPreviewItem}
           />
         )}

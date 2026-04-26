@@ -72,16 +72,18 @@ export function FeedPage() {
   const [folderFilter, setFolderFilter] = useState<string>("all"); // folder slug
   const [mediaFilter, setMediaFilter] = useState<MediaFilter>("all");
   const [featuredOnly, setFeaturedOnly] = useState<boolean>(false);
+  const [sort, setSort] = useState<"newest" | "featured-first">("newest");
 
   // Server-paginated feed slice. Each "Load more" fetches only the next page.
   const sliceQuery = useInfiniteQuery({
-    queryKey: ["feed-slice", { folder: folderFilter, media: mediaFilter, featured: featuredOnly }],
+    queryKey: ["feed-slice", { folder: folderFilter, media: mediaFilter, featured: featuredOnly, sort }],
     queryFn: async ({ pageParam = 0 }) => {
       return await getFeedSlice({
         data: {
           folder: folderFilter === "all" ? undefined : folderFilter,
           media: mediaFilter,
           featured: featuredOnly,
+          sort,
           offset: pageParam,
           limit: PAGE_SIZE,
         },

@@ -28,21 +28,12 @@ type PItem = {
 };
 
 export function PortfolioPage() {
-  const { data: folders = [], isLoading: foldersLoading } = useQuery({
-    queryKey: ["public_portfolio_folders"],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("portfolio_folders")
-        .select("*")
-        .eq("active", true)
-        .order("sort_order", { ascending: true });
-      if (error) throw error;
-      return (data ?? []) as PFolder[];
-    },
-  });
+  const { data: portfolioDoc, isLoading: foldersLoading } = useR2Content<PortfolioDoc>("portfolio");
+  const folders: PFolder[] = (portfolioDoc ?? []).map(({ items: _items, ...f }) => f);
 
   const [openFolder, setOpenFolder] = useState<PFolder | null>(null);
   const [previewItem, setPreviewItem] = useState<PItem | null>(null);
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">

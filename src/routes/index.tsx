@@ -436,6 +436,7 @@ function Launcher() {
       )}
 
       <main className="relative flex-1 px-5 sm:px-6 md:px-10 py-12 md:py-20">
+        {showLauncherCards && (
         <div className="max-w-[1240px] mx-auto grid gap-5 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {showSkeleton
             ? Array.from({ length: 6 }).map((_, i) => (

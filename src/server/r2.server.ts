@@ -31,7 +31,9 @@ export function bucket(): string {
 
 /** Private bucket name (no public domain attached). Used for PII like contact messages. */
 export function privateBucket(): string {
-  return env("R2_PRIVATE_BUCKET");
+  const configured = process.env.R2_PRIVATE_BUCKET?.trim().replace(/[.\s]+$/g, "");
+  if (configured && configured !== process.env.R2_ACCOUNT_ID) return configured;
+  return "private";
 }
 
 /** Read JSON from a specific bucket. */

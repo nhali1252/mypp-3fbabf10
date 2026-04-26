@@ -17,11 +17,30 @@ function R2MigrationPage() {
   const seed = useServerFn(seedR2FromDatabase);
   const fetchKey = useServerFn(getContent);
   const migrateMedia = useServerFn(migrateMediaToR2);
+  const checkCoverage = useServerFn(validateR2Coverage);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [mediaResult, setMediaResult] = useState<any>(null);
   const [mediaBusy, setMediaBusy] = useState(false);
   const [previews, setPreviews] = useState<Record<string, any>>({});
+  const [coverage, setCoverage] = useState<CoverageReport | null>(null);
+  const [coverageBusy, setCoverageBusy] = useState(false);
+
+  const runCoverage = async () => {
+    setCoverageBusy(true);
+    try {
+      const res = await checkCoverage();
+      setCoverage(res);
+      if (res.ok) toast.success("Coverage OK — every table is mapped");
+      else toast.warning(
+        `Coverage issues: ${res.missingFromMap.length} unmapped, ${res.staleInMap.length} stale`,
+      );
+    } catch (e: any) {
+      toast.error(e.message ?? "Coverage check failed");
+    } finally {
+      setCoverageBusy(false);
+    }
+  };
 
   const runSeed = async () => {
     setBusy(true);

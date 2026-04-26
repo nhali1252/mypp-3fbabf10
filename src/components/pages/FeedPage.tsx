@@ -277,7 +277,7 @@ export function FeedPage() {
           ) : (
             <>
               <MasonryGrid items={visibleItems} onOpen={open} />
-              {sliceQuery.isFetchNextPageError ? (
+              {sliceQuery.isError && visibleItems.length > 0 ? (
                 <div className="flex flex-col items-center gap-3 mt-10">
                   <p className="text-xs text-destructive font-medium">
                     Couldn't load more items.

@@ -698,11 +698,13 @@ function FeedCard({ item, index, onOpen }: { item: FeedItem; index: number; onOp
 }
 
 // ---------------------------------------------------------------------------
-// Lightbox (unchanged behavior)
+// Lightbox — accessible: focus trap, focus restoration, keyboard nav,
+// roledescription="carousel", high-DPI image rendering, "Back" close button,
+// neighbor preloading for snappy nav.
 // ---------------------------------------------------------------------------
 
 function Lightbox({
-  item, index, total, onClose, onNext, onPrev,
+  item, index, total, onClose, onNext, onPrev, neighbors = [],
 }: {
   item: FeedItem;
   index: number;
@@ -710,7 +712,42 @@ function Lightbox({
   onClose: () => void;
   onNext: () => void;
   onPrev: () => void;
+  neighbors?: FeedItem[];
 }) {
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const closeBtnRef = useRef<HTMLButtonElement | null>(null);
+
+  // Auto-focus the close ("Back") button on open so keyboard users land here.
+  useEffect(() => {
+    closeBtnRef.current?.focus();
+  }, []);
+
+  // Simple focus trap: cycle Tab within the dialog's focusable elements.
+  useEffect(() => {
+    const root = dialogRef.current;
+    if (!root) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      const focusables = root.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"]), input, video, [contenteditable="true"]',
+      );
+      const list = Array.from(focusables).filter((el) => !el.hasAttribute("inert") && el.offsetParent !== null);
+      if (list.length === 0) return;
+      const first = list[0];
+      const last = list[list.length - 1];
+      const activeEl = document.activeElement as HTMLElement | null;
+      if (e.shiftKey && activeEl === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && activeEl === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    root.addEventListener("keydown", onKeyDown);
+    return () => root.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const onTouchStart = (e: React.TouchEvent) => {
     const t = e.touches[0];
@@ -722,7 +759,7 @@ function Lightbox({
     const dx = t.clientX - touchStart.current.x;
     const dy = t.clientY - touchStart.current.y;
     touchStart.current = null;
-    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+    if (total > 1 && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
       if (dx < 0) onNext();
       else onPrev();
     } else if (dy > 80 && Math.abs(dy) > Math.abs(dx)) {
@@ -734,6 +771,7 @@ function Lightbox({
 
   return (
     <motion.div
+      ref={dialogRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -744,8 +782,16 @@ function Lightbox({
       onTouchEnd={onTouchEnd}
       role="dialog"
       aria-modal="true"
-      aria-label={`Viewer: ${item.title}`}
+      aria-roledescription={total > 1 ? "carousel" : undefined}
+      aria-label={`Media viewer: ${item.title}${total > 1 ? `, item ${index + 1} of ${total}` : ""}`}
     >
+      {/* Preload immediate neighbors so prev/next feels instant on slow links. */}
+      {neighbors.map((n) =>
+        n.image_url && n.media_kind === "image" ? (
+          <link key={n.id} rel="preload" as="image" href={n.image_url} />
+        ) : null,
+      )}
+
       <div
         className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3 border-b border-white/10 text-white"
         onClick={(e) => e.stopPropagation()}
@@ -759,17 +805,25 @@ function Lightbox({
               <Star className="w-3 h-3 fill-current" /> Featured
             </span>
           )}
-          <span className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/60">
+          <span
+            className="text-[11px] font-mono uppercase tracking-[0.22em] text-white/60"
+            aria-live="polite"
+            aria-atomic="true"
+          >
             {index + 1} / {total}
           </span>
         </div>
         <button
+          ref={closeBtnRef}
           type="button"
           onClick={onClose}
-          className="h-10 w-10 rounded-full border border-white/20 hover:bg-white hover:text-black transition-colors inline-flex items-center justify-center"
-          aria-label="Close viewer"
+          className="inline-flex items-center gap-2 h-10 pl-3 pr-4 rounded-full border border-white/20 hover:bg-white hover:text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 transition-colors"
+          aria-label="Back to feed (Escape)"
+          autoFocus
         >
-          <X className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          <span className="text-[11px] font-bold uppercase tracking-[0.22em] hidden sm:inline">Back</span>
+          <X className="h-4 w-4 sm:hidden" aria-hidden="true" />
         </button>
       </div>
 

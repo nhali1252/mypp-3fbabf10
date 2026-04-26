@@ -34,9 +34,15 @@ type PItem = {
 export function PortfolioPage() {
   // Short staleTime so admin uploads appear without a hard refresh.
   const { data: portfolioDoc, isLoading: foldersLoading } = useR2Content<PortfolioDoc>("portfolio", { staleTime: 5_000 });
-  const folders: PFolder[] = (portfolioDoc ?? []).map(({ items: _items, ...f }) => f);
+  const allFolders: PFolder[] = (portfolioDoc ?? []).map(({ items: _items, ...f }) => f);
+  // Only top-level folders (no parent) are surfaced on the landing grid.
+  // Subfolders are reached by drilling into their parent in the viewer.
+  const folders: PFolder[] = allFolders.filter((f) => !f.parent_id);
 
-  const [openFolder, setOpenFolder] = useState<PFolder | null>(null);
+  // Breadcrumb stack of currently-open folders. The last entry is the
+  // active folder; tapping any earlier entry navigates back to that level.
+  const [folderStack, setFolderStack] = useState<PFolder[]>([]);
+  const openFolder = folderStack[folderStack.length - 1] ?? null;
   const [previewItem, setPreviewItem] = useState<PItem | null>(null);
 
 

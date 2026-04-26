@@ -554,3 +554,49 @@ function AdminPortfolio() {
     </AdminPage>
   );
 }
+
+function StatusPill({ published }: { published: boolean }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.18em] ${
+        published
+          ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+          : "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+      }`}
+    >
+      {published ? <CheckCircle2 className="w-2.5 h-2.5" /> : <CircleDot className="w-2.5 h-2.5" />}
+      {published ? "Published" : "Draft"}
+    </span>
+  );
+}
+
+function DraftPublishedToggle({
+  published,
+  onChange,
+}: {
+  published: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <div className="inline-flex rounded-md border border-border bg-muted/40 p-0.5 text-xs font-semibold">
+      <button
+        type="button"
+        onClick={() => onChange(false)}
+        className={`px-3 py-1.5 rounded-[5px] inline-flex items-center gap-1.5 transition-colors ${
+          !published ? "bg-amber-500/20 text-amber-300" : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        <CircleDot className="w-3.5 h-3.5" /> Draft
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange(true)}
+        className={`px-3 py-1.5 rounded-[5px] inline-flex items-center gap-1.5 transition-colors ${
+          published ? "bg-emerald-500/20 text-emerald-300" : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        <CheckCircle2 className="w-3.5 h-3.5" /> Published
+      </button>
+    </div>
+  );
+}

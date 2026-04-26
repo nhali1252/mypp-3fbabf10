@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useR2Content } from "@/hooks/useR2Content";
+import { getContent } from "@/server/r2.functions";
 import { ArrowUpRight, Sparkles } from "lucide-react";
 import { useMotionPref } from "@/hooks/useMotionPref";
 import { MotionToggle } from "@/components/MotionToggle";
@@ -11,6 +12,20 @@ import { Footer } from "@/components/Footer";
 
 export const Route = createFileRoute("/")({
   component: Launcher,
+  // SSR-prefetch the R2 launcher doc so the first paint already has the
+  // correct cards — no flash of fallback content on hydration.
+  loader: async () => {
+    try {
+      const res = await getContent({ data: { key: "launcher" } });
+      return { launcherDoc: (res?.data ?? null) as {
+        hero: LauncherHero | null;
+        pages: LauncherCard[];
+      } | null };
+    } catch {
+      return { launcherDoc: null };
+    }
+  },
+  staleTime: 60_000,
   head: () => ({
     meta: [
       { title: "Ali Nur Hasan — Pick a page to explore" },

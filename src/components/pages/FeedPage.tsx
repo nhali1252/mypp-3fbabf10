@@ -835,10 +835,11 @@ function Lightbox({
           <button
             type="button"
             onClick={onPrev}
-            aria-label="Previous"
-            className="hidden sm:inline-flex absolute left-3 top-1/2 -translate-y-1/2 h-12 w-12 items-center justify-center rounded-full bg-white/10 border border-white/20 text-white hover:bg-white hover:text-black transition-colors"
+            aria-label={`Previous item (${((index - 1 + total) % total) + 1} of ${total})`}
+            aria-keyshortcuts="ArrowLeft"
+            className="hidden sm:inline-flex absolute left-3 top-1/2 -translate-y-1/2 h-12 w-12 items-center justify-center rounded-full bg-white/10 border border-white/20 text-white hover:bg-white hover:text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 transition-colors"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-5 h-5" aria-hidden="true" />
           </button>
         )}
 
@@ -850,6 +851,9 @@ function Lightbox({
             exit={{ opacity: 0, scale: 0.97 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             className="max-w-full max-h-full flex items-center justify-center"
+            role="group"
+            aria-roledescription={total > 1 ? "slide" : undefined}
+            aria-label={total > 1 ? `${index + 1} of ${total}` : undefined}
           >
             {item.media_kind === "video" && item.image_url ? (
               <div className="relative">
@@ -867,12 +871,25 @@ function Lightbox({
               </div>
             ) : item.image_url ? (
               <div className="relative">
+                {/*
+                  High-DPI rendering: request the image at native resolution and
+                  let the browser scale down. fetchPriority=high + decoding=sync
+                  + a same-URL srcSet at 1x/2x signals retina/HiDPI displays to
+                  prefer the full-resolution asset, while CSS object-contain
+                  keeps it crisp without upscaling beyond the source.
+                */}
                 <img
                   src={item.image_url}
+                  srcSet={`${item.image_url} 1x, ${item.image_url} 2x`}
                   alt={item.title}
                   draggable={false}
+                  loading="eager"
+                  decoding="sync"
+                  // @ts-expect-error — valid HTML attr, types lag in React 19
+                  fetchpriority="high"
                   onContextMenu={(e) => e.preventDefault()}
-                  className="max-w-[92vw] max-h-[72vh] object-contain rounded-xl select-none"
+                  className="max-w-[92vw] max-h-[82vh] object-contain rounded-xl select-none [image-rendering:auto]"
+                  style={{ imageRendering: "auto" }}
                 />
                 <Watermark text={item.watermark_text ?? null} size="md" cornerBadge />
               </div>
@@ -886,10 +903,11 @@ function Lightbox({
           <button
             type="button"
             onClick={onNext}
-            aria-label="Next"
-            className="hidden sm:inline-flex absolute right-3 top-1/2 -translate-y-1/2 h-12 w-12 items-center justify-center rounded-full bg-white/10 border border-white/20 text-white hover:bg-white hover:text-black transition-colors"
+            aria-label={`Next item (${(index + 1) % total + 1} of ${total})`}
+            aria-keyshortcuts="ArrowRight"
+            className="hidden sm:inline-flex absolute right-3 top-1/2 -translate-y-1/2 h-12 w-12 items-center justify-center rounded-full bg-white/10 border border-white/20 text-white hover:bg-white hover:text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 transition-colors"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-5 h-5" aria-hidden="true" />
           </button>
         )}
       </div>

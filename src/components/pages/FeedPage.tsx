@@ -46,13 +46,7 @@ type PItem = {
 
 type PortfolioDoc = (PFolder & { items: PItem[] })[];
 
-type FeedItem = PItem & {
-  folder_name: string;
-  folder_slug: string;
-  media_kind: "image" | "video";
-  date: string | null;
-  featured: boolean;
-};
+type FeedItem = ServerFeedItem;
 
 type MediaFilter = "all" | "image" | "video";
 
@@ -60,39 +54,7 @@ type MediaFilter = "all" | "image" | "video";
 // Helpers
 // ---------------------------------------------------------------------------
 
-const VIDEO_EXT = /\.(mp4|webm|mov|m4v|ogv)(\?|#|$)/i;
 const PAGE_SIZE = 24;
-
-function detectKind(url: string | null | undefined): "image" | "video" {
-  if (!url) return "image";
-  return VIDEO_EXT.test(url) ? "video" : "image";
-}
-
-function flattenFeed(doc: PortfolioDoc | null | undefined): FeedItem[] {
-  if (!doc) return [];
-  const out: FeedItem[] = [];
-  for (const f of doc) {
-    for (const it of f.items ?? []) {
-      if (it.show_in_feed === false) continue;
-      if (!it.image_url) continue;
-      out.push({
-        ...it,
-        tags: Array.isArray(it.tags) ? it.tags : [],
-        folder_name: f.name,
-        folder_slug: f.slug,
-        media_kind: detectKind(it.image_url),
-        date: it.published_at ?? it.updated_at ?? it.created_at ?? null,
-        featured: !!it.featured,
-      });
-    }
-  }
-  out.sort((a, b) => {
-    const ta = a.date ? Date.parse(a.date) : 0;
-    const tb = b.date ? Date.parse(b.date) : 0;
-    return tb - ta;
-  });
-  return out;
-}
 
 function formatDate(iso: string | null): string {
   if (!iso) return "";
@@ -106,35 +68,53 @@ function formatDate(iso: string | null): string {
 // ---------------------------------------------------------------------------
 
 export function FeedPage() {
-  const { data, isLoading, isError } = useR2Content<PortfolioDoc>("portfolio", { staleTime: 5_000 });
-  const allItems = useMemo(() => flattenFeed(data ?? null), [data]);
-
   // Filters
   const [folderFilter, setFolderFilter] = useState<string>("all"); // folder slug
   const [mediaFilter, setMediaFilter] = useState<MediaFilter>("all");
-  const [visibleCount, setVisibleCount] = useState<number>(PAGE_SIZE);
+  const [featuredOnly, setFeaturedOnly] = useState<boolean>(false);
 
-  // Reset pagination when filters change
-  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [folderFilter, mediaFilter]);
+  // Server-paginated feed slice. Each "Load more" fetches only the next page.
+  const sliceQuery = useInfiniteQuery({
+    queryKey: ["feed-slice", { folder: folderFilter, media: mediaFilter, featured: featuredOnly }],
+    queryFn: async ({ pageParam = 0 }) => {
+      return await getFeedSlice({
+        data: {
+          folder: folderFilter === "all" ? undefined : folderFilter,
+          media: mediaFilter,
+          featured: featuredOnly,
+          offset: pageParam,
+          limit: PAGE_SIZE,
+        },
+      });
+    },
+    getNextPageParam: (last) => (last.hasMore ? last.offset + last.items.length : undefined),
+    initialPageParam: 0,
+    staleTime: 30_000,
+    placeholderData: keepPreviousData,
+  });
 
-  const folders = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const it of allItems) map.set(it.folder_slug, it.folder_name);
-    return Array.from(map, ([slug, name]) => ({ slug, name }));
-  }, [allItems]);
+  const isLoading = sliceQuery.isLoading;
+  const isError = sliceQuery.isError;
+  const visibleItems: FeedItem[] = useMemo(
+    () => (sliceQuery.data?.pages ?? []).flatMap((p) => p.items),
+    [sliceQuery.data],
+  );
+  const firstPage = sliceQuery.data?.pages?.[0];
+  const folders: { slug: string; name: string }[] = firstPage?.folders ?? [];
+  const totalAll = firstPage?.total ?? 0;
+  const filteredTotal = firstPage?.filteredTotal ?? 0;
+  const canLoadMore = !!sliceQuery.hasNextPage;
 
-  const featured = useMemo(() => allItems.filter((it) => it.featured), [allItems]);
-
-  const filtered = useMemo(() => {
-    return allItems.filter((it) => {
-      if (folderFilter !== "all" && it.folder_slug !== folderFilter) return false;
-      if (mediaFilter !== "all" && it.media_kind !== mediaFilter) return false;
-      return true;
-    });
-  }, [allItems, folderFilter, mediaFilter]);
-
-  const visibleItems = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
-  const canLoadMore = visibleCount < filtered.length;
+  // Featured strip — fetch a small dedicated slice once, independent of filters.
+  const featuredQuery = useQuery({
+    queryKey: ["feed-featured"],
+    queryFn: async () => {
+      const res = await getFeedSlice({ data: { featured: true, limit: 12, offset: 0 } });
+      return res.items;
+    },
+    staleTime: 60_000,
+  });
+  const featured = featuredQuery.data ?? [];
 
   // Lightbox runs over the *visible* items for predictable index/total.
   const [activeIdx, setActiveIdx] = useState<number | null>(null);

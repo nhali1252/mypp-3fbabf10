@@ -141,6 +141,25 @@ export const seedR2FromDatabase = createServerFn({ method: "POST" })
 
     await Promise.all(writes);
 
+    // After portfolio.json is written, rebuild the parallel paginated feed
+    // index so /feed pages are served from prematerialized R2 page files
+    // instead of slicing the full doc on every request. Best-effort: an index
+    // failure must not fail the whole resync — the slow path still works.
+    let feedIndex: { built: boolean; pages?: number; error?: string } = { built: false };
+    if (want("portfolio")) {
+      try {
+        const { buildFeedIndex } = await import("./feed-index.server");
+        const manifest = await buildFeedIndex();
+        const totalPages = Object.values(manifest.pageCounts).reduce(
+          (n, b) => n + b.pages,
+          0,
+        );
+        feedIndex = { built: true, pages: totalPages };
+      } catch (err: any) {
+        feedIndex = { built: false, error: err?.message ?? String(err) };
+      }
+    }
+
     return {
       ok: true,
       scope: data.scope ?? "all",

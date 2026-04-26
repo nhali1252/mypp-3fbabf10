@@ -1,14 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { useTable } from "@/hooks/useTable";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { AdminPage, AdminCard, FormRow, EmptyState } from "@/components/admin/AdminPage";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 import { MediaPicker } from "@/components/admin/MediaPicker";
-import { Plus, Trash2, ArrowUp, ArrowDown, Save, Star, Check, X, Eye, EyeOff, Sparkles } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Save, Star, Check, X, Eye, EyeOff, Sparkles, GripVertical } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_admin/admin/reviews")({ component: AdminReviews });
 

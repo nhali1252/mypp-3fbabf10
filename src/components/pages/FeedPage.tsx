@@ -245,17 +245,20 @@ function MasonryGrid({ items, onOpen }: { items: FeedItem[]; onOpen: (i: number)
 function FeedCard({ item, index, onOpen }: { item: FeedItem; index: number; onOpen: () => void }) {
   const caption = item.feed_caption ?? item.description ?? "";
   return (
-    <motion.button
-      type="button"
-      onClick={onOpen}
+    <motion.div
       initial={{ opacity: 0, y: 18 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.45, delay: Math.min(index, 12) * 0.03, ease: [0.22, 1, 0.36, 1] }}
       whileHover={{ y: -4 }}
-      className="group mb-4 break-inside-avoid block w-full text-left overflow-hidden rounded-2xl border border-border hover:border-primary/45 bg-card transition-colors duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
-      aria-label={`Open ${item.title}`}
+      className="group mb-4 break-inside-avoid overflow-hidden rounded-2xl border border-border hover:border-primary/45 bg-card transition-colors duration-500"
     >
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-label={`Open ${item.title}`}
+        className="block w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 rounded-t-2xl"
+      >
       <div className="relative w-full overflow-hidden bg-muted">
         {item.media_kind === "video" && item.image_url ? (
           <video

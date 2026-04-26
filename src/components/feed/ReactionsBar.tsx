@@ -114,6 +114,8 @@ export function ReactionsBar({
       ? "bg-white/10 border-white/15 hover:bg-white/20 text-white"
       : "bg-card border-border hover:bg-muted text-foreground";
 
+  if (!reactionsEnabled) return null;
+
   return (
     <div className="flex items-center gap-1.5 flex-wrap">
       {REACTIONS.map(({ key, label, Icon, color }) => {

@@ -196,7 +196,7 @@ function FolderViewer({
   onClose: () => void;
   onPreview: (item: PItem) => void;
 }) {
-  const { data: portfolioDoc, isLoading, isError } = useR2Content<PortfolioDoc>("portfolio");
+  const { data: portfolioDoc, isLoading, isError } = useR2Content<PortfolioDoc>("portfolio", { staleTime: 5_000 });
   // Look up items for this folder. Match by id first, fall back to slug
   // (handles edge cases where the folder reference was rebuilt by a re-seed).
   const matched =

@@ -259,7 +259,11 @@ export function FeedPage() {
           {isLoading ? (
             <FeedSkeleton />
           ) : isError ? (
-            <ErrorState />
+            <ErrorState
+              onRetry={() => sliceQuery.refetch()}
+              isRetrying={sliceQuery.isFetching}
+              message={sliceQuery.error instanceof Error ? sliceQuery.error.message : undefined}
+            />
           ) : totalAll === 0 ? (
             <EmptyState
               title="No uploads yet"

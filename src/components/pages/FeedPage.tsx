@@ -67,23 +67,48 @@ function formatDate(iso: string | null): string {
 // Page
 // ---------------------------------------------------------------------------
 
+// Debounce a value so rapid filter toggles don't fire a network request per click.
+function useDebouncedValue<T>(value: T, delayMs: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(t);
+  }, [value, delayMs]);
+  return debounced;
+}
+
+const FILTER_DEBOUNCE_MS = 180;
+
 export function FeedPage() {
-  // Filters
+  // Filters (instant — drives the UI). Debounced copies drive the network.
   const [folderFilter, setFolderFilter] = useState<string>("all"); // folder slug
   const [mediaFilter, setMediaFilter] = useState<MediaFilter>("all");
   const [featuredOnly, setFeaturedOnly] = useState<boolean>(false);
   const [sort, setSort] = useState<"newest" | "featured-first">("newest");
 
+  const dFolder = useDebouncedValue(folderFilter, FILTER_DEBOUNCE_MS);
+  const dMedia = useDebouncedValue(mediaFilter, FILTER_DEBOUNCE_MS);
+  const dFeatured = useDebouncedValue(featuredOnly, FILTER_DEBOUNCE_MS);
+  const dSort = useDebouncedValue(sort, FILTER_DEBOUNCE_MS);
+
+  // True while the user has changed a filter but the debounced value hasn't
+  // caught up yet — used to surface the skeleton overlay immediately.
+  const filtersPending =
+    dFolder !== folderFilter ||
+    dMedia !== mediaFilter ||
+    dFeatured !== featuredOnly ||
+    dSort !== sort;
+
   // Server-paginated feed slice. Each "Load more" fetches only the next page.
   const sliceQuery = useInfiniteQuery({
-    queryKey: ["feed-slice", { folder: folderFilter, media: mediaFilter, featured: featuredOnly, sort }],
+    queryKey: ["feed-slice", { folder: dFolder, media: dMedia, featured: dFeatured, sort: dSort }],
     queryFn: async ({ pageParam = 0 }) => {
       return await getFeedSlice({
         data: {
-          folder: folderFilter === "all" ? undefined : folderFilter,
-          media: mediaFilter,
-          featured: featuredOnly,
-          sort,
+          folder: dFolder === "all" ? undefined : dFolder,
+          media: dMedia,
+          featured: dFeatured,
+          sort: dSort,
           offset: pageParam,
           limit: PAGE_SIZE,
         },

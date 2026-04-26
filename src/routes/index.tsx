@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { useR2Content } from "@/hooks/useR2Content";
 import { getContent } from "@/server/r2.functions";
+import { getSeo } from "@/server/seo.functions";
+import { buildSeoMeta } from "@/lib/seo";
 import { ArrowUpRight, Sparkles } from "lucide-react";
 import { useMotionPref } from "@/hooks/useMotionPref";
 import { MotionToggle } from "@/components/MotionToggle";
@@ -20,43 +22,26 @@ export const Route = createFileRoute("/")({
   // so we just pass through the raw value here.
   loader: async () => {
     const startedAt = Date.now();
-    try {
-      const res = await getContent({ data: { key: "launcher" } });
-      const ms = Date.now() - startedAt;
-      const raw = res?.data ?? null;
-      if (raw == null) {
-        // Visible in both server (SSR) and client (hydration) consoles.
-        console.warn(
-          `[launcher.loader] R2 returned empty launcher doc — homepage will use fallback cards (${ms}ms)`,
-        );
-      } else {
-        console.info(`[launcher.loader] ok (${ms}ms)`);
-      }
-      return { launcherDoc: raw as unknown };
-    } catch (err) {
-      const ms = Date.now() - startedAt;
-      console.error(
-        `[launcher.loader] FAILED to fetch R2 launcher doc — homepage will use fallback cards (${ms}ms):`,
-        err instanceof Error ? `${err.name}: ${err.message}` : err,
-      );
-      return { launcherDoc: null };
+    const [contentRes, seo] = await Promise.all([
+      getContent({ data: { key: "launcher" } }).catch(() => null),
+      getSeo({ data: { key: "home" } }).catch(() => null),
+    ]);
+    const ms = Date.now() - startedAt;
+    const raw = contentRes?.data ?? null;
+    if (raw == null) {
+      console.warn(`[launcher.loader] R2 returned empty launcher doc — homepage will use fallback cards (${ms}ms)`);
+    } else {
+      console.info(`[launcher.loader] ok (${ms}ms)`);
     }
+    return { launcherDoc: raw as unknown, seo };
   },
   staleTime: 60_000,
-  head: () => ({
-    meta: [
-      { title: "Ali Nur Hasan — Pick a page to explore" },
-      {
-        name: "description",
-        content:
-          "An elegant launcher for Ali Nur Hasan's portfolio — Basic info, Skills & About, and Projects. Powered by TasTaj.",
-      },
-      { property: "og:title", content: "Ali Nur Hasan — Portfolio launcher" },
-      {
-        property: "og:description",
-        content: "Pick a page to explore: Basic info, Skills, and Projects.",
-      },
-    ],
+  head: ({ loaderData }) => ({
+    meta: buildSeoMeta(loaderData?.seo ?? null, {
+      title: "Ali Nur Hasan — Pick a page to explore",
+      description:
+        "An elegant launcher for Ali Nur Hasan's portfolio — Basic info, Skills & About, and Projects. Powered by TasTaj.",
+    }),
   }),
 });
 

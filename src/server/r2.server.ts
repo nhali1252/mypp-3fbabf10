@@ -42,6 +42,16 @@ export async function readJsonFrom<T = unknown>(bucketName: string, key: string)
     return JSON.parse(text) as T;
   } catch (err: any) {
     if (err?.$metadata?.httpStatusCode === 404 || err?.name === "NoSuchKey") return null;
+    console.error("[r2.readJsonFrom] FAILED", {
+      bucket: bucketName,
+      key,
+      endpoint: process.env.R2_ENDPOINT,
+      accessKeyIdPrefix: (process.env.R2_ACCESS_KEY_ID || "").slice(0, 6),
+      errName: err?.name,
+      errCode: err?.Code || err?.code,
+      httpStatus: err?.$metadata?.httpStatusCode,
+      message: err?.message,
+    });
     throw err;
   }
 }

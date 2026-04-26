@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RefreshCw, Loader2, CheckCircle2, AlertTriangle, KeyRound, Server } from "lucide-react";
 import { toast } from "sonner";
 import { reinitializeR2, r2Status } from "@/server/r2-admin.functions";
+import { R2StatusBanner } from "@/components/R2StatusBanner";
 
 export const Route = createFileRoute("/_admin/admin/runtime")({
   component: RuntimePage,

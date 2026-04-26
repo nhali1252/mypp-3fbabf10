@@ -3,7 +3,6 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useState } from "react";
 import portrait from "@/assets/ali-portrait-baked.jpg";
 import { ImageOff, ExternalLink, Sparkles, User, Quote, Star } from "lucide-react";
-import { OrganicCenterpiece } from "@/components/about/OrganicCenterpiece";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   useFHero,
@@ -79,19 +78,7 @@ function AboutSkillsInner() {
               "radial-gradient(circle, color-mix(in oklab, var(--primary) 70%, transparent) 0%, transparent 70%)",
           }}
         />
-        {/* 3D organic centerpiece — soft ambient backdrop, behind content */}
-        <motion.div
-          aria-hidden
-          initial={{ opacity: 0, scale: 0.92 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
-          className="pointer-events-none absolute inset-0 grid place-items-center z-0"
-        >
-          <div className="opacity-60 lg:opacity-50 mix-blend-screen dark:mix-blend-normal">
-            <OrganicCenterpiece size={560} portraitUrl={null} />
-          </div>
-        </motion.div>
-        <div className="max-w-[1200px] mx-auto grid lg:grid-cols-[340px_1fr] gap-8 md:gap-12 items-center relative z-10">
+        <div className="max-w-[1200px] mx-auto grid lg:grid-cols-[340px_1fr] gap-8 md:gap-12 items-center relative">
           <PhotoCard
             isLoading={photocardLoading}
             name={photocard?.name ?? "Ali Nur Hasan"}

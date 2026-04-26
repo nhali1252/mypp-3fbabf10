@@ -26,6 +26,7 @@ const groups: Group[] = [
     label: "System",
     items: [
       { to: "/admin/messages", label: "Messages", Icon: Inbox },
+      { to: "/admin/comments", label: "Comments", Icon: MessageSquare },
       { to: "/admin/media", label: "Media library", Icon: ImageIcon },
       { to: "/admin/users", label: "Users", Icon: Users },
       { to: "/admin/r2-migration", label: "R2 migration", Icon: Cloud },

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminPage, AdminCard, FormRow, EmptyState } from "@/components/admin/AdminPage";
@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Trash2, ArrowUp, ArrowDown, Save, FolderOpen, ChevronRight, Image as ImageIcon, Star, Eye, MessageSquare, Shield } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Save, FolderOpen, ChevronRight, Image as ImageIcon, Star, Eye, MessageSquare, Shield, GripVertical, CircleDot, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_admin/admin/portfolio")({ component: AdminPortfolio });
@@ -236,6 +236,61 @@ function AdminPortfolio() {
     qc.invalidateQueries({ queryKey: ["admin_portfolio_items", activeFolderId] });
   }
 
+  // ---- Drag & drop reorder ---------------------------------------------
+  // Persists a new ordering by writing sequential sort_orders (1..N) for the
+  // affected rows. Optimistically applies the order via React Query cache so
+  // the UI doesn't snap back while the writes are in flight.
+  async function persistReorder<T extends { id: string }>(
+    table: "portfolio_folders" | "portfolio_items",
+    nextOrder: T[],
+    queryKey: any[],
+  ) {
+    qc.setQueryData(queryKey, nextOrder.map((row, i) => ({ ...row, sort_order: i + 1 })));
+    try {
+      await Promise.all(
+        nextOrder.map((row, i) =>
+          (supabase as any).from(table).update({ sort_order: i + 1 }).eq("id", row.id),
+        ),
+      );
+      qc.invalidateQueries({ queryKey });
+      qc.invalidateQueries({ queryKey: ["public_portfolio_folders"] });
+      qc.invalidateQueries({ queryKey: ["public_portfolio_items"] });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Couldn't save new order");
+      qc.invalidateQueries({ queryKey });
+    }
+  }
+
+  const dragRef = useRef<{ kind: "folder" | "item"; id: string } | null>(null);
+
+  function onFolderDragStart(id: string) { dragRef.current = { kind: "folder", id }; }
+  function onItemDragStart(id: string) { dragRef.current = { kind: "item", id }; }
+  function onDragOver(e: React.DragEvent) { e.preventDefault(); }
+  async function onFolderDrop(targetId: string) {
+    const drag = dragRef.current;
+    dragRef.current = null;
+    if (!drag || drag.kind !== "folder" || drag.id === targetId) return;
+    const fromIdx = folders.findIndex((f) => f.id === drag.id);
+    const toIdx = folders.findIndex((f) => f.id === targetId);
+    if (fromIdx < 0 || toIdx < 0) return;
+    const next = [...folders];
+    const [moved] = next.splice(fromIdx, 1);
+    next.splice(toIdx, 0, moved);
+    await persistReorder("portfolio_folders", next, ["admin_portfolio_folders"]);
+  }
+  async function onItemDrop(targetId: string) {
+    const drag = dragRef.current;
+    dragRef.current = null;
+    if (!drag || drag.kind !== "item" || drag.id === targetId) return;
+    const fromIdx = items.findIndex((i) => i.id === drag.id);
+    const toIdx = items.findIndex((i) => i.id === targetId);
+    if (fromIdx < 0 || toIdx < 0) return;
+    const next = [...items];
+    const [moved] = next.splice(fromIdx, 1);
+    next.splice(toIdx, 0, moved);
+    await persistReorder("portfolio_items", next, ["admin_portfolio_items", activeFolderId]);
+  }
+
   return (
     <AdminPage
       title="Portfolio"
@@ -258,24 +313,40 @@ function AdminPortfolio() {
                   return (
                     <li
                       key={f.id}
+                      draggable
+                      onDragStart={() => onFolderDragStart(f.id)}
+                      onDragOver={onDragOver}
+                      onDrop={() => onFolderDrop(f.id)}
                       className={`rounded-xl border ${isActive ? "border-primary bg-primary/5" : "border-border bg-card"} transition-colors`}
                     >
-                      <button
-                        type="button"
-                        onClick={() => setActiveFolderId(f.id)}
-                        className="w-full flex items-center justify-between gap-2 p-3 text-left"
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <FolderOpen className="w-4 h-4 text-primary shrink-0" />
-                          <div className="min-w-0">
-                            <div className="text-sm font-semibold truncate">{row.name}</div>
-                            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                              /{row.slug} {!row.active && "· hidden"}
+                      <div className="flex items-center">
+                        <span
+                          aria-hidden
+                          className="pl-2 pr-1 py-3 text-muted-foreground/70 cursor-grab active:cursor-grabbing"
+                          title="Drag to reorder"
+                        >
+                          <GripVertical className="w-4 h-4" />
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setActiveFolderId(f.id)}
+                          className="flex-1 flex items-center justify-between gap-2 p-3 pl-1 text-left"
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <FolderOpen className="w-4 h-4 text-primary shrink-0" />
+                            <div className="min-w-0">
+                              <div className="text-sm font-semibold truncate flex items-center gap-2">
+                                {row.name}
+                                <StatusPill published={!!row.active} />
+                              </div>
+                              <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                                /{row.slug}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <ChevronRight className={`w-4 h-4 shrink-0 transition-transform ${isActive ? "rotate-90 text-primary" : "text-muted-foreground"}`} />
-                      </button>
+                          <ChevronRight className={`w-4 h-4 shrink-0 transition-transform ${isActive ? "rotate-90 text-primary" : "text-muted-foreground"}`} />
+                        </button>
+                      </div>
 
                       {isActive && (
                         <div className="border-t border-border p-3 space-y-3">
@@ -291,10 +362,12 @@ function AdminPortfolio() {
                           <FormRow label="Cover image">
                             <MediaPicker value={row.cover_url ?? undefined} onChange={(u: string | null) => fSet(f.id, { cover_url: u })} />
                           </FormRow>
-                          <label className="flex items-center gap-2 text-xs font-semibold">
-                            <Switch checked={!!row.active} onCheckedChange={(v) => fSet(f.id, { active: v })} />
-                            Visible on site
-                          </label>
+                          <FormRow label="Status" hint="Drafts are hidden from the public site.">
+                            <DraftPublishedToggle
+                              published={!!row.active}
+                              onChange={(v) => fSet(f.id, { active: v })}
+                            />
+                          </FormRow>
                           <div className="flex flex-wrap gap-2 pt-1">
                             <Button size="sm" onClick={() => saveFolder.mutate(f.id)} disabled={!dirty}>
                               <Save className="w-3.5 h-3.5 mr-1.5" /> Save
@@ -360,8 +433,22 @@ function AdminPortfolio() {
                       const dirty = !!itemEdits[it.id];
                       const tags = Array.isArray(row.tags) ? row.tags : [];
                       return (
-                        <li key={it.id} className="rounded-xl border border-border bg-background p-4">
-                          <div className="grid sm:grid-cols-[120px_1fr] gap-4">
+                        <li
+                          key={it.id}
+                          draggable
+                          onDragStart={() => onItemDragStart(it.id)}
+                          onDragOver={onDragOver}
+                          onDrop={() => onItemDrop(it.id)}
+                          className="rounded-xl border border-border bg-background p-4"
+                        >
+                          <div className="grid sm:grid-cols-[24px_120px_1fr] gap-4 items-start">
+                            <span
+                              aria-hidden
+                              className="pt-2 text-muted-foreground/70 cursor-grab active:cursor-grabbing"
+                              title="Drag to reorder"
+                            >
+                              <GripVertical className="w-4 h-4" />
+                            </span>
                             <div className="aspect-square rounded-lg overflow-hidden bg-muted grid place-items-center">
                               {row.image_url ? (
                                 <img src={row.image_url} alt={row.title} className="w-full h-full object-cover" />
@@ -405,10 +492,12 @@ function AdminPortfolio() {
                                 </FormRow>
                               </div>
 
-                              <label className="flex items-center gap-2 text-xs font-semibold pt-1">
-                                <Switch checked={!!row.active} onCheckedChange={(v) => iSet(it.id, { active: v })} />
-                                <Shield className="w-3.5 h-3.5 text-muted-foreground" /> Visible on portfolio
-                              </label>
+                              <FormRow label="Status" hint="Drafts are hidden from the public portfolio.">
+                                <DraftPublishedToggle
+                                  published={!!row.active}
+                                  onChange={(v) => iSet(it.id, { active: v })}
+                                />
+                              </FormRow>
                               <div className="flex flex-wrap gap-2 pt-1">
                                 <Button size="sm" onClick={() => saveItem.mutate(it.id)} disabled={!dirty}><Save className="w-3.5 h-3.5 mr-1.5" />Save</Button>
                                 <Button size="sm" variant="outline" onClick={() => moveItem(it.id, -1)} disabled={i === 0}><ArrowUp className="w-3.5 h-3.5" /></Button>
@@ -463,5 +552,51 @@ function AdminPortfolio() {
         </div>
       </div>
     </AdminPage>
+  );
+}
+
+function StatusPill({ published }: { published: boolean }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.18em] ${
+        published
+          ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+          : "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+      }`}
+    >
+      {published ? <CheckCircle2 className="w-2.5 h-2.5" /> : <CircleDot className="w-2.5 h-2.5" />}
+      {published ? "Published" : "Draft"}
+    </span>
+  );
+}
+
+function DraftPublishedToggle({
+  published,
+  onChange,
+}: {
+  published: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <div className="inline-flex rounded-md border border-border bg-muted/40 p-0.5 text-xs font-semibold">
+      <button
+        type="button"
+        onClick={() => onChange(false)}
+        className={`px-3 py-1.5 rounded-[5px] inline-flex items-center gap-1.5 transition-colors ${
+          !published ? "bg-amber-500/20 text-amber-300" : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        <CircleDot className="w-3.5 h-3.5" /> Draft
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange(true)}
+        className={`px-3 py-1.5 rounded-[5px] inline-flex items-center gap-1.5 transition-colors ${
+          published ? "bg-emerald-500/20 text-emerald-300" : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        <CheckCircle2 className="w-3.5 h-3.5" /> Published
+      </button>
+    </div>
   );
 }

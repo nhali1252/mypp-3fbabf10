@@ -8,7 +8,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { putObject, publicUrl } from "./r2.server";
-import { seedR2FromDatabase } from "./seed-r2.functions";
+
 
 const SUPABASE_MEDIA_PREFIX = "/storage/v1/object/public/media/";
 

@@ -49,6 +49,7 @@ export function PortfolioPage() {
           <nav className="flex items-center gap-3 sm:gap-4 text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em]">
             <Link to="/about-and-skills" className="text-muted-foreground hover:text-foreground transition-colors">About</Link>
             <Link to="/portfolio" className="text-primary">Portfolio</Link>
+            <Link to="/feed" className="text-muted-foreground hover:text-foreground transition-colors">Feed</Link>
             <Link to="/projects" className="text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
             <Link to="/contact" className="text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
           </nav>

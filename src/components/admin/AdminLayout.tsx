@@ -183,3 +183,35 @@ export default function AdminLayout() {
     </div>
   );
 }
+
+function R2SyncPill({ sync }: { sync: ReturnType<typeof useR2AutoResync> }) {
+  const { status, lastSyncedAt, error, syncNow } = sync;
+  const fmt = (d: Date | null) => {
+    if (!d) return "never";
+    const s = Math.round((Date.now() - d.getTime()) / 1000);
+    if (s < 5) return "just now";
+    if (s < 60) return `${s}s ago`;
+    if (s < 3600) return `${Math.round(s / 60)}m ago`;
+    return d.toLocaleTimeString();
+  };
+
+  const meta =
+    status === "syncing" ? { Icon: Loader2, text: "Syncing R2…", cls: "text-primary animate-pulse", spin: true } :
+    status === "pending" ? { Icon: CircleDashed, text: "Changes pending…", cls: "text-amber-400", spin: false } :
+    status === "error"   ? { Icon: AlertTriangle, text: error ?? "Sync failed", cls: "text-destructive", spin: false } :
+    status === "ok"      ? { Icon: CheckCircle2, text: `R2 synced · ${fmt(lastSyncedAt)}`, cls: "text-emerald-400", spin: false } :
+                           { Icon: Cloud, text: lastSyncedAt ? `R2 synced · ${fmt(lastSyncedAt)}` : "R2 in sync", cls: "text-background/60", spin: false };
+
+  return (
+    <button
+      onClick={syncNow}
+      disabled={status === "syncing"}
+      title="Force resync R2 from database now"
+      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs bg-background/5 hover:bg-background/10 transition-colors disabled:opacity-60"
+    >
+      <meta.Icon size={14} className={`${meta.cls} ${meta.spin ? "animate-spin" : ""}`} />
+      <span className={`flex-1 text-left truncate ${meta.cls}`}>{meta.text}</span>
+      <RefreshCw size={12} className="text-background/40" />
+    </button>
+  );
+}

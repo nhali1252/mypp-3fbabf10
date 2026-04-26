@@ -573,6 +573,7 @@ function Launcher() {
           })}
 
         </div>
+        )}
       </main>
 
       <Footer />

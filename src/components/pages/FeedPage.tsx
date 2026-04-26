@@ -550,7 +550,15 @@ function FeedSkeleton() {
   );
 }
 
-function ErrorState() {
+function ErrorState({
+  onRetry,
+  isRetrying = false,
+  message,
+}: {
+  onRetry?: () => void;
+  isRetrying?: boolean;
+  message?: string;
+}) {
   return (
     <div className="text-center py-24 max-w-md mx-auto">
       <div className="mx-auto h-16 w-16 rounded-full border border-destructive/30 bg-destructive/5 grid place-items-center mb-5">
@@ -558,8 +566,20 @@ function ErrorState() {
       </div>
       <p className="text-base font-bold tracking-tight">Couldn't load the feed</p>
       <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-        Please refresh the page to try again. If the problem persists, the content service may be temporarily offline.
+        {message
+          ? message
+          : "The content service may be temporarily offline. Try again, or refresh the page if the problem persists."}
       </p>
+      {onRetry && (
+        <button
+          type="button"
+          onClick={onRetry}
+          disabled={isRetrying}
+          className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-border bg-card hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 text-[11px] font-bold uppercase tracking-[0.22em] disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {isRetrying ? "Retrying…" : "Try again"}
+        </button>
+      )}
     </div>
   );
 }

@@ -244,7 +244,7 @@ function PageCard({ block, launcher }: { block: PageBlock; launcher?: LauncherRo
 }
 
 /** Per-feature admin routes that haven't been migrated yet. Removed in Step 4. */
-const LEGACY_LINKS = [
+const LEGACY_LINKS: { to: string; label: string }[] = [
   { to: "/admin/launcher",     label: "Launcher" },
   { to: "/admin/hero",         label: "Hero" },
   { to: "/admin/about",        label: "About" },
@@ -253,7 +253,6 @@ const LEGACY_LINKS = [
   { to: "/admin/education",    label: "Education" },
   { to: "/admin/portfolio",    label: "Portfolio" },
   { to: "/admin/projects",     label: "Projects" },
-  { to: "/admin/services" as any, label: "Services" },
   { to: "/admin/contact",      label: "Contact" },
   { to: "/admin/reviews",      label: "Reviews" },
   { to: "/admin/navigation",   label: "Navigation" },

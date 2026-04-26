@@ -478,7 +478,9 @@ export const adminListModerationLog = createServerFn({ method: "GET" })
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
 
-    const modIds = Array.from(new Set((rows ?? []).map((r: any) => r.moderator_id)));
+    const modIds = Array.from(
+      new Set((rows ?? []).map((r: any) => r.moderator_id as string)),
+    ) as string[];
     let profiles: Record<string, any> = {};
     if (modIds.length) {
       const { data: profs } = await supabaseAdmin

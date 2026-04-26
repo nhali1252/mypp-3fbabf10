@@ -668,6 +668,36 @@ export type Database = {
         }
         Relationships: []
       }
+      page_quotes: {
+        Row: {
+          active: boolean
+          author: string | null
+          eyebrow: string | null
+          id: string
+          page_slug: string
+          quote: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          author?: string | null
+          eyebrow?: string | null
+          id?: string
+          page_slug: string
+          quote?: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          author?: string | null
+          eyebrow?: string | null
+          id?: string
+          page_slug?: string
+          quote?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       portfolio_folders: {
         Row: {
           active: boolean

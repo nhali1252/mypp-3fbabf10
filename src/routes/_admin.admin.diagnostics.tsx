@@ -206,16 +206,25 @@ function DiagnosticsPage() {
         </p>
       </section>
 
-      {/* tsc output */}
+      {/* Activity timeline — live + build errors with file:line links */}
+      <ActivityTimeline
+        errors={allErrors}
+        gitHash={manifest.gitHash}
+        gitBranch={manifest.gitBranch}
+        liveCount={liveErrors.length}
+        buildCount={buildErrors.length}
+      />
+
+      {/* Raw tsc output (collapsed reference) */}
       {!tscOk && manifest.tsc?.output && (
-        <section className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5">
-          <h2 className="text-sm font-bold uppercase tracking-[0.18em] text-amber-400 flex items-center gap-2">
-            <Terminal className="h-4 w-4" /> tsc output (last 4KB)
-          </h2>
+        <details className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5 group">
+          <summary className="text-sm font-bold uppercase tracking-[0.18em] text-amber-400 flex items-center gap-2 cursor-pointer select-none">
+            <Terminal className="h-4 w-4" /> Raw tsc output (last 4KB)
+          </summary>
           <pre className="mt-3 text-[11px] font-mono whitespace-pre-wrap break-all max-h-[360px] overflow-auto p-3 rounded-lg bg-black/40 border border-amber-500/20 text-amber-100/90">
             {manifest.tsc.output}
           </pre>
-        </section>
+        </details>
       )}
     </div>
   );

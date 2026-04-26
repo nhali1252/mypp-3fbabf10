@@ -6,6 +6,7 @@ import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { listReactions, listMyReactions, toggleReaction } from "@/server/feed-social.functions";
 import { toast } from "sonner";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const REACTIONS = [
   { key: "like", label: "Like", Icon: ThumbsUp, color: "text-sky-400" },

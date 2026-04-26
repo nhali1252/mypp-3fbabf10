@@ -33,7 +33,7 @@ import {
 import type { FeedItem, FeedFolder, FeedSort } from "./feed.functions";
 
 const VIDEO_EXT = /\.(mp4|webm|mov|m4v|ogv)(\?|#|$)/i;
-const SORTS: FeedSort[] = ["newest", "featured-first"];
+const SORTS: FeedSort[] = ["newest", "featured-first", "oldest"];
 const MEDIA: ("all" | "image" | "video")[] = ["all", "image", "video"];
 const FEATURED_FLAGS = [false, true];
 

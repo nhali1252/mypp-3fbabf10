@@ -292,3 +292,138 @@ function TimelineCell({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+/* ---------- Activity timeline ---------- */
+
+const SOURCE_META: Record<
+  TsErrorSource,
+  { label: string; classes: string; description: string }
+> = {
+  editor: {
+    label: "Editor",
+    classes: "border-rose-500/40 bg-rose-500/10 text-rose-300",
+    description: "Captured live in the running preview (window error).",
+  },
+  "dev-server": {
+    label: "Dev server",
+    classes: "border-sky-500/40 bg-sky-500/10 text-sky-300",
+    description: "Reported by Vite HMR while you were browsing.",
+  },
+  build: {
+    label: "Last build",
+    classes: "border-amber-500/40 bg-amber-500/10 text-amber-300",
+    description: "From the last successful manifest build (tsc --noEmit).",
+  },
+};
+
+function ActivityTimeline({
+  errors,
+  gitHash,
+  gitBranch,
+  liveCount,
+  buildCount,
+}: {
+  errors: TsError[];
+  gitHash: string;
+  gitBranch: string;
+  liveCount: number;
+  buildCount: number;
+}) {
+  return (
+    <section className="rounded-2xl border border-border bg-card p-5">
+      <header className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h2 className="text-sm font-bold uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-2">
+            <Activity className="h-4 w-4" /> Activity timeline
+          </h2>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            TypeScript errors observed in this session, tagged by source. Click
+            a file to jump to the exact line in your editor.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+          <span>
+            {liveCount} live · {buildCount} build
+          </span>
+          {liveCount > 0 && (
+            <button
+              type="button"
+              onClick={() => clearLiveErrors()}
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-full border border-border hover:bg-muted transition-colors"
+            >
+              <Eraser className="h-3 w-3" /> Clear live
+            </button>
+          )}
+        </div>
+      </header>
+
+      {errors.length === 0 ? (
+        <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 text-xs text-emerald-300 flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4" />
+          No TypeScript errors detected from any source.
+        </div>
+      ) : (
+        <ol className="mt-4 space-y-2">
+          {errors.map((e) => (
+            <ErrorRow key={e.id} err={e} gitHash={gitHash} gitBranch={gitBranch} />
+          ))}
+        </ol>
+      )}
+    </section>
+  );
+}
+
+function ErrorRow({
+  err,
+  gitHash,
+  gitBranch,
+}: {
+  err: TsError;
+  gitHash: string;
+  gitBranch: string;
+}) {
+  const meta = SOURCE_META[err.source];
+  const link = buildErrorLink(err, { gitHash, gitBranch });
+  const fileLabel = `${err.file}:${err.line}:${err.column}`;
+  return (
+    <li className="rounded-xl border border-border bg-background/40 p-3">
+      <div className="flex items-start gap-3 flex-wrap">
+        <span
+          title={meta.description}
+          className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-[0.18em] ${meta.classes}`}
+        >
+          {meta.label}
+        </span>
+        <div className="flex-1 min-w-[200px]">
+          <div className="text-xs font-mono break-all">
+            {link ? (
+              <a
+                href={link}
+                target={import.meta.env.DEV ? undefined : "_blank"}
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-primary hover:underline"
+              >
+                {fileLabel}
+                <ExternalLink className="h-3 w-3" aria-hidden="true" />
+              </a>
+            ) : (
+              <span className="text-foreground">{fileLabel}</span>
+            )}
+          </div>
+          <div className="mt-1 text-xs text-foreground/90">
+            {err.code && (
+              <span className="font-mono text-[10px] mr-1.5 px-1 rounded bg-muted text-muted-foreground">
+                TS{err.code}
+              </span>
+            )}
+            {err.message}
+          </div>
+        </div>
+        <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground shrink-0">
+          {new Date(err.observedAt).toLocaleTimeString()}
+        </div>
+      </div>
+    </li>
+  );
+}
+

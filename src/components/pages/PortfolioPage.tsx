@@ -361,6 +361,9 @@ function FolderViewer({
                         <ImageIcon className="w-8 h-8 text-muted-foreground" />
                       </div>
                     )}
+                    {it.image_url && (
+                      <Watermark text={it.watermark_text ?? null} size="sm" cornerBadge />
+                    )}
                   </div>
                   <div className="p-3">
                     <h4 className="text-sm font-bold tracking-tight truncate">{it.title}</h4>

@@ -1,11 +1,13 @@
 import { Link, Outlet, useNavigate, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useR2AutoResync } from "@/hooks/useR2AutoResync";
 import {
   LayoutDashboard, Sparkles, User, GraduationCap, Lightbulb, FolderKanban,
   Activity, Megaphone, PhoneCall, Inbox, Image as ImageIcon,
   Search, Settings, Users, LogOut, ExternalLink, Compass, AppWindow, ClipboardCheck,
   Folder, LayoutGrid, Rocket, Briefcase, Loader2, Star, Menu, X, Cloud,
+  RefreshCw, CheckCircle2, AlertTriangle, CircleDashed,
 } from "lucide-react";
 
 type Item = { to: string; label: string; Icon: any; end?: boolean };
@@ -74,6 +76,7 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const sync = useR2AutoResync();
 
   // Close drawer on route change
   useEffect(() => { setOpen(false); }, [location.pathname]);

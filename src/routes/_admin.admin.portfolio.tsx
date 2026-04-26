@@ -492,10 +492,12 @@ function AdminPortfolio() {
                                 </FormRow>
                               </div>
 
-                              <label className="flex items-center gap-2 text-xs font-semibold pt-1">
-                                <Switch checked={!!row.active} onCheckedChange={(v) => iSet(it.id, { active: v })} />
-                                <Shield className="w-3.5 h-3.5 text-muted-foreground" /> Visible on portfolio
-                              </label>
+                              <FormRow label="Status" hint="Drafts are hidden from the public portfolio.">
+                                <DraftPublishedToggle
+                                  published={!!row.active}
+                                  onChange={(v) => iSet(it.id, { active: v })}
+                                />
+                              </FormRow>
                               <div className="flex flex-wrap gap-2 pt-1">
                                 <Button size="sm" onClick={() => saveItem.mutate(it.id)} disabled={!dirty}><Save className="w-3.5 h-3.5 mr-1.5" />Save</Button>
                                 <Button size="sm" variant="outline" onClick={() => moveItem(it.id, -1)} disabled={i === 0}><ArrowUp className="w-3.5 h-3.5" /></Button>

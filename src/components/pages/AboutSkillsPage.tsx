@@ -210,7 +210,10 @@ function AboutSkillsInner() {
             }}
             className="absolute inset-0 grid place-items-center pointer-events-none"
           >
-            <OrganicCenterpiece size={Math.min(640, typeof window !== "undefined" ? window.innerWidth * 0.85 : 520)} />
+            <OrganicCenterpiece
+              size={Math.min(680, typeof window !== "undefined" ? window.innerWidth * 0.92 : 560)}
+              portraitUrl={photocard?.image_url || portrait}
+            />
           </motion.div>
 
           {/* Editorial copy in corners — Emergent-style layered chrome */}

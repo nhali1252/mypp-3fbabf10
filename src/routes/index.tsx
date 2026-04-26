@@ -180,7 +180,11 @@ const HERO_FALLBACK: LauncherHero = {
 };
 
 function Launcher() {
-  const { data: launcherDoc } = useR2Content<{ hero: LauncherHero | null; pages: LauncherCard[] }>("launcher");
+  const { launcherDoc: initialLauncherDoc } = Route.useLoaderData();
+  const { data: launcherDoc } = useR2Content<{ hero: LauncherHero | null; pages: LauncherCard[] }>(
+    "launcher",
+    { initialData: initialLauncherDoc },
+  );
 
   const rawCards: LauncherCard[] = (launcherDoc?.pages?.length ? launcherDoc.pages : FALLBACK) as LauncherCard[];
   // Ensure the Feed card is always present even when the R2-managed launcher

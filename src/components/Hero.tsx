@@ -167,19 +167,27 @@ export function Hero({ showHireMe = true }: { showHireMe?: boolean } = {}) {
                     {hero?.primary_cta_label || "Hire Me"}
                   </motion.button>
                 )}
-                <motion.button
-                  type="button"
-                  onClick={() => {
-                    const target = (hero?.secondary_cta_url || "#portfolio").replace(/^.*#/, "");
-                    smoothScrollToId(target);
-                  }}
-                  whileHover={reduce ? undefined : { y: -2 }}
-                  whileTap={reduce ? undefined : { scale: 0.97 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 22 }}
-                  className="bg-transparent border border-foreground/25 text-foreground px-7 py-[14px] rounded-full text-sm font-semibold hover:border-primary hover:text-primary transition-colors"
-                >
-                  {hero?.secondary_cta_label || "View Projects"}
-                </motion.button>
+                {(() => {
+                  const secondaryLabel = (hero?.secondary_cta_label || "View Projects").trim();
+                  // Spec: "Discover More" / "Learn More" CTA is disabled/removed on the public site.
+                  const isDisabledLabel = /^(discover|learn)\s+more$/i.test(secondaryLabel);
+                  if (isDisabledLabel) return null;
+                  return (
+                    <motion.button
+                      type="button"
+                      onClick={() => {
+                        const target = (hero?.secondary_cta_url || "#portfolio").replace(/^.*#/, "");
+                        smoothScrollToId(target);
+                      }}
+                      whileHover={reduce ? undefined : { y: -2 }}
+                      whileTap={reduce ? undefined : { scale: 0.97 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 22 }}
+                      className="bg-transparent border border-foreground/25 text-foreground px-7 py-[14px] rounded-full text-sm font-semibold hover:border-primary hover:text-primary transition-colors"
+                    >
+                      {secondaryLabel}
+                    </motion.button>
+                  );
+                })()}
               </motion.div>
             </motion.div>
           </div>

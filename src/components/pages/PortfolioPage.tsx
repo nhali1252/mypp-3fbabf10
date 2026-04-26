@@ -256,14 +256,33 @@ function FolderViewer({
           }}
         />
 
-        <div className="flex items-center justify-between gap-4 p-5 sm:p-7 border-b border-border">
-          <div className="flex items-center gap-4 min-w-0">
+        <div className="flex items-center justify-between gap-3 p-5 sm:p-7 border-b border-border">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <button
+              onClick={onClose}
+              className="shrink-0 inline-flex items-center gap-1.5 h-9 px-3 rounded-full border border-border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors duration-300 text-xs font-bold uppercase tracking-[0.2em]"
+              aria-label="Back to all folders"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Back
+            </button>
             <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 border border-primary/30 text-primary shrink-0">
               <FolderOpen className="h-5 w-5" strokeWidth={1.5} />
             </span>
             <div className="min-w-0">
-              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-primary">Folder</p>
-              <h3 className="font-serif-display text-2xl sm:text-3xl tracking-tight font-light truncate">{folder.name}</h3>
+              {/* Breadcrumb */}
+              <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="hover:text-primary transition-colors"
+                >
+                  Portfolio
+                </button>
+                <span aria-hidden>/</span>
+                <span className="text-primary truncate">{folder.name}</span>
+              </nav>
+              <h3 className="font-serif-display text-2xl sm:text-3xl tracking-tight font-light truncate mt-0.5">{folder.name}</h3>
             </div>
           </div>
           <button
@@ -276,19 +295,35 @@ function FolderViewer({
         </div>
 
         <div className="p-5 sm:p-7 max-h-[72vh] overflow-y-auto">
-          {isLoading ? (
+          {isLoading || !hasLoaded ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="aspect-square rounded-xl border border-border bg-background animate-pulse" />
               ))}
             </div>
-          ) : items.length === 0 ? (
+          ) : isError ? (
+            <div className="text-center py-16">
+              <Folder className="w-14 h-14 mx-auto text-destructive/40 mb-4" strokeWidth={0.9} />
+              <p className="text-base font-bold tracking-tight">Couldn't load this folder</p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Please refresh the page to try again.
+              </p>
+            </div>
+          ) : isTrulyEmpty ? (
             <div className="text-center py-16">
               <Folder className="w-14 h-14 mx-auto text-primary/30 mb-4" strokeWidth={0.9} />
               <p className="text-base font-bold tracking-tight">No Data, will be uploaded soon</p>
               <p className="text-xs text-muted-foreground mt-2">
                 This folder is empty for now — check back shortly.
               </p>
+            </div>
+          ) : items.length === 0 ? (
+            // Folder reference not found in the current snapshot — likely
+            // mid-resync. Show loading skeletons instead of a misleading "empty".
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="aspect-square rounded-xl border border-border bg-background animate-pulse" />
+              ))}
             </div>
           ) : (
             <motion.div

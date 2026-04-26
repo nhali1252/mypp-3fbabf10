@@ -1093,6 +1093,7 @@ export type Database = {
           logo_url: string | null
           page_key: string
           primary_color: string | null
+          reactions_enabled: boolean
           secondary_color: string | null
           section_visibility: Json
           site_name: string | null
@@ -1111,6 +1112,7 @@ export type Database = {
           logo_url?: string | null
           page_key?: string
           primary_color?: string | null
+          reactions_enabled?: boolean
           secondary_color?: string | null
           section_visibility?: Json
           site_name?: string | null
@@ -1129,6 +1131,7 @@ export type Database = {
           logo_url?: string | null
           page_key?: string
           primary_color?: string | null
+          reactions_enabled?: boolean
           secondary_color?: string | null
           section_visibility?: Json
           site_name?: string | null

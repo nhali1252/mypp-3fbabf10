@@ -10,9 +10,15 @@ import { ContactSection } from "@/components/sections/ContactSection";
 import { HireMeProvider } from "@/components/HireMeProvider";
 import { useSmoothAnchors } from "@/hooks/useSmoothAnchors";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useSiteSettings, isSectionVisible } from "@/hooks/useSiteSettings";
 
 export function BasicPage() {
   useSmoothAnchors();
+  const settings = useSiteSettings("B");
+  const showHero = isSectionVisible(settings, "hero", true);
+  const showAbout = isSectionVisible(settings, "about", true);
+  const showSkills = isSectionVisible(settings, "skills", true);
+  const showFooterCta = isSectionVisible(settings, "footer_cta", true);
   return (
     <HireMeProvider>
       <div className="min-h-screen">
@@ -20,14 +26,14 @@ export function BasicPage() {
           <ThemeToggle />
         </div>
         <Nav showHireMe={false} />
-        <Hero showHireMe={false} />
+        {showHero && <Hero showHireMe={false} />}
         <Ticker />
         <main className="max-w-[1320px] mx-auto px-3.5 md:px-7 pb-16">
-          <AboutSection />
+          {showAbout && <AboutSection />}
           <EducationSection />
-          <SkillsSection />
+          {showSkills && <SkillsSection />}
           <ActivitiesSection />
-          <ContactSection />
+          {showFooterCta && <ContactSection />}
         </main>
         <Footer />
       </div>

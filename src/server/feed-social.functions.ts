@@ -319,7 +319,7 @@ async function logModeration(
   snapshot: unknown,
 ) {
   try {
-    await supabaseAdmin.from("moderation_log").insert({
+    await (supabaseAdmin as any).from("moderation_log").insert({
       moderator_id: moderatorId,
       target_type: targetType,
       target_id: targetId,

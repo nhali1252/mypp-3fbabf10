@@ -4,6 +4,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, X, ChevronLeft, ChevronRight, Play, Sparkles, Image as ImageIcon, ExternalLink, Calendar, Folder } from "lucide-react";
 import { useR2Content } from "@/hooks/useR2Content";
 import { Footer } from "@/components/Footer";
+import { Watermark } from "@/components/feed/Watermark";
+import { ReactionsBar } from "@/components/feed/ReactionsBar";
+import { CommentThread } from "@/components/feed/CommentThread";
 
 type PortfolioDoc = (PFolder & { items: PItem[] })[];
 

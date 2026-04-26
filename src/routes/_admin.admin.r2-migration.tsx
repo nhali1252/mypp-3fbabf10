@@ -32,8 +32,49 @@ function R2MigrationPage() {
   const [previews, setPreviews] = useState<Record<string, any>>({});
   const [coverage, setCoverage] = useState<CoverageReport | null>(null);
   const [coverageBusy, setCoverageBusy] = useState(false);
+  const suggestFix = useServerFn(suggestR2CoverageFix);
+  const [autoFix, setAutoFix] = useState<AutoFixResult | null>(null);
+  const [autoFixBusy, setAutoFixBusy] = useState<"none" | "suggest" | "apply">("none");
 
-  const runCoverage = async () => {
+  const runSuggestFix = async (apply: boolean) => {
+    if (!coverage || coverage.missingFromMap.length === 0) return;
+    setAutoFixBusy(apply ? "apply" : "suggest");
+    try {
+      const res = await suggestFix({
+        data: { missingTables: coverage.missingFromMap, apply },
+      });
+      setAutoFix(res);
+      if (apply) {
+        if (res.applied?.ok && res.applied.tablesAdded.length > 0) {
+          toast.success(`Applied ${res.applied.tablesAdded.length} entries to r2-coverage.ts`);
+          // Re-run coverage to confirm the gap closed (in dev where the file write succeeded).
+          await runCoverage();
+        } else if (res.applied?.ok) {
+          toast.info("All suggested entries already present");
+        } else {
+          toast.warning(res.applied?.reason ?? "Could not auto-apply");
+        }
+      } else if (res.suggestions.every((s) => !s.confident)) {
+        toast.warning("No confident suggestions — review manually");
+      } else {
+        toast.success(`Suggested ${res.suggestions.filter((s) => s.confident).length} mapping(s)`);
+      }
+    } catch (e: any) {
+      toast.error(e.message ?? "Auto-fix failed");
+    } finally {
+      setAutoFixBusy("none");
+    }
+  };
+
+  const copySnippet = async () => {
+    if (!autoFix?.snippet) return;
+    try {
+      await navigator.clipboard.writeText(autoFix.snippet);
+      toast.success("Snippet copied");
+    } catch {
+      toast.error("Clipboard unavailable");
+    }
+  };
     setCoverageBusy(true);
     try {
       const res = await checkCoverage();

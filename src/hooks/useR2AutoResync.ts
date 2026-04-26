@@ -58,6 +58,10 @@ export function useR2AutoResync() {
   const [consecutiveFailures, setConsecutiveFailures] = useState(0);
   const [failureHistory, setFailureHistory] = useState<R2SyncFailure[]>([]);
   const [lastFailedScope, setLastFailedScope] = useState<R2ContentKey[]>([]);
+  /** Timestamp (ms) of the last manual retry attempt; gates the cooldown. */
+  const [lastRetryAt, setLastRetryAt] = useState<number | null>(null);
+  /** Seconds remaining before another retry is allowed; 0 when ready. */
+  const [retryCooldownRemaining, setRetryCooldownRemaining] = useState(0);
 
   const flush = async () => {
     if (inFlight.current) {

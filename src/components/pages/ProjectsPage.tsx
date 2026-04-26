@@ -82,7 +82,7 @@ export function ProjectsPage() {
           {isLoading ? (
             <div className="space-y-4">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-44 rounded-2xl border border-border bg-card animate-pulse" />
+                <div key={i} className="h-44 rounded-2xl border border-border skeleton-shimmer" />
               ))}
             </div>
           ) : projects.length === 0 ? (

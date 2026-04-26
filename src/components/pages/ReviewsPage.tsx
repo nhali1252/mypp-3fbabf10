@@ -131,7 +131,7 @@ export function ReviewsPage() {
           {isLoading ? (
             <div className="grid sm:grid-cols-2 gap-4">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-44 rounded-2xl border border-border bg-card animate-pulse" />
+                <div key={i} className="h-44 rounded-2xl border border-border skeleton-shimmer" />
               ))}
             </div>
           ) : reviews.length === 0 ? (

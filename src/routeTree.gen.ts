@@ -27,6 +27,7 @@ import { Route as AdminAdminSkillsRouteImport } from './routes/_admin.admin.skil
 import { Route as AdminAdminSettingsRouteImport } from './routes/_admin.admin.settings'
 import { Route as AdminAdminSeoRouteImport } from './routes/_admin.admin.seo'
 import { Route as AdminAdminReviewsRouteImport } from './routes/_admin.admin.reviews'
+import { Route as AdminAdminR2MigrationRouteImport } from './routes/_admin.admin.r2-migration'
 import { Route as AdminAdminProjectsRouteImport } from './routes/_admin.admin.projects'
 import { Route as AdminAdminPortfolioRouteImport } from './routes/_admin.admin.portfolio'
 import { Route as AdminAdminPageLoaderRouteImport } from './routes/_admin.admin.page-loader'
@@ -131,6 +132,11 @@ const AdminAdminSeoRoute = AdminAdminSeoRouteImport.update({
 const AdminAdminReviewsRoute = AdminAdminReviewsRouteImport.update({
   id: '/admin/reviews',
   path: '/admin/reviews',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdminR2MigrationRoute = AdminAdminR2MigrationRouteImport.update({
+  id: '/admin/r2-migration',
+  path: '/admin/r2-migration',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAdminProjectsRoute = AdminAdminProjectsRouteImport.update({
@@ -240,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/admin/page-loader': typeof AdminAdminPageLoaderRoute
   '/admin/portfolio': typeof AdminAdminPortfolioRoute
   '/admin/projects': typeof AdminAdminProjectsRoute
+  '/admin/r2-migration': typeof AdminAdminR2MigrationRoute
   '/admin/reviews': typeof AdminAdminReviewsRoute
   '/admin/seo': typeof AdminAdminSeoRoute
   '/admin/settings': typeof AdminAdminSettingsRoute
@@ -275,6 +282,7 @@ export interface FileRoutesByTo {
   '/admin/page-loader': typeof AdminAdminPageLoaderRoute
   '/admin/portfolio': typeof AdminAdminPortfolioRoute
   '/admin/projects': typeof AdminAdminProjectsRoute
+  '/admin/r2-migration': typeof AdminAdminR2MigrationRoute
   '/admin/reviews': typeof AdminAdminReviewsRoute
   '/admin/seo': typeof AdminAdminSeoRoute
   '/admin/settings': typeof AdminAdminSettingsRoute
@@ -312,6 +320,7 @@ export interface FileRoutesById {
   '/_admin/admin/page-loader': typeof AdminAdminPageLoaderRoute
   '/_admin/admin/portfolio': typeof AdminAdminPortfolioRoute
   '/_admin/admin/projects': typeof AdminAdminProjectsRoute
+  '/_admin/admin/r2-migration': typeof AdminAdminR2MigrationRoute
   '/_admin/admin/reviews': typeof AdminAdminReviewsRoute
   '/_admin/admin/seo': typeof AdminAdminSeoRoute
   '/_admin/admin/settings': typeof AdminAdminSettingsRoute
@@ -349,6 +358,7 @@ export interface FileRouteTypes {
     | '/admin/page-loader'
     | '/admin/portfolio'
     | '/admin/projects'
+    | '/admin/r2-migration'
     | '/admin/reviews'
     | '/admin/seo'
     | '/admin/settings'
@@ -384,6 +394,7 @@ export interface FileRouteTypes {
     | '/admin/page-loader'
     | '/admin/portfolio'
     | '/admin/projects'
+    | '/admin/r2-migration'
     | '/admin/reviews'
     | '/admin/seo'
     | '/admin/settings'
@@ -420,6 +431,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/page-loader'
     | '/_admin/admin/portfolio'
     | '/_admin/admin/projects'
+    | '/_admin/admin/r2-migration'
     | '/_admin/admin/reviews'
     | '/_admin/admin/seo'
     | '/_admin/admin/settings'
@@ -571,6 +583,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminReviewsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/r2-migration': {
+      id: '/_admin/admin/r2-migration'
+      path: '/admin/r2-migration'
+      fullPath: '/admin/r2-migration'
+      preLoaderRoute: typeof AdminAdminR2MigrationRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/projects': {
       id: '/_admin/admin/projects'
       path: '/admin/projects'
@@ -703,6 +722,7 @@ interface AdminRouteChildren {
   AdminAdminPageLoaderRoute: typeof AdminAdminPageLoaderRoute
   AdminAdminPortfolioRoute: typeof AdminAdminPortfolioRoute
   AdminAdminProjectsRoute: typeof AdminAdminProjectsRoute
+  AdminAdminR2MigrationRoute: typeof AdminAdminR2MigrationRoute
   AdminAdminReviewsRoute: typeof AdminAdminReviewsRoute
   AdminAdminSeoRoute: typeof AdminAdminSeoRoute
   AdminAdminSettingsRoute: typeof AdminAdminSettingsRoute
@@ -730,6 +750,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminPageLoaderRoute: AdminAdminPageLoaderRoute,
   AdminAdminPortfolioRoute: AdminAdminPortfolioRoute,
   AdminAdminProjectsRoute: AdminAdminProjectsRoute,
+  AdminAdminR2MigrationRoute: AdminAdminR2MigrationRoute,
   AdminAdminReviewsRoute: AdminAdminReviewsRoute,
   AdminAdminSeoRoute: AdminAdminSeoRoute,
   AdminAdminSettingsRoute: AdminAdminSettingsRoute,

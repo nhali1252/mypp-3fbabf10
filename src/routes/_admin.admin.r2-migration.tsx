@@ -78,6 +78,7 @@ function R2MigrationPage() {
 
   const runCoverage = async () => {
     setCoverageBusy(true);
+    setAutoFix(null);
     try {
       const res = await checkCoverage();
       setCoverage(res);

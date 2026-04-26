@@ -213,29 +213,27 @@ export function FeedPage() {
             const i = visibleItems.findIndex((x) => x.id === item.id);
             if (i >= 0) open(i);
             else {
-              // Ensure it's in the visible window if filters hide it
+              // Reset filters so the item appears in the next slice fetch.
               setFolderFilter("all");
               setMediaFilter("all");
-              setVisibleCount((c) => Math.max(c, PAGE_SIZE));
-              // Defer until next paint so visibleItems updates
-              setTimeout(() => {
-                setActiveIdx(allItems.findIndex((x) => x.id === item.id));
-              }, 0);
+              setFeaturedOnly(false);
             }
           }}
         />
       )}
 
       {/* Toolbar */}
-      {!isLoading && !isError && allItems.length > 0 && (
+      {!isLoading && !isError && totalAll > 0 && (
         <FilterToolbar
           folders={folders}
           folderFilter={folderFilter}
           setFolderFilter={setFolderFilter}
           mediaFilter={mediaFilter}
           setMediaFilter={setMediaFilter}
-          totalCount={allItems.length}
-          filteredCount={filtered.length}
+          featuredOnly={featuredOnly}
+          setFeaturedOnly={setFeaturedOnly}
+          totalCount={totalAll}
+          filteredCount={filteredTotal}
         />
       )}
 
@@ -245,15 +243,15 @@ export function FeedPage() {
             <FeedSkeleton />
           ) : isError ? (
             <ErrorState />
-          ) : allItems.length === 0 ? (
+          ) : totalAll === 0 ? (
             <EmptyState
               title="No uploads yet"
               hint={`Add items inside any portfolio folder and they'll appear here automatically.`}
             />
-          ) : filtered.length === 0 ? (
+          ) : filteredTotal === 0 ? (
             <EmptyState
               title="No matches for this filter"
-              hint="Try changing the folder or media-type filter above."
+              hint="Try changing the folder, media-type, or featured filter above."
             />
           ) : (
             <>
@@ -262,12 +260,13 @@ export function FeedPage() {
                 <div className="flex justify-center mt-10">
                   <button
                     type="button"
-                    onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-                    className="group inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border bg-card hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 text-xs font-bold uppercase tracking-[0.22em]"
+                    onClick={() => sliceQuery.fetchNextPage()}
+                    disabled={sliceQuery.isFetchingNextPage}
+                    className="group inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border bg-card hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 text-xs font-bold uppercase tracking-[0.22em] disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    Load more
+                    {sliceQuery.isFetchingNextPage ? "Loading…" : "Load more"}
                     <span className="text-[10px] opacity-60 group-hover:opacity-100">
-                      {filtered.length - visibleCount} remaining
+                      {Math.max(0, filteredTotal - visibleItems.length)} remaining
                     </span>
                   </button>
                 </div>

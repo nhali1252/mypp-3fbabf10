@@ -60,9 +60,12 @@ const inputSchema = z.object({
   folder: z.string().min(1).max(120).optional(),
   media: z.enum(["all", "image", "video"]).optional().default("all"),
   featured: z.boolean().optional().default(false),
+  sort: z.enum(["newest", "featured-first"]).optional().default("newest"),
   offset: z.number().int().min(0).max(10_000).optional().default(0),
   limit: z.number().int().min(1).max(MAX_LIMIT).optional().default(24),
 });
+
+export type FeedSort = "newest" | "featured-first";
 
 function detectKind(url: string | null | undefined): "image" | "video" {
   if (!url) return "image";
@@ -110,12 +113,21 @@ export const getFeedSlice = createServerFn({ method: "GET" })
       }
     }
 
-    // Newest first.
-    all.sort((a, b) => {
+    // Sort: newest-first by default; featured-first puts featured items on top
+    // and falls back to newest within each group.
+    const byDateDesc = (a: FeedItem, b: FeedItem) => {
       const ta = a.date ? Date.parse(a.date) : 0;
       const tb = b.date ? Date.parse(b.date) : 0;
       return tb - ta;
-    });
+    };
+    if (data.sort === "featured-first") {
+      all.sort((a, b) => {
+        if (a.featured !== b.featured) return a.featured ? -1 : 1;
+        return byDateDesc(a, b);
+      });
+    } else {
+      all.sort(byDateDesc);
+    }
 
     // 2. Folder index (built from feed-eligible items only).
     const folderMap = new Map<string, FeedFolder>();

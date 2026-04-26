@@ -6,7 +6,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { readJson, writeJson, presignPut, publicUrl, listObjects, deleteObject } from "./r2.server";
+import { readJson, writeJson, presignPut, publicUrl, listObjects, deleteObject, putObject } from "./r2.server";
 import { R2_KEYS, R2_ASSET_PREFIXES, type R2ContentKey, type R2AssetFolder } from "./r2-keys";
 
 const contentKeySchema = z.enum(

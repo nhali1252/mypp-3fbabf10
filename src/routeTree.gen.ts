@@ -27,6 +27,7 @@ import { Route as AdminAdminSlotsRouteImport } from './routes/_admin.admin.slots
 import { Route as AdminAdminSkillsRouteImport } from './routes/_admin.admin.skills'
 import { Route as AdminAdminSettingsRouteImport } from './routes/_admin.admin.settings'
 import { Route as AdminAdminSeoRouteImport } from './routes/_admin.admin.seo'
+import { Route as AdminAdminRuntimeRouteImport } from './routes/_admin.admin.runtime'
 import { Route as AdminAdminReviewsRouteImport } from './routes/_admin.admin.reviews'
 import { Route as AdminAdminR2MigrationRouteImport } from './routes/_admin.admin.r2-migration'
 import { Route as AdminAdminProjectsRouteImport } from './routes/_admin.admin.projects'
@@ -137,6 +138,11 @@ const AdminAdminSettingsRoute = AdminAdminSettingsRouteImport.update({
 const AdminAdminSeoRoute = AdminAdminSeoRouteImport.update({
   id: '/admin/seo',
   path: '/admin/seo',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdminRuntimeRoute = AdminAdminRuntimeRouteImport.update({
+  id: '/admin/runtime',
+  path: '/admin/runtime',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAdminReviewsRoute = AdminAdminReviewsRouteImport.update({
@@ -282,6 +288,7 @@ export interface FileRoutesByFullPath {
   '/admin/projects': typeof AdminAdminProjectsRoute
   '/admin/r2-migration': typeof AdminAdminR2MigrationRoute
   '/admin/reviews': typeof AdminAdminReviewsRoute
+  '/admin/runtime': typeof AdminAdminRuntimeRoute
   '/admin/seo': typeof AdminAdminSeoRoute
   '/admin/settings': typeof AdminAdminSettingsRoute
   '/admin/skills': typeof AdminAdminSkillsRoute
@@ -323,6 +330,7 @@ export interface FileRoutesByTo {
   '/admin/projects': typeof AdminAdminProjectsRoute
   '/admin/r2-migration': typeof AdminAdminR2MigrationRoute
   '/admin/reviews': typeof AdminAdminReviewsRoute
+  '/admin/runtime': typeof AdminAdminRuntimeRoute
   '/admin/seo': typeof AdminAdminSeoRoute
   '/admin/settings': typeof AdminAdminSettingsRoute
   '/admin/skills': typeof AdminAdminSkillsRoute
@@ -366,6 +374,7 @@ export interface FileRoutesById {
   '/_admin/admin/projects': typeof AdminAdminProjectsRoute
   '/_admin/admin/r2-migration': typeof AdminAdminR2MigrationRoute
   '/_admin/admin/reviews': typeof AdminAdminReviewsRoute
+  '/_admin/admin/runtime': typeof AdminAdminRuntimeRoute
   '/_admin/admin/seo': typeof AdminAdminSeoRoute
   '/_admin/admin/settings': typeof AdminAdminSettingsRoute
   '/_admin/admin/skills': typeof AdminAdminSkillsRoute
@@ -409,6 +418,7 @@ export interface FileRouteTypes {
     | '/admin/projects'
     | '/admin/r2-migration'
     | '/admin/reviews'
+    | '/admin/runtime'
     | '/admin/seo'
     | '/admin/settings'
     | '/admin/skills'
@@ -450,6 +460,7 @@ export interface FileRouteTypes {
     | '/admin/projects'
     | '/admin/r2-migration'
     | '/admin/reviews'
+    | '/admin/runtime'
     | '/admin/seo'
     | '/admin/settings'
     | '/admin/skills'
@@ -492,6 +503,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/projects'
     | '/_admin/admin/r2-migration'
     | '/_admin/admin/reviews'
+    | '/_admin/admin/runtime'
     | '/_admin/admin/seo'
     | '/_admin/admin/settings'
     | '/_admin/admin/skills'
@@ -642,6 +654,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/seo'
       fullPath: '/admin/seo'
       preLoaderRoute: typeof AdminAdminSeoRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/admin/runtime': {
+      id: '/_admin/admin/runtime'
+      path: '/admin/runtime'
+      fullPath: '/admin/runtime'
+      preLoaderRoute: typeof AdminAdminRuntimeRouteImport
       parentRoute: typeof AdminRoute
     }
     '/_admin/admin/reviews': {
@@ -823,6 +842,7 @@ interface AdminRouteChildren {
   AdminAdminProjectsRoute: typeof AdminAdminProjectsRoute
   AdminAdminR2MigrationRoute: typeof AdminAdminR2MigrationRoute
   AdminAdminReviewsRoute: typeof AdminAdminReviewsRoute
+  AdminAdminRuntimeRoute: typeof AdminAdminRuntimeRoute
   AdminAdminSeoRoute: typeof AdminAdminSeoRoute
   AdminAdminSettingsRoute: typeof AdminAdminSettingsRoute
   AdminAdminSkillsRoute: typeof AdminAdminSkillsRoute
@@ -855,6 +875,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminProjectsRoute: AdminAdminProjectsRoute,
   AdminAdminR2MigrationRoute: AdminAdminR2MigrationRoute,
   AdminAdminReviewsRoute: AdminAdminReviewsRoute,
+  AdminAdminRuntimeRoute: AdminAdminRuntimeRoute,
   AdminAdminSeoRoute: AdminAdminSeoRoute,
   AdminAdminSettingsRoute: AdminAdminSettingsRoute,
   AdminAdminSkillsRoute: AdminAdminSkillsRoute,

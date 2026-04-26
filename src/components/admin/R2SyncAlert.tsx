@@ -80,12 +80,21 @@ export default function R2SyncAlert({
           <div className="flex flex-wrap items-center gap-2 mt-3">
             <button
               onClick={onRetry}
-              disabled={retrying || status === "syncing"}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground text-xs font-semibold hover:opacity-90 disabled:opacity-60"
+              disabled={retrying || status === "syncing" || !canRetry}
+              title={
+                !canRetry
+                  ? `Cooldown — try again in ${retryCooldownRemaining}s`
+                  : undefined
+              }
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground text-xs font-semibold hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {retrying || status === "syncing" ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" /> Retrying…
+                </>
+              ) : !canRetry ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5" /> Retry in {retryCooldownRemaining}s
                 </>
               ) : (
                 <>

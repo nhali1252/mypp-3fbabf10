@@ -13,6 +13,7 @@ import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
+import { Route as FeedRouteImport } from './routes/feed'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BasicRouteImport } from './routes/basic'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -64,6 +65,11 @@ const ProjectsRoute = ProjectsRouteImport.update({
 const PortfolioRoute = PortfolioRouteImport.update({
   id: '/portfolio',
   path: '/portfolio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedRoute = FeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -232,6 +238,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/basic': typeof BasicRoute
   '/contact': typeof ContactRoute
+  '/feed': typeof FeedRoute
   '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
   '/reviews': typeof ReviewsRoute
@@ -269,6 +276,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/basic': typeof BasicRoute
   '/contact': typeof ContactRoute
+  '/feed': typeof FeedRoute
   '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
   '/reviews': typeof ReviewsRoute
@@ -308,6 +316,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/basic': typeof BasicRoute
   '/contact': typeof ContactRoute
+  '/feed': typeof FeedRoute
   '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
   '/reviews': typeof ReviewsRoute
@@ -347,6 +356,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/basic'
     | '/contact'
+    | '/feed'
     | '/portfolio'
     | '/projects'
     | '/reviews'
@@ -384,6 +394,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/basic'
     | '/contact'
+    | '/feed'
     | '/portfolio'
     | '/projects'
     | '/reviews'
@@ -422,6 +433,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/basic'
     | '/contact'
+    | '/feed'
     | '/portfolio'
     | '/projects'
     | '/reviews'
@@ -461,6 +473,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   BasicRoute: typeof BasicRoute
   ContactRoute: typeof ContactRoute
+  FeedRoute: typeof FeedRoute
   PortfolioRoute: typeof PortfolioRoute
   ProjectsRoute: typeof ProjectsRoute
   ReviewsRoute: typeof ReviewsRoute
@@ -495,6 +508,13 @@ declare module '@tanstack/react-router' {
       path: '/portfolio'
       fullPath: '/portfolio'
       preLoaderRoute: typeof PortfolioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feed': {
+      id: '/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof FeedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -791,6 +811,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   BasicRoute: BasicRoute,
   ContactRoute: ContactRoute,
+  FeedRoute: FeedRoute,
   PortfolioRoute: PortfolioRoute,
   ProjectsRoute: ProjectsRoute,
   ReviewsRoute: ReviewsRoute,

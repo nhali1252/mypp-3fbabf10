@@ -108,6 +108,9 @@ export const seedR2FromDatabase = createServerFn({ method: "POST" })
           external_url: it.external_url ?? "",
           tags: Array.isArray(it.tags) ? it.tags : [],
           sort_order: it.sort_order ?? 0, active: it.active,
+          // Used by /feed for newest-first ordering + date display.
+          created_at: it.created_at ?? null,
+          updated_at: it.updated_at ?? null,
         })),
     }));
 

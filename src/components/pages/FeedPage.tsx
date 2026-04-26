@@ -270,7 +270,7 @@ export function FeedPage() {
             <ErrorState
               onRetry={() => sliceQuery.refetch()}
               isRetrying={sliceQuery.isFetching}
-              message={sliceQuery.error instanceof Error ? sliceQuery.error.message : undefined}
+              message={initialErrorMessage}
             />
           ) : totalAll === 0 ? (
             <EmptyState

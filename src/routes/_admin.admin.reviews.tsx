@@ -31,18 +31,30 @@ function statusBadge(s: Status) {
 
 function AdminReviews() {
   const t = useTable("testimonials");
+  const qc = useQueryClient();
   const rows = t.data ?? [];
   const [creating, setCreating] = useState(false);
   const [draft, setDraft] = useState<any>({ rating: 5, published: true, status: "approved" });
   const [edits, setEdits] = useState<Record<string, any>>({});
   const [filter, setFilter] = useState<"all" | Status>("all");
   const [q, setQ] = useState("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const get = (r: any) => edits[r.id] ?? r;
   const setE = (id: string, patch: any) => {
     const base = edits[id] ?? rows.find((r: any) => r.id === id);
     setEdits((e) => ({ ...e, [id]: { ...base, ...patch } }));
   };
+
+  function toggleSelected(id: string) {
+    setSelected((s) => {
+      const n = new Set(s);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+  }
+  function clearSelection() { setSelected(new Set()); }
 
   async function add() {
     if (!draft.client_name?.trim() || !draft.review?.trim()) return;

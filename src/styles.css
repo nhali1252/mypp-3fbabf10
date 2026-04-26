@@ -2,7 +2,7 @@
 @source "../src";
 @import "tw-animate-css";
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&family=Inter:wght@400;500;600;700;800;900&family=Lora:wght@400;500;600;700&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
@@ -39,6 +39,7 @@
   --shadow-elevated: var(--shadow-elevated);
   --font-sans: 'Inter', sans-serif;
   --font-serif-display: 'Cormorant Garamond', serif;
+  --font-numeric: 'Lora', Georgia, serif;
 
   /* Motion tokens — keep all animation in one consistent language */
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
@@ -338,6 +339,14 @@
   /* Smooth in-page anchor scrolling + headroom for sticky nav */
   html { scroll-behavior: smooth; }
   section[id] { scroll-margin-top: 96px; }
+
+  /* Numeric typography — Lora for stats, counters, percentages, metrics */
+  .font-numeric {
+    font-family: var(--font-numeric);
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    font-variant-numeric: tabular-nums lining-nums;
+    letter-spacing: -0.005em;
+  }
 
   /* Respect users who prefer reduced motion */
   @media (prefers-reduced-motion: reduce) {

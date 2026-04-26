@@ -75,7 +75,7 @@ export function AboutSection() {
                   key={s.label}
                   className="bg-white/[0.04] border border-white/5 rounded-2xl p-4 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/30"
                 >
-                  <div className="text-2xl font-black text-foreground">{s.value}</div>
+                  <div className="text-2xl font-black text-foreground font-numeric">{s.value}</div>
                   <div className="text-[0.7rem] uppercase tracking-wider text-muted-foreground mt-1">
                     {s.label}
                   </div>

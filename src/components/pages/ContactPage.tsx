@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useSearch } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Mail, Phone, MessageCircle, Sparkles, Send, Loader2, Calendar, Clock } from "lucide-react";
 import { toast } from "sonner";
@@ -47,6 +47,11 @@ function nextWeekdays(count: number) {
 export function ContactPage() {
   const days = useMemo(() => nextWeekdays(7), []);
 
+  // Read ?service= from the route. Strict:false so the same component can
+  // also render under other routes (e.g. embedded previews) without crashing.
+  const search = useSearch({ strict: false }) as { service?: string } | undefined;
+  const incomingService = (search?.service ?? "").trim();
+
   const contact = useContactSettings() as {
     data:
       | {
@@ -58,16 +63,44 @@ export function ContactPage() {
       | null;
   };
 
+  // Resolve the initial project type. If the URL specifies a service that
+  // matches one of our known types (case-insensitive), pre-select it.
+  // Otherwise fall back to the first option, but if it's a brand-new value
+  // (e.g. "Web Design" coming from a future service), we accept it as-is.
+  const initialProjectType = useMemo(() => {
+    if (!incomingService) return projectTypes[0];
+    const match = projectTypes.find(
+      (p) => p.toLowerCase() === incomingService.toLowerCase(),
+    );
+    return match ?? incomingService;
+  }, [incomingService]);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [projectType, setProjectType] = useState(projectTypes[0]);
+  const [projectType, setProjectType] = useState(initialProjectType);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [day, setDay] = useState<string | null>(null);
   const [slot, setSlot] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const send = useServerFn(submitMessage);
+
+  // If the user lands on the page and a service is specified, scroll to the
+  // form and focus the name input so the next action is obvious.
+  useEffect(() => {
+    if (!incomingService) return;
+    setProjectType(initialProjectType);
+    const t = window.setTimeout(() => {
+      document.getElementById("contact-form")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      window.setTimeout(() => {
+        document.getElementById("contact-name-input")?.focus();
+      }, 500);
+    }, 80);
+    return () => window.clearTimeout(t);
+  }, [incomingService, initialProjectType]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -194,7 +227,10 @@ export function ContactPage() {
 
             <Field label="Project type">
               <div className="flex flex-wrap gap-2">
-                {projectTypes.map((p) => (
+                {(projectTypes.includes(projectType)
+                  ? projectTypes
+                  : [projectType, ...projectTypes]
+                ).map((p) => (
                   <button
                     type="button"
                     key={p}

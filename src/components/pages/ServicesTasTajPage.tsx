@@ -191,7 +191,7 @@ export function ServicesTasTajPage() {
             </p>
           </div>
 
-          {designSkills.length === 0 && !skills.isLoading ? (
+          {designSkills.length === 0 && !fPage.isLoading ? (
             <div className="text-center text-sm text-muted-foreground border border-dashed border-border rounded-2xl py-14">
               No design skills published yet — add them from the admin /F page.
             </div>

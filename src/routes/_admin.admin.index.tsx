@@ -55,7 +55,7 @@ function AdminDashboard() {
         list().catch(() => [] as any[]),
         supabase.from("launcher_pages").select("*").order("sort_order"),
       ]);
-      const arr = Array.isArray(msgs) ? msgs : [];
+      const arr = Array.isArray(msgs) ? msgs : msgs?.messages ?? [];
       setUnread(arr.filter((m: any) => !m.is_read).length);
       setLauncher((lp.data ?? []) as LauncherRow[]);
     })();

@@ -160,7 +160,7 @@ function AdminPortfolio() {
   }
 
   // ---- Item CRUD --------------------------------------------------------
-  const [newItem, setNewItem] = useState<Partial<Item>>({ active: true, tags: [] });
+  const [newItem, setNewItem] = useState<Partial<Item>>({ active: true, tags: [], show_in_feed: true, featured: false });
   const [itemEdits, setItemEdits] = useState<Record<string, Partial<Item>>>({});
   const iGet = (it: Item) => ({ ...it, ...(itemEdits[it.id] ?? {}) });
   const iSet = (id: string, patch: Partial<Item>) =>

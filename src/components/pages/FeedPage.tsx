@@ -84,7 +84,7 @@ export function FeedPage() {
   const [folderFilter, setFolderFilter] = useState<string>("all"); // folder slug
   const [mediaFilter, setMediaFilter] = useState<MediaFilter>("all");
   const [featuredOnly, setFeaturedOnly] = useState<boolean>(false);
-  const [sort, setSort] = useState<"newest" | "featured-first">("newest");
+  const [sort, setSort] = useState<FeedSort>("newest");
 
   const dFolder = useDebouncedValue(folderFilter, FILTER_DEBOUNCE_MS);
   const dMedia = useDebouncedValue(mediaFilter, FILTER_DEBOUNCE_MS);

@@ -101,6 +101,37 @@ function normalizeItem(folder: any, raw: any): FeedItem | null {
 export const getFeedSlice = createServerFn({ method: "GET" })
   .inputValidator((data: z.input<typeof inputSchema>) => inputSchema.parse(data))
   .handler(async ({ data }): Promise<FeedSlice> => {
+    // Fast path — try the prebuilt parallel page index. RLS-equivalent because
+    // the builder applies the same `show_in_feed` filter as the slow path.
+    // Imported lazily so this stays out of any cold-start bundle that doesn't
+    // need it (and so the feed keeps working even if the index module fails to
+    // load for any reason — the catch below falls back to the slow path).
+    try {
+      const { tryServeFromIndex } = await import("./feed-index.server");
+      const fast = await tryServeFromIndex({
+        sort: data.sort,
+        folder: data.folder ?? null,
+        media: data.media,
+        featured: data.featured,
+        offset: data.offset,
+        limit: data.limit,
+      });
+      if (fast) {
+        return {
+          items: fast.items,
+          folders: fast.folders,
+          total: fast.total,
+          filteredTotal: fast.filteredTotal,
+          featuredCount: fast.featuredCount,
+          offset: data.offset,
+          limit: data.limit,
+          hasMore: fast.hasMore,
+        };
+      }
+    } catch {
+      // Fall through to the on-the-fly slicer.
+    }
+
     const doc = (await readJson<any[]>(R2_KEYS.portfolio)) ?? [];
 
     // 1. Flatten + apply show_in_feed (the always-on filter).

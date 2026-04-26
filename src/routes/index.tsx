@@ -179,6 +179,59 @@ const HERO_FALLBACK: LauncherHero = {
     "A curated launcher for Ali Nur Hasan's portfolio. Each card opens an independent page — managed and editable from the admin panel.",
 };
 
+/**
+ * Deterministically derive the launcher card list:
+ *  1. Start from the saved cards (or fallback if empty).
+ *  2. De-duplicate by `route` (first occurrence wins, preserves any admin edits).
+ *  3. Guarantee a `/feed` card exists by injecting from FALLBACK if missing.
+ *  4. Enforce that Feed appears immediately after Portfolio. If Portfolio is
+ *     absent, Feed is appended to the end.
+ *
+ * Pure + deterministic so SSR and client always produce the same array,
+ * which prevents hydration mismatches.
+ */
+export function deriveLauncherCards(
+  saved: LauncherCard[] | null | undefined,
+  fallback: LauncherCard[] = FALLBACK,
+): LauncherCard[] {
+  const source = saved && saved.length ? saved : fallback;
+
+  // 1+2: de-dupe by route, preserve original order
+  const seen = new Set<string>();
+  const deduped: LauncherCard[] = [];
+  for (const card of source) {
+    if (!card?.route || seen.has(card.route)) continue;
+    seen.add(card.route);
+    deduped.push(card);
+  }
+
+  // 3: ensure Feed card exists
+  if (!seen.has("/feed")) {
+    const feedCard = fallback.find((c) => c.route === "/feed");
+    if (feedCard) {
+      deduped.push(feedCard);
+      seen.add("/feed");
+    }
+  }
+
+  // 4: enforce Portfolio → Feed adjacency
+  const portfolioIdx = deduped.findIndex((c) => c.route === "/portfolio");
+  const feedIdx = deduped.findIndex((c) => c.route === "/feed");
+  if (feedIdx === -1) return deduped;
+  if (portfolioIdx === -1) {
+    // No portfolio — move feed to the end
+    const [feed] = deduped.splice(feedIdx, 1);
+    deduped.push(feed);
+    return deduped;
+  }
+  if (feedIdx !== portfolioIdx + 1) {
+    const [feed] = deduped.splice(feedIdx, 1);
+    const newPortfolioIdx = deduped.findIndex((c) => c.route === "/portfolio");
+    deduped.splice(newPortfolioIdx + 1, 0, feed);
+  }
+  return deduped;
+}
+
 function Launcher() {
   const { launcherDoc: initialLauncherDoc } = Route.useLoaderData();
   const { data: launcherDoc } = useR2Content<{ hero: LauncherHero | null; pages: LauncherCard[] }>(
@@ -186,17 +239,7 @@ function Launcher() {
     { initialData: initialLauncherDoc },
   );
 
-  const rawCards: LauncherCard[] = (launcherDoc?.pages?.length ? launcherDoc.pages : FALLBACK) as LauncherCard[];
-  // Ensure the Feed card is always present even when the R2-managed launcher
-  // doc was saved before Feed existed. Insert right after Portfolio.
-  const cards: LauncherCard[] = (() => {
-    if (rawCards.some((c) => c.route === "/feed")) return rawCards;
-    const feedCard = FALLBACK.find((c) => c.route === "/feed")!;
-    const portfolioIdx = rawCards.findIndex((c) => c.route === "/portfolio");
-    const next = [...rawCards];
-    next.splice(portfolioIdx >= 0 ? portfolioIdx + 1 : next.length, 0, feedCard);
-    return next;
-  })();
+  const cards: LauncherCard[] = deriveLauncherCards(launcherDoc?.pages);
   const hero: LauncherHero = launcherDoc?.hero ?? HERO_FALLBACK;
 
   const [hovered, setHovered] = useState<number | null>(null);

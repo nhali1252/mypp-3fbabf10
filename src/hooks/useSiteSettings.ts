@@ -34,7 +34,9 @@ export function useSiteSettings(pageKey: string = "B"): SiteSettings {
     queryFn: async (): Promise<SiteSettings> => {
       const { data } = await (supabase as any)
         .from("site_settings")
-        .select("welcome_animation_ms, default_motion_pref, section_visibility")
+        .select(
+          "welcome_animation_ms, default_motion_pref, section_visibility, reactions_enabled",
+        )
         .eq("page_key", pageKey)
         .limit(1)
         .maybeSingle();
@@ -49,6 +51,7 @@ export function useSiteSettings(pageKey: string = "B"): SiteSettings {
           data.section_visibility && typeof data.section_visibility === "object"
             ? (data.section_visibility as Record<string, boolean>)
             : {},
+        reactions_enabled: data.reactions_enabled !== false,
       };
     },
     staleTime: 60_000,

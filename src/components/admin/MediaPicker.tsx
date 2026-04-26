@@ -9,19 +9,22 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Image as ImageIcon, Upload, X, CheckCircle2, Loader2 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { presignUpload, listAssets, deleteAsset } from "@/server/r2.functions";
+import type { R2AssetFolder } from "@/server/r2-keys";
+import { Image as ImageIcon, Upload, X, CheckCircle2, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "@/hooks/useAuth";
 
 export function MediaPicker({
   value,
   onChange,
   label = "Image",
+  folder = "projects",
 }: {
   value?: string | null;
   onChange: (url: string | null) => void;
   label?: string;
+  folder?: R2AssetFolder;
 }) {
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -31,51 +34,43 @@ export function MediaPicker({
     | { kind: "success"; message: string }
     | { kind: "error"; message: string }
   >({ kind: "idle" });
-  const { user } = useAuth();
+
+  const presign = useServerFn(presignUpload);
+  const list = useServerFn(listAssets);
+  const remove = useServerFn(deleteAsset);
 
   const { data: media = [], refetch } = useQuery({
-    queryKey: ["media-library"],
+    queryKey: ["r2-media-library", folder],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("media")
-        .select("*")
-        .order("created_at", { ascending: false });
-      return data ?? [];
+      const items = await list({ data: { folder } });
+      // Newest first — keys are prefixed with `${Date.now()}-`
+      return [...items].sort((a, b) => (a.key < b.key ? 1 : -1));
     },
+    enabled: open,
   });
 
   async function handleUpload(file: File) {
-    if (!user) {
-      toast.error("Not authenticated");
-      return;
-    }
     const replacing = !!value;
     setStatus({ kind: "uploading", name: file.name });
     setUploading(true);
     const toastId = toast.loading(replacing ? "Replacing image…" : "Uploading image…");
     try {
-      const ext = file.name.split(".").pop();
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from("media")
-        .upload(path, file, { contentType: file.type });
-      if (upErr) throw upErr;
-      const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
-      const url = urlData.publicUrl;
-      const { error: dbErr } = await supabase.from("media").insert({
-        filename: file.name,
-        url,
-        storage_path: path,
-        mime_type: file.type,
-        size_bytes: file.size,
-        uploaded_by: user.id,
+      const safe = file.name.replace(/[^\w\-. ]+/g, "_").slice(0, 180);
+      const { uploadUrl, publicUrl } = await presign({
+        data: { folder, filename: safe, contentType: file.type || "application/octet-stream" },
       });
-      if (dbErr) throw dbErr;
+      const putRes = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": file.type || "application/octet-stream" },
+        body: file,
+      });
+      if (!putRes.ok) throw new Error(`Upload failed (${putRes.status})`);
+
       const msg = replacing ? "Image replaced — remember to Save" : "Image uploaded — remember to Save";
       toast.success(msg, { id: toastId });
       setStatus({ kind: "success", message: msg });
       refetch();
-      onChange(url);
+      onChange(publicUrl);
       setOpen(false);
     } catch (e: any) {
       const msg = e.message || "Upload failed";
@@ -83,6 +78,18 @@ export function MediaPicker({
       setStatus({ kind: "error", message: msg });
     } finally {
       setUploading(false);
+    }
+  }
+
+  async function handleDelete(key: string, e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!confirm("Delete this file from storage? This can't be undone.")) return;
+    try {
+      await remove({ data: { key } });
+      toast.success("Deleted");
+      refetch();
+    } catch (err: any) {
+      toast.error(err.message ?? "Delete failed");
     }
   }
 
@@ -127,30 +134,43 @@ export function MediaPicker({
                   <p className="text-sm">
                     {uploading ? "Uploading…" : "Click to upload a new image"}
                   </p>
+                  <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider">
+                    Folder: {folder}
+                  </p>
                 </div>
               </label>
 
               {media.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  No media yet.
+                  No media in this folder yet.
                 </p>
               ) : (
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                  {media.map((m: any) => (
+                  {media.map((m) => (
                     <button
-                      key={m.id}
+                      key={m.key}
                       type="button"
                       onClick={() => {
                         onChange(m.url);
                         setOpen(false);
                       }}
-                      className="aspect-square bg-muted rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition"
+                      className="group relative aspect-square bg-muted rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition"
                     >
                       <img
                         src={m.url}
-                        alt={m.filename}
+                        alt={m.key}
+                        loading="lazy"
                         className="w-full h-full object-cover"
                       />
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => handleDelete(m.key, e)}
+                        className="absolute top-1.5 right-1.5 p-1.5 rounded-full bg-background/80 text-destructive opacity-0 group-hover:opacity-100 transition hover:bg-destructive hover:text-destructive-foreground"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </span>
                     </button>
                   ))}
                 </div>

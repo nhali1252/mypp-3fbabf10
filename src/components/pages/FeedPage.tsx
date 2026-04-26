@@ -457,7 +457,7 @@ function FilterToolbar({
             <span className="hidden sm:inline">Sort</span>
             <select
               value={sort}
-              onChange={(e) => setSort(e.target.value as "newest" | "featured-first")}
+              onChange={(e) => setSort(e.target.value as FeedSort)}
               aria-label="Sort feed"
               className="appearance-none pl-3 pr-7 py-1.5 rounded-full border border-border bg-background/60 text-foreground text-[11px] font-bold uppercase tracking-[0.2em] hover:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/40 transition-colors bg-no-repeat bg-[right_0.6rem_center] bg-[length:0.65rem]"
               style={{
@@ -467,6 +467,7 @@ function FilterToolbar({
             >
               <option value="newest">Newest</option>
               <option value="featured-first">Featured first</option>
+              <option value="oldest">Oldest</option>
             </select>
           </label>
 

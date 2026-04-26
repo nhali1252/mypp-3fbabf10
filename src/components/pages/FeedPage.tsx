@@ -294,14 +294,22 @@ export function FeedPage() {
       </section>
 
       <AnimatePresence>
-        {active && activeIdx !== null && (
+        {active && (
           <Lightbox
             item={active}
-            index={activeIdx}
-            total={visibleItems.length}
+            index={lbIndex}
+            total={lbTotal}
             onClose={close}
             onNext={next}
             onPrev={prev}
+            neighbors={
+              soloItem
+                ? []
+                : [
+                    visibleItems[(lbIndex + 1) % visibleItems.length],
+                    visibleItems[(lbIndex - 1 + visibleItems.length) % visibleItems.length],
+                  ].filter(Boolean) as FeedItem[]
+            }
           />
         )}
       </AnimatePresence>

@@ -129,6 +129,7 @@ export default function AdminLayout() {
         ))}
       </nav>
       <div className="mt-3 pt-3 border-t border-background/10 space-y-2">
+        <R2SyncPill sync={sync} />
         <a
           href="/"
           target="_blank"

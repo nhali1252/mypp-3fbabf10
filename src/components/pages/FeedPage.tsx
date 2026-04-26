@@ -321,7 +321,7 @@ function FeedCard({ item, index, onOpen }: { item: FeedItem; index: number; onOp
           <ReactionsBar itemId={item.id} variant="light" />
         </div>
       </div>
-    </motion.button>
+    </motion.div>
   );
 }
 

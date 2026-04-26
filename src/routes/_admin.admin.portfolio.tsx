@@ -368,90 +368,23 @@ function AdminPortfolio() {
             ) : folders.length === 0 ? (
               <EmptyState message="No folders yet — add one below." />
             ) : (
-              <ul className="space-y-1.5">
-                {folders.map((f, i) => {
-                  const row = fGet(f);
-                  const dirty = !!folderEdits[f.id];
-                  const isActive = activeFolderId === f.id;
-                  return (
-                    <li
-                      key={f.id}
-                      draggable
-                      onDragStart={() => onFolderDragStart(f.id)}
-                      onDragOver={onDragOver}
-                      onDrop={() => onFolderDrop(f.id)}
-                      className={`rounded-xl border ${isActive ? "border-primary bg-primary/5" : "border-border bg-card"} transition-colors`}
-                    >
-                      <div className="flex items-center">
-                        <span
-                          aria-hidden
-                          className="pl-2 pr-1 py-3 text-muted-foreground/70 cursor-grab active:cursor-grabbing"
-                          title="Drag to reorder"
-                        >
-                          <GripVertical className="w-4 h-4" />
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => setActiveFolderId(f.id)}
-                          className="flex-1 flex items-center justify-between gap-2 p-3 pl-1 text-left"
-                        >
-                          <div className="flex items-center gap-2 min-w-0">
-                            <FolderOpen className="w-4 h-4 text-primary shrink-0" />
-                            <div className="min-w-0">
-                              <div className="text-sm font-semibold truncate flex items-center gap-2">
-                                {row.name}
-                                <StatusPill published={!!row.active} />
-                              </div>
-                              <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                                /{row.slug}
-                              </div>
-                            </div>
-                          </div>
-                          <ChevronRight className={`w-4 h-4 shrink-0 transition-transform ${isActive ? "rotate-90 text-primary" : "text-muted-foreground"}`} />
-                        </button>
-                      </div>
-
-                      {isActive && (
-                        <div className="border-t border-border p-3 space-y-3">
-                          <FormRow label="Name">
-                            <Input value={row.name} onChange={(e) => fSet(f.id, { name: e.target.value })} />
-                          </FormRow>
-                          <FormRow label="Slug">
-                            <Input value={row.slug} onChange={(e) => fSet(f.id, { slug: e.target.value })} />
-                          </FormRow>
-                          <FormRow label="Description">
-                            <Textarea rows={2} value={row.description ?? ""} onChange={(e) => fSet(f.id, { description: e.target.value })} />
-                          </FormRow>
-                          <FormRow label="Cover image">
-                            <MediaPicker value={row.cover_url ?? undefined} onChange={(u: string | null) => fSet(f.id, { cover_url: u })} />
-                          </FormRow>
-                          <FormRow label="Status" hint="Drafts are hidden from the public site.">
-                            <DraftPublishedToggle
-                              published={!!row.active}
-                              onChange={(v) => fSet(f.id, { active: v })}
-                            />
-                          </FormRow>
-                          <div className="flex flex-wrap gap-2 pt-1">
-                            <Button size="sm" onClick={() => saveFolder.mutate(f.id)} disabled={!dirty}>
-                              <Save className="w-3.5 h-3.5 mr-1.5" /> Save
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={() => moveFolder(f.id, -1)} disabled={i === 0}>
-                              <ArrowUp className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={() => moveFolder(f.id, 1)} disabled={i === folders.length - 1}>
-                              <ArrowDown className="w-3.5 h-3.5" />
-                            </Button>
-                            <ConfirmDelete
-                              onConfirm={() => deleteFolder.mutate(f.id)}
-                              trigger={<Button size="sm" variant="outline"><Trash2 className="w-3.5 h-3.5 mr-1.5" />Delete</Button>}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
+              <FolderTree
+                parentId={null}
+                depth={0}
+                childrenByParent={childrenByParent}
+                folders={folders}
+                activeFolderId={activeFolderId}
+                setActiveFolderId={setActiveFolderId}
+                fGet={fGet}
+                fSet={fSet}
+                folderEdits={folderEdits}
+                onFolderDragStart={onFolderDragStart}
+                onDragOver={onDragOver}
+                onFolderDrop={onFolderDrop}
+                saveFolder={saveFolder}
+                deleteFolder={deleteFolder}
+                moveFolder={moveFolder}
+              />
             )}
           </AdminCard>
 

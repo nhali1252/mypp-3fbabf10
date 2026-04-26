@@ -35,6 +35,7 @@ export function HireMeModal({ open, onClose }: Props) {
   const { data: contact } = useContactSettings();
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [loading, setLoading] = useState(false);
+  const send = useServerFn(submitMessage);
 
   // Close on Escape.
   useEffect(() => {

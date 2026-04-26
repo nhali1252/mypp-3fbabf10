@@ -245,10 +245,20 @@ export const editComment = createServerFn({ method: "POST" })
 
 export const deleteComment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { id: string }) => ({ id: z.string().uuid().parse(data.id) }))
+  .inputValidator((data: { id: string; reason?: string }) => ({
+    id: z.string().uuid().parse(data.id),
+    reason: data.reason ? z.string().trim().max(500).parse(data.reason) : undefined,
+  }))
   .handler(async ({ data, context }) => {
+    // Snapshot the row before deletion so the audit log keeps a trace.
+    const { data: snap } = await supabaseAdmin
+      .from("feed_comments")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
     const { error } = await context.supabase.from("feed_comments").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
+    await logModeration(context.userId, "comment", data.id, "delete", data.reason, snap);
     return { ok: true };
   });
 

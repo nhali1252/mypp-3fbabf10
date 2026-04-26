@@ -277,7 +277,24 @@ export function FeedPage() {
           ) : (
             <>
               <MasonryGrid items={visibleItems} onOpen={open} />
-              {canLoadMore && (
+              {sliceQuery.isFetchNextPageError ? (
+                <div className="flex flex-col items-center gap-3 mt-10">
+                  <p className="text-xs text-destructive font-medium">
+                    Couldn't load more items.
+                    {sliceQuery.error instanceof Error && sliceQuery.error.message
+                      ? ` ${sliceQuery.error.message}`
+                      : ""}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => sliceQuery.fetchNextPage()}
+                    disabled={sliceQuery.isFetchingNextPage}
+                    className="group inline-flex items-center gap-2 px-6 py-3 rounded-full border border-destructive/40 bg-destructive/5 hover:border-destructive hover:bg-destructive hover:text-destructive-foreground transition-all duration-300 text-xs font-bold uppercase tracking-[0.22em] disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {sliceQuery.isFetchingNextPage ? "Retrying…" : "Retry"}
+                  </button>
+                </div>
+              ) : canLoadMore ? (
                 <div className="flex justify-center mt-10">
                   <button
                     type="button"
@@ -291,7 +308,7 @@ export function FeedPage() {
                     </span>
                   </button>
                 </div>
-              )}
+              ) : null}
             </>
           )}
         </div>

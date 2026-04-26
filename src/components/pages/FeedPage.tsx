@@ -426,19 +426,30 @@ function Lightbox({
             className="max-w-full max-h-full flex items-center justify-center"
           >
             {item.media_kind === "video" && item.image_url ? (
-              <video
-                src={item.image_url}
-                controls
-                autoPlay
-                playsInline
-                className="max-w-[92vw] max-h-[72vh] rounded-xl border border-white/10 bg-black"
-              />
+              <div className="relative">
+                <video
+                  src={item.image_url}
+                  controls
+                  autoPlay
+                  playsInline
+                  controlsList="nodownload"
+                  disablePictureInPicture
+                  onContextMenu={(e) => e.preventDefault()}
+                  className="max-w-[92vw] max-h-[72vh] rounded-xl border border-white/10 bg-black"
+                />
+                <Watermark text={item.watermark_text ?? null} size="md" cornerBadge />
+              </div>
             ) : item.image_url ? (
-              <img
-                src={item.image_url}
-                alt={item.title}
-                className="max-w-[92vw] max-h-[72vh] object-contain rounded-xl"
-              />
+              <div className="relative">
+                <img
+                  src={item.image_url}
+                  alt={item.title}
+                  draggable={false}
+                  onContextMenu={(e) => e.preventDefault()}
+                  className="max-w-[92vw] max-h-[72vh] object-contain rounded-xl select-none"
+                />
+                <Watermark text={item.watermark_text ?? null} size="md" cornerBadge />
+              </div>
             ) : (
               <div className="text-white/60 text-sm">No media</div>
             )}

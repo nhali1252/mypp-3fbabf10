@@ -114,8 +114,7 @@ export function useR2AutoResync() {
   useEffect(() => {
     const channel = supabase.channel("r2-auto-resync");
     ALL_TABLES.forEach((table) => {
-      channel.on(
-        // @ts-expect-error supabase-js typing for postgres_changes
+      (channel as any).on(
         "postgres_changes",
         { event: "*", schema: "public", table },
         (payload: any) => {

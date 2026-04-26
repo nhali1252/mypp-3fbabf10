@@ -104,6 +104,8 @@ function flattenAndSort(portfolioDoc: any[], sort: FeedSort): FeedItem[] {
       if (a.featured !== b.featured) return a.featured ? -1 : 1;
       return byDateDesc(a, b);
     });
+  } else if (sort === "oldest") {
+    out.sort((a, b) => -byDateDesc(a, b));
   } else {
     out.sort(byDateDesc);
   }

@@ -178,5 +178,6 @@ export const seedR2FromDatabase = createServerFn({ method: "POST" })
         activities: (aboutDoc.activities as any[]).length,
         education: (aboutDoc.education as any[]).length,
       },
+      feedIndex,
     };
   });

@@ -65,12 +65,12 @@ export const migrateMediaToR2 = createServerFn({ method: "POST" })
     type Ref = { table: string; col: string; id: string; url: string };
     const refs: Ref[] = [];
     for (const t of tables) {
-      const { data, error } = await supabaseAdmin
+      const { data, error } = await (supabaseAdmin as any)
         .from(t.table)
         .select(`id, ${t.col}`)
         .like(t.col, `%${SUPABASE_MEDIA_PREFIX}%`);
       if (error) continue;
-      for (const row of data ?? []) {
+      for (const row of (data ?? []) as any[]) {
         const url = (row as any)[t.col];
         if (!url) continue;
         refs.push({ table: t.table, col: t.col, id: (row as any).id, url });

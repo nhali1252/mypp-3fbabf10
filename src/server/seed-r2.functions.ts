@@ -1,14 +1,37 @@
 /**
- * One-time seed: copy the current database content into R2 JSON files.
- * Admin-only. Idempotent — safe to run multiple times (overwrites).
+ * Resync R2 from the current database. Used both as a one-time seed and as
+ * the hybrid auto-resync target after admin saves. Admin/editor only.
  */
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { writeJson } from "./r2.server";
-import { R2_KEYS } from "./r2-keys";
+import { R2_KEYS, type R2ContentKey } from "./r2-keys";
+
+async function assertAdminOrEditor(userId: string) {
+  const { data, error } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .in("role", ["admin", "editor"]);
+  if (error) throw new Error("Role check failed");
+  if (!data?.length) throw new Error("Forbidden — admin or editor role required");
+}
+
+const scopeSchema = z
+  .array(z.enum(Object.keys(R2_KEYS) as [R2ContentKey, ...R2ContentKey[]]))
+  .optional();
 
 export const seedR2FromDatabase = createServerFn({ method: "POST" })
-  .handler(async () => {
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { scope?: R2ContentKey[] } | undefined) => ({
+    scope: scopeSchema.parse(data?.scope),
+  }))
+  .handler(async ({ data, context }) => {
+    await assertAdminOrEditor(context.userId);
+    const want = (k: R2ContentKey) => !data.scope || data.scope.includes(k);
+
     const [
       hero, about, contact, services, reviews, projects, folders, items,
       navLinks, footerLinks, footerApps, footerCta, ticker,
@@ -47,19 +70,13 @@ export const seedR2FromDatabase = createServerFn({ method: "POST" })
     const a = about.data ?? ({} as any);
     const c = contact.data ?? ({} as any);
 
-    // Group site_settings & seo_settings by page_key for direct lookup.
     const siteByKey: Record<string, any> = {};
     (siteSettings.data ?? []).forEach((row) => { siteByKey[row.page_key ?? "B"] = row; });
     const seoByKey: Record<string, any> = {};
     (seoSettings.data ?? []).forEach((row) => { seoByKey[row.page_key] = row; });
 
     const basicInfo = {
-      // page-keyed shapes preserved so admin/edit forms keep working
-      hero: h,
-      about: a,
-      contact: c,
-      siteSettings: siteByKey,
-      // Legacy convenience
+      hero: h, about: a, contact: c, siteSettings: siteByKey,
       name: "Ali Nur Hasan",
       title: h.headline ?? "",
       shortIntro: h.subheadline ?? "",
@@ -68,83 +85,57 @@ export const seedR2FromDatabase = createServerFn({ method: "POST" })
       socials: c.social_links ?? {},
     };
 
-    const aboutDoc = {
-      ...a,
-      activities: activities.data ?? [],
-      education: education.data ?? [],
-    };
+    const aboutDoc = { ...a, activities: activities.data ?? [], education: education.data ?? [] };
 
     const portfolioDoc = (folders.data ?? []).map((f) => ({
-      id: f.id,
-      name: f.name,
-      slug: f.slug,
-      description: f.description ?? "",
-      cover_url: f.cover_url ?? "",
-      icon: f.icon ?? "",
-      sort_order: f.sort_order ?? 0,
-      active: f.active,
+      id: f.id, name: f.name, slug: f.slug,
+      description: f.description ?? "", cover_url: f.cover_url ?? "",
+      icon: f.icon ?? "", sort_order: f.sort_order ?? 0, active: f.active,
       items: (items.data ?? [])
         .filter((it) => it.folder_id === f.id)
         .map((it) => ({
-          id: it.id,
-          folder_id: it.folder_id,
-          title: it.title,
-          description: it.description ?? "",
-          image_url: it.image_url ?? "",
+          id: it.id, folder_id: it.folder_id, title: it.title,
+          description: it.description ?? "", image_url: it.image_url ?? "",
           external_url: it.external_url ?? "",
           tags: Array.isArray(it.tags) ? it.tags : [],
-          sort_order: it.sort_order ?? 0,
-          active: it.active,
+          sort_order: it.sort_order ?? 0, active: it.active,
         })),
     }));
 
-    const projectsDoc = projects.data ?? [];
-    const servicesDoc = services.data ?? [];
-    const contactDoc = { ...c };
-    const reviewsDoc = reviews.data ?? [];
-
-    const launcherDoc = {
-      hero: launcherHero.data ?? null,
-      pages: launcherPages.data ?? [],
-    };
-
+    const launcherDoc = { hero: launcherHero.data ?? null, pages: launcherPages.data ?? [] };
     const chromeDoc = {
-      navLinks: navLinks.data ?? [],
-      footerLinks: footerLinks.data ?? [],
-      footerApps: footerApps.data ?? [],
-      footerCta: footerCta.data ?? null,
-      tickerItems: ticker.data ?? [],
-      seoSettings: seoByKey,
+      navLinks: navLinks.data ?? [], footerLinks: footerLinks.data ?? [],
+      footerApps: footerApps.data ?? [], footerCta: footerCta.data ?? null,
+      tickerItems: ticker.data ?? [], seoSettings: seoByKey,
       pageLoader: pageLoader.data ?? null,
     };
-
     const fPageDoc = {
-      hero: fHero.data ?? null,
-      photocard: fPhotocard.data ?? null,
-      skills: fSkills.data ?? [],
-      projects: fProjects.data ?? [],
+      hero: fHero.data ?? null, photocard: fPhotocard.data ?? null,
+      skills: fSkills.data ?? [], projects: fProjects.data ?? [],
     };
 
-    await Promise.all([
-      writeJson(R2_KEYS.basicInfo, basicInfo),
-      writeJson(R2_KEYS.about, aboutDoc),
-      writeJson(R2_KEYS.portfolio, portfolioDoc),
-      writeJson(R2_KEYS.projects, projectsDoc),
-      writeJson(R2_KEYS.services, servicesDoc),
-      writeJson(R2_KEYS.contact, contactDoc),
-      writeJson(R2_KEYS.reviews, reviewsDoc),
-      writeJson(R2_KEYS.launcher, launcherDoc),
-      writeJson(R2_KEYS.chrome, chromeDoc),
-      writeJson(R2_KEYS.fPage, fPageDoc),
-    ]);
+    const writes: Promise<void>[] = [];
+    if (want("basicInfo")) writes.push(writeJson(R2_KEYS.basicInfo, basicInfo));
+    if (want("about")) writes.push(writeJson(R2_KEYS.about, aboutDoc));
+    if (want("portfolio")) writes.push(writeJson(R2_KEYS.portfolio, portfolioDoc));
+    if (want("projects")) writes.push(writeJson(R2_KEYS.projects, projects.data ?? []));
+    if (want("services")) writes.push(writeJson(R2_KEYS.services, services.data ?? []));
+    if (want("contact")) writes.push(writeJson(R2_KEYS.contact, { ...c }));
+    if (want("reviews")) writes.push(writeJson(R2_KEYS.reviews, reviews.data ?? []));
+    if (want("launcher")) writes.push(writeJson(R2_KEYS.launcher, launcherDoc));
+    if (want("chrome")) writes.push(writeJson(R2_KEYS.chrome, chromeDoc));
+    if (want("fPage")) writes.push(writeJson(R2_KEYS.fPage, fPageDoc));
+
+    await Promise.all(writes);
 
     return {
       ok: true,
+      scope: data.scope ?? "all",
       counts: {
         portfolio: portfolioDoc.length,
-        projects: projectsDoc.length,
-        services: servicesDoc.length,
-        reviews: reviewsDoc.length,
+        projects: (projects.data ?? []).length,
+        services: (services.data ?? []).length,
+        reviews: (reviews.data ?? []).length,
         launcherPages: launcherDoc.pages.length,
         navLinks: chromeDoc.navLinks.length,
         footerLinks: chromeDoc.footerLinks.length,

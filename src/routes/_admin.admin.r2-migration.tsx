@@ -21,7 +21,7 @@ function R2MigrationPage() {
   const runSeed = async () => {
     setBusy(true);
     try {
-      const res = await seed();
+      const res = await seed({ data: {} });
       setResult(res);
       toast.success(`Seeded R2 — ${res.counts.projects} projects, ${res.counts.portfolio} folders`);
     } catch (e: any) {

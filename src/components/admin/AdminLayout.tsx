@@ -2,6 +2,7 @@ import { Link, Outlet, useNavigate, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useR2AutoResync } from "@/hooks/useR2AutoResync";
+import R2SyncAlert from "@/components/admin/R2SyncAlert";
 import {
   LayoutDashboard, Sparkles, User, GraduationCap, Lightbulb, FolderKanban,
   Activity, Megaphone, PhoneCall, Inbox, Image as ImageIcon,

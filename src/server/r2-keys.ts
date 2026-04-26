@@ -1,0 +1,21 @@
+/** Canonical R2 object keys. Safe to import from anywhere. */
+export const R2_KEYS = {
+  basicInfo: "content/basic-info.json",
+  about: "content/about.json",
+  portfolio: "content/portfolio.json",
+  projects: "content/projects.json",
+  services: "content/services.json",
+  contact: "content/contact.json",
+  reviews: "content/reviews.json",
+} as const;
+
+export type R2ContentKey = keyof typeof R2_KEYS;
+
+export const R2_ASSET_PREFIXES = {
+  profile: "assets/profile/",
+  projects: "assets/projects/",
+  portfolio: "assets/portfolio/",
+  resume: "assets/resume/",
+} as const;
+
+export type R2AssetFolder = keyof typeof R2_ASSET_PREFIXES;

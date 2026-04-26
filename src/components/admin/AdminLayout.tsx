@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Sparkles, User, GraduationCap, Lightbulb, FolderKanban,
   Activity, Megaphone, PhoneCall, Inbox, Image as ImageIcon,
   Search, Settings, Users, LogOut, ExternalLink, Compass, AppWindow, ClipboardCheck,
-  Folder, LayoutGrid, Rocket, Briefcase, Loader2, Star, Menu, X,
+  Folder, LayoutGrid, Rocket, Briefcase, Loader2, Star, Menu, X, Cloud,
 } from "lucide-react";
 
 type Item = { to: string; label: string; Icon: any; end?: boolean };
@@ -60,6 +60,7 @@ const groups: Group[] = [
   {
     label: "Settings",
     items: [
+      { to: "/admin/r2-migration", label: "R2 migration", Icon: Cloud },
       { to: "/admin/seo", label: "SEO", Icon: Search },
       { to: "/admin/page-loader", label: "Page loader", Icon: Loader2 },
       { to: "/admin/settings", label: "Site settings", Icon: Settings },

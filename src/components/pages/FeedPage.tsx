@@ -469,9 +469,9 @@ function Lightbox({
         )}
       </div>
 
-      {/* Bottom meta */}
+      {/* Bottom meta + interactions */}
       <div
-        className="px-4 sm:px-6 py-4 border-t border-white/10 text-white"
+        className="px-4 sm:px-6 py-4 border-t border-white/10 text-white max-h-[42vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="max-w-3xl mx-auto">
@@ -479,7 +479,7 @@ function Lightbox({
             {item.title}
           </h2>
           {caption && (
-            <p className="text-sm text-white/70 mt-2 leading-relaxed line-clamp-3 whitespace-pre-line">
+            <p className="text-sm text-white/70 mt-2 leading-relaxed whitespace-pre-line">
               {caption}
             </p>
           )}
@@ -506,7 +506,6 @@ function Lightbox({
                 <ExternalLink className="w-3 h-3" /> Open link
               </a>
             )}
-            {/* Mobile prev/next */}
             {total > 1 && (
               <div className="ml-auto flex items-center gap-2 sm:hidden">
                 <button
@@ -527,6 +526,14 @@ function Lightbox({
                 </button>
               </div>
             )}
+          </div>
+
+          <div className="mt-4">
+            <ReactionsBar itemId={item.id} variant="dark" />
+          </div>
+
+          <div className="mt-6 pt-5 border-t border-white/10">
+            <CommentThread itemId={item.id} variant="dark" />
           </div>
         </div>
       </div>

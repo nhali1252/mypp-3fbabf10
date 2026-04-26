@@ -1,16 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { presignUpload } from "@/server/r2.functions";
 import { AdminPage, AdminCard, FormRow, EmptyState } from "@/components/admin/AdminPage";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
-import { MediaPicker } from "@/components/admin/MediaPicker";
+import { MediaPicker, uploadToR2 } from "@/components/admin/MediaPicker";
 import { TagListEditor } from "@/components/admin/TagListEditor";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Trash2, ArrowUp, ArrowDown, Save, FolderOpen, ChevronRight, Image as ImageIcon, Star, Eye, MessageSquare, Shield, GripVertical, CircleDot, CheckCircle2 } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Save, FolderOpen, ChevronRight, Image as ImageIcon, Star, Eye, MessageSquare, Shield, GripVertical, CircleDot, CheckCircle2, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_admin/admin/portfolio")({ component: AdminPortfolio });
@@ -23,6 +25,7 @@ type Folder = {
   cover_url: string | null;
   sort_order: number;
   active: boolean;
+  parent_id: string | null;
 };
 
 type Item = {

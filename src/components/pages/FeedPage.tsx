@@ -286,12 +286,14 @@ function FeedCard({ item, index, onOpen }: { item: FeedItem; index: number; onOp
           </div>
         )}
 
-        <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-background/75 backdrop-blur-md border border-primary/30 text-primary">
+        <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-background/75 backdrop-blur-md border border-primary/30 text-primary z-10">
           <Folder className="h-3 w-3" strokeWidth={1.6} />
           <span className="font-mono text-[10px] uppercase tracking-[0.22em] truncate max-w-[140px]">
             {item.folder_name}
           </span>
         </div>
+
+        <Watermark text={item.watermark_text ?? null} size="sm" cornerBadge />
       </div>
 
       <div className="px-4 py-3 border-t border-border">

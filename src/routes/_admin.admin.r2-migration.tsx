@@ -5,9 +5,16 @@ import { seedR2FromDatabase } from "@/server/seed-r2.functions";
 import { getContent } from "@/server/r2.functions";
 import { migrateMediaToR2 } from "@/server/migrate-media.functions";
 import { validateR2Coverage, type CoverageReport } from "@/server/r2-coverage.functions";
+import {
+  suggestR2CoverageFix,
+  type AutoFixResult,
+} from "@/server/r2-coverage-autofix.functions";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Loader2, CloudUpload, CheckCircle2, Image as ImageIcon, ShieldCheck, AlertTriangle } from "lucide-react";
+import {
+  Loader2, CloudUpload, CheckCircle2, Image as ImageIcon, ShieldCheck,
+  AlertTriangle, Wand2, Copy,
+} from "lucide-react";
 
 export const Route = createFileRoute("/_admin/admin/r2-migration")({
   component: R2MigrationPage,
@@ -25,9 +32,53 @@ function R2MigrationPage() {
   const [previews, setPreviews] = useState<Record<string, any>>({});
   const [coverage, setCoverage] = useState<CoverageReport | null>(null);
   const [coverageBusy, setCoverageBusy] = useState(false);
+  const suggestFix = useServerFn(suggestR2CoverageFix);
+  const [autoFix, setAutoFix] = useState<AutoFixResult | null>(null);
+  const [autoFixBusy, setAutoFixBusy] = useState<"none" | "suggest" | "apply">("none");
+
+  const runSuggestFix = async (apply: boolean) => {
+    if (!coverage || coverage.missingFromMap.length === 0) return;
+    setAutoFixBusy(apply ? "apply" : "suggest");
+    try {
+      const res = await suggestFix({
+        data: { missingTables: coverage.missingFromMap, apply },
+      });
+      setAutoFix(res);
+      if (apply) {
+        if (res.applied?.ok && res.applied.tablesAdded.length > 0) {
+          toast.success(`Applied ${res.applied.tablesAdded.length} entries to r2-coverage.ts`);
+          // Re-run coverage to confirm the gap closed (in dev where the file write succeeded).
+          await runCoverage();
+        } else if (res.applied?.ok) {
+          toast.info("All suggested entries already present");
+        } else {
+          toast.warning(res.applied?.reason ?? "Could not auto-apply");
+        }
+      } else if (res.suggestions.every((s) => !s.confident)) {
+        toast.warning("No confident suggestions — review manually");
+      } else {
+        toast.success(`Suggested ${res.suggestions.filter((s) => s.confident).length} mapping(s)`);
+      }
+    } catch (e: any) {
+      toast.error(e.message ?? "Auto-fix failed");
+    } finally {
+      setAutoFixBusy("none");
+    }
+  };
+
+  const copySnippet = async () => {
+    if (!autoFix?.snippet) return;
+    try {
+      await navigator.clipboard.writeText(autoFix.snippet);
+      toast.success("Snippet copied");
+    } catch {
+      toast.error("Clipboard unavailable");
+    }
+  };
 
   const runCoverage = async () => {
     setCoverageBusy(true);
+    setAutoFix(null);
     try {
       const res = await checkCoverage();
       setCoverage(res);
@@ -204,6 +255,86 @@ function R2MigrationPage() {
                           {" "}<code>src/server/r2-coverage.ts</code> (and to the seed function),
                           or list them in <code>R2_EXCLUDED_TABLES</code> if they should not feed R2.
                         </p>
+
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => runSuggestFix(false)}
+                            disabled={autoFixBusy !== "none"}
+                          >
+                            {autoFixBusy === "suggest"
+                              ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Suggesting…</>
+                              : <><Wand2 className="w-3.5 h-3.5 mr-1.5" /> Suggest mappings</>}
+                          </Button>
+                          {autoFix && autoFix.allConfident && (
+                            <Button
+                              size="sm"
+                              onClick={() => runSuggestFix(true)}
+                              disabled={autoFixBusy !== "none"}
+                            >
+                              {autoFixBusy === "apply"
+                                ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Applying…</>
+                                : <>Apply auto-fix</>}
+                            </Button>
+                          )}
+                        </div>
+
+                        {autoFix && (
+                          <div className="mt-3 space-y-2">
+                            <div className="rounded-lg bg-background/60 border border-border p-2 space-y-1">
+                              {autoFix.suggestions.map((s) => (
+                                <div key={s.table} className="flex items-start gap-2 text-xs">
+                                  <code className="font-mono">{s.table}</code>
+                                  <span className="text-muted-foreground">→</span>
+                                  {s.docs.length > 0 ? (
+                                    <code className={s.confident ? "text-primary" : "text-amber-500"}>
+                                      [{s.docs.join(", ")}]
+                                    </code>
+                                  ) : (
+                                    <span className="text-amber-500 italic">no guess — review</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+
+                            <details>
+                              <summary className="cursor-pointer text-xs font-semibold text-muted-foreground flex items-center gap-2">
+                                Snippet to paste into <code>TABLE_TO_DOCS</code>
+                                <button
+                                  onClick={(e) => { e.preventDefault(); copySnippet(); }}
+                                  className="inline-flex items-center gap-1 text-xs underline"
+                                >
+                                  <Copy className="w-3 h-3" /> copy
+                                </button>
+                              </summary>
+                              <pre className="mt-2 p-3 rounded-lg bg-muted text-[11px] overflow-auto">
+{autoFix.snippet}
+                              </pre>
+                            </details>
+
+                            {autoFix.applied && (
+                              <div
+                                className={`text-xs p-2 rounded-md ${
+                                  autoFix.applied.ok
+                                    ? "bg-primary/10 text-foreground"
+                                    : "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                                }`}
+                              >
+                                {autoFix.applied.ok ? (
+                                  <>
+                                    ✓ Wrote{" "}
+                                    {autoFix.applied.tablesAdded.length > 0
+                                      ? <><strong>{autoFix.applied.tablesAdded.length}</strong> entry/entries to <code>r2-coverage.ts</code></>
+                                      : <>no changes — entries already present</>}
+                                  </>
+                                ) : (
+                                  <>⚠ {autoFix.applied.reason}</>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                     {coverage.staleInMap.length > 0 && (

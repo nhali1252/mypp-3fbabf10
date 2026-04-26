@@ -8,12 +8,14 @@ export type SiteSettings = {
   welcome_animation_ms: number;
   default_motion_pref: MotionPref;
   section_visibility: Record<string, boolean>;
+  reactions_enabled: boolean;
 };
 
 const DEFAULTS: SiteSettings = {
   welcome_animation_ms: 600,
   default_motion_pref: "auto",
   section_visibility: {},
+  reactions_enabled: true,
 };
 
 const MOTION_KEY = "motion-pref";

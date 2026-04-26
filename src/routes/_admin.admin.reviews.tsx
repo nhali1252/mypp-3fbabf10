@@ -300,7 +300,8 @@ function AdminReviews() {
                 <Button variant="outline" size="icon" onClick={() => t.move(rows, r.id, 1)} disabled={i === filtered.length - 1}><ArrowDown className="w-4 h-4" /></Button>
                 <ConfirmDelete onConfirm={() => t.remove(r.id)} trigger={<Button variant="outline"><Trash2 className="w-4 h-4 mr-1.5" />Delete</Button>} />
               </div>
-            </AdminCard>
+              </AdminCard>
+            </div>
           );
         })}
     </AdminPage>

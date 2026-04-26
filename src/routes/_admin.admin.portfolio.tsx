@@ -178,13 +178,17 @@ function AdminPortfolio() {
         external_url: newItem.external_url ?? null,
         tags: newItem.tags ?? [],
         active: newItem.active ?? true,
+        show_in_feed: newItem.show_in_feed ?? true,
+        feed_caption: newItem.feed_caption ?? null,
+        featured: newItem.featured ?? false,
+        watermark_text: newItem.watermark_text ?? null,
         sort_order: items.length + 1,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Item added");
-      setNewItem({ active: true, tags: [] });
+      setNewItem({ active: true, tags: [], show_in_feed: true, featured: false });
       qc.invalidateQueries({ queryKey: ["admin_portfolio_items", activeFolderId] });
       qc.invalidateQueries({ queryKey: ["public_portfolio_items"] });
     },

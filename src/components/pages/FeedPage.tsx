@@ -313,6 +313,9 @@ function FeedCard({ item, index, onOpen }: { item: FeedItem; index: number; onOp
             <span className="truncate">{item.tags.slice(0, 2).join(" · ")}</span>
           )}
         </div>
+        <div className="mt-3" onClick={(e) => e.stopPropagation()}>
+          <ReactionsBar itemId={item.id} variant="light" />
+        </div>
       </div>
     </motion.button>
   );

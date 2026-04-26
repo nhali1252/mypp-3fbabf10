@@ -81,15 +81,19 @@ export function HireMeModal({ open, onClose }: Props) {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.from("messages").insert({
-      name: parsed.data.name,
-      email: parsed.data.email,
-      subject: "Hire Me — request from popup",
-      message: parsed.data.message,
-    });
-    setLoading(false);
-    if (error) {
-      toast.error("Could not send message. Please try again.");
+    try {
+      await send({
+        data: {
+          name: parsed.data.name,
+          email: parsed.data.email,
+          subject: "Hire Me — request from popup",
+          message: parsed.data.message,
+        },
+      });
+      setLoading(false);
+    } catch (err: any) {
+      setLoading(false);
+      toast.error(err?.message || "Could not send message. Please try again.");
       return;
     }
     toast.success("Message sent. I'll be in touch soon.");

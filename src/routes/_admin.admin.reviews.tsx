@@ -224,9 +224,24 @@ function AdminReviews() {
           const row = get(r); const dirty = !!edits[r.id];
           const status = (row.status ?? "approved") as Status;
           return (
-            <AdminCard key={r.id} title={row.client_name || "Untitled"}>
+            <div
+              key={r.id}
+              draggable
+              onDragStart={() => onDragStart(r.id)}
+              onDragOver={onDragOver}
+              onDrop={() => onDrop(r.id)}
+            >
+              <AdminCard title={row.client_name || "Untitled"}>
               {/* Status + quick actions strip */}
               <div className="flex flex-wrap items-center gap-2 mb-4">
+                <span aria-hidden className="text-muted-foreground/70 cursor-grab active:cursor-grabbing" title="Drag to reorder">
+                  <GripVertical className="w-4 h-4" />
+                </span>
+                <Checkbox
+                  checked={selected.has(r.id)}
+                  onCheckedChange={() => toggleSelected(r.id)}
+                  aria-label="Select review"
+                />
                 <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusBadge(status)}`}>
                   {status}
                 </span>

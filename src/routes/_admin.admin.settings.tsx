@@ -233,6 +233,18 @@ function AdminSettings() {
               })}
             </div>
           </FormRow>
+          <FormRow
+            label="Reactions on feed & portfolio"
+            hint="When off, visitors cannot react to items. Existing reaction counts stay in the database."
+          >
+            <label className="flex items-center justify-between gap-3 rounded-md border border-border bg-card/40 px-3 py-2 text-sm">
+              <span>Allow reactions</span>
+              <Switch
+                checked={form.reactions_enabled !== false}
+                onCheckedChange={(v) => set("reactions_enabled", v)}
+              />
+            </label>
+          </FormRow>
         </div>
       </AdminCard>
 

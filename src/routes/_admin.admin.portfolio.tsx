@@ -362,10 +362,12 @@ function AdminPortfolio() {
                           <FormRow label="Cover image">
                             <MediaPicker value={row.cover_url ?? undefined} onChange={(u: string | null) => fSet(f.id, { cover_url: u })} />
                           </FormRow>
-                          <label className="flex items-center gap-2 text-xs font-semibold">
-                            <Switch checked={!!row.active} onCheckedChange={(v) => fSet(f.id, { active: v })} />
-                            Visible on site
-                          </label>
+                          <FormRow label="Status" hint="Drafts are hidden from the public site.">
+                            <DraftPublishedToggle
+                              published={!!row.active}
+                              onChange={(v) => fSet(f.id, { active: v })}
+                            />
+                          </FormRow>
                           <div className="flex flex-wrap gap-2 pt-1">
                             <Button size="sm" onClick={() => saveFolder.mutate(f.id)} disabled={!dirty}>
                               <Save className="w-3.5 h-3.5 mr-1.5" /> Save

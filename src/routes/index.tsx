@@ -9,6 +9,7 @@ import { useMotionPref } from "@/hooks/useMotionPref";
 import { MotionToggle } from "@/components/MotionToggle";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Footer } from "@/components/Footer";
+import { useSiteSettings, isSectionVisible } from "@/hooks/useSiteSettings";
 
 
 export const Route = createFileRoute("/")({

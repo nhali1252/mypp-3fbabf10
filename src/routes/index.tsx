@@ -259,7 +259,16 @@ export function safeParseLauncherDoc(input: unknown): LauncherDoc {
   }
 
   if (typeof console !== "undefined") {
-    console.warn("[launcher] R2 document failed validation, using empty fallback", parsed.error?.issues);
+    let snippet = "";
+    try {
+      snippet = JSON.stringify(input).slice(0, 240);
+    } catch {
+      snippet = "<unserializable>";
+    }
+    console.warn(
+      "[launcher.validate] R2 document failed validation — homepage will use fallback cards.",
+      { issues: parsed.error?.issues, inputSnippet: snippet },
+    );
   }
   return EMPTY_LAUNCHER_DOC;
 }

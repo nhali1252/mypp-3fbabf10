@@ -15,6 +15,29 @@ import type { R2AssetFolder } from "@/server/r2-keys";
 import { Image as ImageIcon, Upload, X, CheckCircle2, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
+/**
+ * Standalone helper that uploads a single file to R2 via a presigned PUT and
+ * returns the public URL. Exposed so callers like the admin portfolio page can
+ * implement true multi-file upload flows without the picker dialog.
+ */
+export async function uploadToR2(
+  file: File,
+  folder: R2AssetFolder,
+  presign: (args: { data: { folder: R2AssetFolder; filename: string; contentType: string } }) => Promise<{ uploadUrl: string; publicUrl: string }>,
+): Promise<string> {
+  const safe = file.name.replace(/[^\w\-. ]+/g, "_").slice(0, 180);
+  const { uploadUrl, publicUrl } = await presign({
+    data: { folder, filename: safe, contentType: file.type || "application/octet-stream" },
+  });
+  const putRes = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: { "Content-Type": file.type || "application/octet-stream" },
+    body: file,
+  });
+  if (!putRes.ok) throw new Error(`Upload failed (${putRes.status})`);
+  return publicUrl;
+}
+
 export function MediaPicker({
   value,
   onChange,

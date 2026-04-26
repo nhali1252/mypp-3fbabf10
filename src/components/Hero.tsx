@@ -126,7 +126,7 @@ export function Hero({ showHireMe = true }: { showHireMe?: boolean } = {}) {
               </motion.span>
 
               <motion.h1
-                className="font-black leading-[1.05] mb-5 tracking-tight text-foreground"
+                className="font-black leading-[1.05] mb-5 tracking-tight text-foreground text-3d text-3d-pop"
                 style={{ fontSize: "clamp(28px, 4vw, 54px)" }}
                 variants={{
                   hidden: { opacity: 0, y: reduce ? 0 : 16 },

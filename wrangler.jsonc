@@ -4,4 +4,8 @@
   "compatibility_date": "2025-09-24",
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
+  "vars": {
+    "SUPABASE_URL": "https://mtddsbjuuzghzxlujnpi.supabase.co",
+    "SUPABASE_PUBLISHABLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10ZGRzYmp1dXpnaHp4bHVqbnBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MzgyODgsImV4cCI6MjA5MjQxNDI4OH0.nTWxFPQfo3wwI9PXQJGaaBEqAqk9pajhA7rpQ7aJeLc"
+  }
 }

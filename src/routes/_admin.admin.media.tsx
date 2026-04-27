@@ -65,7 +65,7 @@ function AdminMedia() {
   return (
     <AdminPage
       title="Media library"
-      description="Images stored in Cloudflare R2. Pick a folder to browse or upload."
+      description="Images stored in your media library. Pick a folder to browse or upload."
       actions={
         <label>
           <input
@@ -76,6 +76,7 @@ function AdminMedia() {
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) upload(f);
+              e.target.value = "";
             }}
           />
           <Button asChild disabled={uploading}>

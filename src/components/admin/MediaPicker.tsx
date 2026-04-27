@@ -10,18 +10,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { presignUpload, listAssets, deleteAsset, uploadAsset } from "@/server/r2.functions";
-import type { R2AssetFolder } from "@/server/r2-keys";
+import { listAssets, deleteAsset, uploadAsset, type AssetFolder } from "@/server/content.functions";
 import { Image as ImageIcon, Upload, X, CheckCircle2, Loader2, Trash2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 const MAX_BYTES = 25 * 1024 * 1024; // 25 MB
 const ALLOWED_TYPES = /^image\/(png|jpe?g|webp|gif|avif|svg\+xml)$/i;
 
-/**
- * Convert a File to base64 (without data: prefix). Uses FileReader so browsers
- * handle large files without the spread-operator argument-limit problem.
- */
+export type { AssetFolder };
+
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -36,17 +33,13 @@ function fileToBase64(file: File): Promise<string> {
 }
 
 /**
- * Robust upload helper: tries presigned-PUT first (fast, direct to R2). If that
- * fails with a network/CORS error (TypeError "Failed to fetch"), automatically
- * falls back to a server-side proxy upload so the user never sees CORS errors.
- *
+ * Upload a file to Supabase Storage via the server proxy.
  * Exposed so multi-file flows (admin portfolio batch upload) can reuse it.
  */
-export async function uploadToR2(
+export async function uploadToStorage(
   file: File,
-  folder: R2AssetFolder,
-  presign: (args: { data: { folder: R2AssetFolder; filename: string; contentType: string } }) => Promise<{ uploadUrl: string; publicUrl: string }>,
-  proxy?: (args: { data: { folder: R2AssetFolder; filename: string; contentType: string; base64: string } }) => Promise<{ publicUrl: string }>,
+  folder: AssetFolder,
+  proxy: (args: { data: { folder: AssetFolder; filename: string; contentType: string; base64: string } }) => Promise<{ publicUrl: string }>,
 ): Promise<string> {
   if (file.size > MAX_BYTES) {
     throw new Error(`File too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Max 25 MB.`);
@@ -56,30 +49,13 @@ export async function uploadToR2(
   }
   const safe = file.name.replace(/[^\w\-. ]+/g, "_").slice(0, 180);
   const contentType = file.type || "application/octet-stream";
-
-  // 1) Try presigned PUT direct to R2.
-  try {
-    const { uploadUrl, publicUrl } = await presign({ data: { folder, filename: safe, contentType } });
-    const putRes = await fetch(uploadUrl, {
-      method: "PUT",
-      headers: { "Content-Type": contentType },
-      body: file,
-    });
-    if (putRes.ok) return publicUrl;
-    // R2 returned an error — fall through to proxy fallback.
-    const text = await putRes.text().catch(() => "");
-    console.warn("[uploadToR2] presigned PUT failed", putRes.status, text.slice(0, 200));
-  } catch (err) {
-    // TypeError "Failed to fetch" is what CORS / network failures surface as.
-    console.warn("[uploadToR2] presigned PUT threw — falling back to proxy:", err);
-  }
-
-  // 2) Fallback: server-side proxy upload (always works regardless of CORS).
-  if (!proxy) throw new Error("Direct upload failed and no server-side fallback was provided");
   const base64 = await fileToBase64(file);
   const { publicUrl } = await proxy({ data: { folder, filename: safe, contentType, base64 } });
   return publicUrl;
 }
+
+/** Backwards-compatible alias used by some admin pages. */
+export const uploadToR2 = uploadToStorage;
 
 export function MediaPicker({
   value,
@@ -90,7 +66,7 @@ export function MediaPicker({
   value?: string | null;
   onChange: (url: string | null) => void;
   label?: string;
-  folder?: R2AssetFolder;
+  folder?: AssetFolder;
 }) {
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -101,16 +77,14 @@ export function MediaPicker({
     | { kind: "error"; message: string }
   >({ kind: "idle" });
 
-  const presign = useServerFn(presignUpload);
   const list = useServerFn(listAssets);
   const remove = useServerFn(deleteAsset);
   const proxy = useServerFn(uploadAsset);
 
   const { data: media = [], refetch, isLoading, isError, error } = useQuery({
-    queryKey: ["r2-media-library", folder],
+    queryKey: ["media-library", folder],
     queryFn: async () => {
       const items = await list({ data: { folder } });
-      // Newest first — keys are prefixed with `${Date.now()}-`
       return [...items].sort((a, b) => (a.key < b.key ? 1 : -1));
     },
     enabled: open,
@@ -137,7 +111,7 @@ export function MediaPicker({
     setUploading(true);
     const toastId = toast.loading(replacing ? "Replacing image…" : "Uploading image…");
     try {
-      const publicUrl = await uploadToR2(file, folder, presign, proxy);
+      const publicUrl = await uploadToStorage(file, folder, proxy);
       const msg = replacing ? "Image replaced — remember to Save" : "Image uploaded — remember to Save";
       toast.success(msg, { id: toastId });
       setStatus({ kind: "success", message: msg });
@@ -146,14 +120,8 @@ export function MediaPicker({
       setOpen(false);
     } catch (e: any) {
       const raw = e?.message || String(e) || "Upload failed";
-      // Translate common error shapes into actionable messages.
-      const msg = /failed to fetch|networkerror/i.test(raw)
-        ? "Network error reaching storage. Check your internet and try again."
-        : /forbidden|access denied/i.test(raw)
-          ? "Storage rejected the upload (permissions). Contact admin to verify R2 token scope."
-          : raw;
-      toast.error(msg, { id: toastId });
-      setStatus({ kind: "error", message: msg });
+      toast.error(raw, { id: toastId });
+      setStatus({ kind: "error", message: raw });
     } finally {
       setUploading(false);
     }
@@ -205,7 +173,7 @@ export function MediaPicker({
                   onChange={(e) => {
                     const f = e.target.files?.[0];
                     if (f) handleUpload(f);
-                    e.target.value = ""; // allow re-selecting same file
+                    e.target.value = "";
                   }}
                 />
                 <div className="border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:bg-muted/40 transition">
@@ -311,30 +279,8 @@ export function MediaPicker({
   );
 }
 
-/**
- * Thumbnail with skeleton + graceful error fallback. Never renders a broken
- * image icon — replaces with a "image unavailable" pill instead.
- */
-function resolveImageSrc(url: string, useProxy: boolean): string {
-  if (!url) return url;
-  if (url.startsWith("data:") || url.startsWith("blob:")) return url;
-  // Same-origin URLs don't need proxying
-  try {
-    const u = new URL(url, typeof window !== "undefined" ? window.location.href : "http://localhost");
-    if (typeof window !== "undefined" && u.origin === window.location.origin) return url;
-    if (!useProxy) return url;
-    return `/api/public/media/?url=${encodeURIComponent(url)}`;
-  } catch {
-    return url;
-  }
-}
-
 function Thumbnail({ url, alt, className }: { url: string; alt: string; className?: string }) {
   const [state, setState] = useState<"loading" | "ok" | "error">("loading");
-  // First try via server-side R2 proxy (bypasses Cloudflare hotlink challenges
-  // on the public R2 domain). If that fails, fall back to the direct URL.
-  const [useProxy, setUseProxy] = useState(true);
-  const src = resolveImageSrc(url, useProxy);
   return (
     <div className={`relative overflow-hidden bg-muted ${className ?? "w-full h-full"}`}>
       {state === "loading" && <div className="absolute inset-0 skeleton-shimmer" />}
@@ -344,21 +290,12 @@ function Thumbnail({ url, alt, className }: { url: string; alt: string; classNam
         </div>
       ) : (
         <img
-          key={src}
-          src={src}
+          src={url}
           alt={alt}
           loading="lazy"
           decoding="async"
           onLoad={() => setState("ok")}
-          onError={() => {
-            if (useProxy) {
-              // Retry without proxy (e.g. external non-R2 image)
-              setUseProxy(false);
-              setState("loading");
-            } else {
-              setState("error");
-            }
-          }}
+          onError={() => setState("error")}
           className={`w-full h-full object-cover transition-opacity duration-300 ${state === "ok" ? "opacity-100" : "opacity-0"}`}
         />
       )}

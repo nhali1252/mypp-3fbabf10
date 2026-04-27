@@ -51,3 +51,76 @@ If a key is ever leaked or you want to rotate it:
 ## Local development
 
 `bun install && bun dev` — local dev reads from `.env`, which Lovable manages automatically.
+
+---
+
+## Migrating to a New Supabase Project
+
+If you create a brand-new Supabase project and want to move all existing CMS / portfolio data into it, follow this plan.
+
+### What can be migrated automatically
+
+| Item | How |
+| --- | --- |
+| Schema (tables, columns, indexes, FKs, enums) | `supabase db dump --schema-only` |
+| Row data (CMS content, portfolio, testimonials, etc.) | `supabase db dump --data-only` |
+| RLS policies | included in schema dump |
+| Functions, triggers, views | included in schema dump |
+| Storage files (the `media` bucket) | `supabase storage cp` or rclone |
+
+### What you must recreate manually
+
+| Item | Why |
+| --- | --- |
+| Auth users (`auth.users` rows) | They live in the `auth` schema, which Supabase blocks from a normal dump. Re-invite users or use the Auth admin API export/import. |
+| Auth provider config (Google, magic links, SMTP, redirect URLs) | Project-level dashboard settings. |
+| Project secrets (`SUPABASE_SERVICE_ROLE_KEY`, R2 keys, etc.) | Each project has its own keys — see the secrets list above. |
+| Realtime publication (`supabase_realtime`) membership for any tables you stream | Project-level. |
+
+### Step-by-step
+
+You'll need the [Supabase CLI](https://supabase.com/docs/guides/cli) installed locally. Replace `OLD_REF` and `NEW_REF` with the project refs from each project's URL (`https://<ref>.supabase.co`).
+
+```bash
+# 1. Authenticate locally
+supabase login
+
+# 2. Dump schema + data from the OLD project
+supabase db dump --db-url "postgresql://postgres:OLD_DB_PASSWORD@db.OLD_REF.supabase.co:5432/postgres" \
+  --schema public --schema-only > schema.sql
+supabase db dump --db-url "postgresql://postgres:OLD_DB_PASSWORD@db.OLD_REF.supabase.co:5432/postgres" \
+  --schema public --data-only --use-copy > data.sql
+
+# 3. Apply schema, then data, to the NEW project
+psql "postgresql://postgres:NEW_DB_PASSWORD@db.NEW_REF.supabase.co:5432/postgres" -f schema.sql
+psql "postgresql://postgres:NEW_DB_PASSWORD@db.NEW_REF.supabase.co:5432/postgres" -f data.sql
+
+# 4. Migrate the `media` storage bucket
+#    First create the bucket in the new project (Dashboard → Storage → New bucket → name: media, public: true)
+supabase storage cp --recursive \
+  "supabase://OLD_REF/media" \
+  "supabase://NEW_REF/media"
+```
+
+### Point the app at the new project
+
+After the data is in the new project, update the Cloudflare Worker variables/secrets:
+
+| Variable | Type | New value |
+| --- | --- | --- |
+| `SUPABASE_URL` | Variable | `https://NEW_REF.supabase.co` |
+| `SUPABASE_PUBLISHABLE_KEY` | Variable | New project's `anon` key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Secret | New project's `service_role` key |
+
+Also update the same three values in `wrangler.jsonc` (`vars.SUPABASE_URL` and `vars.SUPABASE_PUBLISHABLE_KEY`) and your local `.env` so dev and deploy agree. Then **redeploy the Worker**.
+
+### Post-migration verification
+
+1. `/health` shows all three vars green ✅.
+2. Visit `/`, `/portfolio`, `/feed`, `/contact` — content loads, no fallback errors.
+3. Sign in to `/auth`, open `/admin/settings` → "Cloudflare secrets checklist" shows all-green.
+4. Edit any CMS field (e.g. hero title), save, refresh — change persists.
+5. Upload a test image via `/admin/media` — appears in storage and on the page.
+6. Submit a contact form / testimonial — row appears in the new database.
+
+If anything fails, run `/health` first — it tells you exactly which env var is missing.

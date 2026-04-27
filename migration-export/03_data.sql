@@ -2,7 +2,6 @@
 -- PostgreSQL database dump
 --
 
-\restrict 2tbcsQ1gCWyV3Lif9wTKQv9M7BNtaJVXfco0MuvMFtkPDWGgEV7ug8lYOpAYXiB
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.9
@@ -485,5 +484,4 @@ ALTER TABLE public.user_roles ENABLE TRIGGER ALL;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 2tbcsQ1gCWyV3Lif9wTKQv9M7BNtaJVXfco0MuvMFtkPDWGgEV7ug8lYOpAYXiB
 

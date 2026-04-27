@@ -26,6 +26,7 @@ function AdminMedia() {
 
   const list = useServerFn(listAssets);
   const remove = useServerFn(deleteAsset);
+  const proxy = useServerFn(uploadAsset);
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["admin-r2-media", folder],
@@ -35,10 +36,19 @@ function AdminMedia() {
     },
   });
 
-  async function upload(_file: File) {
+  async function upload(file: File) {
     setUploading(true);
-    toast.error("Direct upload from this page is disabled — use the Library button on a content card instead.");
-    setUploading(false);
+    const toastId = toast.loading("Uploading…");
+    try {
+      await uploadToStorage(file, folder, proxy);
+      toast.success("Uploaded", { id: toastId });
+      qc.invalidateQueries({ queryKey: ["admin-r2-media", folder] });
+      qc.invalidateQueries({ queryKey: ["media-library", folder] });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Upload failed", { id: toastId });
+    } finally {
+      setUploading(false);
+    }
   }
 
   async function deleteOne(key: string) {

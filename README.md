@@ -6,7 +6,7 @@ TanStack Start app deployed to a Cloudflare Worker, backed by Lovable Cloud (Sup
 
 ## Cloudflare Worker Secrets
 
-The deployed Worker needs these environment variables to talk to Supabase. Without them, server functions fail with `Missing Supabase server environment variables…` and content sections show a friendly fallback (with a link to `/admin/settings` for the in-app checklist).
+The deployed Worker needs these environment variables to talk to Supabase. Public pages need only `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` — they read via RLS-protected anon access. Admin features (saving content, moderating comments, uploading media, sending messages) additionally need `SUPABASE_SERVICE_ROLE_KEY`. If the public vars are missing, content sections show a friendly fallback (with a link to `/admin/settings` for the in-app checklist).
 
 > ⚠️ **Never commit real keys to this repo.** Public values may live in `wrangler.jsonc` under `vars`. The service role key MUST be a Cloudflare **Secret**.
 

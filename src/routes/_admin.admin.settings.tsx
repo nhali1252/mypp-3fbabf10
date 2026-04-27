@@ -138,7 +138,7 @@ function AdminSettings() {
           </FormRow>
           <FormRow label="Logo" hint="Upload an image or paste a public image URL (http/https).">
             <div className="space-y-2">
-              <MediaPicker value={form.logo_url} onChange={(u: string | null) => set("logo_url", u)} />
+              <MediaPicker value={form.logo_url} onChange={(u: string | null) => set("logo_url", u)} folder="profile" label="Logo" />
               {form.logo_url && (
                 <Button
                   type="button"

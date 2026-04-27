@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { createClient } from "@supabase/supabase-js";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { Database } from "@/integrations/supabase/types";
 
 /**
  * GET/POST /api/env-import
@@ -9,9 +11,11 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
  * can reach the database. Secret values are NEVER returned — only presence,
  * length, and a short fingerprint so you can confirm rotation took effect.
  *
- * Protected by a shared header `x-env-import-token` which must match the
- * `ENV_IMPORT_TOKEN` server secret. If the secret is unset, the route
- * refuses to run (fail-closed).
+ * Access control (BOTH must pass):
+ *   1. Header `x-env-import-token` must match `ENV_IMPORT_TOKEN` server secret
+ *      (fail-closed if the secret itself is unset).
+ *   2. `Authorization: Bearer <jwt>` must be a valid Supabase session whose
+ *      user has the `admin` role.
  */
 
 const EXPECTED_VARS = [

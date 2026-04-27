@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, Inbox, Image as ImageIcon, ClipboardCheck,
   Settings, Users, LogOut, ExternalLink, Menu, X,
-  RefreshCw, MessageSquare, Shield, Activity,
+  RefreshCw, MessageSquare, Shield, Activity, KeyRound,
 } from "lucide-react";
 
 type Item = { to: string; label: string; Icon: any; end?: boolean };

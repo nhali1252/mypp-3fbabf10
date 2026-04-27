@@ -4,7 +4,7 @@
  */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { supabasePublic } from "@/integrations/supabase/client.public";
 
 export type SeoRow = {
   page_key: string;
@@ -19,7 +19,7 @@ export const getSeo = createServerFn({ method: "GET" })
     z.object({ key: z.string().min(1).max(60) }).parse(data),
   )
   .handler(async ({ data }): Promise<SeoRow | null> => {
-    const { data: row, error } = await supabaseAdmin
+    const { data: row, error } = await supabasePublic
       .from("seo_settings")
       .select("page_key, meta_title, meta_description, og_image, keywords")
       .eq("page_key", data.key)

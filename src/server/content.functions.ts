@@ -106,7 +106,7 @@ async function buildContent(key: ContentKey): Promise<unknown> {
       }));
     }
     case "projects": {
-      const { data } = await supabaseAdmin
+      const { data } = await supabasePublic
         .from("projects")
         .select("*")
         .eq("published", true)
@@ -114,7 +114,7 @@ async function buildContent(key: ContentKey): Promise<unknown> {
       return data ?? [];
     }
     case "services": {
-      const { data } = await supabaseAdmin
+      const { data } = await supabasePublic
         .from("services")
         .select("*")
         .eq("active", true)
@@ -122,7 +122,7 @@ async function buildContent(key: ContentKey): Promise<unknown> {
       return data ?? [];
     }
     case "contact": {
-      const { data } = await supabaseAdmin
+      const { data } = await supabasePublic
         .from("contact_settings")
         .select("*")
         .limit(1)
@@ -130,7 +130,7 @@ async function buildContent(key: ContentKey): Promise<unknown> {
       return data ?? {};
     }
     case "reviews": {
-      const { data } = await supabaseAdmin
+      const { data } = await supabasePublic
         .from("testimonials")
         .select("*")
         .eq("published", true)
@@ -184,7 +184,7 @@ async function buildContent(key: ContentKey): Promise<unknown> {
       };
     }
     case "pageQuotes": {
-      const { data } = await supabaseAdmin
+      const { data } = await supabasePublic
         .from("page_quotes")
         .select("*")
         .eq("active", true);

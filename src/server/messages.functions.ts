@@ -94,7 +94,7 @@ export const updateMessage = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
-    const patch: Record<string, unknown> = {};
+    const patch: { is_read?: boolean; is_replied?: boolean } = {};
     if (typeof data.is_read === "boolean") patch.is_read = data.is_read;
     if (typeof data.is_replied === "boolean") patch.is_replied = data.is_replied;
     const { error } = await supabaseAdmin.from("messages").update(patch).eq("id", data.id);

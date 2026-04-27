@@ -43,11 +43,12 @@ export function CloudflareSecretsChecklist() {
   const allOk = data && missing.length === 0;
 
   return (
-    <AdminCard
-      title="Cloudflare secrets checklist"
-      description="One-click reference for the Supabase keys your deployed Worker needs. Updates require a redeploy to take effect."
-    >
+    <AdminCard title="Cloudflare secrets checklist">
       <div className="space-y-4">
+        <p className="text-sm opacity-75 -mt-1">
+          One-click reference for the Supabase keys your deployed Worker needs. Updates require a
+          redeploy to take effect.
+        </p>
         <div className="flex items-center gap-2 flex-wrap">
           <Button
             type="button"

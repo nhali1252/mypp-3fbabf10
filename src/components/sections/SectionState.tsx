@@ -5,8 +5,28 @@
  * - <SectionError />: clear, actionable error message with a retry button
  * - <SectionEmpty />: friendly notice when the fetch succeeded but returned no items
  */
-import { AlertTriangle, RefreshCw, Inbox, Loader2 } from "lucide-react";
+import { AlertTriangle, RefreshCw, Inbox, Loader2, Settings2 } from "lucide-react";
 import { useState } from "react";
+
+/**
+ * Detect the specific "missing server env var" failure so we can show a
+ * friendly fallback that points the admin straight to the fix screen
+ * instead of a scary stack trace.
+ */
+function detectMissingEnvVar(message: string): string | null {
+  // Matches the server-side error from src/integrations/supabase/client.server.ts
+  // e.g. "Missing Supabase server environment variables. Ensure SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set."
+  if (!/Missing\s+Supabase\s+server\s+environment\s+variables/i.test(message)) {
+    return null;
+  }
+  const known = [
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_URL",
+    "SUPABASE_PUBLISHABLE_KEY",
+  ];
+  const found = known.filter((name) => message.includes(name));
+  return found.length ? found.join(", ") : "SUPABASE_SERVICE_ROLE_KEY";
+}
 
 export function SectionSkeleton({
   count = 3,
@@ -70,6 +90,8 @@ export function SectionError({
       ? error
       : "The storage backend didn't respond. This is usually temporary.";
 
+  const missingEnv = detectMissingEnvVar(message);
+
   async function handleRetry() {
     if (!onRetry || retrying) return;
     setRetrying(true);
@@ -90,9 +112,13 @@ export function SectionError({
           <AlertTriangle className="h-5 w-5 text-rose-400" aria-hidden />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-base text-foreground">{title}</h3>
+          <h3 className="font-bold text-base text-foreground">
+            {missingEnv ? "This section can't load yet" : title}
+          </h3>
           <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
-            {hint ?? "We couldn't reach the content storage. The page is fine — just this section needs a retry."}
+            {missingEnv
+              ? `The deployed server is missing the ${missingEnv} secret. Add it to your hosting environment, redeploy, then come back.`
+              : hint ?? "We couldn't reach the content storage. The page is fine — just this section needs a retry."}
           </p>
           <details className="mt-2 group">
             <summary className="text-[11px] uppercase tracking-[0.18em] font-bold text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors">
@@ -102,21 +128,32 @@ export function SectionError({
               {message}
             </pre>
           </details>
-          {onRetry && (
-            <button
-              type="button"
-              onClick={handleRetry}
-              disabled={retrying}
-              className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-[0.2em] hover:bg-primary/90 disabled:opacity-60 transition-colors"
-            >
-              {retrying ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <RefreshCw className="h-3.5 w-3.5" />
-              )}
-              {retrying ? "Retrying…" : "Retry"}
-            </button>
-          )}
+          <div className="mt-4 flex flex-wrap gap-2">
+            {missingEnv && (
+              <a
+                href="/admin/settings"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-[0.2em] hover:bg-primary/90 transition-colors"
+              >
+                <Settings2 className="h-3.5 w-3.5" />
+                Open fix checklist
+              </a>
+            )}
+            {onRetry && (
+              <button
+                type="button"
+                onClick={handleRetry}
+                disabled={retrying}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-rose-500/40 bg-transparent text-rose-100 text-xs font-bold uppercase tracking-[0.2em] hover:bg-rose-500/10 disabled:opacity-60 transition-colors"
+              >
+                {retrying ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-3.5 w-3.5" />
+                )}
+                {retrying ? "Retrying…" : "Retry"}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

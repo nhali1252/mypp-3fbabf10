@@ -153,7 +153,7 @@ function AdminSettings() {
           </FormRow>
           <FormRow label="Favicon (browser tab icon)" hint="Upload a square PNG/SVG (32×32 or larger). Shown in the browser tab next to the title.">
             <div className="space-y-2">
-              <MediaPicker value={form.favicon_url} onChange={(u: string | null) => set("favicon_url", u)} />
+              <MediaPicker value={form.favicon_url} onChange={(u: string | null) => set("favicon_url", u)} folder="profile" label="Favicon" />
               {form.favicon_url && (
                 <div className="flex items-center gap-2">
                   <img src={form.favicon_url} alt="favicon preview" className="w-6 h-6 rounded-md border border-white/10 object-contain bg-background" />

@@ -11,7 +11,7 @@ import { Upload, Trash2, Copy } from "lucide-react";
 
 export const Route = createFileRoute("/_admin/admin/media")({ component: AdminMedia });
 
-const FOLDERS: { value: R2AssetFolder; label: string }[] = [
+const FOLDERS: { value: AssetFolder; label: string }[] = [
   { value: "profile", label: "Profile" },
   { value: "projects", label: "Projects" },
   { value: "portfolio", label: "Portfolio" },
@@ -20,10 +20,9 @@ const FOLDERS: { value: R2AssetFolder; label: string }[] = [
 
 function AdminMedia() {
   const qc = useQueryClient();
-  const [folder, setFolder] = useState<R2AssetFolder>("projects");
+  const [folder, setFolder] = useState<AssetFolder>("projects");
   const [uploading, setUploading] = useState(false);
 
-  const presign = useServerFn(presignUpload);
   const list = useServerFn(listAssets);
   const remove = useServerFn(deleteAsset);
 

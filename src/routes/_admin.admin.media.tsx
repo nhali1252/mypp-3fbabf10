@@ -2,11 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { listAssets, deleteAsset, type AssetFolder } from "@/server/content.functions";
+import { listAssets, deleteAsset, uploadAsset, type AssetFolder } from "@/server/content.functions";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { AdminPage, AdminCard, EmptyState } from "@/components/admin/AdminPage";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
+import { uploadToStorage } from "@/components/admin/MediaPicker";
 import { Upload, Trash2, Copy } from "lucide-react";
 
 export const Route = createFileRoute("/_admin/admin/media")({ component: AdminMedia });
@@ -25,6 +26,7 @@ function AdminMedia() {
 
   const list = useServerFn(listAssets);
   const remove = useServerFn(deleteAsset);
+  const proxy = useServerFn(uploadAsset);
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["admin-r2-media", folder],
@@ -34,10 +36,19 @@ function AdminMedia() {
     },
   });
 
-  async function upload(_file: File) {
+  async function upload(file: File) {
     setUploading(true);
-    toast.error("Direct upload from this page is disabled — use the Library button on a content card instead.");
-    setUploading(false);
+    const toastId = toast.loading("Uploading…");
+    try {
+      await uploadToStorage(file, folder, proxy);
+      toast.success("Uploaded", { id: toastId });
+      qc.invalidateQueries({ queryKey: ["admin-r2-media", folder] });
+      qc.invalidateQueries({ queryKey: ["media-library", folder] });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Upload failed", { id: toastId });
+    } finally {
+      setUploading(false);
+    }
   }
 
   async function deleteOne(key: string) {
@@ -54,7 +65,7 @@ function AdminMedia() {
   return (
     <AdminPage
       title="Media library"
-      description="Images stored in Cloudflare R2. Pick a folder to browse or upload."
+      description="Images stored in your media library. Pick a folder to browse or upload."
       actions={
         <label>
           <input
@@ -65,6 +76,7 @@ function AdminMedia() {
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) upload(f);
+              e.target.value = "";
             }}
           />
           <Button asChild disabled={uploading}>

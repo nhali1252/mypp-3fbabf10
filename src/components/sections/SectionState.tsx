@@ -90,6 +90,8 @@ export function SectionError({
       ? error
       : "The storage backend didn't respond. This is usually temporary.";
 
+  const missingEnv = detectMissingEnvVar(message);
+
   async function handleRetry() {
     if (!onRetry || retrying) return;
     setRetrying(true);

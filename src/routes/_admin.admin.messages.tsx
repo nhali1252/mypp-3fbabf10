@@ -2,13 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listMessages, updateMessage, deleteMessage } from "@/server/messages.functions";
-import { migrateMessagesToR2 } from "@/server/migrate-messages.functions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { AdminPage, AdminCard, EmptyState } from "@/components/admin/AdminPage";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
-import { Mail, MailOpen, Reply, Trash2, DatabaseBackup, AlertTriangle } from "lucide-react";
+import { Mail, MailOpen, Reply, Trash2, AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/_admin/admin/messages")({ component: AdminMessages });
 
@@ -39,16 +38,6 @@ function AdminMessages() {
     onError: (e: any) => toast.error(e?.message || "Delete failed"),
   });
 
-  const migrate = useServerFn(migrateMessagesToR2);
-  const migrateMut = useMutation({
-    mutationFn: () => migrate(),
-    onSuccess: (r: any) => {
-      toast.success(`Migrated ${r.copied} message${r.copied === 1 ? "" : "s"} (total ${r.total}).`);
-      qc.invalidateQueries({ queryKey: ["admin-messages"] });
-    },
-    onError: (e: any) => toast.error(e?.message || "Migration failed"),
-  });
-
   if (isLoading) return <div className="p-6">Loading…</div>;
   const rows = data?.messages ?? [];
   const unread = rows.filter((r) => !r.is_read).length;
@@ -75,12 +64,6 @@ function AdminMessages() {
           </div>
         </div>
       )}
-      <div className="mb-4">
-        <Button size="sm" variant="outline" onClick={() => migrateMut.mutate()} disabled={migrateMut.isPending}>
-          <DatabaseBackup className="w-3.5 h-3.5 mr-1.5" />
-          {migrateMut.isPending ? "Migrating…" : "Import legacy DB messages"}
-        </Button>
-      </div>
       {rows.length === 0 ? <EmptyState message="No messages yet." /> : (
         rows.map((m) => (
           <AdminCard key={m.id} className={m.is_read ? "" : "ring-1 ring-primary/40"}>

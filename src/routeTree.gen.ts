@@ -29,7 +29,6 @@ import { Route as AdminAdminSettingsRouteImport } from './routes/_admin.admin.se
 import { Route as AdminAdminSeoRouteImport } from './routes/_admin.admin.seo'
 import { Route as AdminAdminRuntimeRouteImport } from './routes/_admin.admin.runtime'
 import { Route as AdminAdminReviewsRouteImport } from './routes/_admin.admin.reviews'
-import { Route as AdminAdminR2MigrationRouteImport } from './routes/_admin.admin.r2-migration'
 import { Route as AdminAdminProjectsRouteImport } from './routes/_admin.admin.projects'
 import { Route as AdminAdminPortfolioRouteImport } from './routes/_admin.admin.portfolio'
 import { Route as AdminAdminPageLoaderRouteImport } from './routes/_admin.admin.page-loader'
@@ -49,7 +48,6 @@ import { Route as AdminAdminChecklistRouteImport } from './routes/_admin.admin.c
 import { Route as AdminAdminAuditRouteImport } from './routes/_admin.admin.audit'
 import { Route as AdminAdminActivitiesRouteImport } from './routes/_admin.admin.activities'
 import { Route as AdminAdminAboutRouteImport } from './routes/_admin.admin.about'
-import { Route as ApiPublicMediaSplatRouteImport } from './routes/api.public.media.$'
 import { Route as AdminAdminPageSlugRouteImport } from './routes/_admin.admin.page.$slug'
 
 const ServicesRoute = ServicesRouteImport.update({
@@ -151,11 +149,6 @@ const AdminAdminReviewsRoute = AdminAdminReviewsRouteImport.update({
   path: '/admin/reviews',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminAdminR2MigrationRoute = AdminAdminR2MigrationRouteImport.update({
-  id: '/admin/r2-migration',
-  path: '/admin/r2-migration',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminAdminProjectsRoute = AdminAdminProjectsRouteImport.update({
   id: '/admin/projects',
   path: '/admin/projects',
@@ -251,11 +244,6 @@ const AdminAdminAboutRoute = AdminAdminAboutRouteImport.update({
   path: '/admin/about',
   getParentRoute: () => AdminRoute,
 } as any)
-const ApiPublicMediaSplatRoute = ApiPublicMediaSplatRouteImport.update({
-  id: '/api/public/media/$',
-  path: '/api/public/media/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminAdminPageSlugRoute = AdminAdminPageSlugRouteImport.update({
   id: '/admin/page/$slug',
   path: '/admin/page/$slug',
@@ -292,7 +280,6 @@ export interface FileRoutesByFullPath {
   '/admin/page-loader': typeof AdminAdminPageLoaderRoute
   '/admin/portfolio': typeof AdminAdminPortfolioRoute
   '/admin/projects': typeof AdminAdminProjectsRoute
-  '/admin/r2-migration': typeof AdminAdminR2MigrationRoute
   '/admin/reviews': typeof AdminAdminReviewsRoute
   '/admin/runtime': typeof AdminAdminRuntimeRoute
   '/admin/seo': typeof AdminAdminSeoRoute
@@ -303,7 +290,6 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AdminAdminUsersRoute
   '/admin/': typeof AdminAdminIndexRoute
   '/admin/page/$slug': typeof AdminAdminPageSlugRoute
-  '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -335,7 +321,6 @@ export interface FileRoutesByTo {
   '/admin/page-loader': typeof AdminAdminPageLoaderRoute
   '/admin/portfolio': typeof AdminAdminPortfolioRoute
   '/admin/projects': typeof AdminAdminProjectsRoute
-  '/admin/r2-migration': typeof AdminAdminR2MigrationRoute
   '/admin/reviews': typeof AdminAdminReviewsRoute
   '/admin/runtime': typeof AdminAdminRuntimeRoute
   '/admin/seo': typeof AdminAdminSeoRoute
@@ -346,7 +331,6 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AdminAdminUsersRoute
   '/admin': typeof AdminAdminIndexRoute
   '/admin/page/$slug': typeof AdminAdminPageSlugRoute
-  '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -380,7 +364,6 @@ export interface FileRoutesById {
   '/_admin/admin/page-loader': typeof AdminAdminPageLoaderRoute
   '/_admin/admin/portfolio': typeof AdminAdminPortfolioRoute
   '/_admin/admin/projects': typeof AdminAdminProjectsRoute
-  '/_admin/admin/r2-migration': typeof AdminAdminR2MigrationRoute
   '/_admin/admin/reviews': typeof AdminAdminReviewsRoute
   '/_admin/admin/runtime': typeof AdminAdminRuntimeRoute
   '/_admin/admin/seo': typeof AdminAdminSeoRoute
@@ -391,7 +374,6 @@ export interface FileRoutesById {
   '/_admin/admin/users': typeof AdminAdminUsersRoute
   '/_admin/admin/': typeof AdminAdminIndexRoute
   '/_admin/admin/page/$slug': typeof AdminAdminPageSlugRoute
-  '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -425,7 +407,6 @@ export interface FileRouteTypes {
     | '/admin/page-loader'
     | '/admin/portfolio'
     | '/admin/projects'
-    | '/admin/r2-migration'
     | '/admin/reviews'
     | '/admin/runtime'
     | '/admin/seo'
@@ -436,7 +417,6 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/admin/'
     | '/admin/page/$slug'
-    | '/api/public/media/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -468,7 +448,6 @@ export interface FileRouteTypes {
     | '/admin/page-loader'
     | '/admin/portfolio'
     | '/admin/projects'
-    | '/admin/r2-migration'
     | '/admin/reviews'
     | '/admin/runtime'
     | '/admin/seo'
@@ -479,7 +458,6 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/admin'
     | '/admin/page/$slug'
-    | '/api/public/media/$'
   id:
     | '__root__'
     | '/'
@@ -512,7 +490,6 @@ export interface FileRouteTypes {
     | '/_admin/admin/page-loader'
     | '/_admin/admin/portfolio'
     | '/_admin/admin/projects'
-    | '/_admin/admin/r2-migration'
     | '/_admin/admin/reviews'
     | '/_admin/admin/runtime'
     | '/_admin/admin/seo'
@@ -523,7 +500,6 @@ export interface FileRouteTypes {
     | '/_admin/admin/users'
     | '/_admin/admin/'
     | '/_admin/admin/page/$slug'
-    | '/api/public/media/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -538,7 +514,6 @@ export interface RootRouteChildren {
   ProjectsRoute: typeof ProjectsRoute
   ReviewsRoute: typeof ReviewsRoute
   ServicesRoute: typeof ServicesRoute
-  ApiPublicMediaSplatRoute: typeof ApiPublicMediaSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -683,13 +658,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminReviewsRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/_admin/admin/r2-migration': {
-      id: '/_admin/admin/r2-migration'
-      path: '/admin/r2-migration'
-      fullPath: '/admin/r2-migration'
-      preLoaderRoute: typeof AdminAdminR2MigrationRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/_admin/admin/projects': {
       id: '/_admin/admin/projects'
       path: '/admin/projects'
@@ -823,13 +791,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminAboutRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/api/public/media/$': {
-      id: '/api/public/media/$'
-      path: '/api/public/media/$'
-      fullPath: '/api/public/media/$'
-      preLoaderRoute: typeof ApiPublicMediaSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_admin/admin/page/$slug': {
       id: '/_admin/admin/page/$slug'
       path: '/admin/page/$slug'
@@ -860,7 +821,6 @@ interface AdminRouteChildren {
   AdminAdminPageLoaderRoute: typeof AdminAdminPageLoaderRoute
   AdminAdminPortfolioRoute: typeof AdminAdminPortfolioRoute
   AdminAdminProjectsRoute: typeof AdminAdminProjectsRoute
-  AdminAdminR2MigrationRoute: typeof AdminAdminR2MigrationRoute
   AdminAdminReviewsRoute: typeof AdminAdminReviewsRoute
   AdminAdminRuntimeRoute: typeof AdminAdminRuntimeRoute
   AdminAdminSeoRoute: typeof AdminAdminSeoRoute
@@ -893,7 +853,6 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminPageLoaderRoute: AdminAdminPageLoaderRoute,
   AdminAdminPortfolioRoute: AdminAdminPortfolioRoute,
   AdminAdminProjectsRoute: AdminAdminProjectsRoute,
-  AdminAdminR2MigrationRoute: AdminAdminR2MigrationRoute,
   AdminAdminReviewsRoute: AdminAdminReviewsRoute,
   AdminAdminRuntimeRoute: AdminAdminRuntimeRoute,
   AdminAdminSeoRoute: AdminAdminSeoRoute,
@@ -920,7 +879,6 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsRoute: ProjectsRoute,
   ReviewsRoute: ReviewsRoute,
   ServicesRoute: ServicesRoute,
-  ApiPublicMediaSplatRoute: ApiPublicMediaSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

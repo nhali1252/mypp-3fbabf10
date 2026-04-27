@@ -1,19 +1,15 @@
 import { Link, Outlet, useNavigate, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useR2AutoResync } from "@/hooks/useR2AutoResync";
-import R2SyncAlert from "@/components/admin/R2SyncAlert";
 import {
   LayoutDashboard, Inbox, Image as ImageIcon, ClipboardCheck,
-  Settings, Users, LogOut, ExternalLink, Loader2, Menu, X, Cloud,
-  RefreshCw, CheckCircle2, AlertTriangle, CircleDashed, MessageSquare, Shield, Activity,
+  Settings, Users, LogOut, ExternalLink, Menu, X,
+  RefreshCw, MessageSquare, Shield, Activity,
 } from "lucide-react";
 
 type Item = { to: string; label: string; Icon: any; end?: boolean };
 type Group = { label: string; items: Item[] };
 
-// Page-content editors live behind the dashboard cards now.
-// The sidebar only carries system / cross-page tools.
 const groups: Group[] = [
   {
     label: "Overview",
@@ -32,7 +28,6 @@ const groups: Group[] = [
       { to: "/admin/runtime", label: "Runtime", Icon: RefreshCw },
       { to: "/admin/media", label: "Media library", Icon: ImageIcon },
       { to: "/admin/users", label: "Users", Icon: Users },
-      { to: "/admin/r2-migration", label: "R2 migration", Icon: Cloud },
       { to: "/admin/settings", label: "Site settings", Icon: Settings },
     ],
   },
@@ -43,9 +38,7 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
-  const sync = useR2AutoResync();
 
-  // Close drawer on route change
   useEffect(() => { setOpen(false); }, [location.pathname]);
 
   async function handleLogout() {
@@ -96,7 +89,6 @@ export default function AdminLayout() {
         ))}
       </nav>
       <div className="mt-3 pt-3 border-t border-background/10 space-y-2">
-        <R2SyncPill sync={sync} />
         <a
           href="/"
           target="_blank"
@@ -118,12 +110,10 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen flex bg-background">
-      {/* Desktop sidebar */}
       <aside className="hidden lg:flex w-[260px] shrink-0 bg-foreground text-background flex-col p-4 sticky top-0 h-screen">
         {sidebar}
       </aside>
 
-      {/* Mobile top bar */}
       <div className="lg:hidden fixed top-0 inset-x-0 z-40 bg-background/85 backdrop-blur border-b border-border flex items-center justify-between px-4 h-14">
         <button onClick={() => setOpen(true)} className="p-2 rounded-lg hover:bg-muted" aria-label="Open admin menu">
           <Menu size={20} />
@@ -134,7 +124,6 @@ export default function AdminLayout() {
         </a>
       </div>
 
-      {/* Mobile drawer */}
       {open && (
         <div className="lg:hidden fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} />
@@ -145,41 +134,8 @@ export default function AdminLayout() {
       )}
 
       <main className="flex-1 p-4 sm:p-6 md:p-10 overflow-x-auto pt-[72px] lg:pt-6">
-        <R2SyncAlert sync={sync} />
         <Outlet />
       </main>
     </div>
-  );
-}
-
-function R2SyncPill({ sync }: { sync: ReturnType<typeof useR2AutoResync> }) {
-  const { status, lastSyncedAt, error, syncNow } = sync;
-  const fmt = (d: Date | null) => {
-    if (!d) return "never";
-    const s = Math.round((Date.now() - d.getTime()) / 1000);
-    if (s < 5) return "just now";
-    if (s < 60) return `${s}s ago`;
-    if (s < 3600) return `${Math.round(s / 60)}m ago`;
-    return d.toLocaleTimeString();
-  };
-
-  const meta =
-    status === "syncing" ? { Icon: Loader2, text: "Syncing R2…", cls: "text-primary animate-pulse", spin: true } :
-    status === "pending" ? { Icon: CircleDashed, text: "Changes pending…", cls: "text-amber-400", spin: false } :
-    status === "error"   ? { Icon: AlertTriangle, text: error ?? "Sync failed", cls: "text-destructive", spin: false } :
-    status === "ok"      ? { Icon: CheckCircle2, text: `R2 synced · ${fmt(lastSyncedAt)}`, cls: "text-emerald-400", spin: false } :
-                           { Icon: Cloud, text: lastSyncedAt ? `R2 synced · ${fmt(lastSyncedAt)}` : "R2 in sync", cls: "text-background/60", spin: false };
-
-  return (
-    <button
-      onClick={syncNow}
-      disabled={status === "syncing"}
-      title="Force resync R2 from database now"
-      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs bg-background/5 hover:bg-background/10 transition-colors disabled:opacity-60"
-    >
-      <meta.Icon size={14} className={`${meta.cls} ${meta.spin ? "animate-spin" : ""}`} />
-      <span className={`flex-1 text-left truncate ${meta.cls}`}>{meta.text}</span>
-      <RefreshCw size={12} className="text-background/40" />
-    </button>
   );
 }

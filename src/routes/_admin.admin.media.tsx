@@ -2,8 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { presignUpload, listAssets, deleteAsset } from "@/server/r2.functions";
-import type { R2AssetFolder } from "@/server/r2-keys";
+import { listAssets, deleteAsset, type AssetFolder } from "@/server/content.functions";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { AdminPage, AdminCard, EmptyState } from "@/components/admin/AdminPage";
@@ -12,7 +11,7 @@ import { Upload, Trash2, Copy } from "lucide-react";
 
 export const Route = createFileRoute("/_admin/admin/media")({ component: AdminMedia });
 
-const FOLDERS: { value: R2AssetFolder; label: string }[] = [
+const FOLDERS: { value: AssetFolder; label: string }[] = [
   { value: "profile", label: "Profile" },
   { value: "projects", label: "Projects" },
   { value: "portfolio", label: "Portfolio" },
@@ -21,10 +20,9 @@ const FOLDERS: { value: R2AssetFolder; label: string }[] = [
 
 function AdminMedia() {
   const qc = useQueryClient();
-  const [folder, setFolder] = useState<R2AssetFolder>("projects");
+  const [folder, setFolder] = useState<AssetFolder>("projects");
   const [uploading, setUploading] = useState(false);
 
-  const presign = useServerFn(presignUpload);
   const list = useServerFn(listAssets);
   const remove = useServerFn(deleteAsset);
 

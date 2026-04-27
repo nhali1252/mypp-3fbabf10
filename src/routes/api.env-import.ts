@@ -113,7 +113,34 @@ async function handle(request: Request) {
   }
 
   const report = await buildReport();
-  return new Response(JSON.stringify(report, null, 2), {
+
+  // Persist a snapshot row so we have an audit trail of every import.
+  let snapshotId: string | null = null;
+  let snapshotError: string | null = null;
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("env_imports")
+      .insert({
+        success: report.success,
+        started_at: report.startedAt,
+        finished_at: report.finishedAt,
+        expected_count: report.env.expected,
+        present_count: report.env.present,
+        missing: report.env.missing,
+        vars: report.env.vars,
+        db_check: report.db,
+        source: "cloudflare-worker",
+      })
+      .select("id")
+      .single();
+    if (error) snapshotError = error.message;
+    else snapshotId = data?.id ?? null;
+  } catch (e) {
+    snapshotError = e instanceof Error ? e.message : String(e);
+  }
+
+  const body = { ...report, snapshot: { id: snapshotId, error: snapshotError } };
+  return new Response(JSON.stringify(body, null, 2), {
     status: report.success ? 200 : 500,
     headers: { "content-type": "application/json" },
   });

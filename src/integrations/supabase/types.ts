@@ -170,6 +170,48 @@ export type Database = {
         }
         Relationships: []
       }
+      env_imports: {
+        Row: {
+          created_at: string
+          db_check: Json
+          expected_count: number
+          finished_at: string
+          id: string
+          missing: Json
+          present_count: number
+          source: string
+          started_at: string
+          success: boolean
+          vars: Json
+        }
+        Insert: {
+          created_at?: string
+          db_check?: Json
+          expected_count: number
+          finished_at: string
+          id?: string
+          missing?: Json
+          present_count: number
+          source?: string
+          started_at: string
+          success: boolean
+          vars?: Json
+        }
+        Update: {
+          created_at?: string
+          db_check?: Json
+          expected_count?: number
+          finished_at?: string
+          id?: string
+          missing?: Json
+          present_count?: number
+          source?: string
+          started_at?: string
+          success?: boolean
+          vars?: Json
+        }
+        Relationships: []
+      }
       f_hero: {
         Row: {
           eyebrow: string

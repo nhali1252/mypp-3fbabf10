@@ -33,7 +33,7 @@ function EnvImportPage() {
     setLoading(true);
     try {
       const res = await listEnvImports();
-      setRows((res.rows ?? []) as Snapshot[]);
+      setRows((res.rows ?? []) as unknown as Snapshot[]);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to load history");
     } finally {

@@ -42,6 +42,7 @@ import { Route as AdminAdminHeroRouteImport } from './routes/_admin.admin.hero'
 import { Route as AdminAdminFooterCtaRouteImport } from './routes/_admin.admin.footer-cta'
 import { Route as AdminAdminFooterAppsRouteImport } from './routes/_admin.admin.footer-apps'
 import { Route as AdminAdminFoldersRouteImport } from './routes/_admin.admin.folders'
+import { Route as AdminAdminEnvImportRouteImport } from './routes/_admin.admin.env-import'
 import { Route as AdminAdminEducationRouteImport } from './routes/_admin.admin.education'
 import { Route as AdminAdminDiagnosticsRouteImport } from './routes/_admin.admin.diagnostics'
 import { Route as AdminAdminContactRouteImport } from './routes/_admin.admin.contact'
@@ -216,6 +217,11 @@ const AdminAdminFoldersRoute = AdminAdminFoldersRouteImport.update({
   path: '/admin/folders',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminEnvImportRoute = AdminAdminEnvImportRouteImport.update({
+  id: '/admin/env-import',
+  path: '/admin/env-import',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAdminEducationRoute = AdminAdminEducationRouteImport.update({
   id: '/admin/education',
   path: '/admin/education',
@@ -283,6 +289,7 @@ export interface FileRoutesByFullPath {
   '/admin/contact': typeof AdminAdminContactRoute
   '/admin/diagnostics': typeof AdminAdminDiagnosticsRoute
   '/admin/education': typeof AdminAdminEducationRoute
+  '/admin/env-import': typeof AdminAdminEnvImportRoute
   '/admin/folders': typeof AdminAdminFoldersRoute
   '/admin/footer-apps': typeof AdminAdminFooterAppsRoute
   '/admin/footer-cta': typeof AdminAdminFooterCtaRoute
@@ -326,6 +333,7 @@ export interface FileRoutesByTo {
   '/admin/contact': typeof AdminAdminContactRoute
   '/admin/diagnostics': typeof AdminAdminDiagnosticsRoute
   '/admin/education': typeof AdminAdminEducationRoute
+  '/admin/env-import': typeof AdminAdminEnvImportRoute
   '/admin/folders': typeof AdminAdminFoldersRoute
   '/admin/footer-apps': typeof AdminAdminFooterAppsRoute
   '/admin/footer-cta': typeof AdminAdminFooterCtaRoute
@@ -371,6 +379,7 @@ export interface FileRoutesById {
   '/_admin/admin/contact': typeof AdminAdminContactRoute
   '/_admin/admin/diagnostics': typeof AdminAdminDiagnosticsRoute
   '/_admin/admin/education': typeof AdminAdminEducationRoute
+  '/_admin/admin/env-import': typeof AdminAdminEnvImportRoute
   '/_admin/admin/folders': typeof AdminAdminFoldersRoute
   '/_admin/admin/footer-apps': typeof AdminAdminFooterAppsRoute
   '/_admin/admin/footer-cta': typeof AdminAdminFooterCtaRoute
@@ -416,6 +425,7 @@ export interface FileRouteTypes {
     | '/admin/contact'
     | '/admin/diagnostics'
     | '/admin/education'
+    | '/admin/env-import'
     | '/admin/folders'
     | '/admin/footer-apps'
     | '/admin/footer-cta'
@@ -459,6 +469,7 @@ export interface FileRouteTypes {
     | '/admin/contact'
     | '/admin/diagnostics'
     | '/admin/education'
+    | '/admin/env-import'
     | '/admin/folders'
     | '/admin/footer-apps'
     | '/admin/footer-cta'
@@ -503,6 +514,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/contact'
     | '/_admin/admin/diagnostics'
     | '/_admin/admin/education'
+    | '/_admin/admin/env-import'
     | '/_admin/admin/folders'
     | '/_admin/admin/footer-apps'
     | '/_admin/admin/footer-cta'
@@ -775,6 +787,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminFoldersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/env-import': {
+      id: '/_admin/admin/env-import'
+      path: '/admin/env-import'
+      fullPath: '/admin/env-import'
+      preLoaderRoute: typeof AdminAdminEnvImportRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/education': {
       id: '/_admin/admin/education'
       path: '/admin/education'
@@ -850,6 +869,7 @@ interface AdminRouteChildren {
   AdminAdminContactRoute: typeof AdminAdminContactRoute
   AdminAdminDiagnosticsRoute: typeof AdminAdminDiagnosticsRoute
   AdminAdminEducationRoute: typeof AdminAdminEducationRoute
+  AdminAdminEnvImportRoute: typeof AdminAdminEnvImportRoute
   AdminAdminFoldersRoute: typeof AdminAdminFoldersRoute
   AdminAdminFooterAppsRoute: typeof AdminAdminFooterAppsRoute
   AdminAdminFooterCtaRoute: typeof AdminAdminFooterCtaRoute
@@ -882,6 +902,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminContactRoute: AdminAdminContactRoute,
   AdminAdminDiagnosticsRoute: AdminAdminDiagnosticsRoute,
   AdminAdminEducationRoute: AdminAdminEducationRoute,
+  AdminAdminEnvImportRoute: AdminAdminEnvImportRoute,
   AdminAdminFoldersRoute: AdminAdminFoldersRoute,
   AdminAdminFooterAppsRoute: AdminAdminFooterAppsRoute,
   AdminAdminFooterCtaRoute: AdminAdminFooterCtaRoute,

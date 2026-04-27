@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, Inbox, Image as ImageIcon, ClipboardCheck,
   Settings, Users, LogOut, ExternalLink, Menu, X,
-  RefreshCw, MessageSquare, Shield, Activity,
+  RefreshCw, MessageSquare, Shield, Activity, KeyRound,
 } from "lucide-react";
 
 type Item = { to: string; label: string; Icon: any; end?: boolean };
@@ -25,6 +25,7 @@ const groups: Group[] = [
       { to: "/admin/comments", label: "Comments", Icon: MessageSquare },
       { to: "/admin/audit", label: "Audit log", Icon: Shield },
       { to: "/admin/diagnostics", label: "Diagnostics", Icon: Activity },
+      { to: "/admin/env-import", label: "Env import", Icon: KeyRound },
       { to: "/admin/runtime", label: "Runtime", Icon: RefreshCw },
       { to: "/admin/media", label: "Media library", Icon: ImageIcon },
       { to: "/admin/users", label: "Users", Icon: Users },

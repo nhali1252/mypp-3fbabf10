@@ -15,7 +15,7 @@
     "manifest": "node scripts/generate-build-manifest.mjs",
     "check:loader": "node scripts/check-page-loader-timings.mjs",
     "check:secrets": "node scripts/check-cloudflare-secrets.mjs",
-    "predeploy": "node scripts/check-cloudflare-secrets.mjs",
+    "predeploy": "node scripts/check-cloudflare-secrets.mjs && vite build",
     "deploy": "wrangler deploy"
   },
   "dependencies": {

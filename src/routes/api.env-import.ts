@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { createClient } from "@supabase/supabase-js";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { Database } from "@/integrations/supabase/types";
 
 /**
  * GET/POST /api/env-import
@@ -9,9 +11,11 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
  * can reach the database. Secret values are NEVER returned — only presence,
  * length, and a short fingerprint so you can confirm rotation took effect.
  *
- * Protected by a shared header `x-env-import-token` which must match the
- * `ENV_IMPORT_TOKEN` server secret. If the secret is unset, the route
- * refuses to run (fail-closed).
+ * Access control (BOTH must pass):
+ *   1. Header `x-env-import-token` must match `ENV_IMPORT_TOKEN` server secret
+ *      (fail-closed if the secret itself is unset).
+ *   2. `Authorization: Bearer <jwt>` must be a valid Supabase session whose
+ *      user has the `admin` role.
  */
 
 const EXPECTED_VARS = [
@@ -91,26 +95,70 @@ async function buildReport() {
   };
 }
 
+function jsonError(status: number, error: string) {
+  return new Response(JSON.stringify({ success: false, error }), {
+    status,
+    headers: { "content-type": "application/json" },
+  });
+}
+
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < a.length; i++) mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return mismatch === 0;
+}
+
+async function verifyAdmin(request: Request): Promise<{ userId: string } | Response> {
+  const SUPABASE_URL = process.env.SUPABASE_URL;
+  const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+    return jsonError(500, "Supabase env vars not configured on the server.");
+  }
+
+  const auth = request.headers.get("authorization") ?? "";
+  if (!auth.startsWith("Bearer ")) {
+    return jsonError(401, "Missing Bearer token");
+  }
+  const token = auth.slice("Bearer ".length).trim();
+  if (!token) return jsonError(401, "Empty Bearer token");
+
+  const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+    auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+  });
+
+  const { data, error } = await supabase.auth.getClaims(token);
+  if (error || !data?.claims?.sub) return jsonError(401, "Invalid session token");
+  const userId = data.claims.sub;
+
+  const { data: isAdmin, error: roleErr } = await supabaseAdmin.rpc("has_role", {
+    _user_id: userId,
+    _role: "admin",
+  });
+  if (roleErr) return jsonError(500, `Role check failed: ${roleErr.message}`);
+  if (!isAdmin) return jsonError(403, "Admin role required");
+
+  return { userId };
+}
+
 async function handle(request: Request) {
   const expectedToken = process.env.ENV_IMPORT_TOKEN;
   if (!expectedToken) {
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error:
-          "ENV_IMPORT_TOKEN secret is not configured. Add it in backend secrets and retry.",
-      }),
-      { status: 503, headers: { "content-type": "application/json" } },
+    return jsonError(
+      503,
+      "ENV_IMPORT_TOKEN secret is not configured. Add it in backend secrets and retry.",
     );
   }
 
-  const provided = request.headers.get("x-env-import-token");
-  if (!provided || provided !== expectedToken) {
-    return new Response(
-      JSON.stringify({ success: false, error: "Unauthorized" }),
-      { status: 401, headers: { "content-type": "application/json" } },
-    );
+  const provided = request.headers.get("x-env-import-token") ?? "";
+  if (!timingSafeEqual(provided, expectedToken)) {
+    return jsonError(401, "Invalid or missing x-env-import-token");
   }
+
+  const auth = await verifyAdmin(request);
+  if (auth instanceof Response) return auth;
+
 
   const report = await buildReport();
 

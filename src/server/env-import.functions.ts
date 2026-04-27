@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestHost } from "@tanstack/react-start/server";
+import { getRequestHost, getRequestHeader } from "@tanstack/react-start/server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -34,9 +34,13 @@ export const triggerEnvImport = createServerFn({ method: "POST" })
     const proto = host?.includes("localhost") ? "http" : "https";
     const url = `${proto}://${host}/api/env-import`;
 
+    const incomingAuth = getRequestHeader("authorization");
+    const headers: Record<string, string> = { "x-env-import-token": token };
+    if (incomingAuth) headers["authorization"] = incomingAuth;
+
     const res = await fetch(url, {
       method: "POST",
-      headers: { "x-env-import-token": token },
+      headers,
     });
     const body = await res.json().catch(() => ({ error: "non-JSON response" }));
     return { ok: res.ok, status: res.status, body };

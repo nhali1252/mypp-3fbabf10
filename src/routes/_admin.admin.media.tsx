@@ -36,27 +36,10 @@ function AdminMedia() {
     },
   });
 
-  async function upload(file: File) {
+  async function upload(_file: File) {
     setUploading(true);
-    try {
-      const safe = file.name.replace(/[^\w\-. ]+/g, "_").slice(0, 180);
-      const { uploadUrl } = await presign({
-        data: { folder, filename: safe, contentType: file.type || "application/octet-stream" },
-      });
-      const res = await fetch(uploadUrl, {
-        method: "PUT",
-        headers: { "Content-Type": file.type || "application/octet-stream" },
-        body: file,
-      });
-      if (!res.ok) throw new Error(`Upload failed (${res.status})`);
-      toast.success("Uploaded");
-      qc.invalidateQueries({ queryKey: ["admin-r2-media", folder] });
-      qc.invalidateQueries({ queryKey: ["r2-media-library", folder] });
-    } catch (e: any) {
-      toast.error(e.message ?? "Upload failed");
-    } finally {
-      setUploading(false);
-    }
+    toast.error("Direct upload from this page is disabled — use the Library button on a content card instead.");
+    setUploading(false);
   }
 
   async function deleteOne(key: string) {

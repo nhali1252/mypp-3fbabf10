@@ -1,33 +1,28 @@
 /**
- * RPC server functions for the messages inbox.
- * - submitMessage: PUBLIC, validated insert (used by contact forms / HireMe modal).
+ * Messages inbox — backed directly by the Supabase `messages` table.
+ * - submitMessage: PUBLIC, validated insert (used by contact form / HireMe modal).
  * - listMessages / updateMessage / deleteMessage: ADMIN ONLY.
- *
- * Messages are stored in the PRIVATE R2 bucket so PII (email, phone) is not
- * served by the public CDN domain.
  */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { readMessages, writeMessages, type Message } from "./messages.server";
+
+export type Message = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  subject: string | null;
+  message: string;
+  is_read: boolean;
+  is_replied: boolean;
+  created_at: string;
+};
 
 export type MessagesResult =
   | { ok: true; messages: Message[] }
   | { ok: false; messages: Message[]; error: string; detail?: string };
-
-function messageStorageError(error: unknown): string {
-  const err = error as any;
-  if (
-    err?.name === "AccessDenied" ||
-    err?.Code === "AccessDenied" ||
-    err?.$metadata?.httpStatusCode === 403 ||
-    /access\s*denied|forbidden/i.test(err?.message ?? "")
-  ) {
-    return "R2 denied access to the private messages bucket. Verify R2_PRIVATE_BUCKET is the bucket name and the R2 token has read/write object permissions for it.";
-  }
-  return "Messages storage is unavailable right now. Verify the R2 settings, then use Runtime → Restart R2 client.";
-}
 
 async function assertAdmin(userId: string) {
   const { data, error } = await supabaseAdmin
@@ -47,30 +42,18 @@ const submitSchema = z.object({
   message: z.string().trim().min(1).max(5000),
 });
 
-function newId() {
-  return `msg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-}
-
-/** Public: append a new message. Validated server-side. */
+/** Public: insert a new message. */
 export const submitMessage = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => submitSchema.parse(data))
   .handler(async ({ data }) => {
-    const list = await readMessages();
-    const msg: Message = {
-      id: newId(),
+    const { error } = await supabaseAdmin.from("messages").insert({
       name: data.name,
       email: data.email,
       phone: data.phone || null,
       subject: data.subject || null,
       message: data.message,
-      is_read: false,
-      is_replied: false,
-      created_at: new Date().toISOString(),
-    };
-    list.unshift(msg);
-    // Cap at 1000 most recent to keep file size reasonable.
-    if (list.length > 1000) list.length = 1000;
-    await writeMessages(list);
+    });
+    if (error) throw new Error(error.message);
     return { ok: true };
   });
 
@@ -80,16 +63,20 @@ export const listMessages = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<MessagesResult> => {
     await assertAdmin(context.userId);
     try {
-      const list = await readMessages();
-      return { ok: true, messages: list.sort((a, b) => (a.created_at < b.created_at ? 1 : -1)) };
+      const { data, error } = await supabaseAdmin
+        .from("messages")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return { ok: true, messages: (data ?? []) as Message[] };
     } catch (error: any) {
-      console.error("[messages.listMessages] storage unavailable", {
-        name: error?.name,
-        code: error?.Code || error?.code,
-        status: error?.$metadata?.httpStatusCode,
-        message: error?.message,
-      });
-      return { ok: false, messages: [], error: messageStorageError(error), detail: error?.message };
+      console.error("[messages.listMessages] failed", error);
+      return {
+        ok: false,
+        messages: [],
+        error: "Could not load messages.",
+        detail: error?.message,
+      };
     }
   });
 
@@ -97,20 +84,21 @@ export const listMessages = createServerFn({ method: "GET" })
 export const updateMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { id: string; is_read?: boolean; is_replied?: boolean }) =>
-    z.object({
-      id: z.string().min(1).max(120),
-      is_read: z.boolean().optional(),
-      is_replied: z.boolean().optional(),
-    }).parse(data),
+    z
+      .object({
+        id: z.string().uuid(),
+        is_read: z.boolean().optional(),
+        is_replied: z.boolean().optional(),
+      })
+      .parse(data),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
-    const list = await readMessages();
-    const idx = list.findIndex((m) => m.id === data.id);
-    if (idx === -1) throw new Error("Message not found");
-    if (typeof data.is_read === "boolean") list[idx].is_read = data.is_read;
-    if (typeof data.is_replied === "boolean") list[idx].is_replied = data.is_replied;
-    await writeMessages(list);
+    const patch: { is_read?: boolean; is_replied?: boolean } = {};
+    if (typeof data.is_read === "boolean") patch.is_read = data.is_read;
+    if (typeof data.is_replied === "boolean") patch.is_replied = data.is_replied;
+    const { error } = await supabaseAdmin.from("messages").update(patch).eq("id", data.id);
+    if (error) throw new Error(error.message);
     return { ok: true };
   });
 
@@ -118,12 +106,11 @@ export const updateMessage = createServerFn({ method: "POST" })
 export const deleteMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { id: string }) =>
-    z.object({ id: z.string().min(1).max(120) }).parse(data),
+    z.object({ id: z.string().uuid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
-    const list = await readMessages();
-    const next = list.filter((m) => m.id !== data.id);
-    await writeMessages(next);
+    const { error } = await supabaseAdmin.from("messages").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
     return { ok: true };
   });

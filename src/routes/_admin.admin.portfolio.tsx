@@ -3,7 +3,7 @@ import { useState, useRef, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { presignUpload, uploadAsset } from "@/server/r2.functions";
+import { uploadAsset } from "@/server/content.functions";
 import { AdminPage, AdminCard, FormRow, EmptyState } from "@/components/admin/AdminPage";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 import { MediaPicker, uploadToR2 } from "@/components/admin/MediaPicker";
@@ -215,7 +215,6 @@ function AdminPortfolio() {
   // Uploads many image files at once into the active folder. Each file becomes
   // a portfolio item titled after the file's base name. Useful for quickly
   // populating a brand-new folder from a folder of finished work.
-  const presign = useServerFn(presignUpload);
   const proxy = useServerFn(uploadAsset);
   const [bulkProgress, setBulkProgress] = useState<{ done: number; total: number } | null>(null);
 
@@ -228,7 +227,7 @@ function AdminPortfolio() {
       for (let idx = 0; idx < files.length; idx++) {
         const file = files[idx];
         try {
-          const url = await uploadToR2(file, "projects", presign, proxy);
+          const url = await uploadToR2(file, "projects", proxy);
           const baseName = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim() || `Item ${idx + 1}`;
           const { error } = await (supabase as any).from("portfolio_items").insert({
             folder_id: activeFolderId,

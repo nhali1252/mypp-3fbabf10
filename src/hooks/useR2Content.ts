@@ -1,14 +1,16 @@
 /**
- * Client-side helper for reading R2 content JSON files via the
- * `getContent` server function. Cached per-key by React Query in the hooks
- * that consume it.
+ * Client-side helper for reading content. Backed by Supabase via the
+ * `getContent` server function (previously R2). The `useR2Content` name is
+ * preserved so existing consumers continue to compile unchanged.
  */
 import { useQuery } from "@tanstack/react-query";
-import { getContent } from "@/server/r2.functions";
-import type { R2ContentKey } from "@/server/r2-keys";
+import { getContent, type ContentKey } from "@/server/content.functions";
+
+// Re-export under the legacy name so existing imports keep working.
+export type R2ContentKey = ContentKey;
 
 export function useR2Content<T = unknown>(
-  key: R2ContentKey,
+  key: ContentKey,
   opts?: { staleTime?: number; initialData?: T | null },
 ) {
   return useQuery({

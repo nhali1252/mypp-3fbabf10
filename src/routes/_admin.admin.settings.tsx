@@ -11,6 +11,7 @@ import { MediaPicker } from "@/components/admin/MediaPicker";
 import { PageKeySelector, usePageKey } from "@/components/admin/PageKeySelector";
 import { Save, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { CloudflareSecretsChecklist } from "@/components/admin/CloudflareSecretsChecklist";
 
 const HOMEPAGE_SECTION_KEYS: { key: string; label: string; hint?: string }[] = [
   { key: "hero", label: "Hero / launcher headline" },

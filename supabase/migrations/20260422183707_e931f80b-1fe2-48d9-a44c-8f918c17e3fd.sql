@@ -1,1 +1,0 @@
-UPDATE public.f_photocard SET image_url = 'https://mtddsbjuuzghzxlujnpi.supabase.co/storage/v1/object/public/media/f-photocard/ali-portrait.jpg' WHERE id = 'b7a6134d-79ee-42f5-b700-d014972915df';

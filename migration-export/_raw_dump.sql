@@ -1,54 +1,53 @@
--- ============================================================================
--- Schema migration: Lovable Cloud -> Your own Supabase project
--- Generated from live database (Postgres 17.6).
--- Safe to run on a FRESH Supabase project. Idempotent where possible.
---
--- After running this:
---   1. Verify tables in Supabase Dashboard -> Table Editor
---   2. Auth users do NOT come with this file -- export/import separately
---   3. Storage bucket 'media' must be created manually (script at bottom)
--- ============================================================================
-
 --
 -- PostgreSQL database dump
 --
 
+\restrict 8SxXUHzabmqS2pR6Xd1OBYfLhUL0YeOkqdTRZQKs955I4aHqUq91t7LOI8KlAIe
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.9
 
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
 
 --
 -- Name: public; Type: SCHEMA; Schema: -; Owner: -
 --
 
+CREATE SCHEMA public;
 
 
 --
 -- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
 --
 
+COMMENT ON SCHEMA public IS 'standard public schema';
 
 
 --
 -- Name: app_role; Type: TYPE; Schema: public; Owner: -
 --
 
-DO $mig$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'app_role') THEN
-    CREATE TYPE public.app_role AS ENUM (
+CREATE TYPE public.app_role AS ENUM (
     'admin',
     'editor'
 );
-  END IF;
-END $mig$;
 
 
 --
 -- Name: grant_first_user_admin(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE OR REPLACE FUNCTION public.grant_first_user_admin() RETURNS trigger
+CREATE FUNCTION public.grant_first_user_admin() RETURNS trigger
     LANGUAGE plpgsql SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
@@ -65,7 +64,7 @@ $$;
 -- Name: handle_new_user(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE OR REPLACE FUNCTION public.handle_new_user() RETURNS trigger
+CREATE FUNCTION public.handle_new_user() RETURNS trigger
     LANGUAGE plpgsql SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
@@ -80,7 +79,7 @@ END; $$;
 -- Name: has_role(uuid, public.app_role); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role public.app_role) RETURNS boolean
+CREATE FUNCTION public.has_role(_user_id uuid, _role public.app_role) RETURNS boolean
     LANGUAGE sql STABLE SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
@@ -92,7 +91,7 @@ $$;
 -- Name: list_public_tables(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE OR REPLACE FUNCTION public.list_public_tables() RETURNS TABLE(table_name text)
+CREATE FUNCTION public.list_public_tables() RETURNS TABLE(table_name text)
     LANGUAGE sql STABLE SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
@@ -106,19 +105,20 @@ $$;
 -- Name: set_updated_at(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE OR REPLACE FUNCTION public.set_updated_at() RETURNS trigger
+CREATE FUNCTION public.set_updated_at() RETURNS trigger
     LANGUAGE plpgsql SECURITY DEFINER
     SET search_path TO 'public'
     AS $$
 BEGIN NEW.updated_at = now(); RETURN NEW; END; $$;
 
 
+SET default_table_access_method = heap;
 
 --
 -- Name: about_content; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.about_content (
+CREATE TABLE public.about_content (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     title text NOT NULL,
     intro text,
@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS public.about_content (
 -- Name: activities; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.activities (
+CREATE TABLE public.activities (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     title text NOT NULL,
     period text,
@@ -153,7 +153,7 @@ CREATE TABLE IF NOT EXISTS public.activities (
 -- Name: contact_settings; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.contact_settings (
+CREATE TABLE public.contact_settings (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     email text,
     phone text,
@@ -171,7 +171,7 @@ CREATE TABLE IF NOT EXISTS public.contact_settings (
 -- Name: education; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.education (
+CREATE TABLE public.education (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     degree text NOT NULL,
     institution text,
@@ -190,7 +190,7 @@ CREATE TABLE IF NOT EXISTS public.education (
 -- Name: env_imports; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.env_imports (
+CREATE TABLE public.env_imports (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     success boolean NOT NULL,
@@ -212,7 +212,7 @@ CREATE TABLE IF NOT EXISTS public.env_imports (
 -- Name: f_hero; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.f_hero (
+CREATE TABLE public.f_hero (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     headline text DEFAULT 'Designer with 2 years of design work with TasTaj.'::text NOT NULL,
     intro text DEFAULT 'I''m Ali Nur Hasan — a Designer with 2 years of design experience working with TasTaj. I create logos, banners, posters, product visuals and basic websites, blending Canva, Adobe tools and AI assistance to deliver clean, brand-ready work.'::text NOT NULL,
@@ -228,7 +228,7 @@ ALTER TABLE ONLY public.f_hero REPLICA IDENTITY FULL;
 -- Name: f_photocard; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.f_photocard (
+CREATE TABLE public.f_photocard (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     name text DEFAULT 'Ali Nur Hasan'::text NOT NULL,
     role text DEFAULT 'Designer · TasTaj'::text NOT NULL,
@@ -244,7 +244,7 @@ CREATE TABLE IF NOT EXISTS public.f_photocard (
 -- Name: f_projects; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.f_projects (
+CREATE TABLE public.f_projects (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     title text NOT NULL,
     description text,
@@ -264,7 +264,7 @@ ALTER TABLE ONLY public.f_projects REPLICA IDENTITY FULL;
 -- Name: f_skills; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.f_skills (
+CREATE TABLE public.f_skills (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     kind text DEFAULT 'design'::text NOT NULL,
     title text NOT NULL,
@@ -284,7 +284,7 @@ ALTER TABLE ONLY public.f_skills REPLICA IDENTITY FULL;
 -- Name: feed_comment_reports; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.feed_comment_reports (
+CREATE TABLE public.feed_comment_reports (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     comment_id uuid NOT NULL,
     reporter_id uuid NOT NULL,
@@ -298,7 +298,7 @@ CREATE TABLE IF NOT EXISTS public.feed_comment_reports (
 -- Name: feed_comments; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.feed_comments (
+CREATE TABLE public.feed_comments (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     item_id text NOT NULL,
     user_id uuid NOT NULL,
@@ -317,7 +317,7 @@ CREATE TABLE IF NOT EXISTS public.feed_comments (
 -- Name: feed_reactions; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.feed_reactions (
+CREATE TABLE public.feed_reactions (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     item_id text NOT NULL,
     user_id uuid NOT NULL,
@@ -331,7 +331,7 @@ CREATE TABLE IF NOT EXISTS public.feed_reactions (
 -- Name: folders; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.folders (
+CREATE TABLE public.folders (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     name text NOT NULL,
     slug text NOT NULL,
@@ -347,7 +347,7 @@ CREATE TABLE IF NOT EXISTS public.folders (
 -- Name: footer_apps; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.footer_apps (
+CREATE TABLE public.footer_apps (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     name text NOT NULL,
     description text,
@@ -364,7 +364,7 @@ CREATE TABLE IF NOT EXISTS public.footer_apps (
 -- Name: footer_cta; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.footer_cta (
+CREATE TABLE public.footer_cta (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     singleton boolean DEFAULT true NOT NULL,
     eyebrow text DEFAULT 'Start a project'::text NOT NULL,
@@ -387,7 +387,7 @@ CREATE TABLE IF NOT EXISTS public.footer_cta (
 -- Name: footer_links; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.footer_links (
+CREATE TABLE public.footer_links (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     label text NOT NULL,
     url text NOT NULL,
@@ -400,7 +400,7 @@ CREATE TABLE IF NOT EXISTS public.footer_links (
 -- Name: hero_content; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.hero_content (
+CREATE TABLE public.hero_content (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     eyebrow text,
     headline text NOT NULL,
@@ -421,7 +421,7 @@ CREATE TABLE IF NOT EXISTS public.hero_content (
 -- Name: launcher_hero; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.launcher_hero (
+CREATE TABLE public.launcher_hero (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     eyebrow text DEFAULT 'Portfolio · TasTaj'::text NOT NULL,
     headline_top text DEFAULT 'Pick a page'::text NOT NULL,
@@ -435,7 +435,7 @@ CREATE TABLE IF NOT EXISTS public.launcher_hero (
 -- Name: launcher_pages; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.launcher_pages (
+CREATE TABLE public.launcher_pages (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     label text NOT NULL,
     title text NOT NULL,
@@ -456,7 +456,7 @@ CREATE TABLE IF NOT EXISTS public.launcher_pages (
 -- Name: messages; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.messages (
+CREATE TABLE public.messages (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     name text NOT NULL,
     email text NOT NULL,
@@ -473,7 +473,7 @@ CREATE TABLE IF NOT EXISTS public.messages (
 -- Name: moderation_log; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.moderation_log (
+CREATE TABLE public.moderation_log (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     moderator_id uuid NOT NULL,
     target_type text NOT NULL,
@@ -491,7 +491,7 @@ CREATE TABLE IF NOT EXISTS public.moderation_log (
 -- Name: nav_links; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.nav_links (
+CREATE TABLE public.nav_links (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     label text NOT NULL,
     url text NOT NULL,
@@ -504,7 +504,7 @@ CREATE TABLE IF NOT EXISTS public.nav_links (
 -- Name: page_loader_settings; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.page_loader_settings (
+CREATE TABLE public.page_loader_settings (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     singleton boolean DEFAULT true NOT NULL,
     initial_ms integer DEFAULT 250 NOT NULL,
@@ -520,7 +520,7 @@ CREATE TABLE IF NOT EXISTS public.page_loader_settings (
 -- Name: page_quotes; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.page_quotes (
+CREATE TABLE public.page_quotes (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     page_slug text NOT NULL,
     eyebrow text,
@@ -535,7 +535,7 @@ CREATE TABLE IF NOT EXISTS public.page_quotes (
 -- Name: portfolio_folders; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.portfolio_folders (
+CREATE TABLE public.portfolio_folders (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     name text NOT NULL,
     slug text NOT NULL,
@@ -554,7 +554,7 @@ CREATE TABLE IF NOT EXISTS public.portfolio_folders (
 -- Name: portfolio_items; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.portfolio_items (
+CREATE TABLE public.portfolio_items (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     folder_id uuid NOT NULL,
     title text NOT NULL,
@@ -577,7 +577,7 @@ CREATE TABLE IF NOT EXISTS public.portfolio_items (
 -- Name: profiles; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.profiles (
+CREATE TABLE public.profiles (
     id uuid NOT NULL,
     display_name text,
     avatar_url text,
@@ -591,7 +591,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 -- Name: projects; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.projects (
+CREATE TABLE public.projects (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     title text NOT NULL,
     slug text NOT NULL,
@@ -616,7 +616,7 @@ CREATE TABLE IF NOT EXISTS public.projects (
 -- Name: seo_settings; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.seo_settings (
+CREATE TABLE public.seo_settings (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     page_key text NOT NULL,
     meta_title text,
@@ -631,7 +631,7 @@ CREATE TABLE IF NOT EXISTS public.seo_settings (
 -- Name: services; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.services (
+CREATE TABLE public.services (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     title text NOT NULL,
     description text,
@@ -647,7 +647,7 @@ CREATE TABLE IF NOT EXISTS public.services (
 -- Name: site_settings; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.site_settings (
+CREATE TABLE public.site_settings (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     site_title text DEFAULT 'Portfolio'::text NOT NULL,
     logo_url text,
@@ -674,7 +674,7 @@ CREATE TABLE IF NOT EXISTS public.site_settings (
 -- Name: slots; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.slots (
+CREATE TABLE public.slots (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     folder_id uuid NOT NULL,
     title text NOT NULL,
@@ -695,7 +695,7 @@ CREATE TABLE IF NOT EXISTS public.slots (
 -- Name: taxi_services; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.taxi_services (
+CREATE TABLE public.taxi_services (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     slot_id uuid NOT NULL,
     service_name text NOT NULL,
@@ -718,7 +718,7 @@ CREATE TABLE IF NOT EXISTS public.taxi_services (
 -- Name: testimonials; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.testimonials (
+CREATE TABLE public.testimonials (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     client_name text NOT NULL,
     role text,
@@ -739,7 +739,7 @@ CREATE TABLE IF NOT EXISTS public.testimonials (
 -- Name: ticker_items; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.ticker_items (
+CREATE TABLE public.ticker_items (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     text text NOT NULL,
     sort_order integer DEFAULT 0 NOT NULL,
@@ -752,7 +752,7 @@ CREATE TABLE IF NOT EXISTS public.ticker_items (
 -- Name: user_roles; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE IF NOT EXISTS public.user_roles (
+CREATE TABLE public.user_roles (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,
     role public.app_role NOT NULL,
@@ -1133,154 +1133,153 @@ ALTER TABLE ONLY public.user_roles
 -- Name: f_projects_order_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS f_projects_order_idx ON public.f_projects USING btree (sort_order);
+CREATE INDEX f_projects_order_idx ON public.f_projects USING btree (sort_order);
 
 
 --
 -- Name: f_skills_kind_order_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS f_skills_kind_order_idx ON public.f_skills USING btree (kind, sort_order);
+CREATE INDEX f_skills_kind_order_idx ON public.f_skills USING btree (kind, sort_order);
 
 
 --
 -- Name: idx_about_content_page_key; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS idx_about_content_page_key ON public.about_content USING btree (page_key);
+CREATE INDEX idx_about_content_page_key ON public.about_content USING btree (page_key);
 
 
 --
 -- Name: idx_contact_settings_page_key; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS idx_contact_settings_page_key ON public.contact_settings USING btree (page_key);
+CREATE INDEX idx_contact_settings_page_key ON public.contact_settings USING btree (page_key);
 
 
 --
 -- Name: idx_env_imports_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS idx_env_imports_created_at ON public.env_imports USING btree (created_at DESC);
+CREATE INDEX idx_env_imports_created_at ON public.env_imports USING btree (created_at DESC);
 
 
 --
 -- Name: idx_feed_comments_item; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS idx_feed_comments_item ON public.feed_comments USING btree (item_id, created_at DESC);
+CREATE INDEX idx_feed_comments_item ON public.feed_comments USING btree (item_id, created_at DESC);
 
 
 --
 -- Name: idx_feed_comments_parent; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS idx_feed_comments_parent ON public.feed_comments USING btree (parent_id);
+CREATE INDEX idx_feed_comments_parent ON public.feed_comments USING btree (parent_id);
 
 
 --
 -- Name: idx_feed_comments_user; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS idx_feed_comments_user ON public.feed_comments USING btree (user_id);
+CREATE INDEX idx_feed_comments_user ON public.feed_comments USING btree (user_id);
 
 
 --
 -- Name: idx_feed_reactions_item; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS idx_feed_reactions_item ON public.feed_reactions USING btree (item_id);
+CREATE INDEX idx_feed_reactions_item ON public.feed_reactions USING btree (item_id);
 
 
 --
 -- Name: idx_feed_reactions_user; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS idx_feed_reactions_user ON public.feed_reactions USING btree (user_id);
+CREATE INDEX idx_feed_reactions_user ON public.feed_reactions USING btree (user_id);
 
 
 --
 -- Name: idx_hero_content_page_key; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS idx_hero_content_page_key ON public.hero_content USING btree (page_key);
+CREATE INDEX idx_hero_content_page_key ON public.hero_content USING btree (page_key);
 
 
 --
 -- Name: idx_portfolio_folders_parent_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS idx_portfolio_folders_parent_id ON public.portfolio_folders USING btree (parent_id);
+CREATE INDEX idx_portfolio_folders_parent_id ON public.portfolio_folders USING btree (parent_id);
 
 
 --
 -- Name: idx_portfolio_items_featured; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS idx_portfolio_items_featured ON public.portfolio_items USING btree (featured) WHERE (featured = true);
+CREATE INDEX idx_portfolio_items_featured ON public.portfolio_items USING btree (featured) WHERE (featured = true);
 
 
 --
 -- Name: idx_portfolio_items_folder; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS idx_portfolio_items_folder ON public.portfolio_items USING btree (folder_id);
+CREATE INDEX idx_portfolio_items_folder ON public.portfolio_items USING btree (folder_id);
 
 
 --
 -- Name: idx_portfolio_items_show_in_feed; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS idx_portfolio_items_show_in_feed ON public.portfolio_items USING btree (show_in_feed) WHERE (show_in_feed = true);
+CREATE INDEX idx_portfolio_items_show_in_feed ON public.portfolio_items USING btree (show_in_feed) WHERE (show_in_feed = true);
 
 
 --
 -- Name: idx_portfolio_items_sort; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS idx_portfolio_items_sort ON public.portfolio_items USING btree (folder_id, sort_order);
+CREATE INDEX idx_portfolio_items_sort ON public.portfolio_items USING btree (folder_id, sort_order);
 
 
 --
 -- Name: idx_site_settings_page_key; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS idx_site_settings_page_key ON public.site_settings USING btree (page_key);
+CREATE INDEX idx_site_settings_page_key ON public.site_settings USING btree (page_key);
 
 
 --
 -- Name: moderation_log_moderator_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS moderation_log_moderator_idx ON public.moderation_log USING btree (moderator_id, created_at DESC);
+CREATE INDEX moderation_log_moderator_idx ON public.moderation_log USING btree (moderator_id, created_at DESC);
 
 
 --
 -- Name: moderation_log_target_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS moderation_log_target_idx ON public.moderation_log USING btree (target_type, target_id, created_at DESC);
+CREATE INDEX moderation_log_target_idx ON public.moderation_log USING btree (target_type, target_id, created_at DESC);
 
 
 --
 -- Name: slots_folder_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS slots_folder_idx ON public.slots USING btree (folder_id);
+CREATE INDEX slots_folder_idx ON public.slots USING btree (folder_id);
 
 
 --
 -- Name: taxi_services_slot_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX IF NOT EXISTS taxi_services_slot_idx ON public.taxi_services USING btree (slot_id);
+CREATE INDEX taxi_services_slot_idx ON public.taxi_services USING btree (slot_id);
 
 
 --
 -- Name: about_content about_updated; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS about_updated ON public.about_content;
 CREATE TRIGGER about_updated BEFORE UPDATE ON public.about_content FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1288,7 +1287,6 @@ CREATE TRIGGER about_updated BEFORE UPDATE ON public.about_content FOR EACH ROW 
 -- Name: activities activities_updated; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS activities_updated ON public.activities;
 CREATE TRIGGER activities_updated BEFORE UPDATE ON public.activities FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1296,7 +1294,6 @@ CREATE TRIGGER activities_updated BEFORE UPDATE ON public.activities FOR EACH RO
 -- Name: contact_settings contact_updated; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS contact_updated ON public.contact_settings;
 CREATE TRIGGER contact_updated BEFORE UPDATE ON public.contact_settings FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1304,7 +1301,6 @@ CREATE TRIGGER contact_updated BEFORE UPDATE ON public.contact_settings FOR EACH
 -- Name: education education_updated; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS education_updated ON public.education;
 CREATE TRIGGER education_updated BEFORE UPDATE ON public.education FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1312,7 +1308,6 @@ CREATE TRIGGER education_updated BEFORE UPDATE ON public.education FOR EACH ROW 
 -- Name: f_hero f_hero_set_updated_at; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS f_hero_set_updated_at ON public.f_hero;
 CREATE TRIGGER f_hero_set_updated_at BEFORE UPDATE ON public.f_hero FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1320,7 +1315,6 @@ CREATE TRIGGER f_hero_set_updated_at BEFORE UPDATE ON public.f_hero FOR EACH ROW
 -- Name: f_projects f_projects_set_updated_at; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS f_projects_set_updated_at ON public.f_projects;
 CREATE TRIGGER f_projects_set_updated_at BEFORE UPDATE ON public.f_projects FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1328,7 +1322,6 @@ CREATE TRIGGER f_projects_set_updated_at BEFORE UPDATE ON public.f_projects FOR 
 -- Name: f_skills f_skills_set_updated_at; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS f_skills_set_updated_at ON public.f_skills;
 CREATE TRIGGER f_skills_set_updated_at BEFORE UPDATE ON public.f_skills FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1336,7 +1329,6 @@ CREATE TRIGGER f_skills_set_updated_at BEFORE UPDATE ON public.f_skills FOR EACH
 -- Name: feed_comments feed_comments_set_updated_at; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS feed_comments_set_updated_at ON public.feed_comments;
 CREATE TRIGGER feed_comments_set_updated_at BEFORE UPDATE ON public.feed_comments FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1344,7 +1336,6 @@ CREATE TRIGGER feed_comments_set_updated_at BEFORE UPDATE ON public.feed_comment
 -- Name: folders folders_updated; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS folders_updated ON public.folders;
 CREATE TRIGGER folders_updated BEFORE UPDATE ON public.folders FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1352,7 +1343,6 @@ CREATE TRIGGER folders_updated BEFORE UPDATE ON public.folders FOR EACH ROW EXEC
 -- Name: hero_content hero_updated; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS hero_updated ON public.hero_content;
 CREATE TRIGGER hero_updated BEFORE UPDATE ON public.hero_content FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1360,7 +1350,6 @@ CREATE TRIGGER hero_updated BEFORE UPDATE ON public.hero_content FOR EACH ROW EX
 -- Name: launcher_pages launcher_pages_updated_at; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS launcher_pages_updated_at ON public.launcher_pages;
 CREATE TRIGGER launcher_pages_updated_at BEFORE UPDATE ON public.launcher_pages FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1368,7 +1357,6 @@ CREATE TRIGGER launcher_pages_updated_at BEFORE UPDATE ON public.launcher_pages 
 -- Name: page_quotes page_quotes_set_updated_at; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS page_quotes_set_updated_at ON public.page_quotes;
 CREATE TRIGGER page_quotes_set_updated_at BEFORE UPDATE ON public.page_quotes FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1376,7 +1364,6 @@ CREATE TRIGGER page_quotes_set_updated_at BEFORE UPDATE ON public.page_quotes FO
 -- Name: profiles profiles_updated; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS profiles_updated ON public.profiles;
 CREATE TRIGGER profiles_updated BEFORE UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1384,7 +1371,6 @@ CREATE TRIGGER profiles_updated BEFORE UPDATE ON public.profiles FOR EACH ROW EX
 -- Name: projects projects_updated; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS projects_updated ON public.projects;
 CREATE TRIGGER projects_updated BEFORE UPDATE ON public.projects FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1392,7 +1378,6 @@ CREATE TRIGGER projects_updated BEFORE UPDATE ON public.projects FOR EACH ROW EX
 -- Name: seo_settings seo_updated; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS seo_updated ON public.seo_settings;
 CREATE TRIGGER seo_updated BEFORE UPDATE ON public.seo_settings FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1400,7 +1385,6 @@ CREATE TRIGGER seo_updated BEFORE UPDATE ON public.seo_settings FOR EACH ROW EXE
 -- Name: services services_updated; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS services_updated ON public.services;
 CREATE TRIGGER services_updated BEFORE UPDATE ON public.services FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1408,7 +1392,6 @@ CREATE TRIGGER services_updated BEFORE UPDATE ON public.services FOR EACH ROW EX
 -- Name: f_photocard set_f_photocard_updated_at; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS set_f_photocard_updated_at ON public.f_photocard;
 CREATE TRIGGER set_f_photocard_updated_at BEFORE UPDATE ON public.f_photocard FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1416,7 +1399,6 @@ CREATE TRIGGER set_f_photocard_updated_at BEFORE UPDATE ON public.f_photocard FO
 -- Name: footer_apps set_footer_apps_updated_at; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS set_footer_apps_updated_at ON public.footer_apps;
 CREATE TRIGGER set_footer_apps_updated_at BEFORE UPDATE ON public.footer_apps FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1424,7 +1406,6 @@ CREATE TRIGGER set_footer_apps_updated_at BEFORE UPDATE ON public.footer_apps FO
 -- Name: launcher_hero set_launcher_hero_updated_at; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS set_launcher_hero_updated_at ON public.launcher_hero;
 CREATE TRIGGER set_launcher_hero_updated_at BEFORE UPDATE ON public.launcher_hero FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1432,7 +1413,6 @@ CREATE TRIGGER set_launcher_hero_updated_at BEFORE UPDATE ON public.launcher_her
 -- Name: site_settings site_updated; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS site_updated ON public.site_settings;
 CREATE TRIGGER site_updated BEFORE UPDATE ON public.site_settings FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1440,7 +1420,6 @@ CREATE TRIGGER site_updated BEFORE UPDATE ON public.site_settings FOR EACH ROW E
 -- Name: slots slots_updated; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS slots_updated ON public.slots;
 CREATE TRIGGER slots_updated BEFORE UPDATE ON public.slots FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1448,7 +1427,6 @@ CREATE TRIGGER slots_updated BEFORE UPDATE ON public.slots FOR EACH ROW EXECUTE 
 -- Name: taxi_services taxi_services_updated; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS taxi_services_updated ON public.taxi_services;
 CREATE TRIGGER taxi_services_updated BEFORE UPDATE ON public.taxi_services FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1456,7 +1434,6 @@ CREATE TRIGGER taxi_services_updated BEFORE UPDATE ON public.taxi_services FOR E
 -- Name: testimonials testimonials_updated; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS testimonials_updated ON public.testimonials;
 CREATE TRIGGER testimonials_updated BEFORE UPDATE ON public.testimonials FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1464,7 +1441,6 @@ CREATE TRIGGER testimonials_updated BEFORE UPDATE ON public.testimonials FOR EAC
 -- Name: footer_cta trg_footer_cta_updated; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS trg_footer_cta_updated ON public.footer_cta;
 CREATE TRIGGER trg_footer_cta_updated BEFORE UPDATE ON public.footer_cta FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1472,7 +1448,6 @@ CREATE TRIGGER trg_footer_cta_updated BEFORE UPDATE ON public.footer_cta FOR EAC
 -- Name: page_loader_settings trg_page_loader_settings_updated; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS trg_page_loader_settings_updated ON public.page_loader_settings;
 CREATE TRIGGER trg_page_loader_settings_updated BEFORE UPDATE ON public.page_loader_settings FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1480,7 +1455,6 @@ CREATE TRIGGER trg_page_loader_settings_updated BEFORE UPDATE ON public.page_loa
 -- Name: portfolio_folders trg_portfolio_folders_updated; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS trg_portfolio_folders_updated ON public.portfolio_folders;
 CREATE TRIGGER trg_portfolio_folders_updated BEFORE UPDATE ON public.portfolio_folders FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1488,7 +1462,6 @@ CREATE TRIGGER trg_portfolio_folders_updated BEFORE UPDATE ON public.portfolio_f
 -- Name: portfolio_items trg_portfolio_items_updated; Type: TRIGGER; Schema: public; Owner: -
 --
 
-DROP TRIGGER IF EXISTS trg_portfolio_items_updated ON public.portfolio_items;
 CREATE TRIGGER trg_portfolio_items_updated BEFORE UPDATE ON public.portfolio_items FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
@@ -1584,7 +1557,6 @@ ALTER TABLE ONLY public.user_roles
 -- Name: feed_comments Admins delete any comment; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins delete any comment" ON public.feed_comments;
 CREATE POLICY "Admins delete any comment" ON public.feed_comments FOR DELETE TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1592,7 +1564,6 @@ CREATE POLICY "Admins delete any comment" ON public.feed_comments FOR DELETE TO 
 -- Name: feed_reactions Admins delete any reaction; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins delete any reaction" ON public.feed_reactions;
 CREATE POLICY "Admins delete any reaction" ON public.feed_reactions FOR DELETE TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1600,7 +1571,6 @@ CREATE POLICY "Admins delete any reaction" ON public.feed_reactions FOR DELETE T
 -- Name: messages Admins delete messages; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins delete messages" ON public.messages;
 CREATE POLICY "Admins delete messages" ON public.messages FOR DELETE TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1608,7 +1578,6 @@ CREATE POLICY "Admins delete messages" ON public.messages FOR DELETE TO authenti
 -- Name: feed_comment_reports Admins delete reports; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins delete reports" ON public.feed_comment_reports;
 CREATE POLICY "Admins delete reports" ON public.feed_comment_reports FOR DELETE TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1616,7 +1585,6 @@ CREATE POLICY "Admins delete reports" ON public.feed_comment_reports FOR DELETE 
 -- Name: f_hero Admins manage f_hero; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins manage f_hero" ON public.f_hero;
 CREATE POLICY "Admins manage f_hero" ON public.f_hero TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1624,7 +1592,6 @@ CREATE POLICY "Admins manage f_hero" ON public.f_hero TO authenticated USING (pu
 -- Name: f_photocard Admins manage f_photocard; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins manage f_photocard" ON public.f_photocard;
 CREATE POLICY "Admins manage f_photocard" ON public.f_photocard TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1632,7 +1599,6 @@ CREATE POLICY "Admins manage f_photocard" ON public.f_photocard TO authenticated
 -- Name: f_projects Admins manage f_projects; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins manage f_projects" ON public.f_projects;
 CREATE POLICY "Admins manage f_projects" ON public.f_projects TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1640,7 +1606,6 @@ CREATE POLICY "Admins manage f_projects" ON public.f_projects TO authenticated U
 -- Name: f_skills Admins manage f_skills; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins manage f_skills" ON public.f_skills;
 CREATE POLICY "Admins manage f_skills" ON public.f_skills TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1648,7 +1613,6 @@ CREATE POLICY "Admins manage f_skills" ON public.f_skills TO authenticated USING
 -- Name: folders Admins manage folders; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins manage folders" ON public.folders;
 CREATE POLICY "Admins manage folders" ON public.folders TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1656,7 +1620,6 @@ CREATE POLICY "Admins manage folders" ON public.folders TO authenticated USING (
 -- Name: footer_cta Admins manage footer_cta; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins manage footer_cta" ON public.footer_cta;
 CREATE POLICY "Admins manage footer_cta" ON public.footer_cta TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1664,7 +1627,6 @@ CREATE POLICY "Admins manage footer_cta" ON public.footer_cta TO authenticated U
 -- Name: launcher_hero Admins manage launcher_hero; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins manage launcher_hero" ON public.launcher_hero;
 CREATE POLICY "Admins manage launcher_hero" ON public.launcher_hero TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1672,7 +1634,6 @@ CREATE POLICY "Admins manage launcher_hero" ON public.launcher_hero TO authentic
 -- Name: page_loader_settings Admins manage page_loader_settings; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins manage page_loader_settings" ON public.page_loader_settings;
 CREATE POLICY "Admins manage page_loader_settings" ON public.page_loader_settings TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1680,7 +1641,6 @@ CREATE POLICY "Admins manage page_loader_settings" ON public.page_loader_setting
 -- Name: page_quotes Admins manage page_quotes; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins manage page_quotes" ON public.page_quotes;
 CREATE POLICY "Admins manage page_quotes" ON public.page_quotes TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1688,7 +1648,6 @@ CREATE POLICY "Admins manage page_quotes" ON public.page_quotes TO authenticated
 -- Name: portfolio_folders Admins manage portfolio_folders; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins manage portfolio_folders" ON public.portfolio_folders;
 CREATE POLICY "Admins manage portfolio_folders" ON public.portfolio_folders TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1696,7 +1655,6 @@ CREATE POLICY "Admins manage portfolio_folders" ON public.portfolio_folders TO a
 -- Name: portfolio_items Admins manage portfolio_items; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins manage portfolio_items" ON public.portfolio_items;
 CREATE POLICY "Admins manage portfolio_items" ON public.portfolio_items TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1704,7 +1662,6 @@ CREATE POLICY "Admins manage portfolio_items" ON public.portfolio_items TO authe
 -- Name: user_roles Admins manage roles; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins manage roles" ON public.user_roles;
 CREATE POLICY "Admins manage roles" ON public.user_roles TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1712,7 +1669,6 @@ CREATE POLICY "Admins manage roles" ON public.user_roles TO authenticated USING 
 -- Name: slots Admins manage slots; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins manage slots" ON public.slots;
 CREATE POLICY "Admins manage slots" ON public.slots TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1720,7 +1676,6 @@ CREATE POLICY "Admins manage slots" ON public.slots TO authenticated USING (publ
 -- Name: taxi_services Admins manage taxi_services; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins manage taxi_services" ON public.taxi_services;
 CREATE POLICY "Admins manage taxi_services" ON public.taxi_services TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1728,7 +1683,6 @@ CREATE POLICY "Admins manage taxi_services" ON public.taxi_services TO authentic
 -- Name: feed_comments Admins read all comments; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins read all comments" ON public.feed_comments;
 CREATE POLICY "Admins read all comments" ON public.feed_comments FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1736,7 +1690,6 @@ CREATE POLICY "Admins read all comments" ON public.feed_comments FOR SELECT TO a
 -- Name: feed_comment_reports Admins read all reports; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins read all reports" ON public.feed_comment_reports;
 CREATE POLICY "Admins read all reports" ON public.feed_comment_reports FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1744,7 +1697,6 @@ CREATE POLICY "Admins read all reports" ON public.feed_comment_reports FOR SELEC
 -- Name: env_imports Admins read env_imports; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins read env_imports" ON public.env_imports;
 CREATE POLICY "Admins read env_imports" ON public.env_imports FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1752,7 +1704,6 @@ CREATE POLICY "Admins read env_imports" ON public.env_imports FOR SELECT TO auth
 -- Name: moderation_log Admins read moderation_log; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins read moderation_log" ON public.moderation_log;
 CREATE POLICY "Admins read moderation_log" ON public.moderation_log FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1760,7 +1711,6 @@ CREATE POLICY "Admins read moderation_log" ON public.moderation_log FOR SELECT T
 -- Name: feed_comments Admins update any comment; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins update any comment" ON public.feed_comments;
 CREATE POLICY "Admins update any comment" ON public.feed_comments FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1768,7 +1718,6 @@ CREATE POLICY "Admins update any comment" ON public.feed_comments FOR UPDATE TO 
 -- Name: messages Admins update messages; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins update messages" ON public.messages;
 CREATE POLICY "Admins update messages" ON public.messages FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1776,7 +1725,6 @@ CREATE POLICY "Admins update messages" ON public.messages FOR UPDATE TO authenti
 -- Name: profiles Admins view all profiles; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins view all profiles" ON public.profiles;
 CREATE POLICY "Admins view all profiles" ON public.profiles FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1784,7 +1732,6 @@ CREATE POLICY "Admins view all profiles" ON public.profiles FOR SELECT TO authen
 -- Name: user_roles Admins view all roles; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins view all roles" ON public.user_roles;
 CREATE POLICY "Admins view all roles" ON public.user_roles FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1792,7 +1739,6 @@ CREATE POLICY "Admins view all roles" ON public.user_roles FOR SELECT TO authent
 -- Name: messages Admins view messages; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins view messages" ON public.messages;
 CREATE POLICY "Admins view messages" ON public.messages FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1800,7 +1746,6 @@ CREATE POLICY "Admins view messages" ON public.messages FOR SELECT TO authentica
 -- Name: about_content Admins write about_content; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins write about_content" ON public.about_content;
 CREATE POLICY "Admins write about_content" ON public.about_content TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1808,7 +1753,6 @@ CREATE POLICY "Admins write about_content" ON public.about_content TO authentica
 -- Name: activities Admins write activities; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins write activities" ON public.activities;
 CREATE POLICY "Admins write activities" ON public.activities TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1816,7 +1760,6 @@ CREATE POLICY "Admins write activities" ON public.activities TO authenticated US
 -- Name: contact_settings Admins write contact_settings; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins write contact_settings" ON public.contact_settings;
 CREATE POLICY "Admins write contact_settings" ON public.contact_settings TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1824,7 +1767,6 @@ CREATE POLICY "Admins write contact_settings" ON public.contact_settings TO auth
 -- Name: education Admins write education; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins write education" ON public.education;
 CREATE POLICY "Admins write education" ON public.education TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1832,7 +1774,6 @@ CREATE POLICY "Admins write education" ON public.education TO authenticated USIN
 -- Name: footer_apps Admins write footer_apps; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins write footer_apps" ON public.footer_apps;
 CREATE POLICY "Admins write footer_apps" ON public.footer_apps TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1840,7 +1781,6 @@ CREATE POLICY "Admins write footer_apps" ON public.footer_apps TO authenticated 
 -- Name: footer_links Admins write footer_links; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins write footer_links" ON public.footer_links;
 CREATE POLICY "Admins write footer_links" ON public.footer_links TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1848,7 +1788,6 @@ CREATE POLICY "Admins write footer_links" ON public.footer_links TO authenticate
 -- Name: hero_content Admins write hero_content; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins write hero_content" ON public.hero_content;
 CREATE POLICY "Admins write hero_content" ON public.hero_content TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1856,7 +1795,6 @@ CREATE POLICY "Admins write hero_content" ON public.hero_content TO authenticate
 -- Name: launcher_pages Admins write launcher_pages; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins write launcher_pages" ON public.launcher_pages;
 CREATE POLICY "Admins write launcher_pages" ON public.launcher_pages TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1864,7 +1802,6 @@ CREATE POLICY "Admins write launcher_pages" ON public.launcher_pages TO authenti
 -- Name: nav_links Admins write nav_links; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins write nav_links" ON public.nav_links;
 CREATE POLICY "Admins write nav_links" ON public.nav_links TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1872,7 +1809,6 @@ CREATE POLICY "Admins write nav_links" ON public.nav_links TO authenticated USIN
 -- Name: projects Admins write projects; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins write projects" ON public.projects;
 CREATE POLICY "Admins write projects" ON public.projects TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1880,7 +1816,6 @@ CREATE POLICY "Admins write projects" ON public.projects TO authenticated USING 
 -- Name: seo_settings Admins write seo_settings; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins write seo_settings" ON public.seo_settings;
 CREATE POLICY "Admins write seo_settings" ON public.seo_settings TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1888,7 +1823,6 @@ CREATE POLICY "Admins write seo_settings" ON public.seo_settings TO authenticate
 -- Name: services Admins write services; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins write services" ON public.services;
 CREATE POLICY "Admins write services" ON public.services TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1896,7 +1830,6 @@ CREATE POLICY "Admins write services" ON public.services TO authenticated USING 
 -- Name: site_settings Admins write site_settings; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins write site_settings" ON public.site_settings;
 CREATE POLICY "Admins write site_settings" ON public.site_settings TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1904,7 +1837,6 @@ CREATE POLICY "Admins write site_settings" ON public.site_settings TO authentica
 -- Name: testimonials Admins write testimonials; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins write testimonials" ON public.testimonials;
 CREATE POLICY "Admins write testimonials" ON public.testimonials TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1912,7 +1844,6 @@ CREATE POLICY "Admins write testimonials" ON public.testimonials TO authenticate
 -- Name: ticker_items Admins write ticker_items; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Admins write ticker_items" ON public.ticker_items;
 CREATE POLICY "Admins write ticker_items" ON public.ticker_items TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
 
 
@@ -1920,7 +1851,6 @@ CREATE POLICY "Admins write ticker_items" ON public.ticker_items TO authenticate
 -- Name: messages Anon can submit message; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Anon can submit message" ON public.messages;
 CREATE POLICY "Anon can submit message" ON public.messages FOR INSERT TO anon WITH CHECK (((length(name) >= 1) AND (length(name) <= 200) AND ((length(email) >= 3) AND (length(email) <= 320)) AND ((length(message) >= 1) AND (length(message) <= 5000))));
 
 
@@ -1928,7 +1858,6 @@ CREATE POLICY "Anon can submit message" ON public.messages FOR INSERT TO anon WI
 -- Name: testimonials Anon can submit testimonial; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Anon can submit testimonial" ON public.testimonials;
 CREATE POLICY "Anon can submit testimonial" ON public.testimonials FOR INSERT TO authenticated, anon WITH CHECK ((((length(client_name) >= 1) AND (length(client_name) <= 120)) AND ((length(review) >= 1) AND (length(review) <= 2000)) AND (status = 'pending'::text) AND (published = false) AND (featured = false)));
 
 
@@ -1936,7 +1865,6 @@ CREATE POLICY "Anon can submit testimonial" ON public.testimonials FOR INSERT TO
 -- Name: feed_reactions Auth users add own reactions; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Auth users add own reactions" ON public.feed_reactions;
 CREATE POLICY "Auth users add own reactions" ON public.feed_reactions FOR INSERT TO authenticated WITH CHECK ((auth.uid() = user_id));
 
 
@@ -1944,7 +1872,6 @@ CREATE POLICY "Auth users add own reactions" ON public.feed_reactions FOR INSERT
 -- Name: feed_comment_reports Auth users file reports; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Auth users file reports" ON public.feed_comment_reports;
 CREATE POLICY "Auth users file reports" ON public.feed_comment_reports FOR INSERT TO authenticated WITH CHECK ((auth.uid() = reporter_id));
 
 
@@ -1952,7 +1879,6 @@ CREATE POLICY "Auth users file reports" ON public.feed_comment_reports FOR INSER
 -- Name: feed_comments Auth users insert own comments; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Auth users insert own comments" ON public.feed_comments;
 CREATE POLICY "Auth users insert own comments" ON public.feed_comments FOR INSERT TO authenticated WITH CHECK ((auth.uid() = user_id));
 
 
@@ -1960,7 +1886,6 @@ CREATE POLICY "Auth users insert own comments" ON public.feed_comments FOR INSER
 -- Name: messages Authed can submit message; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Authed can submit message" ON public.messages;
 CREATE POLICY "Authed can submit message" ON public.messages FOR INSERT TO authenticated WITH CHECK (((length(name) >= 1) AND (length(name) <= 200) AND ((length(email) >= 3) AND (length(email) <= 320)) AND ((length(message) >= 1) AND (length(message) <= 5000))));
 
 
@@ -1968,7 +1893,6 @@ CREATE POLICY "Authed can submit message" ON public.messages FOR INSERT TO authe
 -- Name: feed_comments Authors delete own comments; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Authors delete own comments" ON public.feed_comments;
 CREATE POLICY "Authors delete own comments" ON public.feed_comments FOR DELETE TO authenticated USING ((auth.uid() = user_id));
 
 
@@ -1976,7 +1900,6 @@ CREATE POLICY "Authors delete own comments" ON public.feed_comments FOR DELETE T
 -- Name: feed_comments Authors read own comments; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Authors read own comments" ON public.feed_comments;
 CREATE POLICY "Authors read own comments" ON public.feed_comments FOR SELECT TO authenticated USING ((auth.uid() = user_id));
 
 
@@ -1984,7 +1907,6 @@ CREATE POLICY "Authors read own comments" ON public.feed_comments FOR SELECT TO 
 -- Name: feed_comments Authors update own recent comments; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Authors update own recent comments" ON public.feed_comments;
 CREATE POLICY "Authors update own recent comments" ON public.feed_comments FOR UPDATE TO authenticated USING (((auth.uid() = user_id) AND (created_at > (now() - '00:15:00'::interval)))) WITH CHECK ((auth.uid() = user_id));
 
 
@@ -1992,7 +1914,6 @@ CREATE POLICY "Authors update own recent comments" ON public.feed_comments FOR U
 -- Name: about_content Editors update about_content; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update about_content" ON public.about_content;
 CREATE POLICY "Editors update about_content" ON public.about_content FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2000,7 +1921,6 @@ CREATE POLICY "Editors update about_content" ON public.about_content FOR UPDATE 
 -- Name: activities Editors update activities; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update activities" ON public.activities;
 CREATE POLICY "Editors update activities" ON public.activities FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2008,7 +1928,6 @@ CREATE POLICY "Editors update activities" ON public.activities FOR UPDATE TO aut
 -- Name: contact_settings Editors update contact_settings; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update contact_settings" ON public.contact_settings;
 CREATE POLICY "Editors update contact_settings" ON public.contact_settings FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2016,7 +1935,6 @@ CREATE POLICY "Editors update contact_settings" ON public.contact_settings FOR U
 -- Name: education Editors update education; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update education" ON public.education;
 CREATE POLICY "Editors update education" ON public.education FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2024,7 +1942,6 @@ CREATE POLICY "Editors update education" ON public.education FOR UPDATE TO authe
 -- Name: f_photocard Editors update f_photocard; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update f_photocard" ON public.f_photocard;
 CREATE POLICY "Editors update f_photocard" ON public.f_photocard FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2032,7 +1949,6 @@ CREATE POLICY "Editors update f_photocard" ON public.f_photocard FOR UPDATE TO a
 -- Name: footer_apps Editors update footer_apps; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update footer_apps" ON public.footer_apps;
 CREATE POLICY "Editors update footer_apps" ON public.footer_apps FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2040,7 +1956,6 @@ CREATE POLICY "Editors update footer_apps" ON public.footer_apps FOR UPDATE TO a
 -- Name: footer_cta Editors update footer_cta; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update footer_cta" ON public.footer_cta;
 CREATE POLICY "Editors update footer_cta" ON public.footer_cta FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2048,7 +1963,6 @@ CREATE POLICY "Editors update footer_cta" ON public.footer_cta FOR UPDATE TO aut
 -- Name: footer_links Editors update footer_links; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update footer_links" ON public.footer_links;
 CREATE POLICY "Editors update footer_links" ON public.footer_links FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2056,7 +1970,6 @@ CREATE POLICY "Editors update footer_links" ON public.footer_links FOR UPDATE TO
 -- Name: hero_content Editors update hero_content; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update hero_content" ON public.hero_content;
 CREATE POLICY "Editors update hero_content" ON public.hero_content FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2064,7 +1977,6 @@ CREATE POLICY "Editors update hero_content" ON public.hero_content FOR UPDATE TO
 -- Name: launcher_hero Editors update launcher_hero; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update launcher_hero" ON public.launcher_hero;
 CREATE POLICY "Editors update launcher_hero" ON public.launcher_hero FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2072,7 +1984,6 @@ CREATE POLICY "Editors update launcher_hero" ON public.launcher_hero FOR UPDATE 
 -- Name: launcher_pages Editors update launcher_pages; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update launcher_pages" ON public.launcher_pages;
 CREATE POLICY "Editors update launcher_pages" ON public.launcher_pages FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2080,7 +1991,6 @@ CREATE POLICY "Editors update launcher_pages" ON public.launcher_pages FOR UPDAT
 -- Name: nav_links Editors update nav_links; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update nav_links" ON public.nav_links;
 CREATE POLICY "Editors update nav_links" ON public.nav_links FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2088,7 +1998,6 @@ CREATE POLICY "Editors update nav_links" ON public.nav_links FOR UPDATE TO authe
 -- Name: page_loader_settings Editors update page_loader_settings; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update page_loader_settings" ON public.page_loader_settings;
 CREATE POLICY "Editors update page_loader_settings" ON public.page_loader_settings FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2096,7 +2005,6 @@ CREATE POLICY "Editors update page_loader_settings" ON public.page_loader_settin
 -- Name: page_quotes Editors update page_quotes; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update page_quotes" ON public.page_quotes;
 CREATE POLICY "Editors update page_quotes" ON public.page_quotes FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2104,7 +2012,6 @@ CREATE POLICY "Editors update page_quotes" ON public.page_quotes FOR UPDATE TO a
 -- Name: portfolio_folders Editors update portfolio_folders; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update portfolio_folders" ON public.portfolio_folders;
 CREATE POLICY "Editors update portfolio_folders" ON public.portfolio_folders FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2112,7 +2019,6 @@ CREATE POLICY "Editors update portfolio_folders" ON public.portfolio_folders FOR
 -- Name: portfolio_items Editors update portfolio_items; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update portfolio_items" ON public.portfolio_items;
 CREATE POLICY "Editors update portfolio_items" ON public.portfolio_items FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2120,7 +2026,6 @@ CREATE POLICY "Editors update portfolio_items" ON public.portfolio_items FOR UPD
 -- Name: projects Editors update projects; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update projects" ON public.projects;
 CREATE POLICY "Editors update projects" ON public.projects FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2128,7 +2033,6 @@ CREATE POLICY "Editors update projects" ON public.projects FOR UPDATE TO authent
 -- Name: seo_settings Editors update seo_settings; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update seo_settings" ON public.seo_settings;
 CREATE POLICY "Editors update seo_settings" ON public.seo_settings FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2136,7 +2040,6 @@ CREATE POLICY "Editors update seo_settings" ON public.seo_settings FOR UPDATE TO
 -- Name: services Editors update services; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update services" ON public.services;
 CREATE POLICY "Editors update services" ON public.services FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2144,7 +2047,6 @@ CREATE POLICY "Editors update services" ON public.services FOR UPDATE TO authent
 -- Name: site_settings Editors update site_settings; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update site_settings" ON public.site_settings;
 CREATE POLICY "Editors update site_settings" ON public.site_settings FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2152,7 +2054,6 @@ CREATE POLICY "Editors update site_settings" ON public.site_settings FOR UPDATE 
 -- Name: testimonials Editors update testimonials; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update testimonials" ON public.testimonials;
 CREATE POLICY "Editors update testimonials" ON public.testimonials FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2160,7 +2061,6 @@ CREATE POLICY "Editors update testimonials" ON public.testimonials FOR UPDATE TO
 -- Name: ticker_items Editors update ticker_items; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Editors update ticker_items" ON public.ticker_items;
 CREATE POLICY "Editors update ticker_items" ON public.ticker_items FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'editor'::public.app_role)) WITH CHECK (public.has_role(auth.uid(), 'editor'::public.app_role));
 
 
@@ -2168,7 +2068,6 @@ CREATE POLICY "Editors update ticker_items" ON public.ticker_items FOR UPDATE TO
 -- Name: moderation_log Mods append to moderation_log; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Mods append to moderation_log" ON public.moderation_log;
 CREATE POLICY "Mods append to moderation_log" ON public.moderation_log FOR INSERT TO authenticated WITH CHECK (((auth.uid() = moderator_id) AND (public.has_role(auth.uid(), 'admin'::public.app_role) OR public.has_role(auth.uid(), 'editor'::public.app_role))));
 
 
@@ -2176,7 +2075,6 @@ CREATE POLICY "Mods append to moderation_log" ON public.moderation_log FOR INSER
 -- Name: profiles Profiles viewable by authenticated; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Profiles viewable by authenticated" ON public.profiles;
 CREATE POLICY "Profiles viewable by authenticated" ON public.profiles FOR SELECT TO authenticated USING (true);
 
 
@@ -2184,7 +2082,6 @@ CREATE POLICY "Profiles viewable by authenticated" ON public.profiles FOR SELECT
 -- Name: about_content Public read about_content; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read about_content" ON public.about_content;
 CREATE POLICY "Public read about_content" ON public.about_content FOR SELECT USING (true);
 
 
@@ -2192,7 +2089,6 @@ CREATE POLICY "Public read about_content" ON public.about_content FOR SELECT USI
 -- Name: activities Public read activities; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read activities" ON public.activities;
 CREATE POLICY "Public read activities" ON public.activities FOR SELECT USING (true);
 
 
@@ -2200,7 +2096,6 @@ CREATE POLICY "Public read activities" ON public.activities FOR SELECT USING (tr
 -- Name: contact_settings Public read contact_settings; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read contact_settings" ON public.contact_settings;
 CREATE POLICY "Public read contact_settings" ON public.contact_settings FOR SELECT USING (true);
 
 
@@ -2208,7 +2103,6 @@ CREATE POLICY "Public read contact_settings" ON public.contact_settings FOR SELE
 -- Name: education Public read education; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read education" ON public.education;
 CREATE POLICY "Public read education" ON public.education FOR SELECT USING (true);
 
 
@@ -2216,7 +2110,6 @@ CREATE POLICY "Public read education" ON public.education FOR SELECT USING (true
 -- Name: f_hero Public read f_hero; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read f_hero" ON public.f_hero;
 CREATE POLICY "Public read f_hero" ON public.f_hero FOR SELECT USING (true);
 
 
@@ -2224,7 +2117,6 @@ CREATE POLICY "Public read f_hero" ON public.f_hero FOR SELECT USING (true);
 -- Name: f_photocard Public read f_photocard; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read f_photocard" ON public.f_photocard;
 CREATE POLICY "Public read f_photocard" ON public.f_photocard FOR SELECT USING (true);
 
 
@@ -2232,7 +2124,6 @@ CREATE POLICY "Public read f_photocard" ON public.f_photocard FOR SELECT USING (
 -- Name: f_projects Public read f_projects; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read f_projects" ON public.f_projects;
 CREATE POLICY "Public read f_projects" ON public.f_projects FOR SELECT USING ((active OR public.has_role(auth.uid(), 'admin'::public.app_role)));
 
 
@@ -2240,7 +2131,6 @@ CREATE POLICY "Public read f_projects" ON public.f_projects FOR SELECT USING ((a
 -- Name: f_skills Public read f_skills; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read f_skills" ON public.f_skills;
 CREATE POLICY "Public read f_skills" ON public.f_skills FOR SELECT USING ((active OR public.has_role(auth.uid(), 'admin'::public.app_role)));
 
 
@@ -2248,7 +2138,6 @@ CREATE POLICY "Public read f_skills" ON public.f_skills FOR SELECT USING ((activ
 -- Name: folders Public read folders; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read folders" ON public.folders;
 CREATE POLICY "Public read folders" ON public.folders FOR SELECT USING (((status = true) OR public.has_role(auth.uid(), 'admin'::public.app_role)));
 
 
@@ -2256,7 +2145,6 @@ CREATE POLICY "Public read folders" ON public.folders FOR SELECT USING (((status
 -- Name: footer_apps Public read footer_apps; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read footer_apps" ON public.footer_apps;
 CREATE POLICY "Public read footer_apps" ON public.footer_apps FOR SELECT USING (true);
 
 
@@ -2264,7 +2152,6 @@ CREATE POLICY "Public read footer_apps" ON public.footer_apps FOR SELECT USING (
 -- Name: footer_cta Public read footer_cta; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read footer_cta" ON public.footer_cta;
 CREATE POLICY "Public read footer_cta" ON public.footer_cta FOR SELECT USING (true);
 
 
@@ -2272,7 +2159,6 @@ CREATE POLICY "Public read footer_cta" ON public.footer_cta FOR SELECT USING (tr
 -- Name: footer_links Public read footer_links; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read footer_links" ON public.footer_links;
 CREATE POLICY "Public read footer_links" ON public.footer_links FOR SELECT USING (true);
 
 
@@ -2280,7 +2166,6 @@ CREATE POLICY "Public read footer_links" ON public.footer_links FOR SELECT USING
 -- Name: hero_content Public read hero_content; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read hero_content" ON public.hero_content;
 CREATE POLICY "Public read hero_content" ON public.hero_content FOR SELECT USING (true);
 
 
@@ -2288,7 +2173,6 @@ CREATE POLICY "Public read hero_content" ON public.hero_content FOR SELECT USING
 -- Name: launcher_hero Public read launcher_hero; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read launcher_hero" ON public.launcher_hero;
 CREATE POLICY "Public read launcher_hero" ON public.launcher_hero FOR SELECT USING (true);
 
 
@@ -2296,7 +2180,6 @@ CREATE POLICY "Public read launcher_hero" ON public.launcher_hero FOR SELECT USI
 -- Name: launcher_pages Public read launcher_pages; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read launcher_pages" ON public.launcher_pages;
 CREATE POLICY "Public read launcher_pages" ON public.launcher_pages FOR SELECT USING (((active = true) OR public.has_role(auth.uid(), 'admin'::public.app_role) OR public.has_role(auth.uid(), 'editor'::public.app_role)));
 
 
@@ -2304,7 +2187,6 @@ CREATE POLICY "Public read launcher_pages" ON public.launcher_pages FOR SELECT U
 -- Name: nav_links Public read nav_links; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read nav_links" ON public.nav_links;
 CREATE POLICY "Public read nav_links" ON public.nav_links FOR SELECT USING (true);
 
 
@@ -2312,7 +2194,6 @@ CREATE POLICY "Public read nav_links" ON public.nav_links FOR SELECT USING (true
 -- Name: page_loader_settings Public read page_loader_settings; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read page_loader_settings" ON public.page_loader_settings;
 CREATE POLICY "Public read page_loader_settings" ON public.page_loader_settings FOR SELECT USING (true);
 
 
@@ -2320,7 +2201,6 @@ CREATE POLICY "Public read page_loader_settings" ON public.page_loader_settings 
 -- Name: page_quotes Public read page_quotes; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read page_quotes" ON public.page_quotes;
 CREATE POLICY "Public read page_quotes" ON public.page_quotes FOR SELECT USING (true);
 
 
@@ -2328,7 +2208,6 @@ CREATE POLICY "Public read page_quotes" ON public.page_quotes FOR SELECT USING (
 -- Name: portfolio_folders Public read portfolio_folders; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read portfolio_folders" ON public.portfolio_folders;
 CREATE POLICY "Public read portfolio_folders" ON public.portfolio_folders FOR SELECT USING ((active OR public.has_role(auth.uid(), 'admin'::public.app_role)));
 
 
@@ -2336,7 +2215,6 @@ CREATE POLICY "Public read portfolio_folders" ON public.portfolio_folders FOR SE
 -- Name: portfolio_items Public read portfolio_items; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read portfolio_items" ON public.portfolio_items;
 CREATE POLICY "Public read portfolio_items" ON public.portfolio_items FOR SELECT USING ((active OR public.has_role(auth.uid(), 'admin'::public.app_role)));
 
 
@@ -2344,7 +2222,6 @@ CREATE POLICY "Public read portfolio_items" ON public.portfolio_items FOR SELECT
 -- Name: projects Public read projects; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read projects" ON public.projects;
 CREATE POLICY "Public read projects" ON public.projects FOR SELECT USING (true);
 
 
@@ -2352,7 +2229,6 @@ CREATE POLICY "Public read projects" ON public.projects FOR SELECT USING (true);
 -- Name: feed_reactions Public read reactions; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read reactions" ON public.feed_reactions;
 CREATE POLICY "Public read reactions" ON public.feed_reactions FOR SELECT USING (true);
 
 
@@ -2360,7 +2236,6 @@ CREATE POLICY "Public read reactions" ON public.feed_reactions FOR SELECT USING 
 -- Name: seo_settings Public read seo_settings; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read seo_settings" ON public.seo_settings;
 CREATE POLICY "Public read seo_settings" ON public.seo_settings FOR SELECT USING (true);
 
 
@@ -2368,7 +2243,6 @@ CREATE POLICY "Public read seo_settings" ON public.seo_settings FOR SELECT USING
 -- Name: services Public read services; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read services" ON public.services;
 CREATE POLICY "Public read services" ON public.services FOR SELECT USING (true);
 
 
@@ -2376,7 +2250,6 @@ CREATE POLICY "Public read services" ON public.services FOR SELECT USING (true);
 -- Name: site_settings Public read site_settings; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read site_settings" ON public.site_settings;
 CREATE POLICY "Public read site_settings" ON public.site_settings FOR SELECT USING (true);
 
 
@@ -2384,7 +2257,6 @@ CREATE POLICY "Public read site_settings" ON public.site_settings FOR SELECT USI
 -- Name: slots Public read slots; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read slots" ON public.slots;
 CREATE POLICY "Public read slots" ON public.slots FOR SELECT USING (((status = true) OR public.has_role(auth.uid(), 'admin'::public.app_role)));
 
 
@@ -2392,7 +2264,6 @@ CREATE POLICY "Public read slots" ON public.slots FOR SELECT USING (((status = t
 -- Name: taxi_services Public read taxi_services; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read taxi_services" ON public.taxi_services;
 CREATE POLICY "Public read taxi_services" ON public.taxi_services FOR SELECT USING (((status = true) OR public.has_role(auth.uid(), 'admin'::public.app_role)));
 
 
@@ -2400,7 +2271,6 @@ CREATE POLICY "Public read taxi_services" ON public.taxi_services FOR SELECT USI
 -- Name: testimonials Public read testimonials; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read testimonials" ON public.testimonials;
 CREATE POLICY "Public read testimonials" ON public.testimonials FOR SELECT USING (true);
 
 
@@ -2408,7 +2278,6 @@ CREATE POLICY "Public read testimonials" ON public.testimonials FOR SELECT USING
 -- Name: ticker_items Public read ticker_items; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read ticker_items" ON public.ticker_items;
 CREATE POLICY "Public read ticker_items" ON public.ticker_items FOR SELECT USING (true);
 
 
@@ -2416,7 +2285,6 @@ CREATE POLICY "Public read ticker_items" ON public.ticker_items FOR SELECT USING
 -- Name: feed_comments Public read visible comments; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Public read visible comments" ON public.feed_comments;
 CREATE POLICY "Public read visible comments" ON public.feed_comments FOR SELECT USING ((status = 'visible'::text));
 
 
@@ -2424,7 +2292,6 @@ CREATE POLICY "Public read visible comments" ON public.feed_comments FOR SELECT 
 -- Name: feed_comment_reports Reporters read own reports; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Reporters read own reports" ON public.feed_comment_reports;
 CREATE POLICY "Reporters read own reports" ON public.feed_comment_reports FOR SELECT TO authenticated USING ((auth.uid() = reporter_id));
 
 
@@ -2432,7 +2299,6 @@ CREATE POLICY "Reporters read own reports" ON public.feed_comment_reports FOR SE
 -- Name: feed_reactions Users delete own reactions; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Users delete own reactions" ON public.feed_reactions;
 CREATE POLICY "Users delete own reactions" ON public.feed_reactions FOR DELETE TO authenticated USING ((auth.uid() = user_id));
 
 
@@ -2440,7 +2306,6 @@ CREATE POLICY "Users delete own reactions" ON public.feed_reactions FOR DELETE T
 -- Name: profiles Users insert own profile; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Users insert own profile" ON public.profiles;
 CREATE POLICY "Users insert own profile" ON public.profiles FOR INSERT TO authenticated WITH CHECK ((auth.uid() = id));
 
 
@@ -2448,7 +2313,6 @@ CREATE POLICY "Users insert own profile" ON public.profiles FOR INSERT TO authen
 -- Name: profiles Users update own profile; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Users update own profile" ON public.profiles;
 CREATE POLICY "Users update own profile" ON public.profiles FOR UPDATE TO authenticated USING ((auth.uid() = id));
 
 
@@ -2456,7 +2320,6 @@ CREATE POLICY "Users update own profile" ON public.profiles FOR UPDATE TO authen
 -- Name: user_roles Users view own roles; Type: POLICY; Schema: public; Owner: -
 --
 
-DROP POLICY IF EXISTS "Users view own roles" ON public.user_roles;
 CREATE POLICY "Users view own roles" ON public.user_roles FOR SELECT TO authenticated USING ((auth.uid() = user_id));
 
 
@@ -2677,3 +2540,8 @@ ALTER TABLE public.ticker_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
 
 --
+-- PostgreSQL database dump complete
+--
+
+\unrestrict 8SxXUHzabmqS2pR6Xd1OBYfLhUL0YeOkqdTRZQKs955I4aHqUq91t7LOI8KlAIe
+

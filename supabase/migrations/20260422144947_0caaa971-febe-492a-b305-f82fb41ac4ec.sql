@@ -1,1 +1,0 @@
-ALTER TABLE public.hero_content ADD COLUMN IF NOT EXISTS backdrop_name text;

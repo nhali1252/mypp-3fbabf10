@@ -5,8 +5,28 @@
  * - <SectionError />: clear, actionable error message with a retry button
  * - <SectionEmpty />: friendly notice when the fetch succeeded but returned no items
  */
-import { AlertTriangle, RefreshCw, Inbox, Loader2 } from "lucide-react";
+import { AlertTriangle, RefreshCw, Inbox, Loader2, Settings2 } from "lucide-react";
 import { useState } from "react";
+
+/**
+ * Detect the specific "missing server env var" failure so we can show a
+ * friendly fallback that points the admin straight to the fix screen
+ * instead of a scary stack trace.
+ */
+function detectMissingEnvVar(message: string): string | null {
+  // Matches the server-side error from src/integrations/supabase/client.server.ts
+  // e.g. "Missing Supabase server environment variables. Ensure SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set."
+  if (!/Missing\s+Supabase\s+server\s+environment\s+variables/i.test(message)) {
+    return null;
+  }
+  const known = [
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_URL",
+    "SUPABASE_PUBLISHABLE_KEY",
+  ];
+  const found = known.filter((name) => message.includes(name));
+  return found.length ? found.join(", ") : "SUPABASE_SERVICE_ROLE_KEY";
+}
 
 export function SectionSkeleton({
   count = 3,

@@ -21,6 +21,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AboutAndSkillsRouteImport } from './routes/about-and-skills'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiEnvImportRouteImport } from './routes/api.env-import'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin.admin.index'
 import { Route as AdminAdminUsersRouteImport } from './routes/_admin.admin.users'
 import { Route as AdminAdminTickerRouteImport } from './routes/_admin.admin.ticker'
@@ -108,6 +109,11 @@ const AdminRoute = AdminRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEnvImportRoute = ApiEnvImportRouteImport.update({
+  id: '/api/env-import',
+  path: '/api/env-import',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminAdminIndexRoute = AdminAdminIndexRouteImport.update({
@@ -268,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/projects': typeof ProjectsRoute
   '/reviews': typeof ReviewsRoute
   '/services': typeof ServicesRoute
+  '/api/env-import': typeof ApiEnvImportRoute
   '/admin/about': typeof AdminAdminAboutRoute
   '/admin/activities': typeof AdminAdminActivitiesRoute
   '/admin/audit': typeof AdminAdminAuditRoute
@@ -310,6 +317,7 @@ export interface FileRoutesByTo {
   '/projects': typeof ProjectsRoute
   '/reviews': typeof ReviewsRoute
   '/services': typeof ServicesRoute
+  '/api/env-import': typeof ApiEnvImportRoute
   '/admin/about': typeof AdminAdminAboutRoute
   '/admin/activities': typeof AdminAdminActivitiesRoute
   '/admin/audit': typeof AdminAdminAuditRoute
@@ -354,6 +362,7 @@ export interface FileRoutesById {
   '/projects': typeof ProjectsRoute
   '/reviews': typeof ReviewsRoute
   '/services': typeof ServicesRoute
+  '/api/env-import': typeof ApiEnvImportRoute
   '/_admin/admin/about': typeof AdminAdminAboutRoute
   '/_admin/admin/activities': typeof AdminAdminActivitiesRoute
   '/_admin/admin/audit': typeof AdminAdminAuditRoute
@@ -398,6 +407,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/reviews'
     | '/services'
+    | '/api/env-import'
     | '/admin/about'
     | '/admin/activities'
     | '/admin/audit'
@@ -440,6 +450,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/reviews'
     | '/services'
+    | '/api/env-import'
     | '/admin/about'
     | '/admin/activities'
     | '/admin/audit'
@@ -483,6 +494,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/reviews'
     | '/services'
+    | '/api/env-import'
     | '/_admin/admin/about'
     | '/_admin/admin/activities'
     | '/_admin/admin/audit'
@@ -527,6 +539,7 @@ export interface RootRouteChildren {
   ProjectsRoute: typeof ProjectsRoute
   ReviewsRoute: typeof ReviewsRoute
   ServicesRoute: typeof ServicesRoute
+  ApiEnvImportRoute: typeof ApiEnvImportRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -613,6 +626,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/env-import': {
+      id: '/api/env-import'
+      path: '/api/env-import'
+      fullPath: '/api/env-import'
+      preLoaderRoute: typeof ApiEnvImportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_admin/admin/': {
@@ -900,6 +920,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsRoute: ProjectsRoute,
   ReviewsRoute: ReviewsRoute,
   ServicesRoute: ServicesRoute,
+  ApiEnvImportRoute: ApiEnvImportRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -39,9 +39,24 @@ jobs:
           FALLBACK_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
-          echo "SUPABASE_URL=${WORKER_SUPABASE_URL:-$FALLBACK_SUPABASE_URL}" >> "$GITHUB_ENV"
-          echo "SUPABASE_PUBLISHABLE_KEY=${WORKER_SUPABASE_PUBLISHABLE_KEY:-$FALLBACK_SUPABASE_PUBLISHABLE_KEY}" >> "$GITHUB_ENV"
-          echo "SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}" >> "$GITHUB_ENV"
+          RESOLVED_URL="${WORKER_SUPABASE_URL:-$FALLBACK_SUPABASE_URL}"
+          RESOLVED_KEY="${WORKER_SUPABASE_PUBLISHABLE_KEY:-$FALLBACK_SUPABASE_PUBLISHABLE_KEY}"
+
+          MISSING=()
+          [ -z "$RESOLVED_URL" ] && MISSING+=("SUPABASE_URL (or VITE_SUPABASE_URL)")
+          [ -z "$RESOLVED_KEY" ] && MISSING+=("SUPABASE_PUBLISHABLE_KEY (or VITE_SUPABASE_PUBLISHABLE_KEY)")
+          [ -z "$SUPABASE_SERVICE_ROLE_KEY" ] && MISSING+=("SUPABASE_SERVICE_ROLE_KEY")
+
+          if [ ${#MISSING[@]} -gt 0 ]; then
+            echo "::error ::Missing required GitHub Actions secrets: ${MISSING[*]}"
+            echo "::error ::Add them in: Repo Settings → Secrets and variables → Actions. See DEPLOYMENT.md."
+            exit 1
+          fi
+
+          echo "SUPABASE_URL=$RESOLVED_URL" >> "$GITHUB_ENV"
+          echo "SUPABASE_PUBLISHABLE_KEY=$RESOLVED_KEY" >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
+          echo "✓ All required Supabase secrets resolved (URL host: $(echo "$RESOLVED_URL" | sed 's|https://||' | cut -d. -f1))"
 
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3

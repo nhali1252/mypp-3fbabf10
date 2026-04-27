@@ -2,11 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { listAssets, deleteAsset, type AssetFolder } from "@/server/content.functions";
+import { listAssets, deleteAsset, uploadAsset, type AssetFolder } from "@/server/content.functions";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { AdminPage, AdminCard, EmptyState } from "@/components/admin/AdminPage";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
+import { uploadToStorage } from "@/components/admin/MediaPicker";
 import { Upload, Trash2, Copy } from "lucide-react";
 
 export const Route = createFileRoute("/_admin/admin/media")({ component: AdminMedia });

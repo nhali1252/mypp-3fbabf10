@@ -23,43 +23,74 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Build
-        run: bun run build
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
-          VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
-
-      - name: Prepare Worker runtime secrets
+      # ------------------------------------------------------------------
+      # Resolve Supabase env values from GitHub Actions secrets.
+      # You only need to set THREE secrets in your GitHub repo:
+      #   SUPABASE_URL
+      #   SUPABASE_PUBLISHABLE_KEY
+      #   SUPABASE_SERVICE_ROLE_KEY
+      # (Legacy VITE_* secrets are still accepted as a fallback.)
+      # Everything below — build-time vars AND runtime Worker secrets —
+      # is derived from these and pushed to Cloudflare automatically.
+      # ------------------------------------------------------------------
+      - name: Resolve Supabase env
         shell: bash
         env:
-          WORKER_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          FALLBACK_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          WORKER_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
-          FALLBACK_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          IN_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          IN_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+          IN_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          FALLBACK_VITE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          FALLBACK_VITE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          FALLBACK_VITE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
         run: |
-          RESOLVED_URL="${WORKER_SUPABASE_URL:-$FALLBACK_SUPABASE_URL}"
-          RESOLVED_KEY="${WORKER_SUPABASE_PUBLISHABLE_KEY:-$FALLBACK_SUPABASE_PUBLISHABLE_KEY}"
+          URL="${IN_SUPABASE_URL:-$FALLBACK_VITE_URL}"
+          KEY="${IN_SUPABASE_PUBLISHABLE_KEY:-$FALLBACK_VITE_KEY}"
+          SRK="$IN_SUPABASE_SERVICE_ROLE_KEY"
 
           MISSING=()
-          [ -z "$RESOLVED_URL" ] && MISSING+=("SUPABASE_URL (or VITE_SUPABASE_URL)")
-          [ -z "$RESOLVED_KEY" ] && MISSING+=("SUPABASE_PUBLISHABLE_KEY (or VITE_SUPABASE_PUBLISHABLE_KEY)")
-          [ -z "$SUPABASE_SERVICE_ROLE_KEY" ] && MISSING+=("SUPABASE_SERVICE_ROLE_KEY")
-
+          [ -z "$URL" ] && MISSING+=("SUPABASE_URL")
+          [ -z "$KEY" ] && MISSING+=("SUPABASE_PUBLISHABLE_KEY")
+          [ -z "$SRK" ] && MISSING+=("SUPABASE_SERVICE_ROLE_KEY")
           if [ ${#MISSING[@]} -gt 0 ]; then
             echo "::error ::Missing required GitHub Actions secrets: ${MISSING[*]}"
-            echo "::error ::Add them in: Repo Settings → Secrets and variables → Actions. See DEPLOYMENT.md."
+            echo "::error ::Add them once in: GitHub repo → Settings → Secrets and variables → Actions."
+            echo "::error ::After that, every deploy syncs them to Cloudflare automatically — no manual Cloudflare edits needed."
             exit 1
           fi
 
-          echo "SUPABASE_URL=$RESOLVED_URL" >> "$GITHUB_ENV"
-          echo "SUPABASE_PUBLISHABLE_KEY=$RESOLVED_KEY" >> "$GITHUB_ENV"
-          echo "SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
-          echo "✓ All required Supabase secrets resolved (URL host: $(echo "$RESOLVED_URL" | sed 's|https://||' | cut -d. -f1))"
+          # Derive project id from the URL host if not provided.
+          PROJECT_ID="${FALLBACK_VITE_PROJECT_ID}"
+          if [ -z "$PROJECT_ID" ]; then
+            PROJECT_ID="$(echo "$URL" | sed -E 's|https?://||; s|\..*$||')"
+          fi
 
+          # Expose for later steps (build + wrangler-action).
+          {
+            echo "SUPABASE_URL=$URL"
+            echo "SUPABASE_PUBLISHABLE_KEY=$KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SRK"
+            echo "VITE_SUPABASE_URL=$URL"
+            echo "VITE_SUPABASE_PUBLISHABLE_KEY=$KEY"
+            echo "VITE_SUPABASE_PROJECT_ID=$PROJECT_ID"
+          } >> "$GITHUB_ENV"
+
+          echo "✓ Supabase env resolved (project: $PROJECT_ID)"
+
+      - name: Build
+        run: bun run build
+        env:
+          VITE_SUPABASE_URL: ${{ env.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ env.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_PROJECT_ID: ${{ env.VITE_SUPABASE_PROJECT_ID }}
+
+      # wrangler-action uploads everything in `secrets:` to Cloudflare
+      # as encrypted Worker secrets on every deploy — no manual steps.
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
+        env:
+          SUPABASE_URL: ${{ env.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ env.SUPABASE_PUBLISHABLE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ env.SUPABASE_SERVICE_ROLE_KEY }}
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

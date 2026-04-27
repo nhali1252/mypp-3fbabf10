@@ -122,6 +122,8 @@ function AdminSettings() {
         </div>
       }
     >
+      <CloudflareSecretsChecklist />
+
       <AdminCard title="Identity">
         <div className="grid gap-4">
           <FormRow label="Site title (browser tab + meta)"><Input value={form.site_title || ""} onChange={(e) => set("site_title", e.target.value)} /></FormRow>

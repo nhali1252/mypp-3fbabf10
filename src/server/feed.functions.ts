@@ -6,7 +6,7 @@
  */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { supabasePublic } from "@/integrations/supabase/client.public";
 
 const VIDEO_EXT = /\.(mp4|webm|mov|m4v|ogv)(\?|#|$)/i;
 const MAX_LIMIT = 60;
@@ -65,8 +65,8 @@ export const getFeedSlice = createServerFn({ method: "GET" })
   .inputValidator((data: z.input<typeof inputSchema>) => inputSchema.parse(data))
   .handler(async ({ data }): Promise<FeedSlice> => {
     const [foldersRes, itemsRes] = await Promise.all([
-      supabaseAdmin.from("portfolio_folders").select("*").eq("active", true),
-      supabaseAdmin
+      supabasePublic.from("portfolio_folders").select("*").eq("active", true),
+      supabasePublic
         .from("portfolio_items")
         .select("*")
         .eq("active", true)

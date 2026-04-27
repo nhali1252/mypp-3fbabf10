@@ -8,6 +8,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { supabasePublic } from "@/integrations/supabase/client.public";
 
 export const CONTENT_KEYS = [
   "basicInfo",
@@ -31,10 +32,10 @@ async function buildContent(key: ContentKey): Promise<unknown> {
   switch (key) {
     case "basicInfo": {
       const [hero, about, contact, siteSettings] = await Promise.all([
-        supabaseAdmin.from("hero_content").select("*").limit(1).maybeSingle(),
-        supabaseAdmin.from("about_content").select("*").limit(1).maybeSingle(),
-        supabaseAdmin.from("contact_settings").select("*").limit(1).maybeSingle(),
-        supabaseAdmin.from("site_settings").select("*"),
+        supabasePublic.from("hero_content").select("*").limit(1).maybeSingle(),
+        supabasePublic.from("about_content").select("*").limit(1).maybeSingle(),
+        supabasePublic.from("contact_settings").select("*").limit(1).maybeSingle(),
+        supabasePublic.from("site_settings").select("*"),
       ]);
       const h = hero.data ?? ({} as any);
       const a = about.data ?? ({} as any);
@@ -58,9 +59,9 @@ async function buildContent(key: ContentKey): Promise<unknown> {
     }
     case "about": {
       const [about, activities, education] = await Promise.all([
-        supabaseAdmin.from("about_content").select("*").limit(1).maybeSingle(),
-        supabaseAdmin.from("activities").select("*").eq("active", true).order("sort_order"),
-        supabaseAdmin.from("education").select("*").eq("active", true).order("sort_order"),
+        supabasePublic.from("about_content").select("*").limit(1).maybeSingle(),
+        supabasePublic.from("activities").select("*").eq("active", true).order("sort_order"),
+        supabasePublic.from("education").select("*").eq("active", true).order("sort_order"),
       ]);
       return {
         ...(about.data ?? {}),
@@ -70,8 +71,8 @@ async function buildContent(key: ContentKey): Promise<unknown> {
     }
     case "portfolio": {
       const [folders, items] = await Promise.all([
-        supabaseAdmin.from("portfolio_folders").select("*").eq("active", true).order("sort_order"),
-        supabaseAdmin.from("portfolio_items").select("*").eq("active", true).order("sort_order"),
+        supabasePublic.from("portfolio_folders").select("*").eq("active", true).order("sort_order"),
+        supabasePublic.from("portfolio_items").select("*").eq("active", true).order("sort_order"),
       ]);
       return (folders.data ?? []).map((f: any) => ({
         id: f.id,
@@ -105,7 +106,7 @@ async function buildContent(key: ContentKey): Promise<unknown> {
       }));
     }
     case "projects": {
-      const { data } = await supabaseAdmin
+      const { data } = await supabasePublic
         .from("projects")
         .select("*")
         .eq("published", true)
@@ -113,7 +114,7 @@ async function buildContent(key: ContentKey): Promise<unknown> {
       return data ?? [];
     }
     case "services": {
-      const { data } = await supabaseAdmin
+      const { data } = await supabasePublic
         .from("services")
         .select("*")
         .eq("active", true)
@@ -121,7 +122,7 @@ async function buildContent(key: ContentKey): Promise<unknown> {
       return data ?? [];
     }
     case "contact": {
-      const { data } = await supabaseAdmin
+      const { data } = await supabasePublic
         .from("contact_settings")
         .select("*")
         .limit(1)
@@ -129,7 +130,7 @@ async function buildContent(key: ContentKey): Promise<unknown> {
       return data ?? {};
     }
     case "reviews": {
-      const { data } = await supabaseAdmin
+      const { data } = await supabasePublic
         .from("testimonials")
         .select("*")
         .eq("published", true)
@@ -138,21 +139,21 @@ async function buildContent(key: ContentKey): Promise<unknown> {
     }
     case "launcher": {
       const [hero, pages] = await Promise.all([
-        supabaseAdmin.from("launcher_hero").select("*").limit(1).maybeSingle(),
-        supabaseAdmin.from("launcher_pages").select("*").eq("active", true).order("sort_order"),
+        supabasePublic.from("launcher_hero").select("*").limit(1).maybeSingle(),
+        supabasePublic.from("launcher_pages").select("*").eq("active", true).order("sort_order"),
       ]);
       return { hero: hero.data ?? null, pages: pages.data ?? [] };
     }
     case "chrome": {
       const [navLinks, footerLinks, footerApps, footerCta, ticker, seoSettings, pageLoader] =
         await Promise.all([
-          supabaseAdmin.from("nav_links").select("*").eq("active", true).order("sort_order"),
-          supabaseAdmin.from("footer_links").select("*").eq("active", true).order("sort_order"),
-          supabaseAdmin.from("footer_apps").select("*").eq("active", true).order("sort_order"),
-          supabaseAdmin.from("footer_cta").select("*").limit(1).maybeSingle(),
-          supabaseAdmin.from("ticker_items").select("*").eq("active", true).order("sort_order"),
-          supabaseAdmin.from("seo_settings").select("*"),
-          supabaseAdmin.from("page_loader_settings").select("*").limit(1).maybeSingle(),
+          supabasePublic.from("nav_links").select("*").eq("active", true).order("sort_order"),
+          supabasePublic.from("footer_links").select("*").eq("active", true).order("sort_order"),
+          supabasePublic.from("footer_apps").select("*").eq("active", true).order("sort_order"),
+          supabasePublic.from("footer_cta").select("*").limit(1).maybeSingle(),
+          supabasePublic.from("ticker_items").select("*").eq("active", true).order("sort_order"),
+          supabasePublic.from("seo_settings").select("*"),
+          supabasePublic.from("page_loader_settings").select("*").limit(1).maybeSingle(),
         ]);
       const seoByKey: Record<string, any> = {};
       (seoSettings.data ?? []).forEach((row: any) => {
@@ -170,10 +171,10 @@ async function buildContent(key: ContentKey): Promise<unknown> {
     }
     case "fPage": {
       const [hero, photocard, skills, projects] = await Promise.all([
-        supabaseAdmin.from("f_hero").select("*").limit(1).maybeSingle(),
-        supabaseAdmin.from("f_photocard").select("*").limit(1).maybeSingle(),
-        supabaseAdmin.from("f_skills").select("*").eq("active", true).order("sort_order"),
-        supabaseAdmin.from("f_projects").select("*").eq("active", true).order("sort_order"),
+        supabasePublic.from("f_hero").select("*").limit(1).maybeSingle(),
+        supabasePublic.from("f_photocard").select("*").limit(1).maybeSingle(),
+        supabasePublic.from("f_skills").select("*").eq("active", true).order("sort_order"),
+        supabasePublic.from("f_projects").select("*").eq("active", true).order("sort_order"),
       ]);
       return {
         hero: hero.data ?? null,
@@ -183,7 +184,7 @@ async function buildContent(key: ContentKey): Promise<unknown> {
       };
     }
     case "pageQuotes": {
-      const { data } = await supabaseAdmin
+      const { data } = await supabasePublic
         .from("page_quotes")
         .select("*")
         .eq("active", true);

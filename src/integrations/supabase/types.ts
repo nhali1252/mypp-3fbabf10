@@ -173,41 +173,50 @@ export type Database = {
       env_imports: {
         Row: {
           created_at: string
+          created_count: number
           db_check: Json
           expected_count: number
           finished_at: string
           id: string
+          logs: Json
           missing: Json
           present_count: number
           source: string
           started_at: string
           success: boolean
+          updated_count: number
           vars: Json
         }
         Insert: {
           created_at?: string
+          created_count?: number
           db_check?: Json
           expected_count: number
           finished_at: string
           id?: string
+          logs?: Json
           missing?: Json
           present_count: number
           source?: string
           started_at: string
           success: boolean
+          updated_count?: number
           vars?: Json
         }
         Update: {
           created_at?: string
+          created_count?: number
           db_check?: Json
           expected_count?: number
           finished_at?: string
           id?: string
+          logs?: Json
           missing?: Json
           present_count?: number
           source?: string
           started_at?: string
           success?: boolean
+          updated_count?: number
           vars?: Json
         }
         Relationships: []

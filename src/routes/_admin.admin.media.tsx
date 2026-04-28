@@ -9,6 +9,7 @@ import { AdminPage, AdminCard, EmptyState } from "@/components/admin/AdminPage";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 import { uploadToStorage } from "@/components/admin/MediaPicker";
 import { Upload, Trash2, Copy } from "lucide-react";
+import { WorkerHealthGate } from "@/components/admin/WorkerHealthGate";
 
 export const Route = createFileRoute("/_admin/admin/media")({ component: AdminMedia });
 

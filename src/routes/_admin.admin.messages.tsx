@@ -46,6 +46,7 @@ function AdminMessages() {
 
   return (
     <AdminPage title="Messages" description={`Contact form submissions${unread ? ` · ${unread} unread` : ""}.`}>
+      <WorkerHealthGate feature="messages">
       {(isError || storageError) && (
         <div className="rounded-2xl border border-destructive/35 bg-destructive/10 p-4 text-sm">
           <div className="flex items-start gap-3">

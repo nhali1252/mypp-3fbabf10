@@ -151,6 +151,7 @@ function AdminMedia() {
           </div>
         </AdminCard>
       )}
+      </WorkerHealthGate>
     </AdminPage>
   );
 }

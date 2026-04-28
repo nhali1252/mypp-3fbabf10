@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { AdminPage, AdminCard, EmptyState } from "@/components/admin/AdminPage";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 import { Mail, MailOpen, Reply, Trash2, AlertTriangle } from "lucide-react";
+import { WorkerHealthGate } from "@/components/admin/WorkerHealthGate";
 
 export const Route = createFileRoute("/_admin/admin/messages")({ component: AdminMessages });
 

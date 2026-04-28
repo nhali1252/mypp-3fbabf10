@@ -3,6 +3,7 @@ import { AlertTriangle, CheckCircle2, Loader2, RefreshCw, ShieldCheck, XCircle }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { verifyWorkerHealth } from "@/server/env-import.functions";
+import { CloudflareChallengeStatus } from "@/components/admin/CloudflareChallengeStatus";
 
 /**
  * Wrap admin pages that depend on the Cloudflare Worker having admin secrets
@@ -42,24 +43,28 @@ export function WorkerHealthGate({
 
   if (q.isError) {
     return (
-      <div className="rounded-2xl border border-destructive/35 bg-destructive/10 p-4 text-sm">
-        <div className="flex items-start gap-3">
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
-          <div className="min-w-0 flex-1">
-            <div className="font-semibold text-destructive">Worker is unreachable</div>
-            <p className="mt-1 text-muted-foreground">
-              {q.error instanceof Error ? q.error.message : "Unknown error"}
-            </p>
-            <p className="mt-2 text-xs text-muted-foreground">
-              Push any commit to <code>main</code> — GitHub Actions will redeploy and
-              auto-sync every Cloudflare secret. No manual setup needed.
-            </p>
+      <div className="space-y-4">
+        <div className="rounded-2xl border border-destructive/35 bg-destructive/10 p-4 text-sm">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
+            <div className="min-w-0 flex-1">
+              <div className="font-semibold text-destructive">Worker is unreachable</div>
+              <p className="mt-1 text-muted-foreground">
+                {q.error instanceof Error ? q.error.message : "Unknown error"}
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                If the message below shows a Cloudflare challenge, follow the WAF Skip rule
+                instructions. Otherwise, push any commit to <code>main</code> — GitHub Actions
+                will redeploy and auto-sync every Cloudflare secret.
+              </p>
+            </div>
+            <Button size="sm" variant="outline" onClick={() => q.refetch()}>
+              <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+              Retry
+            </Button>
           </div>
-          <Button size="sm" variant="outline" onClick={() => q.refetch()}>
-            <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
-            Retry
-          </Button>
         </div>
+        <CloudflareChallengeStatus />
       </div>
     );
   }

@@ -18,6 +18,7 @@ import {
 } from "@/lib/build-info";
 import { clearLiveErrors, useLiveTsErrors } from "@/lib/live-ts-errors";
 import { refreshDiagnostics } from "@/server/diagnostics.functions";
+import { CloudflareChallengeStatus } from "@/components/admin/CloudflareChallengeStatus";
 
 export const Route = createFileRoute("/_admin/admin/diagnostics")({
   component: DiagnosticsPage,
@@ -84,6 +85,7 @@ function DiagnosticsPage() {
 
   return (
     <div className="space-y-6 max-w-4xl">
+      <CloudflareChallengeStatus />
       <header className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-black tracking-tight">Build diagnostics</h1>

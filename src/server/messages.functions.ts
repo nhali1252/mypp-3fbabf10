@@ -25,13 +25,23 @@ export type MessagesResult =
   | { ok: false; messages: Message[]; error: string; detail?: string };
 
 async function assertAdmin(userId: string) {
-  const { data, error } = await supabaseAdmin
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId)
-    .eq("role", "admin");
-  if (error) throw new Error("Role check failed");
-  if (!data?.length) throw new Error("Forbidden — admin role required");
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin");
+    if (error) {
+      console.error("[messages.assertAdmin] supabase error:", error);
+      throw new Error(`Role check failed: ${error.message}`);
+    }
+    if (!data?.length) throw new Error("Forbidden — admin role required");
+  } catch (e: any) {
+    if (e?.message?.startsWith("Forbidden")) throw e;
+    if (e?.message?.startsWith("Role check failed")) throw e;
+    console.error("[messages.assertAdmin] unexpected:", e);
+    throw new Error(`Role check failed: ${e?.message ?? String(e)}`);
+  }
 }
 
 const submitSchema = z.object({

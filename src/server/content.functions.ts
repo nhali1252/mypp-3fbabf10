@@ -247,13 +247,23 @@ const folderSchema = z.enum(ASSET_FOLDERS as unknown as [AssetFolder, ...AssetFo
 const BUCKET = "media";
 
 async function assertAdminOrEditor(userId: string) {
-  const { data, error } = await supabaseAdmin
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId)
-    .in("role", ["admin", "editor"]);
-  if (error) throw new Error("Role check failed");
-  if (!data?.length) throw new Error("Forbidden — admin or editor role required");
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .in("role", ["admin", "editor"]);
+    if (error) {
+      console.error("[content.assertAdminOrEditor] supabase error:", error);
+      throw new Error(`Role check failed: ${error.message}`);
+    }
+    if (!data?.length) throw new Error("Forbidden — admin or editor role required");
+  } catch (e: any) {
+    if (e?.message?.startsWith("Forbidden")) throw e;
+    if (e?.message?.startsWith("Role check failed")) throw e;
+    console.error("[content.assertAdminOrEditor] unexpected:", e);
+    throw new Error(`Role check failed: ${e?.message ?? String(e)}`);
+  }
 }
 
 function publicUrlFor(key: string): string {

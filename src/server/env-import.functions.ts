@@ -70,3 +70,69 @@ export const listEnvImports = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return { rows: data ?? [] };
   });
+
+/**
+ * Lightweight worker health check — does NOT call /api/env-import or write
+ * audit rows. Used as a gate before media/messages features so the UI can
+ * show a clear "secrets missing — push to redeploy" banner instead of the
+ * cryptic Cloudflare challenge / 500 from the underlying server fn.
+ *
+ * Returns booleans only — never the actual secret values.
+ */
+export const verifyWorkerHealth = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { userId } = context;
+    if (!userId) throw new Error("Not signed in");
+
+    const { data: isAdmin, error: roleErr } = await supabaseAdmin.rpc("has_role", {
+      _user_id: userId,
+      _role: "admin",
+    });
+    if (roleErr) throw new Error(roleErr.message);
+    if (!isAdmin) throw new Error("Admin role required");
+
+    const has = (k: string) => {
+      const v = process.env[k];
+      return typeof v === "string" && v.length > 0;
+    };
+
+    const required = {
+      SUPABASE_URL: has("SUPABASE_URL"),
+      SUPABASE_PUBLISHABLE_KEY: has("SUPABASE_PUBLISHABLE_KEY"),
+      SUPABASE_SERVICE_ROLE_KEY: has("SUPABASE_SERVICE_ROLE_KEY"),
+    };
+    const optional = {
+      LOVABLE_API_KEY: has("LOVABLE_API_KEY"),
+      ENV_IMPORT_TOKEN: has("ENV_IMPORT_TOKEN"),
+      SUPABASE_JWKS: has("SUPABASE_JWKS"),
+      SUPABASE_DB_URL: has("SUPABASE_DB_URL"),
+    };
+
+    // Prove the SRK actually works — not just that the env var is set.
+    let dbWritable = false;
+    let dbError: string | null = null;
+    try {
+      const { error } = await supabaseAdmin.from("user_roles").select("role").limit(1);
+      if (error) {
+        dbError = error.message;
+      } else {
+        dbWritable = true;
+      }
+    } catch (e) {
+      dbError = e instanceof Error ? e.message : String(e);
+    }
+
+    const ok = Object.values(required).every(Boolean) && dbWritable;
+
+    return {
+      ok,
+      checkedAt: new Date().toISOString(),
+      required,
+      optional,
+      db: { ok: dbWritable, error: dbError },
+      hint: ok
+        ? null
+        : "One or more required worker secrets are missing. Push any commit to main to re-trigger the GitHub Actions deploy — it auto-syncs every secret to Cloudflare.",
+    };
+  });

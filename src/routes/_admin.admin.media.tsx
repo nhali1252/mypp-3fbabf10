@@ -89,6 +89,7 @@ function AdminMedia() {
         </label>
       }
     >
+      <WorkerHealthGate feature="the media library">
       <div className="flex flex-wrap gap-2 mb-4">
         {FOLDERS.map((f) => (
           <button

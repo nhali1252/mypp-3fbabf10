@@ -97,6 +97,7 @@ function AdminMessages() {
           </AdminCard>
         ))
       )}
+      </WorkerHealthGate>
     </AdminPage>
   );
 }

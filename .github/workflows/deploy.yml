@@ -85,12 +85,20 @@ jobs:
 
       # wrangler-action uploads everything in `secrets:` to Cloudflare
       # as encrypted Worker secrets on every deploy — no manual steps.
+      # Optional secrets (ENV_IMPORT_TOKEN, SUPABASE_ANON_KEY, SUPABASE_JWKS,
+      # SUPABASE_DB_URL, LOVABLE_API_KEY) are pushed only when the matching
+      # GitHub Actions secret exists. Wrangler skips empty values.
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         env:
           SUPABASE_URL: ${{ env.SUPABASE_URL }}
           SUPABASE_PUBLISHABLE_KEY: ${{ env.SUPABASE_PUBLISHABLE_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ env.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_JWKS: ${{ secrets.SUPABASE_JWKS }}
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          LOVABLE_API_KEY: ${{ secrets.LOVABLE_API_KEY }}
+          ENV_IMPORT_TOKEN: ${{ secrets.ENV_IMPORT_TOKEN }}
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -99,3 +107,8 @@ jobs:
             SUPABASE_URL
             SUPABASE_PUBLISHABLE_KEY
             SUPABASE_SERVICE_ROLE_KEY
+            SUPABASE_ANON_KEY
+            SUPABASE_JWKS
+            SUPABASE_DB_URL
+            LOVABLE_API_KEY
+            ENV_IMPORT_TOKEN

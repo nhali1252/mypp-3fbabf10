@@ -24,10 +24,17 @@ const REQUIRED_SERVER_ENV = [
 ];
 
 const checkServerEnv = createServerFn({ method: "GET" }).handler(async () => {
-  return REQUIRED_SERVER_ENV.map((v) => ({
-    name: v.name,
-    present: Boolean(process.env[v.name]),
-  }));
+  return REQUIRED_SERVER_ENV.map((v) => {
+    const raw = process.env[v.name];
+    // Only expose values for public Variables (URL + anon key).
+    // Service role key is a Secret — value is NEVER returned to the client.
+    const value = v.type === "Variable" ? (raw ?? null) : null;
+    return {
+      name: v.name,
+      present: Boolean(raw),
+      value,
+    };
+  });
 });
 
 export function CloudflareSecretsChecklist() {
@@ -39,6 +46,7 @@ export function CloudflareSecretsChecklist() {
   });
 
   const statusByName = new Map((data ?? []).map((c) => [c.name, c.present]));
+  const valueByName = new Map((data ?? []).map((c) => [c.name, c.value]));
   const missing = REQUIRED_SERVER_ENV.filter((v) => statusByName.get(v.name) === false);
   const allOk = data && missing.length === 0;
 
@@ -133,6 +141,25 @@ export function CloudflareSecretsChecklist() {
                     >
                       <Copy className="w-3.5 h-3.5 mr-1" /> Copy name
                     </Button>
+                    {valueByName.get(v.name) ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const val = valueByName.get(v.name);
+                          if (!val) return;
+                          navigator.clipboard.writeText(val);
+                          toast.success(`Copied ${v.name} value`);
+                        }}
+                      >
+                        <Copy className="w-3.5 h-3.5 mr-1" /> Copy value
+                      </Button>
+                    ) : v.type === "Secret" && present ? (
+                      <span className="text-[10px] uppercase tracking-wider opacity-60">
+                        value hidden
+                      </span>
+                    ) : null}
                   </div>
                 </div>
                 <p className="text-xs opacity-75">{v.description}</p>

@@ -70,6 +70,9 @@ export default function HeroEditor({ embedded = false }: HeroEditorProps) {
       toast.success(`Hero saved (Page ${pageKey})`);
       qc.invalidateQueries({ queryKey: ["hero"] });
       qc.invalidateQueries({ queryKey: ["admin-hero"] });
+      // Hero portrait + headline are read on the public site via the cached
+      // basicInfo content doc — refresh it so edits appear immediately.
+      qc.invalidateQueries({ queryKey: ["r2-content", "basicInfo"] });
     } catch (e: any) { toast.error(e.message); }
     finally { setSaving(false); }
   }

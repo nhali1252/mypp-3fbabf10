@@ -26,9 +26,9 @@ on:
 # ----------------------------------------------------------------------------
 
 env:
-  PUB_SUPABASE_URL: https://mtddsbjuuzghzxlujnpi.supabase.co
-  PUB_SUPABASE_PUBLISHABLE_KEY: sb_publishable_BbyDrGLnFlmmbG_x6ZnIyw_Z9PMhWv-
-  PUB_SUPABASE_PROJECT_ID: mtddsbjuuzghzxlujnpi
+  PUB_SUPABASE_URL: https://ifdzsewtaxylwzeqjide.supabase.co
+  PUB_SUPABASE_PUBLISHABLE_KEY: sb_publishable_p-5dDUvFJY4hbubfFwchXg_Vl3CVinO
+  PUB_SUPABASE_PROJECT_ID: ifdzsewtaxylwzeqjide
 
 jobs:
   deploy:

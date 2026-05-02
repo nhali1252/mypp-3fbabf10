@@ -77,7 +77,7 @@ export function useFProjects(_opts: { onlyActive?: boolean } = {}) {
 }
 
 /**
- * Realtime sync was DB-driven; with R2 JSON the admin save call invalidates
+ * Realtime sync was DB-driven; with Supabase the admin save call invalidates
  * the cache directly, so this hook is now a no-op kept for backwards compat.
  */
 export function useFRealtimeSync() {

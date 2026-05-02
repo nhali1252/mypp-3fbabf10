@@ -1,5 +1,5 @@
 /**
- * Shared loading + error UI for content sections that read from R2.
+ * Shared loading + error UI for content sections that read from Supabase.
  *
  * - <SectionSkeleton />: animated placeholder cards while data is loading
  * - <SectionError />: clear, actionable error message with a retry button

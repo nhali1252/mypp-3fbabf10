@@ -1,7 +1,7 @@
 /**
  * Content server functions backed directly by Supabase. Replaces the previous
- * Cloudflare R2 JSON pipeline. Hooks call `getContent({ key })` and receive
- * the same JSON shape they used to get from R2 — so no client-side changes
+ * Cloudflare Supabase pipeline. Hooks call `getContent({ key })` and receive
+ * the same JSON shape they used to get from Supabase — so no client-side changes
  * are required outside the hook layer.
  */
 import { createServerFn } from "@tanstack/react-start";
@@ -197,7 +197,7 @@ async function buildContent(key: ContentKey): Promise<unknown> {
   }
 }
 
-/** Public read of any content "doc". Returns the same shape the R2 hooks expected. */
+/** Public read of any content "doc". Returns the same shape the Supabase hooks expected. */
 export const getContent = createServerFn({ method: "GET" })
   .inputValidator((data: { key: ContentKey }) => ({ key: contentKeySchema.parse(data.key) }))
   .handler(async ({ data }) => {

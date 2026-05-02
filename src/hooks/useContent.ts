@@ -1,5 +1,5 @@
 /**
- * Public content hooks — now read from R2 JSON via the `getContent` server function.
+ * Public content hooks — now read from Supabase JSON via the `getContent` server function.
  * Public API (return shape) is preserved so consumer components don't change.
  */
 import { useContentDoc } from "./useContentDoc";

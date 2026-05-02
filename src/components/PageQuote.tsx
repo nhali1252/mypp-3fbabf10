@@ -1,7 +1,7 @@
 /**
  * Per-page quote/highlight block.
  *
- * Reads from the R2 `pageQuotes` doc (slug-keyed). Renders nothing if the
+ * Reads from the `pageQuotes` doc (slug-keyed). Renders nothing if the
  * row is missing, inactive, or has an empty quote — so dropping it in is
  * safe even before content has been authored for a page.
  *

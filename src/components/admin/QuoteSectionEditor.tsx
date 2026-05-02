@@ -63,7 +63,7 @@ export default function QuoteSectionEditor({ slug }: Props) {
         },
       });
       // Refresh the R2-backed public preview cache for this doc.
-      qc.invalidateQueries({ queryKey: ["r2-content", "pageQuotes"] });
+      qc.invalidateQueries({ queryKey: ["content", "pageQuotes"] });
       toast.success("Quote saved");
     } catch (e: any) {
       toast.error(e?.message ?? "Save failed");

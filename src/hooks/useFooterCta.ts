@@ -1,4 +1,4 @@
-import { useR2Content } from "./useR2Content";
+import { useContentDoc } from "./useContentDoc";
 
 export type FooterCta = {
   id: string;
@@ -33,7 +33,7 @@ export const FOOTER_CTA_DEFAULTS: FooterCta = {
 };
 
 export function useFooterCta() {
-  const q = useR2Content<any>("chrome");
+  const q = useContentDoc<any>("chrome");
   const merged: FooterCta = { ...FOOTER_CTA_DEFAULTS, ...(q.data?.footerCta ?? {}) };
   return { ...q, data: merged } as Omit<typeof q, "data"> & { data: FooterCta };
 }

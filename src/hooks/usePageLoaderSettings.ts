@@ -1,4 +1,4 @@
-import { useR2Content } from "./useR2Content";
+import { useContentDoc } from "./useContentDoc";
 
 export type PageLoaderRouteEntry = { label?: string; tagline?: string };
 export type PageLoaderRoutesMap = Record<string, PageLoaderRouteEntry>;
@@ -33,7 +33,7 @@ export const PAGE_LOADER_DEFAULTS: PageLoaderSettings = {
 };
 
 export function usePageLoaderSettings() {
-  const q = useR2Content<any>("chrome");
+  const q = useContentDoc<any>("chrome");
   const data = q.data?.pageLoader;
   const merged: PageLoaderSettings = data
     ? {

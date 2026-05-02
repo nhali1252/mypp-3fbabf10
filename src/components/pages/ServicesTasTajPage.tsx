@@ -11,7 +11,7 @@ import {
   Palette,
   PenTool,
 } from "lucide-react";
-import { useR2Content } from "@/hooks/useR2Content";
+import { useContentDoc } from "@/hooks/useContentDoc";
 import { getIcon } from "@/lib/iconRegistry";
 import { Footer } from "@/components/Footer";
 
@@ -48,8 +48,8 @@ const fallbackOffers = [
 ];
 
 export function ServicesTasTajPage() {
-  const services = useR2Content<ServiceRow[]>("services");
-  const fPage = useR2Content<{ skills: FSkillRow[] }>("fPage");
+  const services = useContentDoc<ServiceRow[]>("services");
+  const fPage = useContentDoc<{ skills: FSkillRow[] }>("fPage");
 
   const offers = (services.data?.length ? services.data : fallbackOffers) as Array<
     Pick<ServiceRow, "id" | "title" | "description" | "icon">

@@ -2,8 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
-import { useR2Content } from "@/hooks/useR2Content";
-import { getContent } from "@/server/r2.functions";
+import { useContentDoc } from "@/hooks/useContentDoc";
+import { getContent } from "@/server/content.functions";
 import { getSeo } from "@/server/seo.functions";
 import { buildSeoMeta } from "@/lib/seo";
 import { ArrowUpRight, Sparkles } from "lucide-react";
@@ -314,7 +314,7 @@ export function deriveLauncherCards(
 
 function Launcher() {
   const { launcherDoc: initialLauncherDoc } = Route.useLoaderData();
-  const { data: rawDoc, isLoading, isFetching } = useR2Content<unknown>(
+  const { data: rawDoc, isLoading, isFetching } = useContentDoc<unknown>(
     "launcher",
     { initialData: initialLauncherDoc },
   );

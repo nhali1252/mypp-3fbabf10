@@ -8,7 +8,7 @@
  * Usage (from any public page):
  *   <PageQuote slug="about" />
  */
-import { useR2Content } from "@/hooks/useR2Content";
+import { useContentDoc } from "@/hooks/useContentDoc";
 
 type QuoteRow = {
   page_slug: string;
@@ -24,7 +24,7 @@ type Props = {
 };
 
 export function PageQuote({ slug, className }: Props) {
-  const { data } = useR2Content<Record<string, QuoteRow>>("pageQuotes");
+  const { data } = useContentDoc<Record<string, QuoteRow>>("pageQuotes");
   const row = data?.[slug];
   if (!row || row.active === false) return null;
   const quote = (row.quote ?? "").trim();

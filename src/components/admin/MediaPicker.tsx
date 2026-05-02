@@ -54,29 +54,6 @@ export async function uploadToStorage(
   return publicUrl;
 }
 
-/** Backwards-compatible alias used by some admin pages. */
-export const uploadToR2 = uploadToStorage;
-
-export function MediaPicker({
-  value,
-  onChange,
-  label = "Image",
-  folder = "projects",
-}: {
-  value?: string | null;
-  onChange: (url: string | null) => void;
-  label?: string;
-  folder?: AssetFolder;
-}) {
-  const [open, setOpen] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [status, setStatus] = useState<
-    | { kind: "idle" }
-    | { kind: "uploading"; name: string }
-    | { kind: "success"; message: string }
-    | { kind: "error"; message: string }
-  >({ kind: "idle" });
-
   const list = useServerFn(listAssets);
   const remove = useServerFn(deleteAsset);
   const proxy = useServerFn(uploadAsset);

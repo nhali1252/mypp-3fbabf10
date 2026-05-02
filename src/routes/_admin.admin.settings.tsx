@@ -107,8 +107,8 @@ function AdminSettings() {
       qc.invalidateQueries({ queryKey: ["public-site-settings"] });
       // SiteHead / Nav / Footer read logo + favicon + site_title via the
       // cached basicInfo content doc — refresh it so changes appear immediately.
-      qc.invalidateQueries({ queryKey: ["r2-content", "basicInfo"] });
-      qc.invalidateQueries({ queryKey: ["r2-content", "chrome"] });
+      qc.invalidateQueries({ queryKey: ["content", "basicInfo"] });
+      qc.invalidateQueries({ queryKey: ["content", "chrome"] });
     } catch (e: any) { toast.error(e.message); }
     finally { setSaving(false); }
   }

@@ -1,4 +1,4 @@
-import { useR2Content } from "./useR2Content";
+import { useContentDoc } from "./useContentDoc";
 
 export type FHero = {
   id: string;
@@ -40,13 +40,13 @@ export type FPhotocard = {
 };
 
 export const F_KEYS = {
-  hero: ["r2-content", "fPage", "hero"] as const,
-  skills: ["r2-content", "fPage", "skills"] as const,
-  projects: ["r2-content", "fPage", "projects"] as const,
-  photocard: ["r2-content", "fPage", "photocard"] as const,
+  hero: ["content", "fPage", "hero"] as const,
+  skills: ["content", "fPage", "skills"] as const,
+  projects: ["content", "fPage", "projects"] as const,
+  photocard: ["content", "fPage", "photocard"] as const,
 };
 
-const useFDoc = () => useR2Content<any>("fPage");
+const useFDoc = () => useContentDoc<any>("fPage");
 
 function pick<T>(q: ReturnType<typeof useFDoc>, value: T) {
   return { ...q, data: value } as Omit<typeof q, "data"> & { data: T };
@@ -77,7 +77,7 @@ export function useFProjects(_opts: { onlyActive?: boolean } = {}) {
 }
 
 /**
- * Realtime sync was DB-driven; with R2 JSON the admin save call invalidates
+ * Realtime sync was DB-driven; with Supabase the admin save call invalidates
  * the cache directly, so this hook is now a no-op kept for backwards compat.
  */
 export function useFRealtimeSync() {

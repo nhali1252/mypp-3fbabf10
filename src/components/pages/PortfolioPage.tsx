@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, Folder, FolderOpen, X, ExternalLink, Sparkles, Image as ImageIcon } from "lucide-react";
-import { useR2Content } from "@/hooks/useR2Content";
+import { useContentDoc } from "@/hooks/useContentDoc";
 import { Footer } from "@/components/Footer";
 
 type PortfolioDoc = (PFolder & { items: PItem[] })[];
@@ -28,7 +28,7 @@ type PItem = {
 };
 
 export function PortfolioPage() {
-  const { data: portfolioDoc, isLoading: foldersLoading } = useR2Content<PortfolioDoc>("portfolio");
+  const { data: portfolioDoc, isLoading: foldersLoading } = useContentDoc<PortfolioDoc>("portfolio");
   const folders: PFolder[] = (portfolioDoc ?? []).map(({ items: _items, ...f }) => f);
 
   const [openFolder, setOpenFolder] = useState<PFolder | null>(null);
@@ -195,7 +195,7 @@ function FolderViewer({
   onClose: () => void;
   onPreview: (item: PItem) => void;
 }) {
-  const { data: portfolioDoc, isLoading } = useR2Content<PortfolioDoc>("portfolio");
+  const { data: portfolioDoc, isLoading } = useContentDoc<PortfolioDoc>("portfolio");
   const items: PItem[] = (
     (portfolioDoc ?? []).find((f) => f.id === folder.id)?.items ?? []
   ).map((r) => ({ ...r, tags: Array.isArray(r.tags) ? r.tags : [] }));

@@ -54,9 +54,6 @@ export async function uploadToStorage(
   return publicUrl;
 }
 
-/** Backwards-compatible alias used by some admin pages. */
-export const uploadToR2 = uploadToStorage;
-
 export function MediaPicker({
   value,
   onChange,

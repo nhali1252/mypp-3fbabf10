@@ -3,8 +3,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, Send, Quote, MessageSquareHeart, CheckCircle2 } from "lucide-react";
 import { z } from "zod";
-import { useR2Content } from "@/hooks/useR2Content";
-import { submitReview } from "@/server/r2.functions";
+import { useContentDoc } from "@/hooks/useContentDoc";
+import { submitReview } from "@/server/content.functions";
 import { Footer } from "@/components/Footer";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -39,7 +39,7 @@ export function ReviewsPage() {
   const [hoverStar, setHoverStar] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
-  const { data: rawReviews, isLoading } = useR2Content<any[]>("reviews");
+  const { data: rawReviews, isLoading } = useContentDoc<any[]>("reviews");
   const reviews: Review[] = (rawReviews ?? [])
     .filter((r) => r.published !== false)
     .map((r) => ({
@@ -78,7 +78,7 @@ export function ReviewsPage() {
       setSubmitted(true);
       setName(""); setRole(""); setText(""); setRating(5);
       toast.success("Thanks! Your review is awaiting approval.");
-      qc.invalidateQueries({ queryKey: ["r2-content", "reviews"] });
+      qc.invalidateQueries({ queryKey: ["content", "reviews"] });
     },
     onError: (e: any) => toast.error(e.message ?? "Could not send"),
   });

@@ -2,8 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
-import { useR2Content } from "@/hooks/useR2Content";
-import { getContent } from "@/server/r2.functions";
+import { useContentDoc } from "@/hooks/useContentDoc";
+import { getContent } from "@/server/content.functions";
 import { getSeo } from "@/server/seo.functions";
 import { buildSeoMeta } from "@/lib/seo";
 import { ArrowUpRight, Sparkles } from "lucide-react";
@@ -16,8 +16,8 @@ import { useSiteSettings, isSectionVisible } from "@/hooks/useSiteSettings";
 
 export const Route = createFileRoute("/")({
   component: Launcher,
-  // SSR-prefetch the R2 launcher doc so the first paint already has the
-  // correct cards — no flash of fallback content on hydration. The raw R2
+  // SSR-prefetch the launcher doc so the first paint already has the
+  // correct cards — no flash of fallback content on hydration. The raw
   // payload is validated client + server side via `safeParseLauncherDoc`,
   // so we just pass through the raw value here.
   loader: async () => {
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/")({
     const ms = Date.now() - startedAt;
     const raw = contentRes?.data ?? null;
     if (raw == null) {
-      console.warn(`[launcher.loader] R2 returned empty launcher doc — homepage will use fallback cards (${ms}ms)`);
+      console.warn(`[launcher.loader] content function returned empty launcher doc — homepage will use fallback cards (${ms}ms)`);
     } else {
       console.info(`[launcher.loader] ok (${ms}ms)`);
     }
@@ -182,7 +182,7 @@ const HERO_FALLBACK: LauncherHero = {
 };
 
 // ---- Runtime validation ----------------------------------------------------
-// The R2 launcher document is user-editable JSON, so it can drift, be missing
+// The launcher document is user-editable JSON, so it can drift, be missing
 // fields, contain stale shapes, or be outright malformed. We validate it with
 // Zod and fall back to a safe empty document `{ hero: null, pages: [] }` when
 // validation fails. The downstream `deriveLauncherCards` + `HERO_FALLBACK`
@@ -219,7 +219,7 @@ export type LauncherDoc = { hero: LauncherHero | null; pages: LauncherCard[] };
 const EMPTY_LAUNCHER_DOC: LauncherDoc = { hero: null, pages: [] };
 
 /**
- * Validate an unknown R2 payload against the launcher document schema.
+ * Validate an unknown payload against the launcher document schema.
  * Returns a safe empty doc if the input is null/malformed. Bad individual
  * cards are dropped rather than poisoning the whole document.
  */
@@ -252,7 +252,7 @@ export function safeParseLauncherDoc(input: unknown): LauncherDoc {
       snippet = "<unserializable>";
     }
     console.warn(
-      "[launcher.validate] R2 document failed validation — homepage will use fallback cards.",
+      "[launcher.validate] Supabase document failed validation — homepage will use fallback cards.",
       { issues: parsed.error?.issues, inputSnippet: snippet },
     );
   }
@@ -314,12 +314,12 @@ export function deriveLauncherCards(
 
 function Launcher() {
   const { launcherDoc: initialLauncherDoc } = Route.useLoaderData();
-  const { data: rawDoc, isLoading, isFetching } = useR2Content<unknown>(
+  const { data: rawDoc, isLoading, isFetching } = useContentDoc<unknown>(
     "launcher",
     { initialData: initialLauncherDoc },
   );
 
-  // Validate the raw R2 payload at runtime. Malformed docs collapse to a
+  // Validate the raw payload at runtime. Malformed docs collapse to a
   // safe empty doc so the UI keeps rendering instead of crashing.
   const launcherDoc = useMemo(() => safeParseLauncherDoc(rawDoc), [rawDoc]);
 
@@ -329,12 +329,12 @@ function Launcher() {
   const showSkeleton = !hasRealData && (isLoading || isFetching);
 
   // Surface fallback usage in the browser console so it's obvious why a
-  // user is seeing the default cards instead of their R2-managed ones.
+  // user is seeing the default cards instead of their admin-managed ones.
   useEffect(() => {
     if (showSkeleton) return;
     if (!launcherDoc.pages.length) {
       console.warn(
-        "[launcher] Rendering FALLBACK cards — R2 launcher doc was missing/empty/invalid. Check server logs for [r2.getContent] / [launcher.loader] / [launcher.validate].",
+        "[launcher] Rendering FALLBACK cards — launcher doc was missing/empty/invalid. Check server logs for [content.getContent] / [launcher.loader] / [launcher.validate].",
       );
     }
   }, [showSkeleton, launcherDoc.pages.length]);
@@ -567,7 +567,7 @@ function Launcher() {
 }
 
 /**
- * Lightweight skeleton card shown while the R2 launcher document is being
+ * Lightweight skeleton card shown while the launcher document is being
  * fetched. Mirrors the real card's geometry (rounded border, badge row,
  * heading, body, CTA bar) so the layout doesn't shift when real cards land.
  */

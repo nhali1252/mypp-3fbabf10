@@ -30,7 +30,7 @@ function AdminMedia() {
   const proxy = useServerFn(uploadAsset);
 
   const { data: rows = [], isLoading } = useQuery({
-    queryKey: ["admin-r2-media", folder],
+    queryKey: ["admin-media", folder],
     queryFn: async () => {
       const items = await list({ data: { folder } });
       return [...items].sort((a, b) => (a.key < b.key ? 1 : -1));
@@ -43,7 +43,7 @@ function AdminMedia() {
     try {
       await uploadToStorage(file, folder, proxy);
       toast.success("Uploaded", { id: toastId });
-      qc.invalidateQueries({ queryKey: ["admin-r2-media", folder] });
+      qc.invalidateQueries({ queryKey: ["admin-media", folder] });
       qc.invalidateQueries({ queryKey: ["media-library", folder] });
     } catch (e: any) {
       toast.error(e?.message ?? "Upload failed", { id: toastId });
@@ -56,8 +56,8 @@ function AdminMedia() {
     try {
       await remove({ data: { key } });
       toast.success("Deleted");
-      qc.invalidateQueries({ queryKey: ["admin-r2-media", folder] });
-      qc.invalidateQueries({ queryKey: ["r2-media-library", folder] });
+      qc.invalidateQueries({ queryKey: ["admin-media", folder] });
+      qc.invalidateQueries({ queryKey: ["media-library", folder] });
     } catch (e: any) {
       toast.error(e.message ?? "Delete failed");
     }

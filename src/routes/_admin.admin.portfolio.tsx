@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { uploadAsset } from "@/server/content.functions";
 import { AdminPage, AdminCard, FormRow, EmptyState } from "@/components/admin/AdminPage";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
-import { MediaPicker, uploadToR2 } from "@/components/admin/MediaPicker";
+import { MediaPicker, uploadToStorage } from "@/components/admin/MediaPicker";
 import { TagListEditor } from "@/components/admin/TagListEditor";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -227,7 +227,7 @@ function AdminPortfolio() {
       for (let idx = 0; idx < files.length; idx++) {
         const file = files[idx];
         try {
-          const url = await uploadToR2(file, "projects", proxy);
+          const url = await uploadToStorage(file, "projects", proxy);
           const baseName = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim() || `Item ${idx + 1}`;
           const { error } = await (supabase as any).from("portfolio_items").insert({
             folder_id: activeFolderId,

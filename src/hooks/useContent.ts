@@ -1,14 +1,14 @@
 /**
- * Public content hooks — now read from R2 JSON via the `getContent` server function.
+ * Public content hooks — now read from Supabase JSON via the `getContent` server function.
  * Public API (return shape) is preserved so consumer components don't change.
  */
-import { useR2Content } from "./useR2Content";
+import { useContentDoc } from "./useContentDoc";
 
 type PageKey = "B" | "F" | string;
 
-const useBasicInfo = () => useR2Content<any>("basicInfo");
-const useChromeDoc = () => useR2Content<any>("chrome");
-const useAboutDoc = () => useR2Content<any>("about");
+const useBasicInfo = () => useContentDoc<any>("basicInfo");
+const useChromeDoc = () => useContentDoc<any>("chrome");
+const useAboutDoc = () => useContentDoc<any>("about");
 
 function project(q: { data: any } & Record<string, any>, value: any) {
   return { ...q, data: value } as any;
@@ -22,7 +22,7 @@ export const useHero = (_pageKey: PageKey = "B") => {
 export const useAbout = (_pageKey: PageKey = "B") => useAboutDoc();
 
 export const useContactSettings = (_pageKey: PageKey = "B") =>
-  useR2Content<any>("contact");
+  useContentDoc<any>("contact");
 
 export const useSiteSettings = (pageKey: PageKey = "B") => {
   const q = useBasicInfo();
@@ -30,12 +30,12 @@ export const useSiteSettings = (pageKey: PageKey = "B") => {
 };
 
 export const useServices = () => {
-  const q = useR2Content<any[]>("services");
+  const q = useContentDoc<any[]>("services");
   return project(q, q.data ?? []);
 };
 
 export const useProjects = () => {
-  const q = useR2Content<any[]>("projects");
+  const q = useContentDoc<any[]>("projects");
   return project(q, q.data ?? []);
 };
 

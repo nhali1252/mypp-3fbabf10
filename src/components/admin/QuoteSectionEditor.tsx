@@ -3,7 +3,7 @@
  * Reads via `getPageQuote`, writes via `savePageQuote`.
  *
  * On save we also notify the auto-resync hook (queue update on `page_quotes`)
- * so the public R2 doc rebuilds without a manual refresh.
+ * so the public Supabase doc rebuilds without a manual refresh.
  */
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -62,8 +62,8 @@ export default function QuoteSectionEditor({ slug }: Props) {
           active,
         },
       });
-      // Refresh the R2-backed public preview cache for this doc.
-      qc.invalidateQueries({ queryKey: ["r2-content", "pageQuotes"] });
+      // Refresh the Supabase-backed public preview cache for this doc.
+      qc.invalidateQueries({ queryKey: ["content", "pageQuotes"] });
       toast.success("Quote saved");
     } catch (e: any) {
       toast.error(e?.message ?? "Save failed");

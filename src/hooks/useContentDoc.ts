@@ -1,20 +1,18 @@
 /**
  * Client-side helper for reading content. Backed by Supabase via the
- * `getContent` server function (previously R2). The `useR2Content` name is
- * preserved so existing consumers continue to compile unchanged.
+ * `getContent` server function.
  */
 import { useQuery } from "@tanstack/react-query";
 import { getContent, type ContentKey } from "@/server/content.functions";
 
-// Re-export under the legacy name so existing imports keep working.
-export type R2ContentKey = ContentKey;
+export type { ContentKey };
 
-export function useR2Content<T = unknown>(
+export function useContentDoc<T = unknown>(
   key: ContentKey,
   opts?: { staleTime?: number; initialData?: T | null },
 ) {
   return useQuery({
-    queryKey: ["r2-content", key],
+    queryKey: ["content", key],
     queryFn: async (): Promise<T | null> => {
       const res = await getContent({ data: { key } });
       return (res?.data ?? null) as T | null;

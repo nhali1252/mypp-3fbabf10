@@ -60,9 +60,8 @@ export const getRouter = () => {
     context: {},
     scrollRestoration: true,
     defaultPreload: "intent",
-    // Reuse hover/focus preloads on actual click for snappier transitions.
+    // Cache preloaded route data briefly so hover→click feels instant.
     defaultPreloadStaleTime: 30_000,
-    defaultPreloadGcTime: 5 * 60_000,
     defaultStaleTime: 60_000,
     defaultPendingMs: 250,
     defaultPendingMinMs: 200,

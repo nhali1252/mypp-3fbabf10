@@ -1,11 +1,20 @@
+import { useEffect, useRef } from "react";
 import { Outlet, useRouterState } from "@tanstack/react-router";
 
 /**
  * Smooth fade-in for each new route. Uses a keyed wrapper so only the
  * incoming page animates — no out→in flicker, no double-page overlap.
+ * Also resets scroll on actual path changes (not on hash-only changes).
  */
 export function RouteTransition() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const last = useRef(pathname);
+
+  useEffect(() => {
+    if (last.current === pathname) return;
+    last.current = pathname;
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
+  }, [pathname]);
 
   return (
     <div key={pathname} className="route-fade-in min-h-screen">

@@ -60,9 +60,12 @@ export const getRouter = () => {
     context: {},
     scrollRestoration: true,
     defaultPreload: "intent",
-    defaultPreloadStaleTime: 0,
-    defaultPendingMs: 200,
-    defaultPendingMinMs: 280,
+    // Reuse hover/focus preloads on actual click for snappier transitions.
+    defaultPreloadStaleTime: 30_000,
+    defaultPreloadGcTime: 5 * 60_000,
+    defaultStaleTime: 60_000,
+    defaultPendingMs: 250,
+    defaultPendingMinMs: 200,
     defaultErrorComponent: DefaultErrorComponent,
   });
 

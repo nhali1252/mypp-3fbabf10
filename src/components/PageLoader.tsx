@@ -134,45 +134,12 @@ export function PageLoader({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // On subsequent route changes, flash a quick branded intro.
+  // Route-change loader intentionally disabled: the per-route fade in
+  // RouteTransition is enough, and showing a second full-screen overlay
+  // on every navigation caused a visible "double page" flicker.
   useEffect(() => {
-    if (isFirstRun.current) {
-      lastPath.current = pathname;
-      return;
-    }
-    if (lastPath.current === pathname) return;
-    const fromPath = lastPath.current;
     lastPath.current = pathname;
-
-    if (import.meta.env?.DEV) {
-      // [DEBUG][PageLoader] temporary: confirms per-route timing on every navigation.
-      console.log(
-        `[PageLoader][route] ${fromPath} → ${pathname} routeMs=${routeMs} (initialMs=${initialMs})`,
-      );
-    }
-
-    setShow(true);
-    setHiding(false);
-    const routeStart = performance.now();
-    const t1 = window.setTimeout(() => {
-      setHiding(true);
-      trackLoaderVisible({
-        kind: "route",
-        path: pathname,
-        fromPath,
-        configuredMs: routeMs,
-        actualMs: performance.now() - routeStart,
-      });
-    }, routeMs);
-    const t2 = window.setTimeout(() => {
-      setShow(false);
-      setHiding(false);
-    }, routeMs + 260);
-    return () => {
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-    };
-  }, [pathname, routeMs, initialMs]);
+  }, [pathname]);
 
   if (!show) return null;
 

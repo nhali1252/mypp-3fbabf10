@@ -60,9 +60,11 @@ export const getRouter = () => {
     context: {},
     scrollRestoration: true,
     defaultPreload: "intent",
-    defaultPreloadStaleTime: 0,
-    defaultPendingMs: 200,
-    defaultPendingMinMs: 280,
+    // Cache preloaded route data briefly so hover→click feels instant.
+    defaultPreloadStaleTime: 30_000,
+    defaultStaleTime: 60_000,
+    defaultPendingMs: 250,
+    defaultPendingMinMs: 200,
     defaultErrorComponent: DefaultErrorComponent,
   });
 

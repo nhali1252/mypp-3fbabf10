@@ -96,7 +96,21 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            // Avoid noisy refetch flickers when switching tabs/windows.
+            refetchOnWindowFocus: false,
+            refetchOnReconnect: false,
+            staleTime: 60_000,
+            gcTime: 5 * 60_000,
+            retry: 1,
+          },
+        },
+      }),
+  );
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>

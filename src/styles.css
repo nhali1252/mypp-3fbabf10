@@ -211,6 +211,9 @@
   img, video { max-width: 100%; height: auto; }
   img { -webkit-user-drag: none; }
 
+  /* Lower paint cost for long pages without breaking SSR/SEO. */
+  section { content-visibility: auto; contain-intrinsic-size: 1px 600px; }
+
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     *, *::before, *::after {

@@ -55,7 +55,7 @@ export const listReactions = createServerFn({ method: "GET" })
     item_id: itemIdSchema.parse(data.item_id),
   }))
   .handler(async ({ data }) => {
-    const { data: rows, error } = await supabaseAdmin
+    const { data: rows, error } = await supabasePublic
       .from("feed_reactions")
       .select("reaction, user_id")
       .eq("item_id", data.item_id);

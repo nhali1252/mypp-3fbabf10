@@ -141,7 +141,7 @@ export const listComments = createServerFn({ method: "GET" })
     item_id: itemIdSchema.parse(data.item_id),
   }))
   .handler(async ({ data }): Promise<{ comments: CommentRow[] }> => {
-    const { data: rows, error } = await supabaseAdmin
+    const { data: rows, error } = await supabasePublic
       .from("feed_comments")
       .select("id, item_id, user_id, parent_id, body, status, edited_at, created_at")
       .eq("item_id", data.item_id)
@@ -153,7 +153,7 @@ export const listComments = createServerFn({ method: "GET" })
     const userIds = Array.from(new Set((rows ?? []).map((r) => r.user_id)));
     let profiles: Record<string, CommentRow["author"]> = {};
     if (userIds.length) {
-      const { data: profs } = await supabaseAdmin
+      const { data: profs } = await supabasePublic
         .from("profiles")
         .select("id, display_name, avatar_url, verified")
         .in("id", userIds);

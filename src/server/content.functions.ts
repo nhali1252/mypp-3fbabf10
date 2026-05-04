@@ -223,7 +223,11 @@ export const submitReview = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data }) => {
-    const { error } = await supabaseAdmin.from("testimonials").insert({
+    // Use the public (anon) client so submission works without the
+    // SUPABASE_SERVICE_ROLE_KEY being deployed to the Worker. RLS policy
+    // "Anon can submit testimonial" permits inserts that are pending,
+    // unpublished, and unfeatured — exactly the shape we send below.
+    const { error } = await supabasePublic.from("testimonials").insert({
       client_name: data.name,
       role: data.role || null,
       review: data.review,

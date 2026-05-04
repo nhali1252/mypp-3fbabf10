@@ -250,9 +250,9 @@ const folderSchema = z.enum(ASSET_FOLDERS as unknown as [AssetFolder, ...AssetFo
 
 const BUCKET = "media";
 
-async function assertAdminOrEditor(userId: string) {
+async function assertAdminOrEditor(sb: typeof supabaseAdmin, userId: string) {
   try {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await sb
       .from("user_roles")
       .select("role")
       .eq("user_id", userId)
@@ -270,18 +270,21 @@ async function assertAdminOrEditor(userId: string) {
   }
 }
 
-function publicUrlFor(key: string): string {
-  const { data } = supabaseAdmin.storage.from(BUCKET).getPublicUrl(key);
+function publicUrlFor(sb: typeof supabaseAdmin, key: string): string {
+  const { data } = sb.storage.from(BUCKET).getPublicUrl(key);
   return data.publicUrl;
 }
 
-/** List media in a folder (admin only). */
+/** List media in a folder (admin only). Uses user-auth client so it works
+ *  even when SUPABASE_SERVICE_ROLE_KEY is not deployed — storage RLS allows
+ *  authenticated reads on the public `media` bucket. */
 export const listAssets = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { folder: AssetFolder }) => ({ folder: folderSchema.parse(data.folder) }))
   .handler(async ({ data, context }) => {
-    await assertAdminOrEditor(context.userId);
-    const { data: rows, error } = await supabaseAdmin.storage
+    const sb = context.supabase as unknown as typeof supabaseAdmin;
+    await assertAdminOrEditor(sb, context.userId);
+    const { data: rows, error } = await sb.storage
       .from(BUCKET)
       .list(data.folder, { limit: 1000, sortBy: { column: "created_at", order: "desc" } });
     if (error) throw new Error(error.message);
@@ -289,7 +292,7 @@ export const listAssets = createServerFn({ method: "GET" })
       .filter((r) => r.name && !r.name.endsWith("/"))
       .map((r) => {
         const key = `${data.folder}/${r.name}`;
-        return { key, url: publicUrlFor(key) };
+        return { key, url: publicUrlFor(sb, key) };
       });
   });
 
@@ -305,15 +308,17 @@ export const deleteAsset = createServerFn({ method: "POST" })
       .parse(data.key),
   }))
   .handler(async ({ data, context }) => {
-    await assertAdminOrEditor(context.userId);
-    const { error } = await supabaseAdmin.storage.from(BUCKET).remove([data.key]);
+    const sb = context.supabase as unknown as typeof supabaseAdmin;
+    await assertAdminOrEditor(sb, context.userId);
+    const { error } = await sb.storage.from(BUCKET).remove([data.key]);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
 
 /**
  * Server-side proxy upload. The browser POSTs base64 bytes; the server uploads
- * them to Supabase Storage. Limit: 25 MB.
+ * them to Supabase Storage using the caller's auth token, so the deployed
+ * Worker doesn't need SUPABASE_SERVICE_ROLE_KEY for media uploads.
  */
 export const uploadAsset = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -331,7 +336,8 @@ export const uploadAsset = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data, context }) => {
-    await assertAdminOrEditor(context.userId);
+    const sb = context.supabase as unknown as typeof supabaseAdmin;
+    await assertAdminOrEditor(sb, context.userId);
     const bin = atob(data.base64);
     const bytes = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
@@ -340,9 +346,9 @@ export const uploadAsset = createServerFn({ method: "POST" })
     }
     const safeName = data.filename.replace(/\s+/g, "-");
     const key = `${data.folder}/${Date.now()}-${safeName}`;
-    const { error } = await supabaseAdmin.storage
+    const { error } = await sb.storage
       .from(BUCKET)
       .upload(key, bytes, { contentType: data.contentType, upsert: false });
     if (error) throw new Error(error.message);
-    return { key, publicUrl: publicUrlFor(key) };
+    return { key, publicUrl: publicUrlFor(sb, key) };
   });

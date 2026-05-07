@@ -25,9 +25,9 @@ export type MessagesResult =
   | { ok: true; messages: Message[] }
   | { ok: false; messages: Message[]; error: string; detail?: string };
 
-async function assertAdmin(userId: string) {
+async function assertAdmin(sb: any, userId: string) {
   try {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await sb
       .from("user_roles")
       .select("role")
       .eq("user_id", userId)

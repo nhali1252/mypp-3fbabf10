@@ -351,7 +351,7 @@ export const adminListComments = createServerFn({ method: "GET" })
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
 
-    const userIds = Array.from(new Set((rows ?? []).map((r) => r.user_id)));
+    const userIds = Array.from(new Set((rows ?? []).map((r: any) => r.user_id)));
     let profiles: Record<string, any> = {};
     if (userIds.length) {
       const { data: profs } = await sb
@@ -362,7 +362,7 @@ export const adminListComments = createServerFn({ method: "GET" })
     }
 
     // Counts of reports per comment.
-    const ids = (rows ?? []).map((r) => r.id);
+    const ids = (rows ?? []).map((r: any) => r.id);
     let reportsByComment: Record<string, number> = {};
     if (ids.length) {
       const { data: reps } = await sb
@@ -375,7 +375,7 @@ export const adminListComments = createServerFn({ method: "GET" })
     }
 
     return {
-      comments: (rows ?? []).map((r) => ({
+      comments: (rows ?? []).map((r: any) => ({
         ...r,
         author: profiles[r.user_id] ?? null,
         report_count: reportsByComment[r.id] ?? 0,

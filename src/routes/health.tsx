@@ -78,7 +78,7 @@ function HealthPage() {
         >
           <strong>❌ Missing server environment variables:</strong>
           <ul style={{ marginTop: 8, paddingLeft: 20 }}>
-            {data.missing.map((name) => (
+            {data.missing.map((name: string) => (
               <li key={name}>
                 <code>{name}</code>
               </li>
@@ -102,7 +102,7 @@ function HealthPage() {
           </tr>
         </thead>
         <tbody>
-          {data.checks.map((c) => (
+          {data.checks.map((c: EnvCheck) => (
             <tr key={c.name} style={{ borderTop: "1px solid rgba(0,0,0,0.1)" }}>
               <td style={{ padding: "8px 0" }}>
                 <code>{c.name}</code>

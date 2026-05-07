@@ -7,6 +7,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { supabasePublic } from "@/integrations/supabase/client.public";
 
 export type Message = {
   id: string;
@@ -56,7 +57,10 @@ const submitSchema = z.object({
 export const submitMessage = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => submitSchema.parse(data))
   .handler(async ({ data }) => {
-    const { error } = await supabaseAdmin.from("messages").insert({
+    // Use public (anon) client — RLS policy "Anon can submit message" permits
+    // this insert, so the contact form works without SUPABASE_SERVICE_ROLE_KEY
+    // being deployed to the Worker.
+    const { error } = await supabasePublic.from("messages").insert({
       name: data.name,
       email: data.email,
       phone: data.phone || null,

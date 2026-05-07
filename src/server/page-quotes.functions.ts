@@ -5,10 +5,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-async function assertAdminOrEditor(userId: string) {
-  const { data, error } = await supabaseAdmin
+async function assertAdminOrEditor(sb: any, userId: string) {
+  const { data, error } = await sb
     .from("user_roles")
     .select("role")
     .eq("user_id", userId)
@@ -36,8 +35,9 @@ export const getPageQuote = createServerFn({ method: "POST" })
     z.object({ slug: slugSchema }).parse(data),
   )
   .handler(async ({ data, context }): Promise<PageQuoteRow | null> => {
-    await assertAdminOrEditor(context.userId);
-    const { data: row, error } = await supabaseAdmin
+    const sb = context.supabase as any;
+    await assertAdminOrEditor(sb, context.userId);
+    const { data: row, error } = await sb
       .from("page_quotes")
       .select("*")
       .eq("page_slug", data.slug)
@@ -67,8 +67,9 @@ export const savePageQuote = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
-    await assertAdminOrEditor(context.userId);
-    const { error } = await supabaseAdmin
+    const sb = context.supabase as any;
+    await assertAdminOrEditor(sb, context.userId);
+    const { error } = await sb
       .from("page_quotes")
       .upsert(
         {

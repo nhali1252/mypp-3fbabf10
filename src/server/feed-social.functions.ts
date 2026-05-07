@@ -250,15 +250,16 @@ export const deleteComment = createServerFn({ method: "POST" })
     reason: data.reason ? z.string().trim().max(500).parse(data.reason) : undefined,
   }))
   .handler(async ({ data, context }) => {
+    const sb = context.supabase as any;
     // Snapshot the row before deletion so the audit log keeps a trace.
-    const { data: snap } = await supabaseAdmin
+    const { data: snap } = await sb
       .from("feed_comments")
       .select("*")
       .eq("id", data.id)
       .maybeSingle();
-    const { error } = await context.supabase.from("feed_comments").delete().eq("id", data.id);
+    const { error } = await sb.from("feed_comments").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
-    await logModeration(context.userId, "comment", data.id, "delete", data.reason, snap);
+    await logModeration(sb, context.userId, "comment", data.id, "delete", data.reason, snap);
     return { ok: true };
   });
 
@@ -284,7 +285,7 @@ export const reportComment = createServerFn({ method: "POST" })
       throw new Error(error.message);
     }
     // Auto-flag the comment so admins see it without having to dig.
-    await supabaseAdmin
+    await context.supabase
       .from("feed_comments")
       .update({ status: "reported" })
       .eq("id", data.comment_id)
@@ -294,8 +295,8 @@ export const reportComment = createServerFn({ method: "POST" })
 
 // ---------- ADMIN MODERATION ----------------------------------------------
 
-async function assertAdmin(userId: string) {
-  const { data, error } = await supabaseAdmin
+async function assertAdmin(sb: any, userId: string) {
+  const { data, error } = await sb
     .from("user_roles")
     .select("role")
     .eq("user_id", userId)
@@ -311,6 +312,7 @@ async function assertAdmin(userId: string) {
  * `moderation_log` table also enforces append-only access via RLS.
  */
 async function logModeration(
+  sb: any,
   moderatorId: string,
   targetType: "comment" | "review",
   targetId: string,
@@ -319,7 +321,7 @@ async function logModeration(
   snapshot: unknown,
 ) {
   try {
-    await (supabaseAdmin as any).from("moderation_log").insert({
+    await sb.from("moderation_log").insert({
       moderator_id: moderatorId,
       target_type: targetType,
       target_id: targetId,

@@ -6,7 +6,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { supabasePublic } from "@/integrations/supabase/client.public";
 
 export type Message = {
@@ -25,9 +24,9 @@ export type MessagesResult =
   | { ok: true; messages: Message[] }
   | { ok: false; messages: Message[]; error: string; detail?: string };
 
-async function assertAdmin(userId: string) {
+async function assertAdmin(sb: any, userId: string) {
   try {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await sb
       .from("user_roles")
       .select("role")
       .eq("user_id", userId)
@@ -75,9 +74,10 @@ export const submitMessage = createServerFn({ method: "POST" })
 export const listMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<MessagesResult> => {
-    await assertAdmin(context.userId);
+    const sb = context.supabase as any;
+    await assertAdmin(sb, context.userId);
     try {
-      const { data, error } = await supabaseAdmin
+      const { data, error } = await sb
         .from("messages")
         .select("*")
         .order("created_at", { ascending: false });
@@ -107,11 +107,12 @@ export const updateMessage = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
+    const sb = context.supabase as any;
+    await assertAdmin(sb, context.userId);
     const patch: { is_read?: boolean; is_replied?: boolean } = {};
     if (typeof data.is_read === "boolean") patch.is_read = data.is_read;
     if (typeof data.is_replied === "boolean") patch.is_replied = data.is_replied;
-    const { error } = await supabaseAdmin.from("messages").update(patch).eq("id", data.id);
+    const { error } = await sb.from("messages").update(patch).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -123,8 +124,9 @@ export const deleteMessage = createServerFn({ method: "POST" })
     z.object({ id: z.string().uuid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
-    const { error } = await supabaseAdmin.from("messages").delete().eq("id", data.id);
+    const sb = context.supabase as any;
+    await assertAdmin(sb, context.userId);
+    const { error } = await sb.from("messages").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

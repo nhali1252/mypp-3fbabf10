@@ -15,7 +15,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { supabasePublic } from "@/integrations/supabase/client.public";
 
 const REACTIONS = ["like", "fire", "love", "wow"] as const;
@@ -251,15 +250,16 @@ export const deleteComment = createServerFn({ method: "POST" })
     reason: data.reason ? z.string().trim().max(500).parse(data.reason) : undefined,
   }))
   .handler(async ({ data, context }) => {
+    const sb = context.supabase as any;
     // Snapshot the row before deletion so the audit log keeps a trace.
-    const { data: snap } = await supabaseAdmin
+    const { data: snap } = await sb
       .from("feed_comments")
       .select("*")
       .eq("id", data.id)
       .maybeSingle();
-    const { error } = await context.supabase.from("feed_comments").delete().eq("id", data.id);
+    const { error } = await sb.from("feed_comments").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
-    await logModeration(context.userId, "comment", data.id, "delete", data.reason, snap);
+    await logModeration(sb, context.userId, "comment", data.id, "delete", data.reason, snap);
     return { ok: true };
   });
 
@@ -285,7 +285,7 @@ export const reportComment = createServerFn({ method: "POST" })
       throw new Error(error.message);
     }
     // Auto-flag the comment so admins see it without having to dig.
-    await supabaseAdmin
+    await context.supabase
       .from("feed_comments")
       .update({ status: "reported" })
       .eq("id", data.comment_id)
@@ -295,8 +295,8 @@ export const reportComment = createServerFn({ method: "POST" })
 
 // ---------- ADMIN MODERATION ----------------------------------------------
 
-async function assertAdmin(userId: string) {
-  const { data, error } = await supabaseAdmin
+async function assertAdmin(sb: any, userId: string) {
+  const { data, error } = await sb
     .from("user_roles")
     .select("role")
     .eq("user_id", userId)
@@ -312,6 +312,7 @@ async function assertAdmin(userId: string) {
  * `moderation_log` table also enforces append-only access via RLS.
  */
 async function logModeration(
+  sb: any,
   moderatorId: string,
   targetType: "comment" | "review",
   targetId: string,
@@ -320,7 +321,7 @@ async function logModeration(
   snapshot: unknown,
 ) {
   try {
-    await (supabaseAdmin as any).from("moderation_log").insert({
+    await sb.from("moderation_log").insert({
       moderator_id: moderatorId,
       target_type: targetType,
       target_id: targetId,
@@ -339,8 +340,9 @@ export const adminListComments = createServerFn({ method: "GET" })
     status: data?.status,
   }))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
-    let q = supabaseAdmin
+    const sb = context.supabase as any;
+    await assertAdmin(sb, context.userId);
+    let q = sb
       .from("feed_comments")
       .select("id, item_id, user_id, parent_id, body, status, edited_at, created_at")
       .order("created_at", { ascending: false })
@@ -349,10 +351,10 @@ export const adminListComments = createServerFn({ method: "GET" })
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
 
-    const userIds = Array.from(new Set((rows ?? []).map((r) => r.user_id)));
+    const userIds = Array.from(new Set((rows ?? []).map((r: any) => r.user_id)));
     let profiles: Record<string, any> = {};
     if (userIds.length) {
-      const { data: profs } = await supabaseAdmin
+      const { data: profs } = await sb
         .from("profiles")
         .select("id, display_name, avatar_url, verified")
         .in("id", userIds);
@@ -360,10 +362,10 @@ export const adminListComments = createServerFn({ method: "GET" })
     }
 
     // Counts of reports per comment.
-    const ids = (rows ?? []).map((r) => r.id);
+    const ids = (rows ?? []).map((r: any) => r.id);
     let reportsByComment: Record<string, number> = {};
     if (ids.length) {
-      const { data: reps } = await supabaseAdmin
+      const { data: reps } = await sb
         .from("feed_comment_reports")
         .select("comment_id")
         .in("comment_id", ids);
@@ -373,7 +375,7 @@ export const adminListComments = createServerFn({ method: "GET" })
     }
 
     return {
-      comments: (rows ?? []).map((r) => ({
+      comments: (rows ?? []).map((r: any) => ({
         ...r,
         author: profiles[r.user_id] ?? null,
         report_count: reportsByComment[r.id] ?? 0,
@@ -389,18 +391,20 @@ export const adminSetCommentStatus = createServerFn({ method: "POST" })
     reason: data.reason ? z.string().trim().max(500).parse(data.reason) : undefined,
   }))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
-    const { data: snap } = await supabaseAdmin
+    const sb = context.supabase as any;
+    await assertAdmin(sb, context.userId);
+    const { data: snap } = await sb
       .from("feed_comments")
       .select("*")
       .eq("id", data.id)
       .maybeSingle();
-    const { error } = await supabaseAdmin
+    const { error } = await sb
       .from("feed_comments")
       .update({ status: data.status })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     await logModeration(
+      sb,
       context.userId,
       "comment",
       data.id,
@@ -427,8 +431,9 @@ export const adminModerateReview = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
-    const { data: snap } = await supabaseAdmin
+    const sb = context.supabase as any;
+    await assertAdmin(sb, context.userId);
+    const { data: snap } = await sb
       .from("testimonials")
       .select("*")
       .eq("id", data.id)
@@ -452,9 +457,9 @@ export const adminModerateReview = createServerFn({ method: "POST" })
         patch = { published: false };
         break;
     }
-    const { error } = await (supabaseAdmin as any).from("testimonials").update(patch).eq("id", data.id);
+    const { error } = await sb.from("testimonials").update(patch).eq("id", data.id);
     if (error) throw new Error(error.message);
-    await logModeration(context.userId, "review", data.id, data.action, data.reason, snap);
+    await logModeration(sb, context.userId, "review", data.id, data.action, data.reason, snap);
     return { ok: true };
   });
 
@@ -469,8 +474,9 @@ export const adminListModerationLog = createServerFn({ method: "GET" })
     }),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
-    let q = (supabaseAdmin as any)
+    const sb = context.supabase as any;
+    await assertAdmin(sb, context.userId);
+    let q = sb
       .from("moderation_log")
       .select("id, moderator_id, target_type, target_id, action, reason, created_at")
       .order("created_at", { ascending: false })
@@ -484,7 +490,7 @@ export const adminListModerationLog = createServerFn({ method: "GET" })
     ) as string[];
     let profiles: Record<string, any> = {};
     if (modIds.length) {
-      const { data: profs } = await supabaseAdmin
+      const { data: profs } = await sb
         .from("profiles")
         .select("id, display_name, avatar_url")
         .in("id", modIds);
@@ -502,8 +508,9 @@ export const adminVerifyUser = createServerFn({ method: "POST" })
     verified: z.boolean().parse(data.verified),
   }))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
-    const { error } = await supabaseAdmin
+    const sb = context.supabase as any;
+    await assertAdmin(sb, context.userId);
+    const { error } = await sb
       .from("profiles")
       .update({ verified: data.verified })
       .eq("id", data.user_id);

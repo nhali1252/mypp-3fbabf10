@@ -340,8 +340,9 @@ export const adminListComments = createServerFn({ method: "GET" })
     status: data?.status,
   }))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
-    let q = supabaseAdmin
+    const sb = context.supabase as any;
+    await assertAdmin(sb, context.userId);
+    let q = sb
       .from("feed_comments")
       .select("id, item_id, user_id, parent_id, body, status, edited_at, created_at")
       .order("created_at", { ascending: false })
@@ -353,7 +354,7 @@ export const adminListComments = createServerFn({ method: "GET" })
     const userIds = Array.from(new Set((rows ?? []).map((r) => r.user_id)));
     let profiles: Record<string, any> = {};
     if (userIds.length) {
-      const { data: profs } = await supabaseAdmin
+      const { data: profs } = await sb
         .from("profiles")
         .select("id, display_name, avatar_url, verified")
         .in("id", userIds);
@@ -364,7 +365,7 @@ export const adminListComments = createServerFn({ method: "GET" })
     const ids = (rows ?? []).map((r) => r.id);
     let reportsByComment: Record<string, number> = {};
     if (ids.length) {
-      const { data: reps } = await supabaseAdmin
+      const { data: reps } = await sb
         .from("feed_comment_reports")
         .select("comment_id")
         .in("comment_id", ids);
@@ -390,13 +391,14 @@ export const adminSetCommentStatus = createServerFn({ method: "POST" })
     reason: data.reason ? z.string().trim().max(500).parse(data.reason) : undefined,
   }))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
-    const { data: snap } = await supabaseAdmin
+    const sb = context.supabase as any;
+    await assertAdmin(sb, context.userId);
+    const { data: snap } = await sb
       .from("feed_comments")
       .select("*")
       .eq("id", data.id)
       .maybeSingle();
-    const { error } = await supabaseAdmin
+    const { error } = await sb
       .from("feed_comments")
       .update({ status: data.status })
       .eq("id", data.id);
@@ -428,8 +430,9 @@ export const adminModerateReview = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
-    const { data: snap } = await supabaseAdmin
+    const sb = context.supabase as any;
+    await assertAdmin(sb, context.userId);
+    const { data: snap } = await sb
       .from("testimonials")
       .select("*")
       .eq("id", data.id)
@@ -453,9 +456,9 @@ export const adminModerateReview = createServerFn({ method: "POST" })
         patch = { published: false };
         break;
     }
-    const { error } = await (supabaseAdmin as any).from("testimonials").update(patch).eq("id", data.id);
+    const { error } = await sb.from("testimonials").update(patch).eq("id", data.id);
     if (error) throw new Error(error.message);
-    await logModeration(context.userId, "review", data.id, data.action, data.reason, snap);
+    await logModeration(sb, context.userId, "review", data.id, data.action, data.reason, snap);
     return { ok: true };
   });
 
@@ -470,8 +473,9 @@ export const adminListModerationLog = createServerFn({ method: "GET" })
     }),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
-    let q = (supabaseAdmin as any)
+    const sb = context.supabase as any;
+    await assertAdmin(sb, context.userId);
+    let q = sb
       .from("moderation_log")
       .select("id, moderator_id, target_type, target_id, action, reason, created_at")
       .order("created_at", { ascending: false })
@@ -485,7 +489,7 @@ export const adminListModerationLog = createServerFn({ method: "GET" })
     ) as string[];
     let profiles: Record<string, any> = {};
     if (modIds.length) {
-      const { data: profs } = await supabaseAdmin
+      const { data: profs } = await sb
         .from("profiles")
         .select("id, display_name, avatar_url")
         .in("id", modIds);
@@ -503,8 +507,9 @@ export const adminVerifyUser = createServerFn({ method: "POST" })
     verified: z.boolean().parse(data.verified),
   }))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
-    const { error } = await supabaseAdmin
+    const sb = context.supabase as any;
+    await assertAdmin(sb, context.userId);
+    const { error } = await sb
       .from("profiles")
       .update({ verified: data.verified })
       .eq("id", data.user_id);

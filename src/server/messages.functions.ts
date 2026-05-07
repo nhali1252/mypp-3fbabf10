@@ -75,9 +75,10 @@ export const submitMessage = createServerFn({ method: "POST" })
 export const listMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<MessagesResult> => {
-    await assertAdmin(context.userId);
+    const sb = context.supabase as any;
+    await assertAdmin(sb, context.userId);
     try {
-      const { data, error } = await supabaseAdmin
+      const { data, error } = await sb
         .from("messages")
         .select("*")
         .order("created_at", { ascending: false });
@@ -107,11 +108,12 @@ export const updateMessage = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
+    const sb = context.supabase as any;
+    await assertAdmin(sb, context.userId);
     const patch: { is_read?: boolean; is_replied?: boolean } = {};
     if (typeof data.is_read === "boolean") patch.is_read = data.is_read;
     if (typeof data.is_replied === "boolean") patch.is_replied = data.is_replied;
-    const { error } = await supabaseAdmin.from("messages").update(patch).eq("id", data.id);
+    const { error } = await sb.from("messages").update(patch).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -123,8 +125,9 @@ export const deleteMessage = createServerFn({ method: "POST" })
     z.object({ id: z.string().uuid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
-    const { error } = await supabaseAdmin.from("messages").delete().eq("id", data.id);
+    const sb = context.supabase as any;
+    await assertAdmin(sb, context.userId);
+    const { error } = await sb.from("messages").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

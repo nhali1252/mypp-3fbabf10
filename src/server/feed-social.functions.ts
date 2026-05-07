@@ -404,6 +404,7 @@ export const adminSetCommentStatus = createServerFn({ method: "POST" })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     await logModeration(
+      sb,
       context.userId,
       "comment",
       data.id,

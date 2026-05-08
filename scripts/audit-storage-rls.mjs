@@ -72,7 +72,6 @@ console.log("1. Bucket reachable & serves public URLs");
     }
   }
 }
-}
 
 // 2. anon read of a known seed object (upload one as admin first if list is empty)
 console.log("\n2. Anonymous read");

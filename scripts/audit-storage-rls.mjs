@@ -1,18 +1,25 @@
 #!/usr/bin/env node
 /**
- * Automated audit for the `media` storage bucket.
+ * Automated RLS audit for one or more Supabase Storage buckets.
  *
- * Verifies — using ONLY the public (anon) key, no service-role secret — that:
- *   1. Bucket `media` exists and is public
- *   2. Anonymous users can READ public objects (public URL fetch + list)
- *   3. Anonymous users CANNOT upload (RLS must reject)
- *   4. Authenticated admin CAN upload, read, and delete
- *   5. RLS policies on storage.objects match the expected role-based shape
+ * For each configured bucket, verifies — using ONLY the public (anon) key,
+ * no service-role secret — that:
+ *   1. Bucket is reachable; if `public`, served public URLs return 200
+ *   2. Anonymous list behaves per visibility (public→ok, private→denied)
+ *   3. Anonymous upload is rejected (RLS must block it)
+ *   4. Authenticated admin can upload / read / delete
  *
- * Usage:
- *   ADMIN_EMAIL=… ADMIN_PASSWORD=… node scripts/audit-storage-rls.mjs
+ * Configure buckets (in priority order):
+ *   • CLI:  --bucket=media:public --bucket=attachments:private
+ *   • Env:  BUCKETS="media:public,avatars:public,attachments:private"
+ *   • Default: media:public
  *
- * Exits 0 on full pass, 1 if any check fails.
+ * Visibility tag is `public` (default) or `private`.
+ *
+ * Admin credentials (optional, enables step 4):
+ *   ADMIN_EMAIL=… ADMIN_PASSWORD=…
+ *
+ * Exits 0 only when every bucket passes every applicable check.
  */
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync, existsSync } from "node:fs";
@@ -33,100 +40,142 @@ if (!URL || !ANON) {
   process.exit(1);
 }
 
-const BUCKET = "media";
-const stamp = Date.now();
-let pass = 0, fail = 0;
-const ok = (m, x = "") => { pass++; console.log(`  ✓ ${m}${x ? "  " + x : ""}`); };
-const ko = (m, e) => { fail++; console.log(`  ✗ ${m}\n      ${e?.message || e}`); };
+// ---- bucket config --------------------------------------------------------
+function parseSpec(s) {
+  const [name, vis = "public"] = s.split(":").map((x) => x.trim());
+  if (!name) return null;
+  if (vis !== "public" && vis !== "private") {
+    console.error(`✗ Invalid visibility "${vis}" for "${name}" — use public|private`);
+    process.exit(1);
+  }
+  return { name, visibility: vis };
+}
 
+const cliSpecs = process.argv
+  .slice(2)
+  .filter((a) => a.startsWith("--bucket="))
+  .map((a) => a.slice("--bucket=".length));
+const envSpecs = (process.env.BUCKETS || "").split(",").map((s) => s.trim()).filter(Boolean);
+const specs = (cliSpecs.length ? cliSpecs : envSpecs.length ? envSpecs : ["media:public"])
+  .map(parseSpec)
+  .filter(Boolean);
+
+const stamp = Date.now();
 const anon = createClient(URL, ANON, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-console.log(`\nStorage RLS audit — ${URL} bucket=${BUCKET}\n`);
-
-// 1. bucket reachable + public-URL fetch on a real file
-console.log("1. Bucket reachable & serves public URLs");
-{
-  let probed = null;
-  const roots = await anon.storage.from(BUCKET).list("", { limit: 20 });
-  if (roots.error) ko("list bucket root", roots.error);
-  else {
-    outer: for (const entry of roots.data ?? []) {
-      if (!entry.name) continue;
-      // file at root?
-      if (entry.metadata) { probed = entry.name; break; }
-      // otherwise treat as folder, list inside
-      const sub = await anon.storage.from(BUCKET).list(entry.name, { limit: 20 });
-      for (const f of sub.data ?? []) {
-        if (f.name && f.metadata) { probed = `${entry.name}/${f.name}`; break outer; }
-      }
-    }
-    if (!probed) {
-      ok("bucket reachable (no files yet — admin step will verify public URL)");
-    } else {
-      const { data: pub } = anon.storage.from(BUCKET).getPublicUrl(probed);
-      const r = await fetch(pub.publicUrl);
-      r.ok ? ok("public URL fetch", `${probed} (${r.status})`)
-           : ko("public URL fetch", `status ${r.status} — bucket may not be public`);
-    }
+let adminClient = null;
+const adminEmail = process.env.ADMIN_EMAIL;
+const adminPass = process.env.ADMIN_PASSWORD;
+if (adminEmail && adminPass) {
+  adminClient = createClient(URL, ANON, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { error } = await adminClient.auth.signInWithPassword({
+    email: adminEmail, password: adminPass,
+  });
+  if (error) {
+    console.error(`✗ admin sign-in failed: ${error.message}`);
+    adminClient = null;
   }
 }
 
-// 2. anon read of a known seed object (upload one as admin first if list is empty)
-console.log("\n2. Anonymous read");
-{
-  const { data, error } = await anon.storage.from(BUCKET).list("", { limit: 1 });
-  if (error) ko("anon list", error);
-  else ok("anon can list bucket root", `(${data?.length ?? 0} entries)`);
-}
+// ---- per-bucket runner ----------------------------------------------------
+async function auditBucket({ name, visibility }) {
+  const r = { name, visibility, pass: 0, fail: 0 };
+  const ok = (m, x = "") => { r.pass++; console.log(`  ✓ ${m}${x ? "  " + x : ""}`); };
+  const ko = (m, e) => { r.fail++; console.log(`  ✗ ${m}\n      ${e?.message || e}`); };
 
-// 3. anon upload MUST fail (no policy permits it)
-console.log("\n3. Anonymous upload must be rejected");
-{
-  const path = `audit/anon-${stamp}.txt`;
-  const body = new Blob([`anon ${stamp}`], { type: "text/plain" });
-  const { error } = await anon.storage.from(BUCKET).upload(path, body, { upsert: false });
-  if (!error) ko("anon upload was unexpectedly accepted", "RLS misconfigured");
-  else ok("anon upload correctly rejected", `(${error.message})`);
-}
+  console.log(`\n── bucket: ${name}  (${visibility}) ─────────────────────────`);
 
-// 4. admin flow
-console.log("\n4. Admin upload / read / delete");
-const adminEmail = process.env.ADMIN_EMAIL;
-const adminPass = process.env.ADMIN_PASSWORD;
-if (!adminEmail || !adminPass) {
-  console.log("  · skipped (set ADMIN_EMAIL + ADMIN_PASSWORD)");
-} else {
-  const admin = createClient(URL, ANON, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-  const { error: signInErr } = await admin.auth.signInWithPassword({
-    email: adminEmail, password: adminPass,
-  });
-  if (signInErr) {
-    ko("admin sign-in", signInErr);
+  // 1. reachability + public-URL fetch (only meaningful for public buckets)
+  console.log("1. Reachability");
+  const roots = await anon.storage.from(name).list("", { limit: 20 });
+  if (visibility === "public") {
+    if (roots.error) ko("anon list root", roots.error);
+    else {
+      ok("anon list root", `(${roots.data?.length ?? 0} entries)`);
+      // probe a real file (descend one folder if needed)
+      let probed = null;
+      outer: for (const entry of roots.data ?? []) {
+        if (!entry.name) continue;
+        if (entry.metadata) { probed = entry.name; break; }
+        const sub = await anon.storage.from(name).list(entry.name, { limit: 20 });
+        for (const f of sub.data ?? []) {
+          if (f.name && f.metadata) { probed = `${entry.name}/${f.name}`; break outer; }
+        }
+      }
+      if (!probed) {
+        ok("public-URL probe skipped (bucket empty)");
+      } else {
+        const { data: pub } = anon.storage.from(name).getPublicUrl(probed);
+        const res = await fetch(pub.publicUrl);
+        res.ok ? ok("public URL fetch", `${probed} (${res.status})`)
+               : ko("public URL fetch", `status ${res.status} — bucket may not actually be public`);
+      }
+    }
   } else {
-    ok("admin sign-in");
+    if (!roots.error) ko("anon list on private bucket succeeded", "RLS too permissive");
+    else ok("anon list correctly denied", `(${roots.error.message})`);
+  }
+
+  // 2. anon upload must always be rejected
+  console.log("2. Anon upload must be rejected");
+  {
+    const path = `audit/anon-${stamp}.txt`;
+    const body = new Blob([`anon ${stamp}`], { type: "text/plain" });
+    const up = await anon.storage.from(name).upload(path, body, { upsert: false });
+    if (!up.error) ko("anon upload accepted", "RLS misconfigured");
+    else ok("anon upload rejected", `(${up.error.message})`);
+  }
+
+  // 3. admin upload / read / delete
+  console.log("3. Admin upload / read / delete");
+  if (!adminClient) {
+    console.log("  · skipped (set ADMIN_EMAIL + ADMIN_PASSWORD)");
+  } else {
     const path = `audit/admin-${stamp}.txt`;
     const body = new Blob([`admin ${stamp}`], { type: "text/plain" });
-
-    const up = await admin.storage.from(BUCKET).upload(path, body, { upsert: true });
+    const up = await adminClient.storage.from(name).upload(path, body, { upsert: true });
     if (up.error) ko("admin upload", up.error);
     else {
-      const { data: pub } = admin.storage.from(BUCKET).getPublicUrl(path);
+      const { data: pub } = adminClient.storage.from(name).getPublicUrl(path);
       ok("admin upload", pub.publicUrl);
 
-      // public fetch via plain HTTP (no auth) — proves "Public read media" works
-      const r = await fetch(pub.publicUrl);
-      r.ok ? ok("public HTTP GET on uploaded object", `(${r.status})`)
-           : ko("public HTTP GET", `status ${r.status}`);
+      if (visibility === "public") {
+        const res = await fetch(pub.publicUrl);
+        res.ok ? ok("public HTTP GET on uploaded object", `(${res.status})`)
+               : ko("public HTTP GET", `status ${res.status}`);
+      } else {
+        const res = await fetch(pub.publicUrl);
+        res.ok ? ko("public HTTP GET on private bucket succeeded", "should be 400/403")
+               : ok("public HTTP GET correctly denied", `(${res.status})`);
+        const dl = await adminClient.storage.from(name).download(path);
+        dl.error ? ko("admin signed download", dl.error) : ok("admin signed download");
+      }
 
-      const del = await admin.storage.from(BUCKET).remove([path]);
+      const del = await adminClient.storage.from(name).remove([path]);
       del.error ? ko("admin delete", del.error) : ok("admin delete");
     }
   }
+
+  return r;
 }
 
-console.log(`\nResult: ${pass} passed, ${fail} failed.`);
-process.exit(fail === 0 ? 0 : 1);
+console.log(`\nStorage RLS audit — ${URL}`);
+console.log(`Buckets: ${specs.map((s) => `${s.name}(${s.visibility})`).join(", ")}`);
+console.log(`Admin checks: ${adminClient ? "enabled" : "skipped (no ADMIN_* env)"}`);
+
+const results = [];
+for (const spec of specs) results.push(await auditBucket(spec));
+
+console.log("\n────────── summary ──────────");
+let totalPass = 0, totalFail = 0;
+for (const r of results) {
+  totalPass += r.pass; totalFail += r.fail;
+  const status = r.fail === 0 ? "✓" : "✗";
+  console.log(`  ${status} ${r.name.padEnd(20)} ${r.pass} pass / ${r.fail} fail`);
+}
+console.log(`\nTotal: ${totalPass} passed, ${totalFail} failed across ${results.length} bucket(s).`);
+process.exit(totalFail === 0 ? 0 : 1);

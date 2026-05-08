@@ -45,13 +45,24 @@ const anon = createClient(URL, ANON, {
 
 console.log(`\nStorage RLS audit — ${URL} bucket=${BUCKET}\n`);
 
-// 1. bucket exists & is public
-console.log("1. Bucket exists & public");
+// 1. bucket reachable + public-URL fetch on first listed file
+console.log("1. Bucket reachable & serves public URLs");
 {
-  const { data, error } = await anon.storage.getBucket(BUCKET);
-  if (error) ko("getBucket", error);
-  else if (!data?.public) ko("bucket is not public", `public=${data?.public}`);
-  else ok("bucket exists and is public");
+  const { data, error } = await anon.storage.from(BUCKET).list("", { limit: 5 });
+  if (error) {
+    ko("list bucket", error);
+  } else if (!data?.length) {
+    ok("bucket reachable (empty — admin step will verify public URL)");
+  } else {
+    const first = data.find((d) => d.name && !d.name.endsWith("/"));
+    if (!first) ok("bucket reachable (only folders at root)");
+    else {
+      const { data: pub } = anon.storage.from(BUCKET).getPublicUrl(first.name);
+      const r = await fetch(pub.publicUrl);
+      r.ok ? ok("public URL fetch", `${pub.publicUrl} (${r.status})`)
+           : ko("public URL fetch", `status ${r.status} — bucket may not be public`);
+    }
+  }
 }
 
 // 2. anon read of a known seed object (upload one as admin first if list is empty)

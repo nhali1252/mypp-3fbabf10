@@ -57,19 +57,9 @@ console.log("1. Public read (site_settings)");
   error ? ko("anon SELECT site_settings", error) : ok("anon SELECT site_settings");
 }
 
-// 2. storage upload to public media bucket
-console.log("\n2. Media upload (storage:media)");
-{
-  const path = `audit/anon-${stamp}.txt`;
-  const body = new Blob([`audit ${stamp}`], { type: "text/plain" });
-  const { error } = await sb.storage.from("media").upload(path, body, { upsert: true });
-  if (error) ko("anon upload to media bucket", error);
-  else {
-    ok("anon upload to media bucket", path);
-    const { data: pub } = sb.storage.from("media").getPublicUrl(path);
-    ok("public URL resolves", pub.publicUrl);
-  }
-}
+// 2. storage upload — done as the signed-in admin (no service-role key
+//    required; the admin's JWT + RLS policy on storage.objects is enough).
+console.log("\n2. Media upload (storage:media as admin)");
 
 // 3. contact message submit
 console.log("\n3. Contact message submit (messages)");

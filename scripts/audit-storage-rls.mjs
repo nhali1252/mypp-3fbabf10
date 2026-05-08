@@ -45,24 +45,33 @@ const anon = createClient(URL, ANON, {
 
 console.log(`\nStorage RLS audit — ${URL} bucket=${BUCKET}\n`);
 
-// 1. bucket reachable + public-URL fetch on first listed file
+// 1. bucket reachable + public-URL fetch on a real file
 console.log("1. Bucket reachable & serves public URLs");
 {
-  const { data, error } = await anon.storage.from(BUCKET).list("", { limit: 5 });
-  if (error) {
-    ko("list bucket", error);
-  } else if (!data?.length) {
-    ok("bucket reachable (empty — admin step will verify public URL)");
-  } else {
-    const first = data.find((d) => d.name && !d.name.endsWith("/"));
-    if (!first) ok("bucket reachable (only folders at root)");
-    else {
-      const { data: pub } = anon.storage.from(BUCKET).getPublicUrl(first.name);
+  let probed = null;
+  const roots = await anon.storage.from(BUCKET).list("", { limit: 20 });
+  if (roots.error) ko("list bucket root", roots.error);
+  else {
+    outer: for (const entry of roots.data ?? []) {
+      if (!entry.name) continue;
+      // file at root?
+      if (entry.metadata) { probed = entry.name; break; }
+      // otherwise treat as folder, list inside
+      const sub = await anon.storage.from(BUCKET).list(entry.name, { limit: 20 });
+      for (const f of sub.data ?? []) {
+        if (f.name && f.metadata) { probed = `${entry.name}/${f.name}`; break outer; }
+      }
+    }
+    if (!probed) {
+      ok("bucket reachable (no files yet — admin step will verify public URL)");
+    } else {
+      const { data: pub } = anon.storage.from(BUCKET).getPublicUrl(probed);
       const r = await fetch(pub.publicUrl);
-      r.ok ? ok("public URL fetch", `${pub.publicUrl} (${r.status})`)
+      r.ok ? ok("public URL fetch", `${probed} (${r.status})`)
            : ko("public URL fetch", `status ${r.status} — bucket may not be public`);
     }
   }
+}
 }
 
 // 2. anon read of a known seed object (upload one as admin first if list is empty)

@@ -88,8 +88,8 @@ const reviewMarker = `AUDIT-${stamp}`;
   error ? ko("anon INSERT testimonials", error) : ok("anon INSERT testimonials");
 }
 
-// 5. admin visibility (optional — needs ADMIN_EMAIL/PASSWORD)
-console.log("\n5. Admin visibility for the submitted review");
+// 5. admin-authenticated checks: media upload + new review visibility
+console.log("\n5. Admin-authenticated checks");
 const adminEmail = process.env.ADMIN_EMAIL;
 const adminPass = process.env.ADMIN_PASSWORD;
 if (!adminEmail || !adminPass) {
@@ -102,12 +102,26 @@ if (!adminEmail || !adminPass) {
   const { error: signInErr } = await adminClient.auth.signInWithPassword({
     email: adminEmail, password: adminPass,
   });
-  if (signInErr) ko("admin sign-in", signInErr);
-  else {
+  if (signInErr) {
+    ko("admin sign-in", signInErr);
+  } else {
     ok("admin sign-in");
+
+    // 5a. media upload via admin JWT (no service-role key)
+    const path = `audit/admin-${stamp}.txt`;
+    const body = new Blob([`audit ${stamp}`], { type: "text/plain" });
+    const { error: upErr } = await adminClient.storage
+      .from("media").upload(path, body, { upsert: true });
+    if (upErr) ko("admin upload to media bucket", upErr);
+    else {
+      const { data: pub } = adminClient.storage.from("media").getPublicUrl(path);
+      ok("admin upload to media bucket", pub.publicUrl);
+    }
+
+    // 5b. admin sees the anon-submitted review
     const { data, error } = await adminClient
       .from("testimonials")
-      .select("id, client_name, review, status")
+      .select("id, client_name, status")
       .ilike("review", `%${reviewMarker}%`)
       .limit(1);
     if (error) ko("admin SELECT new review", error);

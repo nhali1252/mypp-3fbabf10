@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ReviewsRouteImport } from './routes/reviews'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as HealthRouteImport } from './routes/health'
@@ -69,6 +70,11 @@ const ServicesRoute = ServicesRouteImport.update({
 const ReviewsRoute = ReviewsRouteImport.update({
   id: '/reviews',
   path: '/reviews',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectsRoute = ProjectsRouteImport.update({
@@ -330,6 +336,7 @@ export interface FileRoutesByFullPath {
   '/health': typeof HealthRoute
   '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/reviews': typeof ReviewsRoute
   '/services': typeof ServicesRoute
   '/api/env-import': typeof ApiEnvImportRoute
@@ -382,6 +389,7 @@ export interface FileRoutesByTo {
   '/health': typeof HealthRoute
   '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/reviews': typeof ReviewsRoute
   '/services': typeof ServicesRoute
   '/api/env-import': typeof ApiEnvImportRoute
@@ -436,6 +444,7 @@ export interface FileRoutesById {
   '/health': typeof HealthRoute
   '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/reviews': typeof ReviewsRoute
   '/services': typeof ServicesRoute
   '/api/env-import': typeof ApiEnvImportRoute
@@ -490,6 +499,7 @@ export interface FileRouteTypes {
     | '/health'
     | '/portfolio'
     | '/projects'
+    | '/reset-password'
     | '/reviews'
     | '/services'
     | '/api/env-import'
@@ -542,6 +552,7 @@ export interface FileRouteTypes {
     | '/health'
     | '/portfolio'
     | '/projects'
+    | '/reset-password'
     | '/reviews'
     | '/services'
     | '/api/env-import'
@@ -595,6 +606,7 @@ export interface FileRouteTypes {
     | '/health'
     | '/portfolio'
     | '/projects'
+    | '/reset-password'
     | '/reviews'
     | '/services'
     | '/api/env-import'
@@ -649,6 +661,7 @@ export interface RootRouteChildren {
   HealthRoute: typeof HealthRoute
   PortfolioRoute: typeof PortfolioRoute
   ProjectsRoute: typeof ProjectsRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ReviewsRoute: typeof ReviewsRoute
   ServicesRoute: typeof ServicesRoute
   ApiEnvImportRoute: typeof ApiEnvImportRoute
@@ -675,6 +688,13 @@ declare module '@tanstack/react-router' {
       path: '/reviews'
       fullPath: '/reviews'
       preLoaderRoute: typeof ReviewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects': {
@@ -1103,6 +1123,7 @@ const rootRouteChildren: RootRouteChildren = {
   HealthRoute: HealthRoute,
   PortfolioRoute: PortfolioRoute,
   ProjectsRoute: ProjectsRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ReviewsRoute: ReviewsRoute,
   ServicesRoute: ServicesRoute,
   ApiEnvImportRoute: ApiEnvImportRoute,

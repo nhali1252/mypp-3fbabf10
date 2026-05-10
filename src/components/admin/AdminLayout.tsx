@@ -110,9 +110,6 @@ export default function AdminLayout() {
           <div className="text-xs uppercase tracking-wider text-background/40 mb-1">Admin</div>
           <div className="text-lg font-black">Portfolio CMS</div>
         </div>
-          <div className="text-xs uppercase tracking-wider text-background/40 mb-1">Admin</div>
-          <div className="text-lg font-black">Portfolio CMS</div>
-        </div>
         <button onClick={() => setOpen(false)} className="lg:hidden p-2 rounded-lg text-background/70 hover:bg-background/10" aria-label="Close menu">
           <X size={18} />
         </button>

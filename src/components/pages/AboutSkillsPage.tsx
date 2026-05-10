@@ -428,24 +428,38 @@ function HireMeFloatingButton() {
 }
 
 function renderHeadline(headline: string, highlight: string) {
-  if (!highlight || !headline.includes(highlight)) return headline;
+  if (!highlight || !headline.includes(highlight)) {
+    return <Hero3DText as="span" text={headline} delay={0.15} stagger={0.06} />;
+  }
   const parts = headline.split(highlight);
-  return parts.map((p, i) => (
-    <span key={i}>
-      {p}
-      {i < parts.length - 1 && (
-        <span
+  const nodes: JSX.Element[] = [];
+  let runningDelay = 0.15;
+  parts.forEach((p, i) => {
+    if (p) {
+      nodes.push(
+        <Hero3DText key={`p-${i}`} as="span" text={p} delay={runningDelay} stagger={0.06} />
+      );
+      runningDelay += Math.min(p.split(/\s+/).filter(Boolean).length, 6) * 0.06 + 0.05;
+    }
+    if (i < parts.length - 1) {
+      nodes.push(
+        <Hero3DText
+          key={`h-${i}`}
+          as="span"
+          text={highlight}
           className="bg-clip-text text-transparent"
           style={{
             backgroundImage:
               "linear-gradient(110deg, var(--primary) 0%, color-mix(in oklab, var(--primary) 40%, var(--foreground)) 100%)",
           }}
-        >
-          {highlight}
-        </span>
-      )}
-    </span>
-  ));
+          delay={runningDelay}
+          stagger={0.06}
+        />
+      );
+      runningDelay += Math.min(highlight.split(/\s+/).filter(Boolean).length, 6) * 0.06 + 0.05;
+    }
+  });
+  return <>{nodes}</>;
 }
 
 function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {

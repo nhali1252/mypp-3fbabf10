@@ -1264,6 +1264,8 @@ export type Database = {
           hero_title: string | null
           id: string
           logo_url: string | null
+          maintenance_message: string | null
+          maintenance_mode: boolean
           page_key: string
           primary_color: string | null
           reactions_enabled: boolean
@@ -1285,6 +1287,8 @@ export type Database = {
           hero_title?: string | null
           id?: string
           logo_url?: string | null
+          maintenance_message?: string | null
+          maintenance_mode?: boolean
           page_key?: string
           primary_color?: string | null
           reactions_enabled?: boolean
@@ -1306,6 +1310,8 @@ export type Database = {
           hero_title?: string | null
           id?: string
           logo_url?: string | null
+          maintenance_message?: string | null
+          maintenance_mode?: boolean
           page_key?: string
           primary_color?: string | null
           reactions_enabled?: boolean

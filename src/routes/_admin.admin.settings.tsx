@@ -94,6 +94,8 @@ function AdminSettings() {
         reactions_enabled: form.reactions_enabled !== false,
         reactions_show_count: form.reactions_show_count !== false,
         watermark_text: (form.watermark_text || "").trim() || null,
+        maintenance_mode: form.maintenance_mode === true,
+        maintenance_message: (form.maintenance_message || "").trim() || null,
         page_key: pageKey,
       };
       if (data?.id) {
@@ -107,6 +109,7 @@ function AdminSettings() {
       qc.invalidateQueries({ queryKey: ["site_settings"] });
       qc.invalidateQueries({ queryKey: ["admin-settings"] });
       qc.invalidateQueries({ queryKey: ["public-site-settings"] });
+      qc.invalidateQueries({ queryKey: ["public-maintenance"] });
       // SiteHead / Nav / Footer read logo + favicon + site_title via the
       // cached basicInfo content doc — refresh it so changes appear immediately.
       qc.invalidateQueries({ queryKey: ["content", "basicInfo"] });
@@ -274,6 +277,34 @@ function AdminSettings() {
               value={form.watermark_text || ""}
               onChange={(e) => set("watermark_text", e.target.value)}
               placeholder="© Ali Nur Hasan"
+            />
+          </FormRow>
+        </div>
+      </AdminCard>
+
+      <AdminCard title="Maintenance mode">
+        <div className="grid gap-4">
+          <FormRow
+            label="Take the site offline for visitors"
+            hint="When on, visitors see a maintenance screen. You and any signed-in admin can still browse and edit normally. Applies site-wide (page key B is the source of truth)."
+          >
+            <label className="flex items-center justify-between gap-3 rounded-md border border-border bg-card/40 px-3 py-2 text-sm">
+              <span>Maintenance mode</span>
+              <Switch
+                checked={form.maintenance_mode === true}
+                onCheckedChange={(v) => set("maintenance_mode", v)}
+              />
+            </label>
+          </FormRow>
+          <FormRow
+            label="Message shown to visitors"
+            hint="Optional. Leave blank for the default copy."
+          >
+            <Textarea
+              rows={3}
+              value={form.maintenance_message || ""}
+              onChange={(e) => set("maintenance_message", e.target.value)}
+              placeholder="We're polishing a few things — back in a couple of hours."
             />
           </FormRow>
         </div>

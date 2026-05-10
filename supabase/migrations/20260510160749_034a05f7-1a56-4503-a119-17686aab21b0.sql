@@ -1,0 +1,1 @@
+ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS reactions_show_count boolean NOT NULL DEFAULT true;

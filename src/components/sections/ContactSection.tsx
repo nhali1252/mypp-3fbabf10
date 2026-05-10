@@ -18,7 +18,7 @@ const schema = z.object({
 });
 
 const inputCls =
-  "w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary focus:-translate-y-0.5 focus:shadow-glow";
+  "w-full bg-muted/40 border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary focus:-translate-y-0.5 focus:shadow-glow";
 
 export function ContactSection() {
   const { data: contact } = useContactSettings();
@@ -78,13 +78,13 @@ export function ContactSection() {
     <section id="contact" className="pt-24">
       <SectionHeader label="Contact" title="Let's connect." />
       <div className="grid md:grid-cols-[1.25fr_0.75fr] gap-4 mb-5">
-        <Reveal as="article" className="bg-gradient-card border border-white/5 rounded-[22px] p-8 shadow-soft transition-shadow hover:shadow-card">
+        <Reveal as="article" className="bg-gradient-card border border-border rounded-[22px] p-8 shadow-soft transition-shadow hover:shadow-card">
           <h3 className="font-bold text-base mb-4">Get in touch</h3>
           <Stagger className="grid gap-3" stagger={0.07}>
             {rows.map(({ key, label, value, href, Icon }) => {
               const Inner = (
                 <div className="flex items-center gap-3 w-full">
-                  <span className="w-9 h-9 grid place-items-center rounded-xl bg-white/[0.05] border border-white/10 text-primary shrink-0">
+                  <span className="w-9 h-9 grid place-items-center rounded-xl bg-primary/10 border border-primary/20 text-primary shrink-0">
                     <Icon size={16} />
                   </span>
                   <div className="flex-1 min-w-0">
@@ -102,7 +102,7 @@ export function ContactSection() {
                       href={href}
                       target={href.startsWith("http") ? "_blank" : undefined}
                       rel="noreferrer"
-                      className="block p-3 rounded-2xl border border-transparent hover:border-primary/25 hover:bg-white/[0.03] transition-all"
+                      className="block p-3 rounded-2xl border border-transparent hover:border-primary/30 hover:bg-muted/40 transition-all"
                     >
                       {Inner}
                     </a>
@@ -116,7 +116,7 @@ export function ContactSection() {
         </Reveal>
         <Reveal
           as="article"
-          className="bg-gradient-card border border-white/5 rounded-[22px] p-8 shadow-soft transition-shadow hover:shadow-card"
+          className="bg-gradient-card border border-border rounded-[22px] p-8 shadow-soft transition-shadow hover:shadow-card"
           delay={0.12}
         >
           <h3 className="font-bold text-base mb-2">Find me online</h3>
@@ -130,7 +130,7 @@ export function ContactSection() {
       <Reveal as="div" y={36}>
         <form
           onSubmit={submit}
-          className="bg-gradient-card border border-white/5 rounded-[22px] p-8 space-y-3 shadow-soft transition-shadow hover:shadow-card"
+          className="bg-gradient-card border border-border rounded-[22px] p-8 space-y-3 shadow-soft transition-shadow hover:shadow-card"
         >
           <h3 className="font-bold text-base mb-1">Send a message</h3>
           <div className="grid md:grid-cols-2 gap-3">

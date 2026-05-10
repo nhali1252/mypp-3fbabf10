@@ -6,7 +6,8 @@ import { useContentDoc } from "@/hooks/useContentDoc";
 import { getContent } from "@/server/content.functions";
 import { getSeo } from "@/server/seo.functions";
 import { buildSeoMeta } from "@/lib/seo";
-import { ArrowUpRight, Sparkles } from "lucide-react";
+import { ArrowUpRight, RefreshCw, Sparkles } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useMotionPref } from "@/hooks/useMotionPref";
 import { MotionToggle } from "@/components/MotionToggle";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -315,10 +316,25 @@ export function deriveLauncherCards(
 
 function Launcher() {
   const { launcherDoc: initialLauncherDoc } = Route.useLoaderData();
-  const { data: rawDoc, isLoading, isFetching } = useContentDoc<unknown>(
+  const { data: rawDoc, isLoading, isFetching, refetch } = useContentDoc<unknown>(
     "launcher",
     { initialData: initialLauncherDoc },
   );
+  const queryClient = useQueryClient();
+  const [manualSplash, setManualSplash] = useState(false);
+
+  const handleRefresh = async () => {
+    setManualSplash(true);
+    try {
+      await Promise.all([
+        refetch(),
+        queryClient.invalidateQueries({ queryKey: ["content"] }),
+      ]);
+    } finally {
+      // Keep the splash visible briefly so the transition feels intentional.
+      setTimeout(() => setManualSplash(false), 900);
+    }
+  };
 
   // Validate the raw payload at runtime. Malformed docs collapse to a
   // safe empty doc so the UI keeps rendering instead of crashing.
@@ -353,7 +369,7 @@ function Launcher() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-hidden">
-      <WelcomeSplash />
+      <WelcomeSplash show={manualSplash || undefined} />
       {/* Ambient gradient backdrops */}
       <div
         aria-hidden
@@ -386,6 +402,17 @@ function Launcher() {
               {hero.eyebrow}
             </motion.div>
             <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleRefresh}
+                disabled={isFetching || manualSplash}
+                aria-label="Refresh homepage"
+                className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-border bg-card text-foreground/70 hover:text-primary hover:border-primary/60 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <RefreshCw
+                  className={`w-4 h-4 ${isFetching || manualSplash ? "animate-spin" : ""}`}
+                />
+              </button>
               <MotionToggle />
               <ThemeToggle />
             </div>

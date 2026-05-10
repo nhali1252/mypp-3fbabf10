@@ -15,6 +15,7 @@ import { Footer } from "@/components/Footer";
 import { useSiteSettings, isSectionVisible } from "@/hooks/useSiteSettings";
 import { WelcomeSplash } from "@/components/WelcomeSplash";
 import { PageQuote } from "@/components/PageQuote";
+import { Hero3DText } from "@/components/Hero3DText";
 
 
 export const Route = createFileRoute("/")({

@@ -33,6 +33,8 @@ type Props = {
   onRetry?: () => void;
   /** Click handler for the dismiss button (empty/error states). */
   onDismiss?: () => void;
+  /** Optional short status line shown under the loading bar. */
+  statusLine?: string;
 };
 
 /**

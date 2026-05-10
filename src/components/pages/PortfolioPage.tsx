@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, Folder, FolderOpen, X, ExternalLink, Sparkles, Image as ImageIcon } from "lucide-react";
 import { useContentDoc } from "@/hooks/useContentDoc";
 import { Footer } from "@/components/Footer";
+import { Watermark } from "@/components/feed/Watermark";
 
 type PortfolioDoc = (PFolder & { items: PItem[] })[];
 

@@ -31,6 +31,16 @@ const themeBootScript = `(() => {
   } catch (e) {}
 })();`;
 
+// Apply the saved shimmer preference before hydration so visitors who
+// disabled the gold shimmer never see a one-frame flash on first paint.
+const shimmerBootScript = `(() => {
+  try {
+    if (localStorage.getItem('shimmer-pref') === 'off') {
+      document.documentElement.setAttribute('data-shimmer-user', 'off');
+    }
+  } catch (e) {}
+})();`;
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">

@@ -18,6 +18,7 @@ import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as HealthRouteImport } from './routes/health'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as FeedDotxmlRouteImport } from './routes/feed[.]xml'
 import { Route as FeedRouteImport } from './routes/feed'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BasicRouteImport } from './routes/basic'
@@ -108,6 +109,11 @@ const HealthRoute = HealthRouteImport.update({
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedDotxmlRoute = FeedDotxmlRouteImport.update({
+  id: '/feed.xml',
+  path: '/feed.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeedRoute = FeedRouteImport.update({
@@ -350,6 +356,7 @@ export interface FileRoutesByFullPath {
   '/basic': typeof BasicRoute
   '/contact': typeof ContactRoute
   '/feed': typeof FeedRoute
+  '/feed.xml': typeof FeedDotxmlRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/health': typeof HealthRoute
   '/portfolio': typeof PortfolioRoute
@@ -406,6 +413,7 @@ export interface FileRoutesByTo {
   '/basic': typeof BasicRoute
   '/contact': typeof ContactRoute
   '/feed': typeof FeedRoute
+  '/feed.xml': typeof FeedDotxmlRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/health': typeof HealthRoute
   '/portfolio': typeof PortfolioRoute
@@ -464,6 +472,7 @@ export interface FileRoutesById {
   '/basic': typeof BasicRoute
   '/contact': typeof ContactRoute
   '/feed': typeof FeedRoute
+  '/feed.xml': typeof FeedDotxmlRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/health': typeof HealthRoute
   '/portfolio': typeof PortfolioRoute
@@ -522,6 +531,7 @@ export interface FileRouteTypes {
     | '/basic'
     | '/contact'
     | '/feed'
+    | '/feed.xml'
     | '/forgot-password'
     | '/health'
     | '/portfolio'
@@ -578,6 +588,7 @@ export interface FileRouteTypes {
     | '/basic'
     | '/contact'
     | '/feed'
+    | '/feed.xml'
     | '/forgot-password'
     | '/health'
     | '/portfolio'
@@ -635,6 +646,7 @@ export interface FileRouteTypes {
     | '/basic'
     | '/contact'
     | '/feed'
+    | '/feed.xml'
     | '/forgot-password'
     | '/health'
     | '/portfolio'
@@ -693,6 +705,7 @@ export interface RootRouteChildren {
   BasicRoute: typeof BasicRoute
   ContactRoute: typeof ContactRoute
   FeedRoute: typeof FeedRoute
+  FeedDotxmlRoute: typeof FeedDotxmlRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   HealthRoute: typeof HealthRoute
   PortfolioRoute: typeof PortfolioRoute
@@ -775,6 +788,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feed.xml': {
+      id: '/feed.xml'
+      path: '/feed.xml'
+      fullPath: '/feed.xml'
+      preLoaderRoute: typeof FeedDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/feed': {
@@ -1180,6 +1200,7 @@ const rootRouteChildren: RootRouteChildren = {
   BasicRoute: BasicRoute,
   ContactRoute: ContactRoute,
   FeedRoute: FeedRoute,
+  FeedDotxmlRoute: FeedDotxmlRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   HealthRoute: HealthRoute,
   PortfolioRoute: PortfolioRoute,

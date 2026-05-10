@@ -28,6 +28,7 @@ export function ReactionsBar({
   const { user } = useAuth();
   const site = useSiteSettings("B");
   const reactionsEnabled = site.reactions_enabled !== false;
+  const showCount = site.reactions_show_count !== false;
   const countsQ = useQuery({
     queryKey: ["feed_reactions", itemId],
     queryFn: () => listReactions({ data: { item_id: itemId } }),

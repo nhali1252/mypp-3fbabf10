@@ -16,6 +16,7 @@ import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
+import { Route as ManifestDotwebmanifestRouteImport } from './routes/manifest[.]webmanifest'
 import { Route as HealthRouteImport } from './routes/health'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FeedDotxmlRouteImport } from './routes/feed[.]xml'
@@ -99,6 +100,11 @@ const ProjectsRoute = ProjectsRouteImport.update({
 const PortfolioRoute = PortfolioRouteImport.update({
   id: '/portfolio',
   path: '/portfolio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManifestDotwebmanifestRoute = ManifestDotwebmanifestRouteImport.update({
+  id: '/manifest.webmanifest',
+  path: '/manifest.webmanifest',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HealthRoute = HealthRouteImport.update({
@@ -359,6 +365,7 @@ export interface FileRoutesByFullPath {
   '/feed.xml': typeof FeedDotxmlRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/health': typeof HealthRoute
+  '/manifest.webmanifest': typeof ManifestDotwebmanifestRoute
   '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -416,6 +423,7 @@ export interface FileRoutesByTo {
   '/feed.xml': typeof FeedDotxmlRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/health': typeof HealthRoute
+  '/manifest.webmanifest': typeof ManifestDotwebmanifestRoute
   '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -475,6 +483,7 @@ export interface FileRoutesById {
   '/feed.xml': typeof FeedDotxmlRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/health': typeof HealthRoute
+  '/manifest.webmanifest': typeof ManifestDotwebmanifestRoute
   '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -534,6 +543,7 @@ export interface FileRouteTypes {
     | '/feed.xml'
     | '/forgot-password'
     | '/health'
+    | '/manifest.webmanifest'
     | '/portfolio'
     | '/projects'
     | '/reset-password'
@@ -591,6 +601,7 @@ export interface FileRouteTypes {
     | '/feed.xml'
     | '/forgot-password'
     | '/health'
+    | '/manifest.webmanifest'
     | '/portfolio'
     | '/projects'
     | '/reset-password'
@@ -649,6 +660,7 @@ export interface FileRouteTypes {
     | '/feed.xml'
     | '/forgot-password'
     | '/health'
+    | '/manifest.webmanifest'
     | '/portfolio'
     | '/projects'
     | '/reset-password'
@@ -708,6 +720,7 @@ export interface RootRouteChildren {
   FeedDotxmlRoute: typeof FeedDotxmlRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   HealthRoute: typeof HealthRoute
+  ManifestDotwebmanifestRoute: typeof ManifestDotwebmanifestRoute
   PortfolioRoute: typeof PortfolioRoute
   ProjectsRoute: typeof ProjectsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -774,6 +787,13 @@ declare module '@tanstack/react-router' {
       path: '/portfolio'
       fullPath: '/portfolio'
       preLoaderRoute: typeof PortfolioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manifest.webmanifest': {
+      id: '/manifest.webmanifest'
+      path: '/manifest.webmanifest'
+      fullPath: '/manifest.webmanifest'
+      preLoaderRoute: typeof ManifestDotwebmanifestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/health': {
@@ -1203,6 +1223,7 @@ const rootRouteChildren: RootRouteChildren = {
   FeedDotxmlRoute: FeedDotxmlRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   HealthRoute: HealthRoute,
+  ManifestDotwebmanifestRoute: ManifestDotwebmanifestRoute,
   PortfolioRoute: PortfolioRoute,
   ProjectsRoute: ProjectsRoute,
   ResetPasswordRoute: ResetPasswordRoute,

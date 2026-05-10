@@ -234,8 +234,39 @@ export const editComment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { id: string; body: string }) => editCommentSchema.parse(data))
   .handler(async ({ data, context }) => {
+    const sb = context.supabase as any;
+
+    // Defense in depth — RLS already restricts edits to the author within the
+    // 15-minute window (or to admins), but we re-check explicitly here so a
+    // future RLS regression can't silently turn this into an IDOR.
+    const { data: existing, error: fetchErr } = await sb
+      .from("feed_comments")
+      .select("user_id, created_at")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (fetchErr) throw new Error(fetchErr.message);
+    if (!existing) throw new Error("Comment not found");
+
+    const isAdmin = await sb
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .eq("role", "admin")
+      .maybeSingle()
+      .then((r: any) => !!r.data);
+
+    if (!isAdmin) {
+      if (existing.user_id !== context.userId) {
+        throw new Error("Forbidden — you can only edit your own comments");
+      }
+      const ageMs = Date.now() - new Date(existing.created_at).getTime();
+      if (ageMs > 15 * 60_000) {
+        throw new Error("Edit window expired — comments can only be edited within 15 minutes");
+      }
+    }
+
     const status = looksAbusive(data.body) ? "hidden" : "visible";
-    const { error } = await context.supabase
+    const { error } = await sb
       .from("feed_comments")
       .update({ body: data.body, edited_at: new Date().toISOString(), status })
       .eq("id", data.id);

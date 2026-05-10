@@ -14,6 +14,7 @@ import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as HealthRouteImport } from './routes/health'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FeedRouteImport } from './routes/feed'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BasicRouteImport } from './routes/basic'
@@ -83,6 +84,11 @@ const PortfolioRoute = PortfolioRouteImport.update({
 const HealthRoute = HealthRouteImport.update({
   id: '/health',
   path: '/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeedRoute = FeedRouteImport.update({
@@ -320,6 +326,7 @@ export interface FileRoutesByFullPath {
   '/basic': typeof BasicRoute
   '/contact': typeof ContactRoute
   '/feed': typeof FeedRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/health': typeof HealthRoute
   '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
@@ -371,6 +378,7 @@ export interface FileRoutesByTo {
   '/basic': typeof BasicRoute
   '/contact': typeof ContactRoute
   '/feed': typeof FeedRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/health': typeof HealthRoute
   '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
@@ -424,6 +432,7 @@ export interface FileRoutesById {
   '/basic': typeof BasicRoute
   '/contact': typeof ContactRoute
   '/feed': typeof FeedRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/health': typeof HealthRoute
   '/portfolio': typeof PortfolioRoute
   '/projects': typeof ProjectsRoute
@@ -477,6 +486,7 @@ export interface FileRouteTypes {
     | '/basic'
     | '/contact'
     | '/feed'
+    | '/forgot-password'
     | '/health'
     | '/portfolio'
     | '/projects'
@@ -528,6 +538,7 @@ export interface FileRouteTypes {
     | '/basic'
     | '/contact'
     | '/feed'
+    | '/forgot-password'
     | '/health'
     | '/portfolio'
     | '/projects'
@@ -580,6 +591,7 @@ export interface FileRouteTypes {
     | '/basic'
     | '/contact'
     | '/feed'
+    | '/forgot-password'
     | '/health'
     | '/portfolio'
     | '/projects'
@@ -633,6 +645,7 @@ export interface RootRouteChildren {
   BasicRoute: typeof BasicRoute
   ContactRoute: typeof ContactRoute
   FeedRoute: typeof FeedRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   HealthRoute: typeof HealthRoute
   PortfolioRoute: typeof PortfolioRoute
   ProjectsRoute: typeof ProjectsRoute
@@ -683,6 +696,13 @@ declare module '@tanstack/react-router' {
       path: '/health'
       fullPath: '/health'
       preLoaderRoute: typeof HealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/feed': {
@@ -1079,6 +1099,7 @@ const rootRouteChildren: RootRouteChildren = {
   BasicRoute: BasicRoute,
   ContactRoute: ContactRoute,
   FeedRoute: FeedRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   HealthRoute: HealthRoute,
   PortfolioRoute: PortfolioRoute,
   ProjectsRoute: ProjectsRoute,

@@ -53,6 +53,7 @@ export function WelcomeSplash({
   errorMessage,
   onRetry,
   onDismiss,
+  statusLine,
 }: Props) {
   const controlled = show !== undefined;
   const [mounted, setMounted] = useState(false);

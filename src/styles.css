@@ -399,8 +399,9 @@
   }
   .icon-pop {
     transition: transform var(--dur-base) var(--ease-smooth);
-    will-change: transform;
   }
+  .group:hover .icon-pop,
+  .icon-pop-host:hover .icon-pop { will-change: transform; }
 
   /* Soft warm halo behind a card on hover */
   .card-glow {

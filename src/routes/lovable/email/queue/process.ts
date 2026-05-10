@@ -1,6 +1,7 @@
 import { sendLovableEmail } from '@lovable.dev/email-js'
 import { createClient } from '@supabase/supabase-js'
 import { createFileRoute } from '@tanstack/react-router'
+import { timingSafeEqual } from '@/server/timing-safe-equal'
 
 const MAX_RETRIES = 5
 const DEFAULT_BATCH_SIZE = 10

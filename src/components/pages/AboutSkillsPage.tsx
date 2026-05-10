@@ -15,6 +15,7 @@ import { getIcon } from "@/lib/iconRegistry";
 import { HireMeProvider, useHireMe } from "@/components/HireMeProvider";
 import { Footer } from "@/components/Footer";
 import { PageQuote } from "@/components/PageQuote";
+import { Hero3DText } from "@/components/Hero3DText";
 
 const tools = ["Canva", "Adobe Photoshop", "Adobe Illustrator", "Figma", "AI workflow tools"];
 const marqueeWords = ["Branding", "Logo Design", "Posters", "Banners", "Social", "Packaging", "Web Visuals", "Editorial"];

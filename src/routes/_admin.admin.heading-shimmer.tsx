@@ -230,8 +230,8 @@ function HeadingShimmerAdmin() {
           </FormRow>
 
           <FormRow
-            label={`Sweep size — ${sweepSize}%`}
-            hint="Width of the gold band. 100% = tight band, 400% = very wide soft sweep. Sweet spot 180–240%."
+            label={`Sweep size — ${sweepSize}vw`}
+            hint="Width of the gold band in viewport widths. 100vw = tight (sweep noticeable on every heading), 400vw = very wide soft sweep. Sweet spot 180–240vw."
           >
             <input
               type="range"

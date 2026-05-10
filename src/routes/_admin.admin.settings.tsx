@@ -92,6 +92,7 @@ function AdminSettings() {
         default_motion_pref: motionPref,
         section_visibility: sectionVisibility,
         reactions_enabled: form.reactions_enabled !== false,
+        watermark_text: (form.watermark_text || "").trim() || null,
         page_key: pageKey,
       };
       if (data?.id) {

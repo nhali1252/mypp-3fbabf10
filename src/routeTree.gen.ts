@@ -9,7 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProjectsRouteImport } from './routes/projects'
@@ -63,9 +65,19 @@ import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as AdminAdminPageSlugRouteImport } from './routes/_admin.admin.page.$slug'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReviewsRoute = ReviewsRouteImport.update({
@@ -344,7 +356,9 @@ export interface FileRoutesByFullPath {
   '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/reviews': typeof ReviewsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/services': typeof ServicesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/env-import': typeof ApiEnvImportRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/admin/about': typeof AdminAdminAboutRoute
@@ -398,7 +412,9 @@ export interface FileRoutesByTo {
   '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/reviews': typeof ReviewsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/services': typeof ServicesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/env-import': typeof ApiEnvImportRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/admin/about': typeof AdminAdminAboutRoute
@@ -454,7 +470,9 @@ export interface FileRoutesById {
   '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/reviews': typeof ReviewsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/services': typeof ServicesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/env-import': typeof ApiEnvImportRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/_admin/admin/about': typeof AdminAdminAboutRoute
@@ -510,7 +528,9 @@ export interface FileRouteTypes {
     | '/projects'
     | '/reset-password'
     | '/reviews'
+    | '/robots.txt'
     | '/services'
+    | '/sitemap.xml'
     | '/api/env-import'
     | '/email/unsubscribe'
     | '/admin/about'
@@ -564,7 +584,9 @@ export interface FileRouteTypes {
     | '/projects'
     | '/reset-password'
     | '/reviews'
+    | '/robots.txt'
     | '/services'
+    | '/sitemap.xml'
     | '/api/env-import'
     | '/email/unsubscribe'
     | '/admin/about'
@@ -619,7 +641,9 @@ export interface FileRouteTypes {
     | '/projects'
     | '/reset-password'
     | '/reviews'
+    | '/robots.txt'
     | '/services'
+    | '/sitemap.xml'
     | '/api/env-import'
     | '/email/unsubscribe'
     | '/_admin/admin/about'
@@ -675,7 +699,9 @@ export interface RootRouteChildren {
   ProjectsRoute: typeof ProjectsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ReviewsRoute: typeof ReviewsRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
   ServicesRoute: typeof ServicesRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiEnvImportRoute: typeof ApiEnvImportRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
@@ -688,11 +714,25 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/services': {
       id: '/services'
       path: '/services'
       fullPath: '/services'
       preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reviews': {
@@ -1146,7 +1186,9 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsRoute: ProjectsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ReviewsRoute: ReviewsRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
   ServicesRoute: ServicesRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiEnvImportRoute: ApiEnvImportRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,

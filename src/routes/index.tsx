@@ -402,6 +402,17 @@ function Launcher() {
               {hero.eyebrow}
             </motion.div>
             <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleRefresh}
+                disabled={isFetching || manualSplash}
+                aria-label="Refresh homepage"
+                className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-border bg-card text-foreground/70 hover:text-primary hover:border-primary/60 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <RefreshCw
+                  className={`w-4 h-4 ${isFetching || manualSplash ? "animate-spin" : ""}`}
+                />
+              </button>
               <MotionToggle />
               <ThemeToggle />
             </div>

@@ -316,14 +316,16 @@ export function deriveLauncherCards(
 
 function Launcher() {
   const { launcherDoc: initialLauncherDoc } = Route.useLoaderData();
-  const { data: rawDoc, isLoading, isFetching, refetch } = useContentDoc<unknown>(
+  const { data: rawDoc, isLoading, isFetching, isError, error, refetch } = useContentDoc<unknown>(
     "launcher",
     { initialData: initialLauncherDoc },
   );
   const queryClient = useQueryClient();
   const [manualSplash, setManualSplash] = useState(false);
+  const [splashDismissed, setSplashDismissed] = useState(false);
 
   const handleRefresh = async () => {
+    setSplashDismissed(false);
     setManualSplash(true);
     try {
       await Promise.all([
@@ -367,9 +369,29 @@ function Launcher() {
   const showLauncherCards = isSectionVisible(siteSettings, "launcher_cards", true);
   const showHero = isSectionVisible(siteSettings, "hero", true);
 
+  // Decide which splash variant (if any) is currently active.
+  const splashStatus: "loading" | "error" | "empty" | null = isError
+    ? "error"
+    : !showSkeleton && hasRealData && launcherDoc.pages.length === 0
+      ? "empty"
+      : manualSplash
+        ? "loading"
+        : null;
+  const splashVisible = !splashDismissed && splashStatus !== null;
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-hidden">
-      <WelcomeSplash show={manualSplash || undefined} />
+      <WelcomeSplash
+        show={splashVisible || undefined}
+        status={splashStatus ?? "loading"}
+        errorMessage={error instanceof Error ? error.message : undefined}
+        onRetry={splashStatus === "error" || splashStatus === "empty" ? handleRefresh : undefined}
+        onDismiss={
+          splashStatus === "error" || splashStatus === "empty"
+            ? () => setSplashDismissed(true)
+            : undefined
+        }
+      />
       {/* Ambient gradient backdrops */}
       <div
         aria-hidden

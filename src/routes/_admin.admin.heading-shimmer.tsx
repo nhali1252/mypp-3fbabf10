@@ -282,6 +282,8 @@ function HeadingShimmerAdmin() {
           <h3 className="text-xl md:text-2xl font-bold">A smaller subheading.</h3>
         </div>
       </AdminCard>
+
+      <HeadingShimmerOverridesCard />
     </AdminPage>
   );
 }

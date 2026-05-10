@@ -14,6 +14,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Footer } from "@/components/Footer";
 import { useSiteSettings, isSectionVisible } from "@/hooks/useSiteSettings";
 import { WelcomeSplash } from "@/components/WelcomeSplash";
+import { PageQuote } from "@/components/PageQuote";
 
 
 export const Route = createFileRoute("/")({
@@ -671,6 +672,8 @@ function Launcher() {
 
         </div>
         )}
+
+        <PageQuote slug="home" />
       </main>
 
       <Footer />

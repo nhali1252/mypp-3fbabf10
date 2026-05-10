@@ -9,6 +9,7 @@ import { SiteHead } from "@/components/SiteHead";
 import { PageViewTracker } from "@/components/PageViewTracker";
 import { MaintenanceGate } from "@/components/MaintenanceGate";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { MotionPrefProvider } from "@/components/MotionPrefProvider";
 import { StaleBuildBanner } from "@/components/dev/StaleBuildBanner";
 
 
@@ -127,16 +128,18 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AuthProvider>
-          <SiteHead />
-          <PageViewTracker />
-          <PageLoader />
-          <MaintenanceGate>
-            <RouteTransition />
-          </MaintenanceGate>
-          <Toaster richColors position="top-right" />
-            <StaleBuildBanner />
-        </AuthProvider>
+        <MotionPrefProvider>
+          <AuthProvider>
+            <SiteHead />
+            <PageViewTracker />
+            <PageLoader />
+            <MaintenanceGate>
+              <RouteTransition />
+            </MaintenanceGate>
+            <Toaster richColors position="top-right" />
+              <StaleBuildBanner />
+          </AuthProvider>
+        </MotionPrefProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

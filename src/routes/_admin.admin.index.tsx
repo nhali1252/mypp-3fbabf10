@@ -108,6 +108,12 @@ function AdminDashboard() {
           >
             <ClipboardCheck className="h-3.5 w-3.5" /> Checklist
           </Link>
+          <Link
+            to="/admin/backup"
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:border-primary/40"
+          >
+            <Database className="h-3.5 w-3.5" /> Backup
+          </Link>
         </div>
       </header>
 

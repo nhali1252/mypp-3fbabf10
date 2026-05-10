@@ -5,6 +5,7 @@ import { ArrowUpRight, Check, Code2, ExternalLink, Github, Star, Terminal } from
 import { supabase } from "@/integrations/supabase/client";
 import { Footer } from "@/components/Footer";
 import { PageQuote } from "@/components/PageQuote";
+import { Hero3DText } from "@/components/Hero3DText";
 
 type Project = {
   id: string;

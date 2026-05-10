@@ -1,11 +1,50 @@
 import { Link, Outlet, useNavigate, useLocation } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, Inbox, Image as ImageIcon, ClipboardCheck,
   Settings, Users, LogOut, ExternalLink, Menu, X,
   RefreshCw, MessageSquare, Shield, Activity, KeyRound,
+  ChevronRight, Home,
 } from "lucide-react";
+
+// Static label map for breadcrumb segments (covers nav items + extras)
+const SEGMENT_LABELS: Record<string, string> = {
+  admin: "Admin",
+  checklist: "Pre-publish",
+  messages: "Messages",
+  comments: "Comments",
+  audit: "Audit log",
+  diagnostics: "Diagnostics",
+  "env-import": "Env import",
+  runtime: "Runtime",
+  media: "Media library",
+  users: "Users",
+  settings: "Site settings",
+  about: "About",
+  activities: "Activities",
+  contact: "Contact",
+  education: "Education",
+  folders: "Folders",
+  "footer-apps": "Footer apps",
+  "footer-cta": "Footer CTA",
+  hero: "Hero",
+  launcher: "Launcher",
+  navigation: "Navigation",
+  "page-loader": "Page loader",
+  page: "Page",
+  portfolio: "Portfolio",
+  projects: "Projects",
+  reviews: "Reviews",
+  seo: "SEO",
+  skills: "Skills",
+  slots: "Slots",
+  ticker: "Ticker",
+};
+
+function labelize(seg: string) {
+  return SEGMENT_LABELS[seg] ?? seg.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 type Item = { to: string; label: string; Icon: any; end?: boolean };
 type Group = { label: string; items: Item[] };
@@ -51,6 +90,18 @@ export default function AdminLayout() {
     if (end) return location.pathname === to;
     return location.pathname === to || location.pathname.startsWith(`${to}/`);
   }
+
+  const segments = useMemo(() => {
+    const parts = location.pathname.split("/").filter(Boolean);
+    return parts.map((seg, i) => ({
+      seg,
+      label: labelize(seg),
+      to: "/" + parts.slice(0, i + 1).join("/"),
+      isLast: i === parts.length - 1,
+    }));
+  }, [location.pathname]);
+
+  const currentTitle = segments.length > 0 ? segments[segments.length - 1].label : "Admin";
 
   const sidebar = (
     <>
@@ -110,8 +161,8 @@ export default function AdminLayout() {
   );
 
   return (
-    <div className="min-h-screen flex bg-background">
-      <aside className="hidden lg:flex w-[260px] shrink-0 bg-foreground text-background flex-col p-4 sticky top-0 h-screen">
+    <div className="min-h-screen flex bg-muted/30">
+      <aside className="hidden lg:flex w-[260px] shrink-0 bg-foreground text-background flex-col p-4 sticky top-0 h-screen border-r border-foreground/20 shadow-xl">
         {sidebar}
       </aside>
 
@@ -134,9 +185,40 @@ export default function AdminLayout() {
         </div>
       )}
 
-      <main className="flex-1 p-4 sm:p-6 md:p-10 overflow-x-auto pt-[72px] lg:pt-6">
-        <Outlet />
-      </main>
+      <div className="flex-1 flex flex-col min-w-0 pt-[56px] lg:pt-0">
+        {/* Desktop top bar with breadcrumbs */}
+        <header className="hidden lg:flex sticky top-0 z-30 h-14 items-center justify-between gap-4 px-6 bg-background/90 backdrop-blur border-b border-border">
+          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm min-w-0">
+            <Link to="/admin" className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
+              <Home size={14} />
+            </Link>
+            {segments.map((s) => (
+              <div key={s.to} className="flex items-center gap-1.5 min-w-0">
+                <ChevronRight size={14} className="text-muted-foreground/50 shrink-0" />
+                {s.isLast ? (
+                  <span className="font-semibold text-foreground truncate">{s.label}</span>
+                ) : (
+                  <Link to={s.to} className="text-muted-foreground hover:text-foreground transition-colors truncate">
+                    {s.label}
+                  </Link>
+                )}
+              </div>
+            ))}
+          </nav>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <a href="/" target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-foreground transition-colors">
+              <ExternalLink size={13} /> View site
+            </a>
+          </div>
+        </header>
+
+        <main className="flex-1 p-4 sm:p-6 md:p-10 overflow-x-auto">
+          <div className="mb-6 hidden lg:block">
+            <h1 className="text-2xl font-black tracking-tight">{currentTitle}</h1>
+          </div>
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

@@ -49,8 +49,17 @@ const fallbackOffers = [
 ];
 
 export function ServicesTasTajPage() {
+  return (
+    <HireMeProvider>
+      <ServicesTasTajPageInner />
+    </HireMeProvider>
+  );
+}
+
+function ServicesTasTajPageInner() {
   const services = useContentDoc<ServiceRow[]>("services");
   const fPage = useContentDoc<{ skills: FSkillRow[] }>("fPage");
+  const { openHireMeForService, openHireMe } = useHireMe();
 
   const offers = (services.data?.length ? services.data : fallbackOffers) as Array<
     Pick<ServiceRow, "id" | "title" | "description" | "icon">

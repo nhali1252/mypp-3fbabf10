@@ -270,6 +270,47 @@
     50%      { transform: perspective(900px) rotateX(2.4deg) translateZ(8px); }
   }
 
+  /* ── Global gold shimmer for bolded words ─────────────────────── */
+  /* Applies to every <strong>/<b> across the site. Excluded inside
+     interactive controls and admin chrome to keep UI legible. */
+  strong,
+  b {
+    background-image: var(--gradient-gold);
+    background-size: 200% 100%;
+    background-position: 0% 50%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+    animation: goldShimmer 4.5s ease-in-out infinite;
+    will-change: background-position;
+  }
+  @keyframes goldShimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+  }
+  /* Don't override colors in interactive / admin contexts */
+  button strong, button b,
+  a strong, a b,
+  [role="button"] strong, [role="button"] b,
+  input strong, input b,
+  textarea strong, textarea b,
+  label strong, label b,
+  [data-admin] strong, [data-admin] b,
+  .no-shimmer strong, .no-shimmer b,
+  strong.no-shimmer, b.no-shimmer {
+    background-image: none;
+    -webkit-background-clip: initial;
+    background-clip: initial;
+    color: inherit;
+    -webkit-text-fill-color: currentColor;
+    animation: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    strong, b { animation: none; }
+  }
+
   /* Smoother skeleton shimmer (drop-in replacement for animate-pulse) */
   .skeleton-shimmer {
     position: relative;

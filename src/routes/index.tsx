@@ -12,6 +12,7 @@ import { MotionToggle } from "@/components/MotionToggle";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Footer } from "@/components/Footer";
 import { useSiteSettings, isSectionVisible } from "@/hooks/useSiteSettings";
+import { WelcomeSplash } from "@/components/WelcomeSplash";
 
 
 export const Route = createFileRoute("/")({
@@ -352,6 +353,7 @@ function Launcher() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-hidden">
+      <WelcomeSplash />
       {/* Ambient gradient backdrops */}
       <div
         aria-hidden

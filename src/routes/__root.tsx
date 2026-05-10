@@ -120,7 +120,9 @@ function RootComponent() {
           <SiteHead />
           <PageViewTracker />
           <PageLoader />
-          <RouteTransition />
+          <MaintenanceGate>
+            <RouteTransition />
+          </MaintenanceGate>
           <Toaster richColors position="top-right" />
           <StaleBuildBanner />
         </AuthProvider>

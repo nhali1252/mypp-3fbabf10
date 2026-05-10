@@ -1,5 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const REQUIRED_SERVER_ENV = [
   "SUPABASE_URL",
@@ -9,34 +11,63 @@ const REQUIRED_SERVER_ENV = [
 
 type EnvCheck = { name: string; present: boolean };
 
-const checkServerEnv = createServerFn({ method: "GET" }).handler(async () => {
-  const checks: EnvCheck[] = REQUIRED_SERVER_ENV.map((name) => ({
-    name,
-    present: Boolean(process.env[name]),
-  }));
-  const missing = checks.filter((c) => !c.present).map((c) => c.name);
-  return {
-    ok: missing.length === 0,
-    missing,
-    checks,
-    runtime: typeof navigator !== "undefined" ? navigator.userAgent : "node",
-    checkedAt: new Date().toISOString(),
-  };
-});
+/**
+ * Admin-only diagnostic. Exposes which server env vars are present so
+ * deployment misconfigurations can be debugged without leaking the values
+ * themselves. Anonymous callers get a 403 — never a list of variable names.
+ */
+const checkServerEnv = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (error || !data) {
+      throw new Response("Forbidden", { status: 403 });
+    }
+
+    const checks: EnvCheck[] = REQUIRED_SERVER_ENV.map((name) => ({
+      name,
+      present: Boolean(process.env[name]),
+    }));
+    const missing = checks.filter((c) => !c.present).map((c) => c.name);
+    return {
+      ok: missing.length === 0,
+      missing,
+      checks,
+      checkedAt: new Date().toISOString(),
+    };
+  });
 
 export const Route = createFileRoute("/health")({
-  loader: () => checkServerEnv(),
+  loader: async () => {
+    try {
+      return await checkServerEnv();
+    } catch (err) {
+      // Anonymous / non-admin → bounce to login. Never leak that the
+      // diagnostic exists or which vars are checked.
+      throw redirect({ to: "/auth" });
+    }
+  },
   component: HealthPage,
-  errorComponent: ({ error }) => (
-    <pre style={{ padding: 24, color: "crimson" }}>
-      Diagnostic failed: {error.message}
-    </pre>
+  errorComponent: () => (
+    <div style={{ padding: 24, fontFamily: "ui-sans-serif, system-ui, sans-serif" }}>
+      <h1 style={{ fontSize: 20, fontWeight: 600 }}>Not available</h1>
+      <p style={{ marginTop: 8, opacity: 0.7 }}>
+        This diagnostic page is only available to administrators.
+      </p>
+      <Link to="/" style={{ color: "hsl(var(--primary))" }}>
+        Go home
+      </Link>
+    </div>
   ),
 });
 
 function HealthPage() {
   const data = Route.useLoaderData();
-
   return (
     <div
       style={{
@@ -84,16 +115,10 @@ function HealthPage() {
               </li>
             ))}
           </ul>
-          <p style={{ marginTop: 12, fontSize: 14, opacity: 0.8 }}>
-            Add the missing name(s) as <strong>Secrets</strong> in your
-            Cloudflare Worker → Settings → Variables and Secrets, then redeploy.
-          </p>
         </div>
       )}
 
-      <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>
-        All checks
-      </h2>
+      <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>All checks</h2>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
         <thead>
           <tr style={{ textAlign: "left", opacity: 0.7 }}>
@@ -107,9 +132,7 @@ function HealthPage() {
               <td style={{ padding: "8px 0" }}>
                 <code>{c.name}</code>
               </td>
-              <td style={{ padding: "8px 0" }}>
-                {c.present ? "✅ set" : "❌ missing"}
-              </td>
+              <td style={{ padding: "8px 0" }}>{c.present ? "✅ set" : "❌ missing"}</td>
             </tr>
           ))}
         </tbody>

@@ -134,7 +134,7 @@ function AdminLauncher() {
           <EmptyState message="No launcher cards yet." />
         ) : (
           <ul className="divide-y divide-border">
-            {data.map((c) => (
+            {data.map((c, i) => (
               <li key={c.id} className="py-3 flex items-center gap-3 flex-wrap">
                 <GripVertical size={14} className="text-muted-foreground/40" />
                 <div className="min-w-0 flex-1">
@@ -148,10 +148,16 @@ function AdminLauncher() {
                     {c.subtitle || c.description || c.label}
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant="outline" onClick={() => move(c.id, -1)} disabled={i === 0} title="Move up">
+                    <ArrowUp size={13} />
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => move(c.id, 1)} disabled={i === (data?.length ?? 0) - 1} title="Move down">
+                    <ArrowDown size={13} />
+                  </Button>
+                  <div className="flex items-center gap-2 pl-1">
                     <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                      Active
+                      Visible
                     </span>
                     <Switch
                       checked={c.active}

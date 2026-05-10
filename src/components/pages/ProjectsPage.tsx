@@ -120,10 +120,10 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.45, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
-      className="group relative grid sm:grid-cols-[260px_1fr] gap-0 overflow-hidden rounded-2xl border border-border hover:border-primary/45 transition-colors duration-300 bg-card"
+      className="group relative grid sm:grid-cols-[240px_1fr] md:grid-cols-[280px_1fr] lg:grid-cols-[340px_1fr] xl:grid-cols-[400px_1fr] gap-0 overflow-hidden rounded-2xl border border-border hover:border-primary/45 transition-colors duration-300 bg-card"
     >
       {/* Cover / numeric badge */}
-      <div className="relative aspect-[16/10] sm:aspect-auto sm:min-h-[200px] overflow-hidden bg-gradient-to-br from-muted via-card to-background">
+      <div className="relative aspect-[16/10] sm:aspect-auto sm:min-h-[200px] lg:min-h-[240px] overflow-hidden bg-gradient-to-br from-muted via-card to-background">
         {project.image_url ? (
           <img
             src={project.image_url}
@@ -133,14 +133,14 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-            <Code2 className="h-16 w-16 text-primary/25" strokeWidth={0.9} />
-            <span className="absolute font-serif-display italic font-light text-7xl text-primary/10 select-none">
+            <Code2 className="h-12 w-12 sm:h-16 sm:w-16 lg:h-20 lg:w-20 text-primary/25" strokeWidth={0.9} />
+            <span className="absolute font-serif-display italic font-light text-6xl sm:text-7xl lg:text-8xl text-primary/10 select-none">
               {String(index + 1).padStart(2, "0")}
             </span>
           </div>
         )}
         {project.featured && (
-          <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-[0.2em]">
+          <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-primary text-primary-foreground text-[9.5px] sm:text-[10px] font-bold uppercase tracking-[0.18em] sm:tracking-[0.2em]">
             <Star className="w-3 h-3" /> Featured
           </div>
         )}

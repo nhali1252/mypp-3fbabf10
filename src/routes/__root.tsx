@@ -6,6 +6,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { PageLoader } from "@/components/PageLoader";
 import { RouteTransition } from "@/components/RouteTransition";
 import { SiteHead } from "@/components/SiteHead";
+import { PageViewTracker } from "@/components/PageViewTracker";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { StaleBuildBanner } from "@/components/dev/StaleBuildBanner";
 
@@ -116,6 +117,7 @@ function RootComponent() {
       <ThemeProvider>
         <AuthProvider>
           <SiteHead />
+          <PageViewTracker />
           <PageLoader />
           <RouteTransition />
           <Toaster richColors position="top-right" />

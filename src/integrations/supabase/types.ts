@@ -1243,6 +1243,7 @@ export type Database = {
           page_key: string
           primary_color: string | null
           reactions_enabled: boolean
+          reactions_show_count: boolean
           secondary_color: string | null
           section_visibility: Json
           site_name: string | null
@@ -1263,6 +1264,7 @@ export type Database = {
           page_key?: string
           primary_color?: string | null
           reactions_enabled?: boolean
+          reactions_show_count?: boolean
           secondary_color?: string | null
           section_visibility?: Json
           site_name?: string | null
@@ -1283,6 +1285,7 @@ export type Database = {
           page_key?: string
           primary_color?: string | null
           reactions_enabled?: boolean
+          reactions_show_count?: boolean
           secondary_color?: string | null
           section_visibility?: Json
           site_name?: string | null

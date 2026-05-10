@@ -4,8 +4,12 @@
  */
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { prunePageViews } from "@/server/analytics.functions";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
-  Inbox, Heart, MessageSquare, FolderOpen, Briefcase, Image as ImageIcon, Eye,
+  Inbox, Heart, MessageSquare, FolderOpen, Briefcase, Image as ImageIcon, Eye, Trash2,
 } from "lucide-react";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
@@ -44,6 +48,23 @@ export function AdminStats() {
   const [s, setS] = useState<Stats | null>(null);
   const [topPages, setTopPages] = useState<{ path: string; views: number }[]>([]);
   const [series, setSeries] = useState<DayPoint[]>([]);
+  const [pruning, setPruning] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+  const prune = useServerFn(prunePageViews);
+
+  async function handlePrune() {
+    if (!confirm("Delete page-view rows older than 90 days?")) return;
+    setPruning(true);
+    try {
+      const r = await prune({ data: { days: 90 } });
+      toast.success(`Pruned ${r.deleted.toLocaleString()} rows older than 90 days`);
+      setReloadKey((k) => k + 1);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Prune failed");
+    } finally {
+      setPruning(false);
+    }
+  }
 
   useEffect(() => {
     (async () => {
@@ -114,7 +135,7 @@ export function AdminStats() {
       setTopPages(top);
       setSeries(points);
     })();
-  }, []);
+  }, [reloadKey]);
 
   const items = [
     { icon: Eye, label: "Views (7d)", value: s?.views7d, sub: s ? `${s.views30d.toLocaleString()} in 30d` : undefined },
@@ -151,12 +172,24 @@ export function AdminStats() {
 
       {series.length > 0 && (
         <div className="rounded-2xl border border-border bg-card p-4">
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-3 gap-2">
             <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
               Page views — last 14 days
             </div>
-            <div className="text-[11px] text-muted-foreground tabular-nums">
-              {series.reduce((a, b) => a + b.views, 0).toLocaleString()} total
+            <div className="flex items-center gap-3">
+              <div className="text-[11px] text-muted-foreground tabular-nums">
+                {series.reduce((a, b) => a + b.views, 0).toLocaleString()} total
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handlePrune}
+                disabled={pruning}
+                title="Delete page-view rows older than 90 days"
+              >
+                <Trash2 className="h-3.5 w-3.5 mr-1" />
+                {pruning ? "Pruning…" : "Prune >90d"}
+              </Button>
             </div>
           </div>
           <div className="h-48 w-full">

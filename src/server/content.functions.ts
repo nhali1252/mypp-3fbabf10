@@ -146,7 +146,7 @@ async function buildContent(key: ContentKey): Promise<unknown> {
       return { hero: hero.data ?? null, pages: pages.data ?? [] };
     }
     case "chrome": {
-      const [navLinks, footerLinks, footerApps, footerCta, ticker, seoSettings, pageLoader, headingShimmer] =
+      const [navLinks, footerLinks, footerApps, footerCta, ticker, seoSettings, pageLoader, headingShimmer, headingShimmerOverrides] =
         await Promise.all([
           supabasePublic.from("nav_links").select("*").eq("active", true).order("sort_order"),
           supabasePublic.from("footer_links").select("*").eq("active", true).order("sort_order"),
@@ -156,6 +156,7 @@ async function buildContent(key: ContentKey): Promise<unknown> {
           supabasePublic.from("seo_settings").select("*"),
           supabasePublic.from("page_loader_settings").select("*").limit(1).maybeSingle(),
           supabasePublic.from("heading_shimmer_settings").select("*").limit(1).maybeSingle(),
+          supabasePublic.from("heading_shimmer_overrides").select("*"),
         ]);
       const seoByKey: Record<string, any> = {};
       (seoSettings.data ?? []).forEach((row: any) => {
@@ -170,6 +171,7 @@ async function buildContent(key: ContentKey): Promise<unknown> {
         seoSettings: seoByKey,
         pageLoader: pageLoader.data ?? null,
         headingShimmer: headingShimmer.data ?? null,
+        headingShimmerOverrides: headingShimmerOverrides.data ?? [],
       };
     }
     case "fPage": {

@@ -8,6 +8,7 @@ import { AdminPage, AdminCard, FormRow } from "@/components/admin/AdminPage";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { useHeadingShimmer, HEADING_SHIMMER_DEFAULTS } from "@/hooks/useHeadingShimmer";
+import { HeadingShimmerOverridesCard } from "@/components/admin/HeadingShimmerOverridesCard";
 
 export const Route = createFileRoute("/_admin/admin/heading-shimmer")({
   component: HeadingShimmerAdmin,
@@ -281,6 +282,8 @@ function HeadingShimmerAdmin() {
           <h3 className="text-xl md:text-2xl font-bold">A smaller subheading.</h3>
         </div>
       </AdminCard>
+
+      <HeadingShimmerOverridesCard />
     </AdminPage>
   );
 }

@@ -91,10 +91,25 @@ export default function AdminLayout() {
     return location.pathname === to || location.pathname.startsWith(`${to}/`);
   }
 
+  const segments = useMemo(() => {
+    const parts = location.pathname.split("/").filter(Boolean);
+    return parts.map((seg, i) => ({
+      seg,
+      label: labelize(seg),
+      to: "/" + parts.slice(0, i + 1).join("/"),
+      isLast: i === parts.length - 1,
+    }));
+  }, [location.pathname]);
+
+  const currentTitle = segments.length > 0 ? segments[segments.length - 1].label : "Admin";
+
   const sidebar = (
     <>
       <div className="px-3 py-4 mb-3 flex items-center justify-between">
         <div>
+          <div className="text-xs uppercase tracking-wider text-background/40 mb-1">Admin</div>
+          <div className="text-lg font-black">Portfolio CMS</div>
+        </div>
           <div className="text-xs uppercase tracking-wider text-background/40 mb-1">Admin</div>
           <div className="text-lg font-black">Portfolio CMS</div>
         </div>

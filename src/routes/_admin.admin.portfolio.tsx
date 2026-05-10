@@ -128,6 +128,7 @@ function AdminPortfolio() {
       setNewFolder({ active: true, parent_id: null });
       qc.invalidateQueries({ queryKey: ["admin_portfolio_folders"] });
       qc.invalidateQueries({ queryKey: ["public_portfolio_folders"] });
+      qc.invalidateQueries({ queryKey: ["content", "portfolio"] });
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -144,6 +145,7 @@ function AdminPortfolio() {
       setFolderEdits((e) => { const n = { ...e }; delete n[id]; return n; });
       qc.invalidateQueries({ queryKey: ["admin_portfolio_folders"] });
       qc.invalidateQueries({ queryKey: ["public_portfolio_folders"] });
+      qc.invalidateQueries({ queryKey: ["content", "portfolio"] });
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -158,6 +160,7 @@ function AdminPortfolio() {
       setActiveFolderId(null);
       qc.invalidateQueries({ queryKey: ["admin_portfolio_folders"] });
       qc.invalidateQueries({ queryKey: ["public_portfolio_folders"] });
+      qc.invalidateQueries({ queryKey: ["content", "portfolio"] });
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -173,6 +176,7 @@ function AdminPortfolio() {
     ]);
     qc.invalidateQueries({ queryKey: ["admin_portfolio_folders"] });
     qc.invalidateQueries({ queryKey: ["public_portfolio_folders"] });
+      qc.invalidateQueries({ queryKey: ["content", "portfolio"] });
   }
 
   // ---- Item CRUD --------------------------------------------------------
@@ -207,6 +211,7 @@ function AdminPortfolio() {
       setNewItem({ active: true, tags: [], show_in_feed: true, featured: false });
       qc.invalidateQueries({ queryKey: ["admin_portfolio_items", activeFolderId] });
       qc.invalidateQueries({ queryKey: ["public_portfolio_items"] });
+      qc.invalidateQueries({ queryKey: ["content", "portfolio"] });
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -250,6 +255,7 @@ function AdminPortfolio() {
       toast.success("Bulk upload complete");
       qc.invalidateQueries({ queryKey: ["admin_portfolio_items", activeFolderId] });
       qc.invalidateQueries({ queryKey: ["public_portfolio_items"] });
+      qc.invalidateQueries({ queryKey: ["content", "portfolio"] });
       setTimeout(() => setBulkProgress(null), 1200);
     },
     onError: (e: any) => {
@@ -270,6 +276,7 @@ function AdminPortfolio() {
       setItemEdits((e) => { const n = { ...e }; delete n[id]; return n; });
       qc.invalidateQueries({ queryKey: ["admin_portfolio_items", activeFolderId] });
       qc.invalidateQueries({ queryKey: ["public_portfolio_items"] });
+      qc.invalidateQueries({ queryKey: ["content", "portfolio"] });
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -283,6 +290,7 @@ function AdminPortfolio() {
       toast.success("Item removed");
       qc.invalidateQueries({ queryKey: ["admin_portfolio_items", activeFolderId] });
       qc.invalidateQueries({ queryKey: ["public_portfolio_items"] });
+      qc.invalidateQueries({ queryKey: ["content", "portfolio"] });
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -318,6 +326,7 @@ function AdminPortfolio() {
       qc.invalidateQueries({ queryKey });
       qc.invalidateQueries({ queryKey: ["public_portfolio_folders"] });
       qc.invalidateQueries({ queryKey: ["public_portfolio_items"] });
+      qc.invalidateQueries({ queryKey: ["content", "portfolio"] });
     } catch (e: any) {
       toast.error(e?.message ?? "Couldn't save new order");
       qc.invalidateQueries({ queryKey });

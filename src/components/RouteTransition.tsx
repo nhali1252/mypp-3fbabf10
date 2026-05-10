@@ -1,37 +1,36 @@
-import { useEffect, useRef } from "react";
 import { Outlet, useRouterState } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "framer-motion";
 
 /**
- * Smooth fade-in for each new route. Uses a keyed wrapper so only the
- * incoming page animates — no out→in flicker, no double-page overlap.
- * Also resets scroll on actual path changes (not on hash-only changes).
+ * Smooth cross-fade between routes. Keyed by pathname so each new page
+ * mounts fresh; framer-motion + AnimatePresence(mode="wait") makes the
+ * outgoing page finish exiting before the new one enters → no overlap,
+ * no jank. Honors prefers-reduced-motion via the global MotionConfig
+ * provider in __root.tsx (skips transforms automatically).
+ *
+ * Scroll restoration is handled by the router (`scrollRestoration: true`
+ * in src/router.tsx), so we don't manually scroll here — that lets the
+ * browser back button restore prior positions correctly.
  */
 export function RouteTransition() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const last = useRef(pathname);
-
-  useEffect(() => {
-    if (last.current === pathname) return;
-    last.current = pathname;
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
-  }, [pathname]);
 
   return (
-    <div key={pathname} className="route-fade-in min-h-screen">
-      <Outlet />
-      <style>{`
-        @keyframes routeFadeIn {
-          from { opacity: 0; transform: translateY(4px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        .route-fade-in {
-          animation: routeFadeIn 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
-          will-change: opacity, transform;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .route-fade-in { animation: none; }
-        }
-      `}</style>
-    </div>
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.div
+        key={pathname}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -4 }}
+        transition={{
+          duration: 0.32,
+          ease: [0.22, 1, 0.36, 1],
+        }}
+        style={{ willChange: "opacity, transform" }}
+        className="min-h-screen"
+      >
+        <Outlet />
+      </motion.div>
+    </AnimatePresence>
   );
 }

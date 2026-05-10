@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -63,6 +64,11 @@ import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as AdminAdminPageSlugRouteImport } from './routes/_admin.admin.page.$slug'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
@@ -345,6 +351,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/reviews': typeof ReviewsRoute
   '/services': typeof ServicesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/env-import': typeof ApiEnvImportRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/admin/about': typeof AdminAdminAboutRoute
@@ -399,6 +406,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/reviews': typeof ReviewsRoute
   '/services': typeof ServicesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/env-import': typeof ApiEnvImportRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/admin/about': typeof AdminAdminAboutRoute
@@ -455,6 +463,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/reviews': typeof ReviewsRoute
   '/services': typeof ServicesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/env-import': typeof ApiEnvImportRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/_admin/admin/about': typeof AdminAdminAboutRoute
@@ -511,6 +520,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/reviews'
     | '/services'
+    | '/sitemap.xml'
     | '/api/env-import'
     | '/email/unsubscribe'
     | '/admin/about'
@@ -565,6 +575,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/reviews'
     | '/services'
+    | '/sitemap.xml'
     | '/api/env-import'
     | '/email/unsubscribe'
     | '/admin/about'
@@ -620,6 +631,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/reviews'
     | '/services'
+    | '/sitemap.xml'
     | '/api/env-import'
     | '/email/unsubscribe'
     | '/_admin/admin/about'
@@ -676,6 +688,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   ReviewsRoute: typeof ReviewsRoute
   ServicesRoute: typeof ServicesRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiEnvImportRoute: typeof ApiEnvImportRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
@@ -688,6 +701,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/services': {
       id: '/services'
       path: '/services'
@@ -1147,6 +1167,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   ReviewsRoute: ReviewsRoute,
   ServicesRoute: ServicesRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiEnvImportRoute: ApiEnvImportRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
@@ -1159,3 +1180,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

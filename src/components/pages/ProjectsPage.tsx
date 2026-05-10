@@ -57,16 +57,19 @@ export function ProjectsPage() {
           >
             <Terminal className="w-3.5 h-3.5" /> Projects · Code & Builds
           </motion.span>
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+          <h1
             className="font-black tracking-tight leading-[1.02] mt-5 text-3d text-3d-pop"
             style={{ fontSize: "clamp(34px, 6.4vw, 78px)" }}
           >
-            Things I{" "}
-            <span className="font-serif-display italic font-medium text-primary">build</span>
-          </motion.h1>
+            <Hero3DText as="span" text="Things I " delay={0.1} stagger={0.08} />
+            <Hero3DText
+              as="span"
+              text="build"
+              className="font-serif-display italic font-medium text-primary"
+              delay={0.35}
+              stagger={0.08}
+            />
+          </h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}

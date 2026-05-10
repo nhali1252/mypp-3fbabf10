@@ -282,7 +282,34 @@ function AdminSettings() {
         </div>
       </AdminCard>
 
-      <AdminCard title="Services hero (used on /services page)">
+      <AdminCard title="Maintenance mode">
+        <div className="grid gap-4">
+          <FormRow
+            label="Take the site offline for visitors"
+            hint="When on, visitors see a maintenance screen. You and any signed-in admin can still browse and edit normally. Applies site-wide (page key B is the source of truth)."
+          >
+            <label className="flex items-center justify-between gap-3 rounded-md border border-border bg-card/40 px-3 py-2 text-sm">
+              <span>Maintenance mode</span>
+              <Switch
+                checked={form.maintenance_mode === true}
+                onCheckedChange={(v) => set("maintenance_mode", v)}
+              />
+            </label>
+          </FormRow>
+          <FormRow
+            label="Message shown to visitors"
+            hint="Optional. Leave blank for the default copy."
+          >
+            <Textarea
+              rows={3}
+              value={form.maintenance_message || ""}
+              onChange={(e) => set("maintenance_message", e.target.value)}
+              placeholder="We're polishing a few things — back in a couple of hours."
+            />
+          </FormRow>
+        </div>
+      </AdminCard>
+
         <div className="grid gap-4">
           <FormRow label="Hero title"><Input value={form.hero_title || ""} onChange={(e) => set("hero_title", e.target.value)} placeholder="Premium Taxi & Service Bookings" /></FormRow>
           <FormRow label="Hero subtitle"><Textarea rows={2} value={form.hero_subtitle || ""} onChange={(e) => set("hero_subtitle", e.target.value)} placeholder="Reliable rides, on-demand services, transparent pricing." /></FormRow>

@@ -15,6 +15,7 @@ import { Footer } from "@/components/Footer";
 import { useSiteSettings, isSectionVisible } from "@/hooks/useSiteSettings";
 import { WelcomeSplash } from "@/components/WelcomeSplash";
 import { PageQuote } from "@/components/PageQuote";
+import { Hero3DText } from "@/components/Hero3DText";
 
 
 export const Route = createFileRoute("/")({
@@ -502,24 +503,39 @@ function Launcher() {
             </div>
           </div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: welcomeSec * 1.15, ease: [0.22, 1, 0.36, 1], delay: welcomeSec * 0.07 }}
+          <h1
             className="font-black tracking-tight leading-[1.02]"
             style={{ fontSize: "clamp(38px, 7vw, 88px)" }}
           >
-            {hero.headline_top} <br className="hidden sm:block" />
-            <span
-              className="bg-clip-text text-transparent"
-              style={{
-                backgroundImage:
-                  "linear-gradient(110deg, var(--foreground) 0%, color-mix(in oklab, var(--primary) 80%, var(--foreground)) 60%, var(--primary) 100%)",
-              }}
-            >
-              {hero.headline_bottom}
-            </span>
-          </motion.h1>
+            <Hero3DText
+              as="span"
+              text={hero.headline_top}
+              className="block"
+              delay={welcomeSec * 0.07}
+              stagger={0.08}
+            />
+            <Hero3DText
+              as="span"
+              text={hero.headline_bottom}
+              className="block bg-clip-text text-transparent"
+              delay={welcomeSec * 0.07 + 0.25}
+              stagger={0.08}
+            />
+            <style>{`
+              h1 > span.bg-clip-text {
+                background-image: linear-gradient(110deg, var(--foreground) 0%, color-mix(in oklab, var(--primary) 80%, var(--foreground)) 60%, var(--primary) 100%);
+                background-size: 200% 100%;
+                animation: heroShimmer 6s ease-in-out 1.2s infinite;
+              }
+              @keyframes heroShimmer {
+                0%, 100% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+              }
+              @media (prefers-reduced-motion: reduce) {
+                h1 > span.bg-clip-text { animation: none; }
+              }
+            `}</style>
+          </h1>
 
           <motion.p
             initial={{ opacity: 0, y: 16 }}

@@ -60,6 +60,9 @@ async function buildReport() {
   const startedAt = new Date().toISOString();
   const vars = EXPECTED_VARS.map(inspectVar);
   const missing = vars.filter((v) => !v.present).map((v) => v.name);
+  const requiredSet = new Set<string>(REQUIRED_VARS as readonly string[]);
+  const missingRequired = missing.filter((n) => requiredSet.has(n));
+  const missingOptional = missing.filter((n) => !requiredSet.has(n));
 
   // Verify the admin client can actually talk to the DB.
   let dbCheck: { ok: boolean; error: string | null; tableCount: number | null } = {
@@ -83,11 +86,10 @@ async function buildReport() {
   }
 
   return {
-    success: missing.length === 0 && dbCheck.ok,
+    success: missingRequired.length === 0 && dbCheck.ok,
     startedAt,
     finishedAt: new Date().toISOString(),
     runtime: {
-      // Cloudflare Workers expose these via the bindings; surface what we can.
       hasNodeProcess: typeof process !== "undefined",
       hasFetch: typeof fetch !== "undefined",
     },
@@ -95,6 +97,8 @@ async function buildReport() {
       expected: EXPECTED_VARS.length,
       present: vars.filter((v) => v.present).length,
       missing,
+      missingRequired,
+      missingOptional,
       vars,
     },
     db: dbCheck,

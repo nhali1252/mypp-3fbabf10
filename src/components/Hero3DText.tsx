@@ -1,10 +1,11 @@
 import { motion, useReducedMotion } from "framer-motion";
-import { useMemo } from "react";
+import { useMemo, type CSSProperties } from "react";
 
 interface Hero3DTextProps {
   text: string;
   as?: "h1" | "h2" | "h3" | "p" | "span";
   className?: string;
+  style?: CSSProperties;
   delay?: number;
   stagger?: number;
 }
@@ -18,6 +19,7 @@ export function Hero3DText({
   text,
   as: Tag = "h1",
   className = "",
+  style,
   delay = 0,
   stagger = 0.07,
 }: Hero3DTextProps) {
@@ -27,13 +29,13 @@ export function Hero3DText({
   const MotionTag = motion[Tag] as typeof motion.h1;
 
   if (reduced) {
-    return <Tag className={className}>{text}</Tag>;
+    return <Tag className={className} style={style}>{text}</Tag>;
   }
 
   return (
     <MotionTag
       className={className}
-      style={{ perspective: 800 }}
+      style={{ perspective: 800, ...style }}
       initial="hidden"
       animate="visible"
       variants={{

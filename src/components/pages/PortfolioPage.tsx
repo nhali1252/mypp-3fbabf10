@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowUpRight, Folder, FolderOpen, X, ExternalLink, Sparkles,
 import { useContentDoc } from "@/hooks/useContentDoc";
 import { Footer } from "@/components/Footer";
 import { PageQuote } from "@/components/PageQuote";
+import { Hero3DText } from "@/components/Hero3DText";
 import { Watermark } from "@/components/feed/Watermark";
 
 type PortfolioDoc = (PFolder & { items: PItem[] })[];
@@ -90,16 +91,19 @@ export function PortfolioPage() {
           >
             <Sparkles className="w-3.5 h-3.5" /> Portfolio · Folder library
           </motion.span>
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.05 }}
+          <h1
             className="font-black tracking-tight leading-[1.02] mt-5 text-3d text-3d-pop"
             style={{ fontSize: "clamp(34px, 6.4vw, 78px)" }}
           >
-            Open a{" "}
-            <span className="font-serif-display italic font-medium text-primary">folder</span>
-          </motion.h1>
+            <Hero3DText as="span" text="Open a " delay={0.1} stagger={0.08} />
+            <Hero3DText
+              as="span"
+              text="folder"
+              className="font-serif-display italic font-medium text-primary"
+              delay={0.3}
+              stagger={0.08}
+            />
+          </h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}

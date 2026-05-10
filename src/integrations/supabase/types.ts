@@ -1578,6 +1578,17 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_public_contact: {
+        Args: never
+        Returns: {
+          address: string
+          email: string
+          map_link: string
+          phone: string
+          social_links: Json
+          whatsapp: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

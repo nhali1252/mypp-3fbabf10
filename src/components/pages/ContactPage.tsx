@@ -6,6 +6,7 @@ import { Mail, Phone, MessageCircle, Sparkles, Send, Loader2, Calendar, Clock } 
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Footer } from "@/components/Footer";
+import { PageQuote } from "@/components/PageQuote";
 
 const projectTypes = [
   "Brand Identity",
@@ -378,6 +379,7 @@ export function ContactPage() {
         </div>
       </section>
 
+      <PageQuote slug="contact" />
       <Footer />
 
       <style>{`

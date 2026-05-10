@@ -14,6 +14,7 @@ import {
 import { useContentDoc } from "@/hooks/useContentDoc";
 import { getIcon } from "@/lib/iconRegistry";
 import { Footer } from "@/components/Footer";
+import { PageQuote } from "@/components/PageQuote";
 import { HireMeProvider, useHireMe } from "@/components/HireMeProvider";
 
 type ServiceRow = {
@@ -346,6 +347,7 @@ function ServicesTasTajPageInner() {
         </div>
       </section>
 
+      <PageQuote slug="services" />
       <Footer />
     </div>
   );

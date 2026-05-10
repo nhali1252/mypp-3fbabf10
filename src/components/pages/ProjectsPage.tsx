@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowUpRight, Check, Code2, ExternalLink, Github, Star, Terminal } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Footer } from "@/components/Footer";
+import { PageQuote } from "@/components/PageQuote";
 
 type Project = {
   id: string;
@@ -99,6 +100,7 @@ export function ProjectsPage() {
         </div>
       </section>
 
+      <PageQuote slug="projects" />
       <Footer />
     </div>
   );

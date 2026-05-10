@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Inbox, Image as ImageIcon, ClipboardCheck,
   Settings, Users, LogOut, ExternalLink, Menu, X,
   RefreshCw, MessageSquare, Shield, Activity, KeyRound,
-  ChevronRight, Home, Smartphone, Palette, HeartPulse,
+  ChevronRight, Home, Smartphone, Palette, HeartPulse, Sparkles,
 } from "lucide-react";
 
 // Static label map for breadcrumb segments (covers nav items + extras)

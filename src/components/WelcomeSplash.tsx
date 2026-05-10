@@ -23,11 +23,23 @@ export function WelcomeSplash({
   subtitle = "Ali Nur Hasan",
 }: Props) {
   const [mounted, setMounted] = useState(false);
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
   const reduce = useReducedMotion();
 
   useEffect(() => {
     setMounted(true);
+    let shouldShow = true;
+    try {
+      if (sessionStorage.getItem("welcomeSplash.seen") === "1") {
+        shouldShow = false;
+      } else {
+        sessionStorage.setItem("welcomeSplash.seen", "1");
+      }
+    } catch {
+      /* ignore storage errors */
+    }
+    if (!shouldShow) return;
+    setVisible(true);
     const t = setTimeout(() => setVisible(false), reduce ? 600 : durationMs);
     return () => clearTimeout(t);
   }, [durationMs, reduce]);

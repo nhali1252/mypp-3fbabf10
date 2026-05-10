@@ -7,6 +7,9 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Inbox, Heart, MessageSquare, FolderOpen, Briefcase, Image as ImageIcon, Eye,
 } from "lucide-react";
+import {
+  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
+} from "recharts";
 
 type Stats = {
   messagesTotal: number;

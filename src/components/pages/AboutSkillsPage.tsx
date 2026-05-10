@@ -432,7 +432,7 @@ function renderHeadline(headline: string, highlight: string) {
     return <Hero3DText as="span" text={headline} delay={0.15} stagger={0.06} />;
   }
   const parts = headline.split(highlight);
-  const nodes: JSX.Element[] = [];
+  const nodes: React.ReactNode[] = [];
   let runningDelay = 0.15;
   parts.forEach((p, i) => {
     if (p) {

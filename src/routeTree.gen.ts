@@ -33,6 +33,7 @@ import { Route as AdminAdminIndexRouteImport } from './routes/_admin.admin.index
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AdminAdminUsersRouteImport } from './routes/_admin.admin.users'
 import { Route as AdminAdminTickerRouteImport } from './routes/_admin.admin.ticker'
+import { Route as AdminAdminThemeRouteImport } from './routes/_admin.admin.theme'
 import { Route as AdminAdminSlotsRouteImport } from './routes/_admin.admin.slots'
 import { Route as AdminAdminSkillsRouteImport } from './routes/_admin.admin.skills'
 import { Route as AdminAdminSettingsRouteImport } from './routes/_admin.admin.settings'
@@ -185,6 +186,11 @@ const AdminAdminUsersRoute = AdminAdminUsersRouteImport.update({
 const AdminAdminTickerRoute = AdminAdminTickerRouteImport.update({
   id: '/admin/ticker',
   path: '/admin/ticker',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdminThemeRoute = AdminAdminThemeRouteImport.update({
+  id: '/admin/theme',
+  path: '/admin/theme',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAdminSlotsRoute = AdminAdminSlotsRouteImport.update({
@@ -409,6 +415,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AdminAdminSettingsRoute
   '/admin/skills': typeof AdminAdminSkillsRoute
   '/admin/slots': typeof AdminAdminSlotsRoute
+  '/admin/theme': typeof AdminAdminThemeRoute
   '/admin/ticker': typeof AdminAdminTickerRoute
   '/admin/users': typeof AdminAdminUsersRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
@@ -468,6 +475,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AdminAdminSettingsRoute
   '/admin/skills': typeof AdminAdminSkillsRoute
   '/admin/slots': typeof AdminAdminSlotsRoute
+  '/admin/theme': typeof AdminAdminThemeRoute
   '/admin/ticker': typeof AdminAdminTickerRoute
   '/admin/users': typeof AdminAdminUsersRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
@@ -529,6 +537,7 @@ export interface FileRoutesById {
   '/_admin/admin/settings': typeof AdminAdminSettingsRoute
   '/_admin/admin/skills': typeof AdminAdminSkillsRoute
   '/_admin/admin/slots': typeof AdminAdminSlotsRoute
+  '/_admin/admin/theme': typeof AdminAdminThemeRoute
   '/_admin/admin/ticker': typeof AdminAdminTickerRoute
   '/_admin/admin/users': typeof AdminAdminUsersRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
@@ -590,6 +599,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/skills'
     | '/admin/slots'
+    | '/admin/theme'
     | '/admin/ticker'
     | '/admin/users'
     | '/lovable/email/suppression'
@@ -649,6 +659,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/skills'
     | '/admin/slots'
+    | '/admin/theme'
     | '/admin/ticker'
     | '/admin/users'
     | '/lovable/email/suppression'
@@ -709,6 +720,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/settings'
     | '/_admin/admin/skills'
     | '/_admin/admin/slots'
+    | '/_admin/admin/theme'
     | '/_admin/admin/ticker'
     | '/_admin/admin/users'
     | '/lovable/email/suppression'
@@ -918,6 +930,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/ticker'
       fullPath: '/admin/ticker'
       preLoaderRoute: typeof AdminAdminTickerRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/admin/theme': {
+      id: '/_admin/admin/theme'
+      path: '/admin/theme'
+      fullPath: '/admin/theme'
+      preLoaderRoute: typeof AdminAdminThemeRouteImport
       parentRoute: typeof AdminRoute
     }
     '/_admin/admin/slots': {
@@ -1190,6 +1209,7 @@ interface AdminRouteChildren {
   AdminAdminSettingsRoute: typeof AdminAdminSettingsRoute
   AdminAdminSkillsRoute: typeof AdminAdminSkillsRoute
   AdminAdminSlotsRoute: typeof AdminAdminSlotsRoute
+  AdminAdminThemeRoute: typeof AdminAdminThemeRoute
   AdminAdminTickerRoute: typeof AdminAdminTickerRoute
   AdminAdminUsersRoute: typeof AdminAdminUsersRoute
   AdminAdminIndexRoute: typeof AdminAdminIndexRoute
@@ -1225,6 +1245,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminSettingsRoute: AdminAdminSettingsRoute,
   AdminAdminSkillsRoute: AdminAdminSkillsRoute,
   AdminAdminSlotsRoute: AdminAdminSlotsRoute,
+  AdminAdminThemeRoute: AdminAdminThemeRoute,
   AdminAdminTickerRoute: AdminAdminTickerRoute,
   AdminAdminUsersRoute: AdminAdminUsersRoute,
   AdminAdminIndexRoute: AdminAdminIndexRoute,

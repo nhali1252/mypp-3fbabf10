@@ -128,9 +128,11 @@ async function buildContent(key: ContentKey): Promise<unknown> {
       return data ?? [];
     }
     case "contact": {
-      const { data } = await supabasePublic
+      // Public callers see only display-safe fields. form_receiver_email and
+      // any other internal fields stay server-side.
+      const { data } = await supabaseAdmin
         .from("contact_settings")
-        .select("*")
+        .select("email,phone,whatsapp,address,map_link,social_links")
         .limit(1)
         .maybeSingle();
       return data ?? {};

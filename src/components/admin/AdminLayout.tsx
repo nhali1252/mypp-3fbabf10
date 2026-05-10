@@ -69,6 +69,7 @@ const groups: Group[] = [
       { to: "/admin/runtime", label: "Runtime", Icon: RefreshCw },
       { to: "/admin/media", label: "Media library", Icon: ImageIcon },
       { to: "/admin/users", label: "Users", Icon: Users },
+      { to: "/admin/pwa", label: "PWA & install", Icon: Smartphone },
       { to: "/admin/settings", label: "Site settings", Icon: Settings },
     ],
   },

@@ -125,16 +125,34 @@ function EnvImportPage() {
             />
           </div>
 
-          {last.missing?.length > 0 && (
-            <div className="mb-5">
-              <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Missing</div>
-              <div className="flex flex-wrap gap-1.5">
-                {last.missing.map((m) => (
-                  <Badge key={m} variant="destructive">{m}</Badge>
-                ))}
+          {last.missing?.length > 0 && (() => {
+            const missingRequired = last.missing.filter((m) => REQUIRED_VARS.has(m));
+            const missingOptional = last.missing.filter((m) => !REQUIRED_VARS.has(m));
+            return (
+              <div className="mb-5 space-y-3">
+                {missingRequired.length > 0 && (
+                  <div>
+                    <div className="text-xs uppercase tracking-wider text-destructive mb-2">Missing (required)</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {missingRequired.map((m) => (
+                        <Badge key={m} variant="destructive">{m}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {missingOptional.length > 0 && (
+                  <div>
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Missing (optional — not required for the app to run)</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {missingOptional.map((m) => (
+                        <Badge key={m} variant="secondary">{m}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           <div>
             <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Variables</div>

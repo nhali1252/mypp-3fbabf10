@@ -37,7 +37,10 @@ export function PageNav({ active }: { active?: string }) {
               </Link>
             ))}
           </nav>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <ShimmerSpeedToggle />
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </header>

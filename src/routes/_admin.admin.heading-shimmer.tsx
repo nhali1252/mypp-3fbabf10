@@ -52,7 +52,7 @@ function HeadingShimmerAdmin() {
   useEffect(() => {
     if (typeof document === "undefined") return;
     const root = document.documentElement;
-    root.style.setProperty("--shimmer-sweep-size", `${sweepSize}%`);
+    root.style.setProperty("--shimmer-sweep-size", `${sweepSize}vw`);
     root.style.setProperty("--shimmer-speed", `${speedMs}ms`);
     root.style.setProperty("--shimmer-intensity", `${intensity}%`);
     if (enabled) root.removeAttribute("data-shimmer");

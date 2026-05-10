@@ -135,7 +135,7 @@ export function AdminStats() {
       setTopPages(top);
       setSeries(points);
     })();
-  }, []);
+  }, [reloadKey]);
 
   const items = [
     { icon: Eye, label: "Views (7d)", value: s?.views7d, sub: s ? `${s.views30d.toLocaleString()} in 30d` : undefined },

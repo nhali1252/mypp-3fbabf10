@@ -54,7 +54,7 @@ export function AboutSection() {
                 whileTap={reduce ? undefined : { scale: 0.95 }}
                 className="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-white/5 border border-white/10 overflow-hidden hover:border-primary/40 hover:shadow-glow transition-all"
               >
-                <img src={settings.logo_url} alt="Logo" className="w-full h-full object-cover" />
+                <img src={settings.logo_url} alt="Logo" loading="lazy" decoding="async" className="w-full h-full object-cover" />
               </motion.a>
             ) : (
               <motion.a

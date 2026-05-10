@@ -194,7 +194,7 @@ function AdminSettings() {
               min={0}
               max={5000}
               step={50}
-              value={form.welcome_animation_ms ?? 600}
+              value={form.welcome_animation_ms ?? 2000}
               onChange={(e) => set("welcome_animation_ms", Number(e.target.value))}
             />
           </FormRow>

@@ -72,7 +72,7 @@ function AdminSettings() {
     }
     setSaving(true);
     try {
-      const welcomeMs = Math.max(0, Math.min(5000, Number(form.welcome_animation_ms ?? 600) || 0));
+      const welcomeMs = Math.max(0, Math.min(5000, Number(form.welcome_animation_ms ?? 2000) || 0));
       const motionPref = ["on", "off", "auto"].includes(form.default_motion_pref)
         ? form.default_motion_pref
         : "auto";
@@ -194,7 +194,7 @@ function AdminSettings() {
               min={0}
               max={5000}
               step={50}
-              value={form.welcome_animation_ms ?? 600}
+              value={form.welcome_animation_ms ?? 2000}
               onChange={(e) => set("welcome_animation_ms", Number(e.target.value))}
             />
           </FormRow>

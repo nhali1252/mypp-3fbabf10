@@ -41,3 +41,28 @@ export function contrastRatio(a: string, b: string): number | null {
   const [hi, lo] = la >= lb ? [la, lb] : [lb, la];
   return (hi + 0.05) / (lo + 0.05);
 }
+
+export type ContrastGrade = "AAA" | "AA" | "AA Large" | "Fail";
+
+export function gradeContrast(ratio: number, large: boolean): ContrastGrade {
+  if (ratio >= 7) return "AAA";
+  if (ratio >= 4.5) return "AA";
+  if (ratio >= 3) return large ? "AA" : "AA Large";
+  return "Fail";
+}
+
+export function gradeStyle(grade: ContrastGrade): {
+  label: string;
+  className: string;
+} {
+  switch (grade) {
+    case "AAA":
+      return { label: "AAA", className: "bg-emerald-500/15 text-emerald-500 border-emerald-500/30" };
+    case "AA":
+      return { label: "AA", className: "bg-sky-500/15 text-sky-500 border-sky-500/30" };
+    case "AA Large":
+      return { label: "AA Large", className: "bg-amber-500/15 text-amber-500 border-amber-500/30" };
+    default:
+      return { label: "Fail", className: "bg-rose-500/15 text-rose-500 border-rose-500/30" };
+  }
+}

@@ -57,11 +57,12 @@ describe("global heading shimmer (src/styles.css)", () => {
     expect(c).toContain("--shimmer-gradient:linear-gradient");
   });
 
-  it("declares all four opt-out contexts for h1/h2/h3", () => {
+  it("declares all opt-out contexts for h1/h2/h3", () => {
     const c = compact(css);
     // Each opt-out must be wired to h1 (incl. its descendant spans), h2, h3.
     const optOuts = [
       '[data-shimmer="off"]', // global kill-switch
+      '[data-shimmer-user="off"]', // per-visitor floating toggle
       '[data-shimmer-fallback="true"]', // background-clip fallback path
       "[data-admin]", // admin chrome
       ".no-shimmer", // ancestor / self utility

@@ -14,6 +14,7 @@ import {
 import { useContentDoc } from "@/hooks/useContentDoc";
 import { getIcon } from "@/lib/iconRegistry";
 import { Footer } from "@/components/Footer";
+import { HireMeProvider, useHireMe } from "@/components/HireMeProvider";
 
 type ServiceRow = {
   id: string;

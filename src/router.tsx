@@ -63,8 +63,11 @@ export const getRouter = () => {
     // Cache preloaded route data briefly so hover→click feels instant.
     defaultPreloadStaleTime: 30_000,
     defaultStaleTime: 60_000,
-    defaultPendingMs: 250,
-    defaultPendingMinMs: 200,
+    // Disable pending UI flash — TanStack will swap content directly when
+    // the loader resolves, which prevents the "double page" flicker where
+    // a pending placeholder rendered first and the real page faded in over it.
+    defaultPendingMs: 1_000_000,
+    defaultPendingMinMs: 0,
     defaultErrorComponent: DefaultErrorComponent,
   });
 

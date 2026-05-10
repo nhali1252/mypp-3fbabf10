@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { motion, useReducedMotion } from "framer-motion";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import portrait from "@/assets/ali-portrait-baked.jpg";
 import { ImageOff, ExternalLink, Sparkles, User, Quote, Star } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";

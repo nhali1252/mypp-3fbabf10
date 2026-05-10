@@ -38,13 +38,33 @@ export const Route = createFileRoute("/")({
     return { launcherDoc: raw as unknown, seo };
   },
   staleTime: 60_000,
-  head: ({ loaderData }) => ({
-    meta: buildSeoMeta(loaderData?.seo ?? null, {
-      title: "Ali Nur Hasan — Pick a page to explore",
-      description:
-        "An elegant launcher for Ali Nur Hasan's portfolio — Basic info, Skills & About, and Projects. Powered by TasTaj.",
-    }),
-  }),
+  head: ({ loaderData }) => {
+    const seo = loaderData?.seo ?? null;
+    const title =
+      seo?.meta_title?.trim() || "Ali Nur Hasan — Pick a page to explore";
+    const description =
+      seo?.meta_description?.trim() ||
+      "An elegant launcher for Ali Nur Hasan's portfolio — Basic info, Skills & About, and Projects. Powered by TasTaj.";
+    const image = seo?.og_image?.trim() || null;
+    const personLd = {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      name: "Ali Nur Hasan",
+      jobTitle: "Designer",
+      worksFor: { "@type": "Organization", name: "TasTaj" },
+      description,
+      ...(image ? { image } : {}),
+    };
+    return {
+      meta: buildSeoMeta(seo, { title, description }),
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify(personLd),
+        },
+      ],
+    };
+  },
 });
 
 type LauncherCard = {

@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useFooterLinks, useSiteSettings, useContactSettings, useFooterApps } from "@/hooks/useContent";
 import { useFooterCta, FOOTER_CTA_DEFAULTS } from "@/hooks/useFooterCta";
+import { useSiteSettings as usePublicSiteSettings, isSectionVisible } from "@/hooks/useSiteSettings";
 import { motion, useReducedMotion } from "framer-motion";
 import { SocialIcons, type SocialMap } from "./SocialIcons";
 import { ArrowUpRight, AppWindow, Mail, Phone, MessageCircle, Sparkles } from "lucide-react";
@@ -20,6 +21,8 @@ export function Footer() {
   const { data: apps = [] } = useFooterApps();
   const { data: ctaData } = useFooterCta();
   const cta = ctaData ?? FOOTER_CTA_DEFAULTS;
+  const publicSite = usePublicSiteSettings("B");
+  const showFooterCta = isSectionVisible(publicSite, "footer_cta", true);
   const social = (contact?.social_links as SocialMap | undefined) ?? {};
   const reduce = useReducedMotion();
   const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -84,7 +87,7 @@ export function Footer() {
       )}
 
       {/* Permanent "Start a project" CTA — appears on every page, just above the credit line */}
-      {cta.active && (
+      {showFooterCta && cta.active && (
         <div className="relative mb-6">
           <div className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-5 sm:p-6 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
             <div className="min-w-0">

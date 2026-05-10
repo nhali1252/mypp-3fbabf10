@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useSiteSettings, isSectionVisible } from "@/hooks/useSiteSettings";
 
 type Review = {
   id: string;
@@ -38,6 +39,9 @@ export function ReviewsPage() {
   const [rating, setRating] = useState(5);
   const [hoverStar, setHoverStar] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
+
+  const site = useSiteSettings("B");
+  const showReviews = isSectionVisible(site, "reviews", true);
 
   const { data: rawReviews, isLoading } = useContentDoc<any[]>("reviews");
   const reviews: Review[] = (rawReviews ?? [])
@@ -126,6 +130,7 @@ export function ReviewsPage() {
       </section>
 
       {/* GRID */}
+      {showReviews && (
       <section className="px-5 sm:px-6 md:px-10 pb-10">
         <div className="max-w-[1100px] mx-auto">
           {isLoading ? (
@@ -184,6 +189,7 @@ export function ReviewsPage() {
           )}
         </div>
       </section>
+      )}
 
       {/* SUBMIT FORM */}
       <section className="px-5 sm:px-6 md:px-10 pb-20">

@@ -56,6 +56,7 @@ export function useSiteSettings(pageKey: string = "B"): SiteSettings {
             ? (data.section_visibility as Record<string, boolean>)
             : {},
         reactions_enabled: data.reactions_enabled !== false,
+        reactions_show_count: data.reactions_show_count !== false,
         watermark_text: typeof data.watermark_text === "string" ? data.watermark_text : "",
       };
     },

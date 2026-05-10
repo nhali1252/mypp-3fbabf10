@@ -135,6 +135,8 @@ function AdminDashboard() {
         </div>
       </section>
 
+      <AdminStats />
+
       {/* Page-block grid — the heart of the new admin. */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {PAGE_BLOCKS.map((block) => (

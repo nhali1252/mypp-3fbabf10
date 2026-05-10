@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { ShimmerSpeedToggle } from "@/components/ShimmerSpeedToggle";
 
 const items = [
   { to: "/basic" as const, label: "Basic" },
@@ -36,7 +37,10 @@ export function PageNav({ active }: { active?: string }) {
               </Link>
             ))}
           </nav>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <ShimmerSpeedToggle />
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </header>

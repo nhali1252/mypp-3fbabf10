@@ -52,7 +52,7 @@ function HeadingShimmerAdmin() {
   useEffect(() => {
     if (typeof document === "undefined") return;
     const root = document.documentElement;
-    root.style.setProperty("--shimmer-sweep-size", `${sweepSize}%`);
+    root.style.setProperty("--shimmer-sweep-size", `${sweepSize}vw`);
     root.style.setProperty("--shimmer-speed", `${speedMs}ms`);
     root.style.setProperty("--shimmer-intensity", `${intensity}%`);
     if (enabled) root.removeAttribute("data-shimmer");
@@ -230,8 +230,8 @@ function HeadingShimmerAdmin() {
           </FormRow>
 
           <FormRow
-            label={`Sweep size — ${sweepSize}%`}
-            hint="Width of the gold band. 100% = tight band, 400% = very wide soft sweep. Sweet spot 180–240%."
+            label={`Sweep size — ${sweepSize}vw`}
+            hint="Width of the gold band in viewport widths. 100vw = tight (sweep noticeable on every heading), 400vw = very wide soft sweep. Sweet spot 180–240vw."
           >
             <input
               type="range"
@@ -266,11 +266,19 @@ function HeadingShimmerAdmin() {
           <Sparkles size={12} /> Sliders update the preview immediately. Click
           "Save changes" to apply site-wide.
         </p>
-        <div className="rounded-2xl border border-border p-8 bg-background">
-          <h2 className="text-4xl md:text-5xl font-black tracking-tight">
+        <div className="rounded-2xl border border-border p-8 bg-background space-y-5">
+          <h1 className="text-5xl md:text-6xl font-black tracking-tight leading-[1.05]">
+            <span>Things I </span>
+            <span className="font-serif-display italic font-medium">
+              {Array.from("build").map((c, i) => (
+                <span key={i}>{c}</span>
+              ))}
+            </span>
+          </h1>
+          <h2 className="text-3xl md:text-4xl font-black tracking-tight">
             Section heading example
           </h2>
-          <h3 className="mt-4 text-2xl font-bold">A smaller subheading.</h3>
+          <h3 className="text-xl md:text-2xl font-bold">A smaller subheading.</h3>
         </div>
       </AdminCard>
     </AdminPage>

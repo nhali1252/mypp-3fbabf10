@@ -43,7 +43,7 @@ export function HeadingShimmerVars() {
   useEffect(() => {
     if (typeof document === "undefined") return;
     const root = document.documentElement;
-    root.style.setProperty("--shimmer-sweep-size", `${data.sweep_size}%`);
+    root.style.setProperty("--shimmer-sweep-size", `${data.sweep_size}vw`);
     root.style.setProperty("--shimmer-speed", `${effectiveSpeed}ms`);
     root.style.setProperty("--shimmer-intensity", `${data.intensity}%`);
     if (off) root.setAttribute("data-shimmer", "off");

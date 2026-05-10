@@ -39,7 +39,7 @@ export function useSiteSettings(pageKey: string = "B"): SiteSettings {
       const { data } = await (supabase as any)
         .from("site_settings")
         .select(
-          "welcome_animation_ms, default_motion_pref, section_visibility, reactions_enabled, watermark_text",
+          "welcome_animation_ms, default_motion_pref, section_visibility, reactions_enabled, reactions_show_count, watermark_text",
         )
         .eq("page_key", pageKey)
         .limit(1)

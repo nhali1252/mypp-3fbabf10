@@ -3,7 +3,9 @@ import { HireMeModal } from "./HireMeModal";
 
 interface HireMeCtx {
   open: boolean;
+  preselectedService: string | null;
   openHireMe: () => void;
+  openHireMeForService: (service: string) => void;
   closeHireMe: () => void;
 }
 
@@ -11,8 +13,16 @@ const Ctx = createContext<HireMeCtx | null>(null);
 
 export function HireMeProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
+  const [preselectedService, setPreselectedService] = useState<string | null>(null);
 
-  const openHireMe = useCallback(() => setOpen(true), []);
+  const openHireMe = useCallback(() => {
+    setPreselectedService(null);
+    setOpen(true);
+  }, []);
+  const openHireMeForService = useCallback((service: string) => {
+    setPreselectedService(service);
+    setOpen(true);
+  }, []);
   const closeHireMe = useCallback(() => setOpen(false), []);
 
   // Lock body scroll while popup is open for a polished, app-like feel.
@@ -26,9 +36,9 @@ export function HireMeProvider({ children }: { children: ReactNode }) {
   }, [open]);
 
   return (
-    <Ctx.Provider value={{ open, openHireMe, closeHireMe }}>
+    <Ctx.Provider value={{ open, preselectedService, openHireMe, openHireMeForService, closeHireMe }}>
       {children}
-      <HireMeModal open={open} onClose={closeHireMe} />
+      <HireMeModal open={open} onClose={closeHireMe} preselectedService={preselectedService} />
     </Ctx.Provider>
   );
 }
@@ -36,10 +46,11 @@ export function HireMeProvider({ children }: { children: ReactNode }) {
 export function useHireMe(): HireMeCtx {
   const ctx = useContext(Ctx);
   if (!ctx) {
-    // Safe no-op fallback so SSR / out-of-tree usage never crashes.
     return {
       open: false,
+      preselectedService: null,
       openHireMe: () => {},
+      openHireMeForService: () => {},
       closeHireMe: () => {},
     };
   }

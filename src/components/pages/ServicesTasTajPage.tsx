@@ -14,6 +14,7 @@ import {
 import { useContentDoc } from "@/hooks/useContentDoc";
 import { getIcon } from "@/lib/iconRegistry";
 import { Footer } from "@/components/Footer";
+import { HireMeProvider, useHireMe } from "@/components/HireMeProvider";
 
 type ServiceRow = {
   id: string;
@@ -48,8 +49,17 @@ const fallbackOffers = [
 ];
 
 export function ServicesTasTajPage() {
+  return (
+    <HireMeProvider>
+      <ServicesTasTajPageInner />
+    </HireMeProvider>
+  );
+}
+
+function ServicesTasTajPageInner() {
   const services = useContentDoc<ServiceRow[]>("services");
   const fPage = useContentDoc<{ skills: FSkillRow[] }>("fPage");
+  const { openHireMeForService, openHireMe } = useHireMe();
 
   const offers = (services.data?.length ? services.data : fallbackOffers) as Array<
     Pick<ServiceRow, "id" | "title" | "description" | "icon">
@@ -158,9 +168,13 @@ export function ServicesTasTajPage() {
                         {s.description}
                       </p>
                     )}
-                    <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.2em] text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                      Learn more <ArrowRight className="w-3.5 h-3.5" />
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() => openHireMeForService(s.title)}
+                      className="mt-5 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.2em] text-primary hover:text-primary/80 transition-colors"
+                    >
+                      Start a project <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </motion.article>
               );
@@ -315,12 +329,13 @@ export function ServicesTasTajPage() {
             Share a few details and I'll reply with first thoughts within 24 hours.
           </p>
           <div className="relative mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              to="/contact"
+            <button
+              type="button"
+              onClick={() => openHireMe()}
               className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-bold hover:opacity-90 transition-opacity shadow-glow"
             >
               Start a project <ArrowRight className="w-4 h-4" />
-            </Link>
+            </button>
             <Link
               to="/projects"
               className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-bold hover:border-primary hover:text-primary transition-colors"

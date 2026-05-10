@@ -17,7 +17,18 @@ export const Route = createFileRoute("/manifest.webmanifest")({
 
         const name = s?.site_name || s?.site_title || "Portfolio";
         const themeColor = s?.theme_primary || "#0F172A";
-        const icon = s?.logo_url || s?.favicon_url || "/favicon.ico";
+        const adminIcon = s?.logo_url || s?.favicon_url || null;
+
+        // Bundled icons are the trusted base (correct sizes guaranteed).
+        // Admin-uploaded logo is added as an extra "any" icon when present —
+        // browsers fall back to bundled ones if it isn't actually square.
+        const icons: Array<{ src: string; sizes: string; type: string; purpose?: string }> = [
+          { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+          { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+        ];
+        if (adminIcon) {
+          icons.push({ src: adminIcon, sizes: "any", type: "image/png" });
+        }
 
         const manifest = {
           name,
@@ -26,12 +37,9 @@ export const Route = createFileRoute("/manifest.webmanifest")({
           scope: "/",
           display: "standalone",
           orientation: "portrait",
-          background_color: "#0F172A",
+          background_color: "#0F0E0C",
           theme_color: themeColor,
-          icons: [
-            { src: icon, sizes: "192x192", type: "image/png", purpose: "any maskable" },
-            { src: icon, sizes: "512x512", type: "image/png", purpose: "any maskable" },
-          ],
+          icons,
         };
 
         return new Response(JSON.stringify(manifest), {

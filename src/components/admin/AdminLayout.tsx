@@ -41,6 +41,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   slots: "Slots",
   ticker: "Ticker",
   pwa: "PWA & install",
+  theme: "Theme audit",
 };
 
 function labelize(seg: string) {

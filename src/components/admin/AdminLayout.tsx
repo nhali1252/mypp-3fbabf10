@@ -66,6 +66,7 @@ const groups: Group[] = [
       { to: "/admin/comments", label: "Comments", Icon: MessageSquare },
       { to: "/admin/audit", label: "Audit log", Icon: Shield },
       { to: "/admin/diagnostics", label: "Diagnostics", Icon: Activity },
+      { to: "/health", label: "Health", Icon: HeartPulse },
       { to: "/admin/env-import", label: "Env import", Icon: KeyRound },
       { to: "/admin/runtime", label: "Runtime", Icon: RefreshCw },
       { to: "/admin/media", label: "Media library", Icon: ImageIcon },

@@ -34,8 +34,17 @@ export type PageBlock = {
   sections: PageBlockSection[];
 };
 
-/** The 7 main pages from the public launcher, in canonical order. */
+/** The main pages from the public launcher, in canonical order. */
 export const PAGE_BLOCKS: PageBlock[] = [
+  {
+    slug: "home",
+    title: "Home (Launcher)",
+    description: "Hero, launcher cards, and the welcome quote.",
+    icon: "Home",
+    sections: [
+      { id: "quote", title: "Quote block", description: "Welcome quote shown above the footer on the launcher." },
+    ],
+  },
   {
     slug: "basic",
     title: "Basic Info",

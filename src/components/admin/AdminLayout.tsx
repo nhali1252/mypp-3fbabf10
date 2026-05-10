@@ -161,8 +161,8 @@ export default function AdminLayout() {
   );
 
   return (
-    <div className="min-h-screen flex bg-background">
-      <aside className="hidden lg:flex w-[260px] shrink-0 bg-foreground text-background flex-col p-4 sticky top-0 h-screen">
+    <div className="min-h-screen flex bg-muted/30">
+      <aside className="hidden lg:flex w-[260px] shrink-0 bg-foreground text-background flex-col p-4 sticky top-0 h-screen border-r border-foreground/20 shadow-xl">
         {sidebar}
       </aside>
 
@@ -185,9 +185,40 @@ export default function AdminLayout() {
         </div>
       )}
 
-      <main className="flex-1 p-4 sm:p-6 md:p-10 overflow-x-auto pt-[72px] lg:pt-6">
-        <Outlet />
-      </main>
+      <div className="flex-1 flex flex-col min-w-0 pt-[56px] lg:pt-0">
+        {/* Desktop top bar with breadcrumbs */}
+        <header className="hidden lg:flex sticky top-0 z-30 h-14 items-center justify-between gap-4 px-6 bg-background/90 backdrop-blur border-b border-border">
+          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm min-w-0">
+            <Link to="/admin" className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
+              <Home size={14} />
+            </Link>
+            {segments.map((s) => (
+              <div key={s.to} className="flex items-center gap-1.5 min-w-0">
+                <ChevronRight size={14} className="text-muted-foreground/50 shrink-0" />
+                {s.isLast ? (
+                  <span className="font-semibold text-foreground truncate">{s.label}</span>
+                ) : (
+                  <Link to={s.to} className="text-muted-foreground hover:text-foreground transition-colors truncate">
+                    {s.label}
+                  </Link>
+                )}
+              </div>
+            ))}
+          </nav>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <a href="/" target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-foreground transition-colors">
+              <ExternalLink size={13} /> View site
+            </a>
+          </div>
+        </header>
+
+        <main className="flex-1 p-4 sm:p-6 md:p-10 overflow-x-auto">
+          <div className="mb-6 hidden lg:block">
+            <h1 className="text-2xl font-black tracking-tight">{currentTitle}</h1>
+          </div>
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

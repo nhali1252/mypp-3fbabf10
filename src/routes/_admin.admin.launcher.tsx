@@ -98,6 +98,24 @@ function AdminLauncher() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  // Swap sort_order with the neighbour above/below — keeps reorder dead simple
+  // without bringing in a drag library on this admin route.
+  async function move(id: string, dir: -1 | 1) {
+    const list = data ?? [];
+    const idx = list.findIndex((c) => c.id === id);
+    const swap = idx + dir;
+    if (idx < 0 || swap < 0 || swap >= list.length) return;
+    const a = list[idx], b = list[swap];
+    const { error } = await (supabase as any).rpc("noop", {}).then(async () => {
+      const r1 = await (supabase as any).from("launcher_pages").update({ sort_order: b.sort_order }).eq("id", a.id);
+      const r2 = await (supabase as any).from("launcher_pages").update({ sort_order: a.sort_order }).eq("id", b.id);
+      return { error: r1.error ?? r2.error };
+    });
+    if (error) return toast.error(error.message);
+    refresh();
+    refreshPublic();
+  }
+
   return (
     <AdminPage
       title="Launcher pages"

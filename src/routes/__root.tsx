@@ -132,6 +132,7 @@ function RootComponent() {
         <MotionPrefProvider>
           <AuthProvider>
             <SiteHead />
+            <HeadingShimmerVars />
             <PageViewTracker />
             <PageLoader />
             <MaintenanceGate>

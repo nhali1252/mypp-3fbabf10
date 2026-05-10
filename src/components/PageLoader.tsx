@@ -180,24 +180,30 @@ export function PageLoader({
           <img
             src={settings.logo_url}
             alt=""
-            className="mb-4 h-12 w-12 md:h-14 md:w-14 rounded-2xl object-cover border border-white/10 shadow-glow"
+            className="page-loader-logo mb-4 h-12 w-12 md:h-14 md:w-14 rounded-2xl object-cover border border-white/10 shadow-glow"
           />
         ) : null}
 
-        <div className="font-serif-display italic text-4xl sm:text-5xl tracking-tight select-none">
-          <span className="bg-gradient-to-r from-[oklch(0.82_0.09_82)] to-[oklch(0.66_0.07_70)] bg-clip-text text-transparent">
+        <div className="page-loader-title font-serif-display italic text-4xl sm:text-5xl tracking-tight select-none">
+          <span className="page-loader-shimmer bg-gradient-to-r from-[oklch(0.82_0.09_82)] via-[oklch(0.95_0.05_85)] to-[oklch(0.66_0.07_70)] bg-clip-text text-transparent">
             {match.label || siteName}
           </span>
         </div>
 
         {tagline && (
-          <p className="mt-2 text-[9px] uppercase tracking-[0.34em] text-foreground/55">
+          <p className="page-loader-tagline mt-2 text-[9px] uppercase tracking-[0.34em] text-foreground/55">
             {tagline}
           </p>
         )}
 
-        <div className="mt-6 h-[2px] w-32 overflow-hidden rounded-full bg-white/8">
+        <div className="page-loader-track mt-6 h-[2px] w-32 overflow-hidden rounded-full bg-white/8">
           <div className="page-loader-bar h-full w-1/2 bg-gradient-to-r from-transparent via-[oklch(0.78_0.08_80)] to-transparent" />
+        </div>
+
+        <div className="page-loader-dots mt-5 flex items-center gap-1.5">
+          <span className="h-1 w-1 rounded-full bg-[oklch(0.78_0.08_80)]" style={{ animationDelay: "0ms" }} />
+          <span className="h-1 w-1 rounded-full bg-[oklch(0.78_0.08_80)]" style={{ animationDelay: "160ms" }} />
+          <span className="h-1 w-1 rounded-full bg-[oklch(0.78_0.08_80)]" style={{ animationDelay: "320ms" }} />
         </div>
       </div>
 
@@ -206,11 +212,61 @@ export function PageLoader({
           0% { transform: translateX(-120%); }
           100% { transform: translateX(260%); }
         }
+        @keyframes pageLoaderRise {
+          0% { opacity: 0; transform: translateY(14px) scale(0.96); filter: blur(6px); }
+          100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+        @keyframes pageLoaderFade {
+          0% { opacity: 0; transform: translateY(8px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pageLoaderShimmer {
+          0% { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        @keyframes pageLoaderGlowPulse {
+          0%, 100% { box-shadow: 0 0 0 0 oklch(0.78 0.08 80 / 0.0), 0 8px 28px -8px oklch(0.78 0.08 80 / 0.35); }
+          50% { box-shadow: 0 0 0 6px oklch(0.78 0.08 80 / 0.08), 0 12px 38px -8px oklch(0.78 0.08 80 / 0.55); }
+        }
+        @keyframes pageLoaderDot {
+          0%, 80%, 100% { opacity: 0.25; transform: translateY(0) scale(1); }
+          40% { opacity: 1; transform: translateY(-3px) scale(1.3); }
+        }
+        @keyframes pageLoaderTrackGrow {
+          0% { width: 0; opacity: 0; }
+          100% { width: 8rem; opacity: 1; }
+        }
         .page-loader-bar {
           animation: pageLoaderSlide 1.05s cubic-bezier(0.22,1,0.36,1) infinite;
         }
+        .page-loader-logo {
+          animation: pageLoaderRise 700ms cubic-bezier(0.22,1,0.36,1) both,
+                     pageLoaderGlowPulse 2.4s ease-in-out 700ms infinite;
+        }
+        .page-loader-title {
+          animation: pageLoaderRise 800ms cubic-bezier(0.22,1,0.36,1) 80ms both;
+        }
+        .page-loader-shimmer {
+          background-size: 200% auto;
+          animation: pageLoaderShimmer 3.2s linear infinite;
+        }
+        .page-loader-tagline {
+          animation: pageLoaderFade 700ms cubic-bezier(0.22,1,0.36,1) 320ms both;
+        }
+        .page-loader-track {
+          animation: pageLoaderTrackGrow 600ms cubic-bezier(0.22,1,0.36,1) 480ms both;
+        }
+        .page-loader-dots span {
+          animation: pageLoaderDot 1.2s ease-in-out infinite;
+        }
         @media (prefers-reduced-motion: reduce) {
-          .page-loader-bar { animation: none; }
+          .page-loader-bar,
+          .page-loader-logo,
+          .page-loader-title,
+          .page-loader-shimmer,
+          .page-loader-tagline,
+          .page-loader-track,
+          .page-loader-dots span { animation: none; }
         }
       `}</style>
     </div>

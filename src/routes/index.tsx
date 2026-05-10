@@ -524,17 +524,23 @@ function Launcher() {
               byLetter
             />
             <style>{`
-              h1 > span.bg-clip-text {
-                background-image: linear-gradient(110deg, var(--foreground) 0%, color-mix(in oklab, var(--primary) 80%, var(--foreground)) 60%, var(--primary) 100%);
+              h1 > span.bg-clip-text,
+              h1 > span.bg-clip-text > span {
+                background-image: var(--gradient-gold, linear-gradient(110deg, var(--foreground) 0%, color-mix(in oklab, var(--primary) 80%, var(--foreground)) 50%, var(--primary) 100%));
                 background-size: 200% 100%;
-                animation: heroShimmer 6s ease-in-out 1.2s infinite;
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+                -webkit-text-fill-color: transparent;
+                animation: heroShimmer 4.5s ease-in-out 1.2s infinite;
               }
               @keyframes heroShimmer {
                 0%, 100% { background-position: 0% 50%; }
                 50% { background-position: 100% 50%; }
               }
               @media (prefers-reduced-motion: reduce) {
-                h1 > span.bg-clip-text { animation: none; }
+                h1 > span.bg-clip-text,
+                h1 > span.bg-clip-text > span { animation: none; }
               }
             `}</style>
           </h1>

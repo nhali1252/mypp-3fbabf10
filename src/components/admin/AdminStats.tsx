@@ -38,15 +38,19 @@ async function countSince(table: string, since: Date) {
   return c ?? 0;
 }
 
+type DayPoint = { day: string; views: number };
+
 export function AdminStats() {
   const [s, setS] = useState<Stats | null>(null);
   const [topPages, setTopPages] = useState<{ path: string; views: number }[]>([]);
+  const [series, setSeries] = useState<DayPoint[]>([]);
 
   useEffect(() => {
     (async () => {
       const now = Date.now();
       const d7 = new Date(now - 7 * 86400_000);
       const d30 = new Date(now - 30 * 86400_000);
+      const d14 = new Date(now - 14 * 86400_000);
 
       const [
         messagesTotal, messagesUnread,
@@ -54,6 +58,7 @@ export function AdminStats() {
         portfolioItems, projects, folders,
         views7d, views30d,
         recent,
+        last14,
       ] = await Promise.all([
         count("messages"),
         count("messages", { is_read: false }),
@@ -69,6 +74,11 @@ export function AdminStats() {
           .select("path")
           .gte("created_at", d30.toISOString())
           .limit(1000),
+        supabase
+          .from("page_views")
+          .select("created_at")
+          .gte("created_at", d14.toISOString())
+          .limit(10000),
       ]);
 
       const tally = new Map<string, number>();
@@ -80,6 +90,21 @@ export function AdminStats() {
         .slice(0, 5)
         .map(([path, views]) => ({ path, views }));
 
+      // Build a contiguous 14-day series (oldest → newest)
+      const buckets = new Map<string, number>();
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date(now - i * 86400_000);
+        buckets.set(d.toISOString().slice(0, 10), 0);
+      }
+      for (const r of (last14.data ?? []) as { created_at: string }[]) {
+        const k = r.created_at.slice(0, 10);
+        if (buckets.has(k)) buckets.set(k, (buckets.get(k) ?? 0) + 1);
+      }
+      const points: DayPoint[] = Array.from(buckets.entries()).map(([k, v]) => ({
+        day: k.slice(5), // MM-DD
+        views: v,
+      }));
+
       setS({
         messagesTotal, messagesUnread,
         reactions, comments,
@@ -87,6 +112,7 @@ export function AdminStats() {
         views7d, views30d,
       });
       setTopPages(top);
+      setSeries(points);
     })();
   }, []);
 
@@ -122,6 +148,61 @@ export function AdminStats() {
           </div>
         ))}
       </div>
+
+      {series.length > 0 && (
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              Page views — last 14 days
+            </div>
+            <div className="text-[11px] text-muted-foreground tabular-nums">
+              {series.reduce((a, b) => a + b.views, 0).toLocaleString()} total
+            </div>
+          </div>
+          <div className="h-48 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={series} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="viewsFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.45} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis
+                  dataKey="day"
+                  tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  allowDecimals={false}
+                  tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={32}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: "hsl(var(--popover))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: 8,
+                    fontSize: 12,
+                  }}
+                  labelStyle={{ color: "hsl(var(--muted-foreground))" }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="views"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={2}
+                  fill="url(#viewsFill)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
 
       {topPages.length > 0 && (
         <div className="rounded-2xl border border-border bg-card p-4">

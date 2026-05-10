@@ -253,6 +253,16 @@ function AdminSettings() {
               />
             </label>
           </FormRow>
+          <FormRow
+            label="Default watermark text"
+            hint="Shown as an overlay on portfolio sample images. Leave empty to disable. Per-item watermark overrides this."
+          >
+            <Input
+              value={form.watermark_text || ""}
+              onChange={(e) => set("watermark_text", e.target.value)}
+              placeholder="© Ali Nur Hasan"
+            />
+          </FormRow>
         </div>
       </AdminCard>
 

@@ -54,26 +54,14 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Ali Nur Hasan — BBA Marketing Student Portfolio" },
-      {
-        name: "description",
-        content:
-          "BBA 3rd-Year Marketing student at Habibullah Bahar College (National University). Portfolio of academic work, skills, and activities.",
-      },
       { name: "author", content: "Ali Nur Hasan" },
-      { property: "og:title", content: "Ali Nur Hasan — BBA Marketing Student Portfolio" },
-      {
-        property: "og:description",
-        content: "Portfolio of academic work, skills, and activities.",
-      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Ali Nur Hasan — BBA Marketing Student Portfolio" },
-      { name: "description", content: "MY-V7 is a portfolio website application that allows users to manage and display their projects and personal information." },
-      { property: "og:description", content: "MY-V7 is a portfolio website application that allows users to manage and display their projects and personal information." },
-      { name: "twitter:description", content: "MY-V7 is a portfolio website application that allows users to manage and display their projects and personal information." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8064b1d7-871a-477a-b618-87007df00f10/id-preview-5772792c--7987935c-76fc-4499-851e-e85dd50daeb6.lovable.app-1776791998407.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8064b1d7-871a-477a-b618-87007df00f10/id-preview-5772792c--7987935c-76fc-4499-851e-e85dd50daeb6.lovable.app-1776791998407.png" },
+      // Note: per-route head() supplies title, description, og:title,
+      // og:description, og:image, twitter:title, twitter:description,
+      // twitter:image via buildSeoMeta(). Don't add fallbacks here —
+      // root meta is concatenated into every match and would override
+      // leaf og:image for routes that don't set their own.
     ],
     links: [
       { rel: "stylesheet", href: appCss },

@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { ShimmerSpeedToggle } from "@/components/ShimmerSpeedToggle";
 
 const items = [
   { to: "/basic" as const, label: "Basic" },

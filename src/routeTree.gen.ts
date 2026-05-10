@@ -49,6 +49,7 @@ import { Route as AdminAdminMessagesRouteImport } from './routes/_admin.admin.me
 import { Route as AdminAdminMediaRouteImport } from './routes/_admin.admin.media'
 import { Route as AdminAdminLauncherRouteImport } from './routes/_admin.admin.launcher'
 import { Route as AdminAdminHeroRouteImport } from './routes/_admin.admin.hero'
+import { Route as AdminAdminHeadingShimmerRouteImport } from './routes/_admin.admin.heading-shimmer'
 import { Route as AdminAdminFooterCtaRouteImport } from './routes/_admin.admin.footer-cta'
 import { Route as AdminAdminFooterAppsRouteImport } from './routes/_admin.admin.footer-apps'
 import { Route as AdminAdminFoldersRouteImport } from './routes/_admin.admin.folders'
@@ -268,6 +269,12 @@ const AdminAdminHeroRoute = AdminAdminHeroRouteImport.update({
   path: '/admin/hero',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminHeadingShimmerRoute =
+  AdminAdminHeadingShimmerRouteImport.update({
+    id: '/admin/heading-shimmer',
+    path: '/admin/heading-shimmer',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const AdminAdminFooterCtaRoute = AdminAdminFooterCtaRouteImport.update({
   id: '/admin/footer-cta',
   path: '/admin/footer-cta',
@@ -400,6 +407,7 @@ export interface FileRoutesByFullPath {
   '/admin/folders': typeof AdminAdminFoldersRoute
   '/admin/footer-apps': typeof AdminAdminFooterAppsRoute
   '/admin/footer-cta': typeof AdminAdminFooterCtaRoute
+  '/admin/heading-shimmer': typeof AdminAdminHeadingShimmerRoute
   '/admin/hero': typeof AdminAdminHeroRoute
   '/admin/launcher': typeof AdminAdminLauncherRoute
   '/admin/media': typeof AdminAdminMediaRoute
@@ -460,6 +468,7 @@ export interface FileRoutesByTo {
   '/admin/folders': typeof AdminAdminFoldersRoute
   '/admin/footer-apps': typeof AdminAdminFooterAppsRoute
   '/admin/footer-cta': typeof AdminAdminFooterCtaRoute
+  '/admin/heading-shimmer': typeof AdminAdminHeadingShimmerRoute
   '/admin/hero': typeof AdminAdminHeroRoute
   '/admin/launcher': typeof AdminAdminLauncherRoute
   '/admin/media': typeof AdminAdminMediaRoute
@@ -522,6 +531,7 @@ export interface FileRoutesById {
   '/_admin/admin/folders': typeof AdminAdminFoldersRoute
   '/_admin/admin/footer-apps': typeof AdminAdminFooterAppsRoute
   '/_admin/admin/footer-cta': typeof AdminAdminFooterCtaRoute
+  '/_admin/admin/heading-shimmer': typeof AdminAdminHeadingShimmerRoute
   '/_admin/admin/hero': typeof AdminAdminHeroRoute
   '/_admin/admin/launcher': typeof AdminAdminLauncherRoute
   '/_admin/admin/media': typeof AdminAdminMediaRoute
@@ -584,6 +594,7 @@ export interface FileRouteTypes {
     | '/admin/folders'
     | '/admin/footer-apps'
     | '/admin/footer-cta'
+    | '/admin/heading-shimmer'
     | '/admin/hero'
     | '/admin/launcher'
     | '/admin/media'
@@ -644,6 +655,7 @@ export interface FileRouteTypes {
     | '/admin/folders'
     | '/admin/footer-apps'
     | '/admin/footer-cta'
+    | '/admin/heading-shimmer'
     | '/admin/hero'
     | '/admin/launcher'
     | '/admin/media'
@@ -705,6 +717,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/folders'
     | '/_admin/admin/footer-apps'
     | '/_admin/admin/footer-cta'
+    | '/_admin/admin/heading-shimmer'
     | '/_admin/admin/hero'
     | '/_admin/admin/launcher'
     | '/_admin/admin/media'
@@ -1044,6 +1057,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminHeroRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/heading-shimmer': {
+      id: '/_admin/admin/heading-shimmer'
+      path: '/admin/heading-shimmer'
+      fullPath: '/admin/heading-shimmer'
+      preLoaderRoute: typeof AdminAdminHeadingShimmerRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/footer-cta': {
       id: '/_admin/admin/footer-cta'
       path: '/admin/footer-cta'
@@ -1194,6 +1214,7 @@ interface AdminRouteChildren {
   AdminAdminFoldersRoute: typeof AdminAdminFoldersRoute
   AdminAdminFooterAppsRoute: typeof AdminAdminFooterAppsRoute
   AdminAdminFooterCtaRoute: typeof AdminAdminFooterCtaRoute
+  AdminAdminHeadingShimmerRoute: typeof AdminAdminHeadingShimmerRoute
   AdminAdminHeroRoute: typeof AdminAdminHeroRoute
   AdminAdminLauncherRoute: typeof AdminAdminLauncherRoute
   AdminAdminMediaRoute: typeof AdminAdminMediaRoute
@@ -1230,6 +1251,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminFoldersRoute: AdminAdminFoldersRoute,
   AdminAdminFooterAppsRoute: AdminAdminFooterAppsRoute,
   AdminAdminFooterCtaRoute: AdminAdminFooterCtaRoute,
+  AdminAdminHeadingShimmerRoute: AdminAdminHeadingShimmerRoute,
   AdminAdminHeroRoute: AdminAdminHeroRoute,
   AdminAdminLauncherRoute: AdminAdminLauncherRoute,
   AdminAdminMediaRoute: AdminAdminMediaRoute,

@@ -690,6 +690,36 @@ export type Database = {
         }
         Relationships: []
       }
+      heading_shimmer_settings: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          intensity: number
+          speed_ms: number
+          sweep_size: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          intensity?: number
+          speed_ms?: number
+          sweep_size?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          intensity?: number
+          speed_ms?: number
+          sweep_size?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       hero_content: {
         Row: {
           backdrop_name: string | null

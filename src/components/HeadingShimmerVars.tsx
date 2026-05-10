@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useLocation } from "@tanstack/react-router";
-import { useHeadingShimmer, resolveShimmerForPath } from "@/hooks/useHeadingShimmer";
+import { useHeadingShimmer, resolveShimmerForPath, isShimmerPathDisabled } from "@/hooks/useHeadingShimmer";
 import { useShimmerSpeedPref } from "@/hooks/useShimmerSpeedPref";
 import { contrastRatio } from "@/lib/contrast";
 

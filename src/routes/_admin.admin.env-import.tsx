@@ -179,7 +179,29 @@ function EnvImportPage() {
                       </td>
                       <td className="px-3 py-1.5 text-muted-foreground">{v.length || "—"}</td>
                       <td className="px-3 py-1.5 font-mono text-xs text-muted-foreground">
-                        {v.fingerprint ?? "—"}
+                        {v.fingerprint ? (
+                          <div className="flex items-center gap-1.5">
+                            <span>{v.fingerprint}</span>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                try {
+                                  await navigator.clipboard.writeText(v.fingerprint!);
+                                  toast.success(`Copied fingerprint for ${v.name}`);
+                                } catch {
+                                  toast.error("Copy failed");
+                                }
+                              }}
+                              className="inline-flex items-center justify-center h-6 w-6 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                              aria-label={`Copy fingerprint for ${v.name}`}
+                              title="Copy fingerprint"
+                            >
+                              <Copy className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          "—"
+                        )}
                       </td>
                     </tr>
                   ))}

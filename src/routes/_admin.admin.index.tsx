@@ -18,7 +18,7 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   ShieldCheck, ShieldAlert, ClipboardCheck, ArrowRight, Inbox,
   Sparkles, User, FolderOpen, Layers, Briefcase, Mail, Star,
-  Plus, ChevronDown, ChevronUp,
+  Plus, ChevronDown, ChevronUp, Database,
 } from "lucide-react";
 import { PAGE_BLOCKS, type PageBlock } from "@/admin/page-blocks";
 import { AdminStats } from "@/components/admin/AdminStats";
@@ -107,6 +107,12 @@ function AdminDashboard() {
             className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:border-primary/40"
           >
             <ClipboardCheck className="h-3.5 w-3.5" /> Checklist
+          </Link>
+          <Link
+            to="/admin/backup"
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:border-primary/40"
+          >
+            <Database className="h-3.5 w-3.5" /> Backup
           </Link>
         </div>
       </header>

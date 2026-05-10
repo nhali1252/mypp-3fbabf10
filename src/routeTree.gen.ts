@@ -52,6 +52,7 @@ import { Route as AdminAdminDiagnosticsRouteImport } from './routes/_admin.admin
 import { Route as AdminAdminContactRouteImport } from './routes/_admin.admin.contact'
 import { Route as AdminAdminCommentsRouteImport } from './routes/_admin.admin.comments'
 import { Route as AdminAdminChecklistRouteImport } from './routes/_admin.admin.checklist'
+import { Route as AdminAdminBackupRouteImport } from './routes/_admin.admin.backup'
 import { Route as AdminAdminAuditRouteImport } from './routes/_admin.admin.audit'
 import { Route as AdminAdminActivitiesRouteImport } from './routes/_admin.admin.activities'
 import { Route as AdminAdminAboutRouteImport } from './routes/_admin.admin.about'
@@ -276,6 +277,11 @@ const AdminAdminChecklistRoute = AdminAdminChecklistRouteImport.update({
   path: '/admin/checklist',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminBackupRoute = AdminAdminBackupRouteImport.update({
+  id: '/admin/backup',
+  path: '/admin/backup',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAdminAuditRoute = AdminAdminAuditRouteImport.update({
   id: '/admin/audit',
   path: '/admin/audit',
@@ -344,6 +350,7 @@ export interface FileRoutesByFullPath {
   '/admin/about': typeof AdminAdminAboutRoute
   '/admin/activities': typeof AdminAdminActivitiesRoute
   '/admin/audit': typeof AdminAdminAuditRoute
+  '/admin/backup': typeof AdminAdminBackupRoute
   '/admin/checklist': typeof AdminAdminChecklistRoute
   '/admin/comments': typeof AdminAdminCommentsRoute
   '/admin/contact': typeof AdminAdminContactRoute
@@ -397,6 +404,7 @@ export interface FileRoutesByTo {
   '/admin/about': typeof AdminAdminAboutRoute
   '/admin/activities': typeof AdminAdminActivitiesRoute
   '/admin/audit': typeof AdminAdminAuditRoute
+  '/admin/backup': typeof AdminAdminBackupRoute
   '/admin/checklist': typeof AdminAdminChecklistRoute
   '/admin/comments': typeof AdminAdminCommentsRoute
   '/admin/contact': typeof AdminAdminContactRoute
@@ -452,6 +460,7 @@ export interface FileRoutesById {
   '/_admin/admin/about': typeof AdminAdminAboutRoute
   '/_admin/admin/activities': typeof AdminAdminActivitiesRoute
   '/_admin/admin/audit': typeof AdminAdminAuditRoute
+  '/_admin/admin/backup': typeof AdminAdminBackupRoute
   '/_admin/admin/checklist': typeof AdminAdminChecklistRoute
   '/_admin/admin/comments': typeof AdminAdminCommentsRoute
   '/_admin/admin/contact': typeof AdminAdminContactRoute
@@ -507,6 +516,7 @@ export interface FileRouteTypes {
     | '/admin/about'
     | '/admin/activities'
     | '/admin/audit'
+    | '/admin/backup'
     | '/admin/checklist'
     | '/admin/comments'
     | '/admin/contact'
@@ -560,6 +570,7 @@ export interface FileRouteTypes {
     | '/admin/about'
     | '/admin/activities'
     | '/admin/audit'
+    | '/admin/backup'
     | '/admin/checklist'
     | '/admin/comments'
     | '/admin/contact'
@@ -614,6 +625,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/about'
     | '/_admin/admin/activities'
     | '/_admin/admin/audit'
+    | '/_admin/admin/backup'
     | '/_admin/admin/checklist'
     | '/_admin/admin/comments'
     | '/_admin/admin/contact'
@@ -977,6 +989,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminChecklistRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/backup': {
+      id: '/_admin/admin/backup'
+      path: '/admin/backup'
+      fullPath: '/admin/backup'
+      preLoaderRoute: typeof AdminAdminBackupRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/audit': {
       id: '/_admin/admin/audit'
       path: '/admin/audit'
@@ -1047,6 +1066,7 @@ interface AdminRouteChildren {
   AdminAdminAboutRoute: typeof AdminAdminAboutRoute
   AdminAdminActivitiesRoute: typeof AdminAdminActivitiesRoute
   AdminAdminAuditRoute: typeof AdminAdminAuditRoute
+  AdminAdminBackupRoute: typeof AdminAdminBackupRoute
   AdminAdminChecklistRoute: typeof AdminAdminChecklistRoute
   AdminAdminCommentsRoute: typeof AdminAdminCommentsRoute
   AdminAdminContactRoute: typeof AdminAdminContactRoute
@@ -1080,6 +1100,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminAboutRoute: AdminAdminAboutRoute,
   AdminAdminActivitiesRoute: AdminAdminActivitiesRoute,
   AdminAdminAuditRoute: AdminAdminAuditRoute,
+  AdminAdminBackupRoute: AdminAdminBackupRoute,
   AdminAdminChecklistRoute: AdminAdminChecklistRoute,
   AdminAdminCommentsRoute: AdminAdminCommentsRoute,
   AdminAdminContactRoute: AdminAdminContactRoute,

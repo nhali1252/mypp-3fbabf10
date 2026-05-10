@@ -106,12 +106,12 @@ function AdminLauncher() {
     const swap = idx + dir;
     if (idx < 0 || swap < 0 || swap >= list.length) return;
     const a = list[idx], b = list[swap];
-    const { error } = await (supabase as any).rpc("noop", {}).then(async () => {
-      const r1 = await (supabase as any).from("launcher_pages").update({ sort_order: b.sort_order }).eq("id", a.id);
-      const r2 = await (supabase as any).from("launcher_pages").update({ sort_order: a.sort_order }).eq("id", b.id);
-      return { error: r1.error ?? r2.error };
-    });
-    if (error) return toast.error(error.message);
+    const [r1, r2] = await Promise.all([
+      (supabase as any).from("launcher_pages").update({ sort_order: b.sort_order }).eq("id", a.id),
+      (supabase as any).from("launcher_pages").update({ sort_order: a.sort_order }).eq("id", b.id),
+    ]);
+    const err = r1.error ?? r2.error;
+    if (err) return toast.error(err.message);
     refresh();
     refreshPublic();
   }

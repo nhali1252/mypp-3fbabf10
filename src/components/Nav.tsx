@@ -60,10 +60,17 @@ export function Nav({ showHireMe = true }: { showHireMe?: boolean } = {}) {
           <li key={l.id} className="relative group">
             <a
               href={l.url}
-              className="relative transition-colors hover:text-foreground py-1"
+              className="relative inline-block py-1 transition-all duration-300 ease-out text-muted-foreground group-hover:text-foreground group-hover:-translate-y-0.5 will-change-transform"
             >
-              {l.label}
-              <span className="absolute left-0 -bottom-0.5 h-[2px] w-full bg-primary origin-left scale-x-0 transition-transform duration-300 ease-out group-hover:scale-x-100" />
+              <span className="relative z-10">{l.label}</span>
+              <span
+                aria-hidden
+                className="pointer-events-none absolute left-0 -bottom-1 h-[2px] w-full origin-left scale-x-0 rounded-full bg-gradient-to-r from-primary via-primary to-primary/40 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-100"
+              />
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-x-2 -bottom-1 h-3 rounded-full bg-primary/30 blur-md opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+              />
             </a>
           </li>
         ))}

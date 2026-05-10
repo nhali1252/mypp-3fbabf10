@@ -26,6 +26,7 @@ type PItem = {
   external_url: string | null;
   tags: string[];
   sort_order: number;
+  watermark_text?: string | null;
 };
 
 export function PortfolioPage() {

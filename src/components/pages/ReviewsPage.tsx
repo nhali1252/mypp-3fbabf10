@@ -40,6 +40,9 @@ export function ReviewsPage() {
   const [hoverStar, setHoverStar] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
+  const site = useSiteSettings("B");
+  const showReviews = isSectionVisible(site, "reviews", true);
+
   const { data: rawReviews, isLoading } = useContentDoc<any[]>("reviews");
   const reviews: Review[] = (rawReviews ?? [])
     .filter((r) => r.published !== false)

@@ -311,6 +311,38 @@
     strong, b { animation: none; }
   }
 
+  /* ── Global gold shimmer for section headings (h2/h3) ─────────── */
+  /* Applies site-wide so every section title gets the same animated
+     gold treatment as the hero "Pick a page" line. Excluded inside
+     admin chrome and any element opting out via .no-shimmer. */
+  h2,
+  h3 {
+    background-image: var(--gradient-gold);
+    background-size: 200% 100%;
+    background-position: 0% 50%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: goldShimmer 4.5s ease-in-out infinite;
+    will-change: background-position;
+  }
+  /* Opt-out: admin chrome, interactive controls, and explicit no-shimmer */
+  [data-admin] h2, [data-admin] h3,
+  button h2, button h3,
+  .no-shimmer h2, .no-shimmer h3,
+  h2.no-shimmer, h3.no-shimmer {
+    background-image: none;
+    -webkit-background-clip: initial;
+    background-clip: initial;
+    color: inherit;
+    -webkit-text-fill-color: currentColor;
+    animation: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    h2, h3 { animation: none; }
+  }
+
   /* Smoother skeleton shimmer (drop-in replacement for animate-pulse) */
   .skeleton-shimmer {
     position: relative;

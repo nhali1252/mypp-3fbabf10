@@ -200,7 +200,7 @@ type LauncherHero = {
 const HERO_FALLBACK: LauncherHero = {
   eyebrow: "Portfolio · TasTaj",
   headline_top: "Pick a page",
-  headline_bottom: "to explore.",
+  headline_bottom: "to explore more.",
   intro:
     "A curated launcher for Ali Nur Hasan's portfolio. Each card opens an independent page — managed and editable from the admin panel.",
 };

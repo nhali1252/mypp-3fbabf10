@@ -324,19 +324,29 @@ function Launcher() {
   const [manualSplash, setManualSplash] = useState(false);
   const [splashDismissed, setSplashDismissed] = useState(false);
 
-  const handleRefresh = async () => {
-    setSplashDismissed(false);
-    setManualSplash(true);
+  // First-visit welcome splash: only true if this session hasn't seen it yet.
+  // Decided once on mount to avoid hydration churn.
+  const [firstSplash, setFirstSplash] = useState(false);
+  const [minSplashElapsed, setMinSplashElapsed] = useState(false);
+
+  useEffect(() => {
+    let isFirst = false;
     try {
-      await Promise.all([
-        refetch(),
-        queryClient.invalidateQueries({ queryKey: ["content"] }),
-      ]);
-    } finally {
-      // Keep the splash visible briefly so the transition feels intentional.
-      setTimeout(() => setManualSplash(false), 900);
+      if (sessionStorage.getItem("welcomeSplash.seen") !== "1") {
+        isFirst = true;
+        sessionStorage.setItem("welcomeSplash.seen", "1");
+      }
+    } catch {
+      /* ignore */
     }
-  };
+    if (!isFirst) {
+      setMinSplashElapsed(true);
+      return;
+    }
+    setFirstSplash(true);
+    const t = setTimeout(() => setMinSplashElapsed(true), 1600);
+    return () => clearTimeout(t);
+  }, []);
 
   // Validate the raw payload at runtime. Malformed docs collapse to a
   // safe empty doc so the UI keeps rendering instead of crashing.
@@ -346,6 +356,29 @@ function Launcher() {
   // prefetch returned null AND the client query is still resolving.
   const hasRealData = rawDoc != null;
   const showSkeleton = !hasRealData && (isLoading || isFetching);
+
+  // Hold the welcome splash up until BOTH (a) the min duration is up AND
+  // (b) data is no longer loading. This kills the "splash → skeleton →
+  // cards" double-flicker.
+  useEffect(() => {
+    if (!firstSplash) return;
+    if (minSplashElapsed && !showSkeleton) {
+      setFirstSplash(false);
+    }
+  }, [firstSplash, minSplashElapsed, showSkeleton]);
+
+  const handleRefresh = async () => {
+    setSplashDismissed(false);
+    setManualSplash(true);
+    try {
+      await Promise.all([
+        refetch(),
+        queryClient.invalidateQueries({ queryKey: ["content"] }),
+      ]);
+    } finally {
+      setTimeout(() => setManualSplash(false), 600);
+    }
+  };
 
   // Surface fallback usage in the browser console so it's obvious why a
   // user is seeing the default cards instead of their admin-managed ones.
@@ -369,12 +402,13 @@ function Launcher() {
   const showLauncherCards = isSectionVisible(siteSettings, "launcher_cards", true);
   const showHero = isSectionVisible(siteSettings, "hero", true);
 
-  // Decide which splash variant (if any) is currently active.
+  // Decide which splash variant (if any) is currently active. Error/empty
+  // win over loading so failures are surfaced even if data has streamed in.
   const splashStatus: "loading" | "error" | "empty" | null = isError
     ? "error"
     : !showSkeleton && hasRealData && launcherDoc.pages.length === 0
       ? "empty"
-      : manualSplash
+      : firstSplash || manualSplash
         ? "loading"
         : null;
   const splashVisible = !splashDismissed && splashStatus !== null;
@@ -382,7 +416,7 @@ function Launcher() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-hidden">
       <WelcomeSplash
-        show={splashVisible || undefined}
+        show={splashVisible}
         status={splashStatus ?? "loading"}
         errorMessage={error instanceof Error ? error.message : undefined}
         onRetry={splashStatus === "error" || splashStatus === "empty" ? handleRefresh : undefined}

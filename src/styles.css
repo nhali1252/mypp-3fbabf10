@@ -366,6 +366,85 @@
   }
   .link-underline:hover::after { transform: scaleX(1); transform-origin: left center; }
 
+  /* ── Premium hover micro-interactions ──────────────────────────────── */
+
+  /* Light sweep across a surface on hover (call-to-action cards, buttons) */
+  .shine {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .shine::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 30%,
+      color-mix(in oklab, var(--foreground) 14%, transparent) 50%,
+      transparent 70%
+    );
+    transform: translateX(-120%);
+    transition: transform 0.9s var(--ease-smooth);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .shine:hover::before { transform: translateX(120%); }
+
+  /* Icon nudge when its parent card/button is hovered */
+  .group:hover .icon-pop,
+  .icon-pop-host:hover .icon-pop {
+    transform: translateX(2px) scale(1.05);
+  }
+  .icon-pop {
+    transition: transform var(--dur-base) var(--ease-smooth);
+    will-change: transform;
+  }
+
+  /* Soft warm halo behind a card on hover */
+  .card-glow {
+    position: relative;
+    transition: transform var(--dur-base) var(--ease-smooth),
+                box-shadow var(--dur-slow) var(--ease-smooth);
+  }
+  .card-glow::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: radial-gradient(
+      120% 80% at 50% 0%,
+      color-mix(in oklab, var(--primary) 24%, transparent),
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity var(--dur-slow) var(--ease-smooth);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .card-glow > * { position: relative; z-index: 1; }
+  .card-glow:hover { transform: translateY(-3px); box-shadow: var(--shadow-elevated); }
+  .card-glow:hover::before { opacity: 1; }
+
+  /* Tactile press for non-button clickables (chips, list items, tags) */
+  .tap-feedback {
+    transition: transform 140ms var(--ease-smooth),
+                background-color var(--dur-base) var(--ease-smooth);
+    will-change: transform;
+  }
+  .tap-feedback:active { transform: scale(0.97); transition-duration: 70ms; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shine::before,
+    .icon-pop,
+    .card-glow,
+    .card-glow::before,
+    .tap-feedback {
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+
   /* Refined entrance animations — all share one easing language */
   .anim-fade-up { animation: fadeUp var(--dur-slow) var(--ease-smooth) both; }
   .anim-fade-in { animation: fadeIn var(--dur-slow) var(--ease-smooth) both; }

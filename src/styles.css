@@ -301,9 +301,10 @@
     transition: transform var(--dur-base) var(--ease-smooth),
                 box-shadow var(--dur-base) var(--ease-smooth),
                 border-color var(--dur-base) var(--ease-smooth);
-    will-change: transform;
   }
-  .hover-lift:hover { transform: translateY(-3px); box-shadow: var(--shadow-elevated); }
+  /* will-change is hint memory; only promote on hover/focus, not always */
+  .hover-lift:hover,
+  .hover-lift:focus-visible { will-change: transform; transform: translateY(-3px); box-shadow: var(--shadow-elevated); }
   .hover-lift:active { transform: translateY(-1px); transition-duration: 90ms; }
 
   /* Crisp tactile press for buttons */

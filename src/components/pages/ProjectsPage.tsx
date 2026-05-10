@@ -192,13 +192,13 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
         )}
 
         {(project.live_url || project.github_url) && (
-          <div className="flex flex-wrap gap-2.5 pt-1">
+          <div className="flex flex-wrap gap-2 sm:gap-2.5 pt-1">
             {project.live_url && (
               <a
                 href={project.live_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-xs font-bold hover:opacity-90 transition-opacity"
+                className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-primary text-primary-foreground px-3.5 sm:px-4 py-1.5 sm:py-2 text-[11.5px] sm:text-xs font-bold hover:opacity-90 transition-opacity"
               >
                 <ExternalLink className="w-3.5 h-3.5" /> Live demo
               </a>
@@ -208,7 +208,7 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
                 href={project.github_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-xs font-bold hover:border-primary hover:text-primary transition-colors"
+                className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-border px-3.5 sm:px-4 py-1.5 sm:py-2 text-[11.5px] sm:text-xs font-bold hover:border-primary hover:text-primary transition-colors"
               >
                 <Github className="w-3.5 h-3.5" /> Source
               </a>

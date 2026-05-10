@@ -14,8 +14,28 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AdminPage, AdminCard } from "@/components/admin/AdminPage";
-import { Palette, Layers, Sparkles, Sun, Moon, Copy, Check } from "lucide-react";
+import { Palette, Layers, Sparkles, Sun, Moon, Copy, Check, ShieldCheck } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
+import { contrastRatio, gradeContrast, gradeStyle } from "@/lib/contrast";
+
+/**
+ * Text/background pairs that actually appear on public pages. Each pair is
+ * graded against WCAG 2.1 ratios. Pairs marked `large` use ≥18pt / ≥14pt bold
+ * thresholds (3:1 AA, 4.5:1 AAA) — appropriate for hero headings.
+ */
+const CONTRAST_PAIRS: Array<{ label: string; fg: string; bg: string; large?: boolean; note?: string }> = [
+  { label: "Body text on background", fg: "var(--foreground)", bg: "var(--background)" },
+  { label: "Body text on card", fg: "var(--foreground)", bg: "var(--card)" },
+  { label: "Muted text on background", fg: "var(--muted-foreground)", bg: "var(--background)" },
+  { label: "Muted text on card", fg: "var(--muted-foreground)", bg: "var(--card)" },
+  { label: "Primary accent text on background", fg: "var(--primary)", bg: "var(--background)", note: "Italic gold accents (\"people\", \"folder\", \"build\")" },
+  { label: "Primary accent text on card", fg: "var(--primary)", bg: "var(--card)" },
+  { label: "Hero accent (large text)", fg: "var(--primary)", bg: "var(--background)", large: true, note: "Headings ≥18pt or ≥14pt bold" },
+  { label: "Primary button label on primary", fg: "var(--primary-foreground)", bg: "var(--primary)" },
+  { label: "Secondary button label", fg: "var(--secondary-foreground)", bg: "var(--secondary)" },
+  { label: "Destructive button label", fg: "var(--destructive-foreground)", bg: "var(--destructive)" },
+  { label: "Destructive text on background", fg: "var(--destructive)", bg: "var(--background)" },
+];
 
 export const Route = createFileRoute("/_admin/admin/theme")({
   component: AdminThemePage,

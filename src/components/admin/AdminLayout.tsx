@@ -71,6 +71,7 @@ const groups: Group[] = [
       { to: "/admin/media", label: "Media library", Icon: ImageIcon },
       { to: "/admin/users", label: "Users", Icon: Users },
       { to: "/admin/pwa", label: "PWA & install", Icon: Smartphone },
+      { to: "/admin/theme", label: "Theme audit", Icon: Palette },
       { to: "/admin/settings", label: "Site settings", Icon: Settings },
     ],
   },

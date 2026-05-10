@@ -21,6 +21,8 @@ export function Footer() {
   const { data: apps = [] } = useFooterApps();
   const { data: ctaData } = useFooterCta();
   const cta = ctaData ?? FOOTER_CTA_DEFAULTS;
+  const publicSite = usePublicSiteSettings("B");
+  const showFooterCta = isSectionVisible(publicSite, "footer_cta", true);
   const social = (contact?.social_links as SocialMap | undefined) ?? {};
   const reduce = useReducedMotion();
   const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -85,7 +87,7 @@ export function Footer() {
       )}
 
       {/* Permanent "Start a project" CTA — appears on every page, just above the credit line */}
-      {cta.active && (
+      {showFooterCta && cta.active && (
         <div className="relative mb-6">
           <div className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-5 sm:p-6 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
             <div className="min-w-0">

@@ -1,9 +1,11 @@
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { useFooterLinks, useSiteSettings, useContactSettings, useFooterApps } from "@/hooks/useContent";
 import { useFooterCta, FOOTER_CTA_DEFAULTS } from "@/hooks/useFooterCta";
 import { useSiteSettings as usePublicSiteSettings, isSectionVisible } from "@/hooks/useSiteSettings";
 import { motion, useReducedMotion } from "framer-motion";
 import { SocialIcons, type SocialMap } from "./SocialIcons";
+import { HireMeModal } from "./HireMeModal";
 import { ArrowUpRight, AppWindow, Mail, Phone, MessageCircle, Sparkles } from "lucide-react";
 
 interface FooterApp {

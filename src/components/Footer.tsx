@@ -1,9 +1,11 @@
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { useFooterLinks, useSiteSettings, useContactSettings, useFooterApps } from "@/hooks/useContent";
 import { useFooterCta, FOOTER_CTA_DEFAULTS } from "@/hooks/useFooterCta";
 import { useSiteSettings as usePublicSiteSettings, isSectionVisible } from "@/hooks/useSiteSettings";
 import { motion, useReducedMotion } from "framer-motion";
 import { SocialIcons, type SocialMap } from "./SocialIcons";
+import { HireMeModal } from "./HireMeModal";
 import { ArrowUpRight, AppWindow, Mail, Phone, MessageCircle, Sparkles } from "lucide-react";
 
 interface FooterApp {
@@ -27,6 +29,10 @@ export function Footer() {
   const reduce = useReducedMotion();
   const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
   const ctaIsExternal = /^https?:\/\//i.test(cta.primary_url);
+  // Internal CTA URLs (e.g. /contact, /hire) open as a smooth popup modal
+  // instead of navigating away — feels instant, keeps the user in context.
+  const ctaOpensModal = !ctaIsExternal;
+  const [hireOpen, setHireOpen] = useState(false);
 
   return (
     <motion.footer
@@ -111,6 +117,14 @@ export function Footer() {
                 >
                   <Sparkles className="w-3.5 h-3.5" /> {cta.primary_label}
                 </a>
+              ) : ctaOpensModal ? (
+                <button
+                  type="button"
+                  onClick={() => setHireOpen(true)}
+                  className="press inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-xs font-bold uppercase tracking-[0.18em] hover:opacity-90 transition-opacity shadow-glow"
+                >
+                  <Sparkles className="w-3.5 h-3.5" /> {cta.primary_label}
+                </button>
               ) : (
                 <Link
                   to={cta.primary_url}
@@ -178,6 +192,7 @@ export function Footer() {
         </div>
         <SocialIcons links={social} variant="chip" />
       </div>
+      <HireMeModal open={hireOpen} onClose={() => setHireOpen(false)} />
     </motion.footer>
   );
 }

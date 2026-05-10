@@ -9,6 +9,7 @@ import { SiteHead } from "@/components/SiteHead";
 import { PageViewTracker } from "@/components/PageViewTracker";
 import { MaintenanceGate } from "@/components/MaintenanceGate";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { MotionPrefProvider } from "@/components/MotionPrefProvider";
 import { StaleBuildBanner } from "@/components/dev/StaleBuildBanner";
 
 

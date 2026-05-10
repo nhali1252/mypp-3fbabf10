@@ -82,20 +82,20 @@ export function ProjectsPage() {
       </section>
 
       {/* PROJECT LIST — long horizontal cards */}
-      <section className="px-5 sm:px-6 md:px-10 pb-14 sm:pb-20">
-        <div className="max-w-[1100px] mx-auto">
+      <section className="px-4 sm:px-6 md:px-10 lg:px-12 pb-12 sm:pb-20 lg:pb-24">
+        <div className="max-w-[1100px] xl:max-w-[1280px] mx-auto">
           {isLoading ? (
-            <div className="space-y-4">
+            <div className="space-y-4 sm:space-y-5">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-44 rounded-2xl border border-border skeleton-shimmer" />
+                <div key={i} className="h-40 sm:h-44 lg:h-52 rounded-2xl border border-border skeleton-shimmer" />
               ))}
             </div>
           ) : projects.length === 0 ? (
-            <div className="text-center py-20 text-sm text-muted-foreground border border-dashed border-border rounded-2xl">
+            <div className="text-center py-16 sm:py-20 px-4 text-sm text-muted-foreground border border-dashed border-border rounded-2xl">
               No projects published yet — add some from the admin panel.
             </div>
           ) : (
-            <div className="space-y-5">
+            <div className="space-y-4 sm:space-y-5 lg:space-y-6">
               {projects.map((p, i) => (
                 <ProjectRow key={p.id} project={p} index={i} />
               ))}

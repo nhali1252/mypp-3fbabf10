@@ -395,6 +395,10 @@ function AdminThemePage() {
         </div>
       </AdminCard>
 
+      <AdminCard title="Contrast (WCAG)">
+        <ContrastChecker tick={tick} />
+      </AdminCard>
+
       <AdminCard title="Component previews">
         <p className="mb-4 inline-flex items-center gap-2 text-xs text-muted-foreground">
           <Layers className="h-3.5 w-3.5" />

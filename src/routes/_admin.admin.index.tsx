@@ -21,6 +21,7 @@ import {
   Plus, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { PAGE_BLOCKS, type PageBlock } from "@/admin/page-blocks";
+import { AdminStats } from "@/components/admin/AdminStats";
 
 export const Route = createFileRoute("/_admin/admin/")({
   component: AdminDashboard,

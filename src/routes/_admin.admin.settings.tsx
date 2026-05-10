@@ -255,6 +255,18 @@ function AdminSettings() {
             </label>
           </FormRow>
           <FormRow
+            label="Show reaction counts"
+            hint="When off, reaction buttons still appear but the count next to each is hidden."
+          >
+            <label className="flex items-center justify-between gap-3 rounded-md border border-border bg-card/40 px-3 py-2 text-sm">
+              <span>Display counts</span>
+              <Switch
+                checked={form.reactions_show_count !== false}
+                onCheckedChange={(v) => set("reactions_show_count", v)}
+              />
+            </label>
+          </FormRow>
+          <FormRow
             label="Default watermark text"
             hint="Shown as an overlay on portfolio sample images. Leave empty to disable. Per-item watermark overrides this."
           >

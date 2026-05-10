@@ -172,12 +172,24 @@ export function AdminStats() {
 
       {series.length > 0 && (
         <div className="rounded-2xl border border-border bg-card p-4">
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-3 gap-2">
             <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
               Page views — last 14 days
             </div>
-            <div className="text-[11px] text-muted-foreground tabular-nums">
-              {series.reduce((a, b) => a + b.views, 0).toLocaleString()} total
+            <div className="flex items-center gap-3">
+              <div className="text-[11px] text-muted-foreground tabular-nums">
+                {series.reduce((a, b) => a + b.views, 0).toLocaleString()} total
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handlePrune}
+                disabled={pruning}
+                title="Delete page-view rows older than 90 days"
+              >
+                <Trash2 className="h-3.5 w-3.5 mr-1" />
+                {pruning ? "Pruning…" : "Prune >90d"}
+              </Button>
             </div>
           </div>
           <div className="h-48 w-full">

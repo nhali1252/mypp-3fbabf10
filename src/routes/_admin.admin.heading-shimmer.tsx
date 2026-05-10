@@ -33,7 +33,7 @@ const KNOWN_PAGES: Array<{ path: string; label: string }> = [
 ];
 
 function HeadingShimmerAdmin() {
-  const { data, isLoading } = useHeadingShimmer();
+  const { data, overrides, isLoading } = useHeadingShimmer();
   const qc = useQueryClient();
   const [enabled, setEnabled] = useState(true);
   const [intensity, setIntensity] = useState(70);
@@ -41,6 +41,7 @@ function HeadingShimmerAdmin() {
   const [speedMs, setSpeedMs] = useState(4500);
   const [disabledPaths, setDisabledPaths] = useState<string[]>([]);
   const [customPath, setCustomPath] = useState("");
+  const [previewPath, setPreviewPath] = useState<string>("/");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {

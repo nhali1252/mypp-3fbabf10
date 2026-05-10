@@ -13,7 +13,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, GripVertical } from "lucide-react";
+import { Plus, Pencil, GripVertical, ArrowUp, ArrowDown } from "lucide-react";
 
 export const Route = createFileRoute("/_admin/admin/launcher")({
   component: AdminLauncher,
@@ -98,6 +98,24 @@ function AdminLauncher() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  // Swap sort_order with the neighbour above/below — keeps reorder dead simple
+  // without bringing in a drag library on this admin route.
+  async function move(id: string, dir: -1 | 1) {
+    const list = data ?? [];
+    const idx = list.findIndex((c) => c.id === id);
+    const swap = idx + dir;
+    if (idx < 0 || swap < 0 || swap >= list.length) return;
+    const a = list[idx], b = list[swap];
+    const [r1, r2] = await Promise.all([
+      (supabase as any).from("launcher_pages").update({ sort_order: b.sort_order }).eq("id", a.id),
+      (supabase as any).from("launcher_pages").update({ sort_order: a.sort_order }).eq("id", b.id),
+    ]);
+    const err = r1.error ?? r2.error;
+    if (err) return toast.error(err.message);
+    refresh();
+    refreshPublic();
+  }
+
   return (
     <AdminPage
       title="Launcher pages"
@@ -116,7 +134,7 @@ function AdminLauncher() {
           <EmptyState message="No launcher cards yet." />
         ) : (
           <ul className="divide-y divide-border">
-            {data.map((c) => (
+            {data.map((c, i) => (
               <li key={c.id} className="py-3 flex items-center gap-3 flex-wrap">
                 <GripVertical size={14} className="text-muted-foreground/40" />
                 <div className="min-w-0 flex-1">
@@ -130,10 +148,16 @@ function AdminLauncher() {
                     {c.subtitle || c.description || c.label}
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant="outline" onClick={() => move(c.id, -1)} disabled={i === 0} title="Move up">
+                    <ArrowUp size={13} />
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => move(c.id, 1)} disabled={i === (data?.length ?? 0) - 1} title="Move down">
+                    <ArrowDown size={13} />
+                  </Button>
+                  <div className="flex items-center gap-2 pl-1">
                     <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                      Active
+                      Visible
                     </span>
                     <Switch
                       checked={c.active}

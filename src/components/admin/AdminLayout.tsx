@@ -1,11 +1,50 @@
 import { Link, Outlet, useNavigate, useLocation } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, Inbox, Image as ImageIcon, ClipboardCheck,
   Settings, Users, LogOut, ExternalLink, Menu, X,
   RefreshCw, MessageSquare, Shield, Activity, KeyRound,
+  ChevronRight, Home,
 } from "lucide-react";
+
+// Static label map for breadcrumb segments (covers nav items + extras)
+const SEGMENT_LABELS: Record<string, string> = {
+  admin: "Admin",
+  checklist: "Pre-publish",
+  messages: "Messages",
+  comments: "Comments",
+  audit: "Audit log",
+  diagnostics: "Diagnostics",
+  "env-import": "Env import",
+  runtime: "Runtime",
+  media: "Media library",
+  users: "Users",
+  settings: "Site settings",
+  about: "About",
+  activities: "Activities",
+  contact: "Contact",
+  education: "Education",
+  folders: "Folders",
+  "footer-apps": "Footer apps",
+  "footer-cta": "Footer CTA",
+  hero: "Hero",
+  launcher: "Launcher",
+  navigation: "Navigation",
+  "page-loader": "Page loader",
+  page: "Page",
+  portfolio: "Portfolio",
+  projects: "Projects",
+  reviews: "Reviews",
+  seo: "SEO",
+  skills: "Skills",
+  slots: "Slots",
+  ticker: "Ticker",
+};
+
+function labelize(seg: string) {
+  return SEGMENT_LABELS[seg] ?? seg.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 type Item = { to: string; label: string; Icon: any; end?: boolean };
 type Group = { label: string; items: Item[] };

@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Save, RotateCcw, Sparkles, Plus, Trash2 } from "lucide-react";
+import { Save, RotateCcw, Sparkles, Plus, Trash2, Eraser } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminPage, AdminCard, FormRow } from "@/components/admin/AdminPage";
 import { Switch } from "@/components/ui/switch";

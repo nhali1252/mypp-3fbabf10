@@ -317,7 +317,11 @@
      <span> children because Hero3DText splits text into per-letter
      spans that wouldn't otherwise inherit the gradient fill. */
   :root {
-    --shimmer-sweep-size: 200%;
+    /* Sized in viewport widths so a single gradient spans the entire
+       heading uniformly — including Hero3DText's per-letter spans, which
+       would otherwise each receive their own tiny element-scoped sweep
+       and make the slider look like a no-op. */
+    --shimmer-sweep-size: 200vw;
     --shimmer-speed: 4.5s;
     --shimmer-intensity: 70%;
     --shimmer-gradient: linear-gradient(
@@ -335,6 +339,10 @@
     background-image: var(--shimmer-gradient);
     background-size: var(--shimmer-sweep-size) 100%;
     background-position: 0% 50%;
+    /* Anchor the gradient to the viewport so per-letter child spans share
+       the parent heading's coordinate space — the sweep then reads as one
+       continuous band across the whole heading rather than per-letter. */
+    background-attachment: fixed;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;

@@ -31,21 +31,16 @@ const contentKeySchema = z.enum(CONTENT_KEYS as unknown as [ContentKey, ...Conte
 async function buildContent(key: ContentKey): Promise<unknown> {
   switch (key) {
     case "basicInfo": {
-      const [hero, about, contact, siteSettings] = await Promise.all([
+      const [hero, about, contactRpc, siteSettings] = await Promise.all([
         supabasePublic.from("hero_content").select("*").limit(1).maybeSingle(),
         supabasePublic.from("about_content").select("*").limit(1).maybeSingle(),
-        // contact_settings is no longer publicly readable; use admin client
-        // and project only the display-safe fields.
-        supabaseAdmin
-          .from("contact_settings")
-          .select("email,phone,whatsapp,address,map_link,social_links")
-          .limit(1)
-          .maybeSingle(),
+        // Display-safe contact via SECURITY DEFINER RPC — no service-role key required.
+        supabasePublic.rpc("get_public_contact"),
         supabasePublic.from("site_settings").select("*"),
       ]);
       const h = hero.data ?? ({} as any);
       const a = about.data ?? ({} as any);
-      const c = contact.data ?? ({} as any);
+      const c = (Array.isArray(contactRpc.data) ? contactRpc.data[0] : contactRpc.data) ?? ({} as any);
       const siteByKey: Record<string, any> = {};
       (siteSettings.data ?? []).forEach((row) => {
         siteByKey[row.page_key ?? "B"] = row;

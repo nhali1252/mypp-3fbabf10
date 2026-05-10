@@ -23,6 +23,7 @@ export function Watermark({
   const { data: settings } = useSiteSettings();
   const brand =
     text?.trim() ||
+    settings?.watermark_text?.trim() ||
     settings?.site_name?.trim() ||
     settings?.site_title?.split("—")[0]?.trim() ||
     "TasTaj";

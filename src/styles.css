@@ -432,9 +432,8 @@
   .tap-feedback {
     transition: transform 140ms var(--ease-smooth),
                 background-color var(--dur-base) var(--ease-smooth);
-    will-change: transform;
   }
-  .tap-feedback:active { transform: scale(0.97); transition-duration: 70ms; }
+  .tap-feedback:active { will-change: transform; transform: scale(0.97); transition-duration: 70ms; }
 
   @media (prefers-reduced-motion: reduce) {
     .shine::before,

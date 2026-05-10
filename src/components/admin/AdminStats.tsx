@@ -48,6 +48,23 @@ export function AdminStats() {
   const [s, setS] = useState<Stats | null>(null);
   const [topPages, setTopPages] = useState<{ path: string; views: number }[]>([]);
   const [series, setSeries] = useState<DayPoint[]>([]);
+  const [pruning, setPruning] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+  const prune = useServerFn(prunePageViews);
+
+  async function handlePrune() {
+    if (!confirm("Delete page-view rows older than 90 days?")) return;
+    setPruning(true);
+    try {
+      const r = await prune({ data: { days: 90 } });
+      toast.success(`Pruned ${r.deleted.toLocaleString()} rows older than 90 days`);
+      setReloadKey((k) => k + 1);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Prune failed");
+    } finally {
+      setPruning(false);
+    }
+  }
 
   useEffect(() => {
     (async () => {

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useLocation } from "@tanstack/react-router";
-import { useHeadingShimmer, resolveShimmerForPath } from "@/hooks/useHeadingShimmer";
+import { useHeadingShimmer, resolveShimmerForPath, isShimmerPathDisabled } from "@/hooks/useHeadingShimmer";
 import { useShimmerSpeedPref } from "@/hooks/useShimmerSpeedPref";
 import { contrastRatio } from "@/lib/contrast";
 
@@ -39,9 +39,7 @@ export function HeadingShimmerVars() {
   const { speedMs: userSpeed } = useShimmerSpeedPref();
 
   const resolved = resolveShimmerForPath(data, overrides, pathname);
-  const pageDisabled = data.disabled_paths.some(
-    (p) => p && (pathname === p || pathname.startsWith(p + "/")),
-  );
+  const pageDisabled = isShimmerPathDisabled(data.disabled_paths, pathname);
   // User's reduced-motion speed pref still wins if set (accessibility).
   const effectiveSpeed = userSpeed ?? resolved.speed_ms;
   const off = !resolved.enabled || pageDisabled;

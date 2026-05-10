@@ -93,13 +93,14 @@ export function HeadingShimmerOverridesCard() {
         field <strong>empty</strong> to inherit the site-wide value
         (currently intensity {defaults.intensity}%, sweep {defaults.sweep_size}vw,
         speed {(defaults.speed_ms / 1000).toFixed(1)}s, {defaults.enabled ? "on" : "off"}).
-        Longer paths beat shorter ones, so <code>/portfolio/sub</code> wins
-        over <code>/portfolio</code>.
+        Paths support exact matches and wildcards: <code>/portfolio</code>{" "}
+        matches only that page, <code>/portfolio/*</code> matches every
+        sub-route, and more specific patterns beat broader ones.
       </p>
 
       <div className="flex flex-wrap gap-2 mb-5">
         <Input
-          placeholder="/some/route"
+          placeholder="/portfolio/* or /some/route"
           value={newPath}
           onChange={(e) => setNewPath(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && createRow()}

@@ -11,6 +11,7 @@ import {
   useHeadingShimmer,
   HEADING_SHIMMER_DEFAULTS,
   resolveShimmerForPath,
+  isShimmerPathDisabled,
 } from "@/hooks/useHeadingShimmer";
 import { HeadingShimmerOverridesCard } from "@/components/admin/HeadingShimmerOverridesCard";
 
@@ -85,10 +86,9 @@ function HeadingShimmerAdmin() {
       disabled_paths: disabledPaths,
     };
     const r = resolveShimmerForPath(draftBase, overrides, previewPath);
-    // Per-page disable list also forces the heading to plain.
-    const disabledByPath = disabledPaths.some(
-      (p) => previewPath === p || previewPath.startsWith(p + "/"),
-    );
+    // Per-page disable list also forces the heading to plain (supports
+    // exact paths and wildcard patterns like `/portfolio/*`).
+    const disabledByPath = isShimmerPathDisabled(disabledPaths, previewPath);
     return { ...r, enabled: r.enabled && !disabledByPath, disabledByPath };
   }, [enabled, intensity, sweepSize, speedMs, disabledPaths, overrides, previewPath]);
 
@@ -234,11 +234,11 @@ function HeadingShimmerAdmin() {
 
         <FormRow
           label="Add a custom page path"
-          hint="Use this for routes not listed above (e.g. /portfolio/some-folder). Matches the path and any sub-routes."
+          hint="Exact match by default (e.g. /portfolio/my-folder). Use * to match a single segment or /portfolio/* to match every sub-route."
         >
           <div className="flex gap-2">
             <Input
-              placeholder="/some/path"
+              placeholder="/portfolio/* or /some/path"
               value={customPath}
               onChange={(e) => setCustomPath(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addCustomPath()}

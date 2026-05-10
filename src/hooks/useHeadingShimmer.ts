@@ -70,19 +70,56 @@ export function useHeadingShimmer() {
 }
 
 /**
- * Pick the most-specific override for `pathname`. A row matches when its
- * `path` equals the pathname or is a parent prefix (`/portfolio` matches
- * `/portfolio/abc`). Longer paths win so a deeper override beats a shallow
- * one when both apply.
+ * Match a single configured `pattern` against a runtime `pathname`.
+ *
+ * Supported syntax:
+ *   - Exact:           `/portfolio`         → matches only `/portfolio`
+ *   - Trailing star:   `/portfolio/*`       → matches `/portfolio/anything` (any depth)
+ *   - Single-segment:  `/blog/* /comments`  → `*` matches one URL segment (no `/`)
+ *   - Globstar:        `/blog/**`           → matches any number of segments
+ *
+ * Trailing slashes on either side are normalized away. Patterns are matched
+ * case-sensitively. Empty patterns never match.
+ */
+export function matchShimmerPath(pattern: string, pathname: string): boolean {
+  if (!pattern) return false;
+  const norm = (s: string) => (s.length > 1 ? s.replace(/\/+$/, "") : s);
+  const pat = norm(pattern.trim());
+  const path = norm(pathname);
+  if (!pat.includes("*")) return path === pat;
+  // Convert glob → RegExp. Escape regex specials, then expand `**` and `*`.
+  const escaped = pat.replace(/[.+^${}()|[\]\\]/g, "\\$&");
+  const re = escaped
+    .replace(/\*\*/g, "::GLOBSTAR::")
+    .replace(/\*/g, "[^/]*")
+    .replace(/::GLOBSTAR::/g, ".*");
+  return new RegExp(`^${re}$`).test(path);
+}
+
+/** Specificity score for ranking — more literal characters = more specific. */
+function patternSpecificity(pattern: string): number {
+  return pattern.replace(/\*/g, "").length - (pattern.match(/\*/g)?.length ?? 0);
+}
+
+/**
+ * Pick the most-specific override for `pathname`. Patterns support exact
+ * matches and `*` / `**` wildcards (see {@link matchShimmerPath}). When
+ * multiple patterns match, the most specific one wins; literal paths beat
+ * wildcards.
  */
 export function pickShimmerOverride(
   overrides: HeadingShimmerOverride[],
   pathname: string,
 ): HeadingShimmerOverride | null {
   const matches = overrides
-    .filter((o) => o.path && (pathname === o.path || pathname.startsWith(o.path + "/")))
-    .sort((a, b) => b.path.length - a.path.length);
+    .filter((o) => matchShimmerPath(o.path, pathname))
+    .sort((a, b) => patternSpecificity(b.path) - patternSpecificity(a.path));
   return matches[0] ?? null;
+}
+
+/** True if any pattern in `patterns` matches `pathname`. */
+export function isShimmerPathDisabled(patterns: string[], pathname: string): boolean {
+  return patterns.some((p) => matchShimmerPath(p, pathname));
 }
 
 /** Merge global defaults with the matching override (override wins per field). */

@@ -39,27 +39,27 @@ export function ProjectsPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* HERO */}
-      <section className="relative px-5 sm:px-6 md:px-10 pt-10 sm:pt-14 md:pt-20 pb-6 sm:pb-10 overflow-hidden">
+      <section className="relative px-4 sm:px-6 md:px-10 lg:px-12 pt-8 sm:pt-14 md:pt-20 lg:pt-24 pb-6 sm:pb-10 lg:pb-14 overflow-hidden">
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 w-[820px] h-[520px] rounded-full blur-[140px] opacity-50"
+          className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 w-[min(820px,90vw)] h-[420px] sm:h-[520px] rounded-full blur-[120px] sm:blur-[140px] opacity-50"
           style={{
             background:
               "radial-gradient(closest-side, color-mix(in oklab, var(--primary) 60%, transparent), transparent)",
           }}
         />
-        <div className="relative max-w-[1100px] mx-auto text-center">
+        <div className="relative max-w-[1100px] xl:max-w-[1280px] mx-auto text-center">
           <motion.span
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card/60 backdrop-blur text-[11px] font-bold uppercase tracking-[0.25em] text-primary"
+            className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-border bg-card/60 backdrop-blur text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.22em] sm:tracking-[0.25em] text-primary"
           >
-            <Terminal className="w-3.5 h-3.5" /> Projects · Code & Builds
+            <Terminal className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Projects · Code & Builds
           </motion.span>
           <h1
-            className="font-black tracking-tight leading-[1.02] mt-5 text-3d text-3d-pop"
-            style={{ fontSize: "clamp(34px, 6.4vw, 78px)" }}
+            className="font-black tracking-tight leading-[1.02] mt-4 sm:mt-5 text-3d text-3d-pop"
+            style={{ fontSize: "clamp(30px, 6.4vw, 84px)" }}
           >
             <Hero3DText as="span" text="Things I " delay={0.1} stagger={0.08} />
             <Hero3DText
@@ -74,7 +74,7 @@ export function ProjectsPage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
-            className="text-muted-foreground mt-5 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed"
+            className="text-muted-foreground mt-4 sm:mt-5 max-w-2xl mx-auto text-[13.5px] sm:text-base leading-relaxed px-2 sm:px-0"
           >
             Personal apps, small tools and side projects — each card lists the stack, a live demo and the source code when available.
           </motion.p>

@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowUpRight, Folder, FolderOpen, X, ExternalLink, Sparkles, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Folder, FolderOpen, X, ExternalLink, Sparkles, Image as ImageIcon, ChevronRight, Home } from "lucide-react";
 import { useContentDoc } from "@/hooks/useContentDoc";
 import { Footer } from "@/components/Footer";
 import { PageQuote } from "@/components/PageQuote";

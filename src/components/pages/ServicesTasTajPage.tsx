@@ -92,16 +92,19 @@ function ServicesTasTajPageInner() {
           >
             <Sparkles className="w-3.5 h-3.5" /> Services
           </motion.span>
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+          <h1
             className="font-black tracking-tight leading-[1.02] mt-5 text-3d text-3d-pop"
             style={{ fontSize: "clamp(34px, 6.4vw, 78px)" }}
           >
-            Every brief, treated like{" "}
-            <span className="font-serif-display italic font-medium text-primary">a brand.</span>
-          </motion.h1>
+            <Hero3DText as="span" text="Every brief, treated like " delay={0.1} stagger={0.07} />
+            <Hero3DText
+              as="span"
+              text="a brand."
+              className="font-serif-display italic font-medium text-primary"
+              delay={0.55}
+              stagger={0.07}
+            />
+          </h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}

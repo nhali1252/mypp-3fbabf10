@@ -4,8 +4,12 @@
  */
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { prunePageViews } from "@/server/analytics.functions";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
-  Inbox, Heart, MessageSquare, FolderOpen, Briefcase, Image as ImageIcon, Eye,
+  Inbox, Heart, MessageSquare, FolderOpen, Briefcase, Image as ImageIcon, Eye, Trash2,
 } from "lucide-react";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,

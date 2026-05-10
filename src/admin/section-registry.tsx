@@ -26,6 +26,7 @@ const REGISTRY: Record<string, SectionComponent> = {
   "basic:hero": HeroInline,
   "basic:site-settings": makeSectionLink("/admin/settings", "Site settings", "Site name, theme, logo, favicon."),
   "basic:socials": makeSectionLink("/admin/contact", "Social links", "Managed alongside contact channels."),
+  "home:quote": QuoteSectionEditor,
   "basic:quote": QuoteSectionEditor,
 
   // ── About / Skills ────────────────────────────────────────────────────

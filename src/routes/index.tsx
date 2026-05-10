@@ -353,6 +353,7 @@ function Launcher() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-hidden">
+      <WelcomeSplash />
       {/* Ambient gradient backdrops */}
       <div
         aria-hidden

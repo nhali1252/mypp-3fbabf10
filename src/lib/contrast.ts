@@ -44,7 +44,7 @@ export function contrastRatio(a: string, b: string): number | null {
 
 export type ContrastGrade = "AAA" | "AA" | "AA Large" | "Fail";
 
-export function gradeContrast(ratio: number, large: boolean): ContrastGrade {
+export function gradeContrast(ratio: number, large?: boolean): ContrastGrade {
   if (ratio >= 7) return "AAA";
   if (ratio >= 4.5) return "AA";
   if (ratio >= 3) return large ? "AA" : "AA Large";

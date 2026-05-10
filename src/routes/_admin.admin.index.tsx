@@ -21,6 +21,7 @@ import {
   Plus, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { PAGE_BLOCKS, type PageBlock } from "@/admin/page-blocks";
+import { AdminStats } from "@/components/admin/AdminStats";
 
 export const Route = createFileRoute("/_admin/admin/")({
   component: AdminDashboard,
@@ -133,6 +134,8 @@ function AdminDashboard() {
           </div>
         </div>
       </section>
+
+      <AdminStats />
 
       {/* Page-block grid — the heart of the new admin. */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -441,6 +441,54 @@
     animation: none;
   }
 
+  /* ── Background-clip: text fallback ───────────────────────────────
+     Some browsers (older Edge, certain in-app webviews, print mode) don't
+     support `background-clip: text` / `-webkit-background-clip: text`.
+     Without a fallback, the gold shimmer renders as fully transparent —
+     i.e. invisible — because we set `color: transparent` to let the
+     gradient show through. Detect lack of support and revert to a solid,
+     readable color so headings and bold accents remain legible. */
+  @supports not ((background-clip: text) or (-webkit-background-clip: text)) {
+    strong, b,
+    h1, h1 > span, h1 > span > span,
+    h2, h3,
+    .hero-gold-highlight,
+    .hero-gold-highlight > span {
+      background-image: none !important;
+      color: var(--primary) !important;
+      -webkit-text-fill-color: var(--primary) !important;
+      animation: none !important;
+    }
+    /* Inside interactive controls / admin chrome, keep inherited color
+       instead of forcing primary so buttons and form labels stay legible. */
+    button strong, button b,
+    a strong, a b,
+    [role="button"] strong, [role="button"] b,
+    input strong, input b,
+    textarea strong, textarea b,
+    label strong, label b,
+    [data-admin] strong, [data-admin] b,
+    [data-admin] h1, [data-admin] h2, [data-admin] h3 {
+      color: inherit !important;
+      -webkit-text-fill-color: currentColor !important;
+    }
+  }
+
+  /* Print: background-clip: text is unreliable across print engines.
+     Force solid colors so printed headings and bold accents are legible. */
+  @media print {
+    strong, b,
+    h1, h1 > span, h1 > span > span,
+    h2, h3,
+    .hero-gold-highlight,
+    .hero-gold-highlight > span {
+      background-image: none !important;
+      color: var(--primary) !important;
+      -webkit-text-fill-color: var(--primary) !important;
+      animation: none !important;
+    }
+  }
+
   /* Smoother skeleton shimmer (drop-in replacement for animate-pulse) */
   .skeleton-shimmer {
     position: relative;

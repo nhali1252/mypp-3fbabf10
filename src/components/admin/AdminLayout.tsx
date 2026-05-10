@@ -40,6 +40,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   skills: "Skills",
   slots: "Slots",
   ticker: "Ticker",
+  pwa: "PWA & install",
 };
 
 function labelize(seg: string) {

@@ -47,24 +47,12 @@ function nextWeekdays(count: number) {
 export function ContactPage() {
   const days = useMemo(() => nextWeekdays(7), []);
 
-  const contact = useQuery({
-    queryKey: ["public-contact-settings"],
-    queryFn: async () => {
-      const { data } = await (supabase as any)
-        .from("contact_settings")
-        .select("*")
-        .limit(1)
-        .maybeSingle();
-      return data as
-        | {
-            email: string | null;
-            phone: string | null;
-            whatsapp: string | null;
-            address: string | null;
-          }
-        | null;
-    },
-  });
+  const contact = useContentDoc<{
+    email: string | null;
+    phone: string | null;
+    whatsapp: string | null;
+    address: string | null;
+  }>("contact");
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

@@ -361,8 +361,49 @@
     -webkit-text-fill-color: currentColor;
     animation: none;
   }
+  /* Reduced-motion: fully revert the heading shimmer to a solid, readable
+     fill instead of leaving the gradient frozen mid-sweep (which can render
+     part of the heading as low-contrast or transparent). Triggered by the
+     OS media query OR by the in-app motion toggle (data-motion="reduce" on
+     <html>, set by MotionPrefProvider). */
   @media (prefers-reduced-motion: reduce) {
-    h1, h2, h3 { animation: none; }
+    h1, h1 > span, h1 > span > span,
+    h2, h3 {
+      animation: none;
+      background-image: none;
+      -webkit-background-clip: initial;
+      background-clip: initial;
+      color: inherit;
+      -webkit-text-fill-color: currentColor;
+    }
+    .hero-gold-highlight,
+    .hero-gold-highlight > span {
+      background-image: none;
+      -webkit-background-clip: initial;
+      background-clip: initial;
+      color: var(--primary);
+      -webkit-text-fill-color: var(--primary);
+    }
+  }
+  [data-motion="reduce"] h1,
+  [data-motion="reduce"] h1 > span,
+  [data-motion="reduce"] h1 > span > span,
+  [data-motion="reduce"] h2,
+  [data-motion="reduce"] h3 {
+    animation: none;
+    background-image: none;
+    -webkit-background-clip: initial;
+    background-clip: initial;
+    color: inherit;
+    -webkit-text-fill-color: currentColor;
+  }
+  [data-motion="reduce"] .hero-gold-highlight,
+  [data-motion="reduce"] .hero-gold-highlight > span {
+    background-image: none;
+    -webkit-background-clip: initial;
+    background-clip: initial;
+    color: var(--primary);
+    -webkit-text-fill-color: var(--primary);
   }
 
   /* Gold gradient highlight for hero/headline accents that use Hero3DText.

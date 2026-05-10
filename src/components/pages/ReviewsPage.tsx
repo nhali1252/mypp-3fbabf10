@@ -105,15 +105,19 @@ export function ReviewsPage() {
           >
             <MessageSquareHeart className="w-3.5 h-3.5" /> Client Reviews
           </motion.span>
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+          <h1
             className="font-black tracking-tight leading-[1.02] mt-5 text-3d text-3d-pop"
             style={{ fontSize: "clamp(34px, 6.4vw, 78px)" }}
           >
-            Trusted by{" "}
-            <span className="font-serif-display italic font-medium text-primary">people</span>
-          </motion.h1>
+            <Hero3DText as="span" text="Trusted by " delay={0.1} stagger={0.08} />
+            <Hero3DText
+              as="span"
+              text="people"
+              className="font-serif-display italic font-medium text-primary"
+              delay={0.3}
+              stagger={0.08}
+            />
+          </h1>
           {stats.count > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}

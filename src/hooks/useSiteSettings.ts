@@ -12,7 +12,7 @@ export type SiteSettings = {
 };
 
 const DEFAULTS: SiteSettings = {
-  welcome_animation_ms: 600,
+  welcome_animation_ms: 2000,
   default_motion_pref: "auto",
   section_visibility: {},
   reactions_enabled: true,

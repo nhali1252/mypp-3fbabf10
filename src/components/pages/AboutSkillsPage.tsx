@@ -158,7 +158,7 @@ function AboutSkillsInner() {
               className="rounded-2xl border border-border bg-card p-5 text-center hover:-translate-y-1 hover:border-primary/40 transition-all"
             >
               <div
-                className="font-black tracking-tight bg-clip-text text-transparent"
+                className="font-black tracking-tight bg-clip-text text-transparent font-numeric"
                 style={{
                   fontSize: "clamp(28px, 3.6vw, 40px)",
                   backgroundImage:

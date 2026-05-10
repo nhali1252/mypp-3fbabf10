@@ -153,7 +153,7 @@ export function ReactionsBar({
                 />
               </motion.span>
             </AnimatePresence>
-            {showCount && <span className="tabular-nums text-[11px]">{count}</span>}
+            {showCount && <span className="font-numeric tabular-nums text-[11px]">{count}</span>}
           </motion.button>
         );
       })}

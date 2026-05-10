@@ -117,6 +117,7 @@ function RootComponent() {
       <ThemeProvider>
         <AuthProvider>
           <SiteHead />
+          <PageViewTracker />
           <PageLoader />
           <RouteTransition />
           <Toaster richColors position="top-right" />

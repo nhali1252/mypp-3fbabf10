@@ -29,6 +29,10 @@ export function Footer() {
   const reduce = useReducedMotion();
   const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
   const ctaIsExternal = /^https?:\/\//i.test(cta.primary_url);
+  // Internal CTA URLs (e.g. /contact, /hire) open as a smooth popup modal
+  // instead of navigating away — feels instant, keeps the user in context.
+  const ctaOpensModal = !ctaIsExternal;
+  const [hireOpen, setHireOpen] = useState(false);
 
   return (
     <motion.footer

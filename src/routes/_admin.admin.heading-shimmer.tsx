@@ -11,6 +11,7 @@ import {
   useHeadingShimmer,
   HEADING_SHIMMER_DEFAULTS,
   resolveShimmerForPath,
+  isShimmerPathDisabled,
 } from "@/hooks/useHeadingShimmer";
 import { HeadingShimmerOverridesCard } from "@/components/admin/HeadingShimmerOverridesCard";
 

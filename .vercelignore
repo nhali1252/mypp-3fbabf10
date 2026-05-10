@@ -1,0 +1,21 @@
+# Cloudflare Workers artifacts — not used by Vercel
+.wrangler
+.dev.vars
+wrangler.jsonc
+worker-configuration.d.ts
+
+# Local & CI
+.env*
+!.env.example
+.lovable
+.cache
+node_modules
+.git
+.github
+tests
+playwright-report
+test-results
+coverage
+
+# Generated locally
+dist/.cache

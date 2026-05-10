@@ -153,17 +153,15 @@ async function verifyAdmin(request: Request): Promise<{ userId: string } | Respo
 }
 
 async function handle(request: Request) {
+  // Optional shared-secret check. The endpoint is already gated by an
+  // admin-bearer check below; the token is only enforced when the secret
+  // has been provisioned in the runtime environment (defense in depth).
   const expectedToken = process.env.ENV_IMPORT_TOKEN;
-  if (!expectedToken) {
-    return jsonError(
-      503,
-      "ENV_IMPORT_TOKEN secret is not configured. Add it in backend secrets and retry.",
-    );
-  }
-
-  const provided = request.headers.get("x-env-import-token") ?? "";
-  if (!timingSafeEqual(provided, expectedToken)) {
-    return jsonError(401, "Invalid or missing x-env-import-token");
+  if (expectedToken) {
+    const provided = request.headers.get("x-env-import-token") ?? "";
+    if (!timingSafeEqual(provided, expectedToken)) {
+      return jsonError(401, "Invalid or missing x-env-import-token");
+    }
   }
 
   const auth = await verifyAdmin(request);

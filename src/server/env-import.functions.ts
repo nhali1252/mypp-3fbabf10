@@ -21,21 +21,18 @@ export const triggerEnvImport = createServerFn({ method: "POST" })
     if (roleErr) throw new Error(roleErr.message);
     if (!isAdmin) throw new Error("Admin role required");
 
+    // Token is optional — when configured we forward it; when not, the
+    // /api/env-import handler skips the shared-secret check and relies on
+    // the admin Bearer auth we forward below.
     const token = process.env.ENV_IMPORT_TOKEN;
-    if (!token) {
-      return {
-        ok: false,
-        status: 503,
-        body: { error: "ENV_IMPORT_TOKEN secret is not configured." },
-      };
-    }
 
     const host = getRequestHost();
     const proto = host?.includes("localhost") ? "http" : "https";
     const url = `${proto}://${host}/api/env-import`;
 
     const incomingAuth = getRequestHeader("authorization");
-    const headers: Record<string, string> = { "x-env-import-token": token };
+    const headers: Record<string, string> = {};
+    if (token) headers["x-env-import-token"] = token;
     if (incomingAuth) headers["authorization"] = incomingAuth;
 
     const res = await fetch(url, {

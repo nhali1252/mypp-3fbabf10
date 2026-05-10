@@ -443,7 +443,7 @@ function ItemPreview({ item, onClose }: { item: PItem; onClose: () => void }) {
         <div className="p-5 sm:p-6 max-h-[72vh] overflow-y-auto space-y-5">
           {item.image_url && (
             <div className="relative rounded-xl overflow-hidden border border-border">
-              <img src={item.image_url} alt={item.title} className="w-full h-auto" />
+              <img src={item.image_url} alt={item.title} loading="lazy" decoding="async" className="w-full h-auto" />
               <Watermark text={item.watermark_text ?? undefined} size="md" />
             </div>
           )}

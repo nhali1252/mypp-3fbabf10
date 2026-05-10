@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useContentDoc } from "@/hooks/useContentDoc";
 import { Footer } from "@/components/Footer";
 import { PageQuote } from "@/components/PageQuote";
+import { Hero3DText } from "@/components/Hero3DText";
 
 const projectTypes = [
   "Brand Identity",

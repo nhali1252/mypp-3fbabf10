@@ -7,6 +7,7 @@ import { useContentDoc } from "@/hooks/useContentDoc";
 import { submitReview } from "@/server/content.functions";
 import { Footer } from "@/components/Footer";
 import { PageQuote } from "@/components/PageQuote";
+import { Hero3DText } from "@/components/Hero3DText";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";

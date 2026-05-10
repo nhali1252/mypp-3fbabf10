@@ -311,9 +311,11 @@
     strong, b { animation: none; }
   }
 
-  /* ── Global gold shimmer for section headings (h2/h3) ─────────── */
+  /* ── Global gold shimmer for headings (h1/h2/h3) ──────────────── */
   /* Variables tuned at runtime from Admin → Heading shimmer.
-     Defaults match the hero "Pick a page" line. */
+     Defaults match the hero "Pick a page" line. h1 also targets direct
+     <span> children because Hero3DText splits text into per-letter
+     spans that wouldn't otherwise inherit the gradient fill. */
   :root {
     --shimmer-sweep-size: 200%;
     --shimmer-speed: 4.5s;
@@ -325,6 +327,9 @@
       var(--primary) 100%
     );
   }
+  h1,
+  h1 > span,
+  h1 > span > span,
   h2,
   h3 {
     background-image: var(--shimmer-gradient);
@@ -338,10 +343,14 @@
     will-change: background-position;
   }
   /* Opt-out: kill-switch, admin chrome, interactive controls, .no-shimmer */
+  [data-shimmer="off"] h1, [data-shimmer="off"] h1 > span, [data-shimmer="off"] h1 > span > span,
   [data-shimmer="off"] h2, [data-shimmer="off"] h3,
+  [data-admin] h1, [data-admin] h1 > span, [data-admin] h1 > span > span,
   [data-admin] h2, [data-admin] h3,
-  button h2, button h3,
+  button h1, button h2, button h3,
+  .no-shimmer h1, .no-shimmer h1 > span, .no-shimmer h1 > span > span,
   .no-shimmer h2, .no-shimmer h3,
+  h1.no-shimmer, h1.no-shimmer > span, h1.no-shimmer > span > span,
   h2.no-shimmer, h3.no-shimmer {
     background-image: none;
     -webkit-background-clip: initial;
@@ -351,7 +360,7 @@
     animation: none;
   }
   @media (prefers-reduced-motion: reduce) {
-    h2, h3 { animation: none; }
+    h1, h2, h3 { animation: none; }
   }
 
   /* Gold gradient highlight for hero/headline accents that use Hero3DText.

@@ -39,6 +39,7 @@ import { Route as AdminAdminSettingsRouteImport } from './routes/_admin.admin.se
 import { Route as AdminAdminSeoRouteImport } from './routes/_admin.admin.seo'
 import { Route as AdminAdminRuntimeRouteImport } from './routes/_admin.admin.runtime'
 import { Route as AdminAdminReviewsRouteImport } from './routes/_admin.admin.reviews'
+import { Route as AdminAdminPwaRouteImport } from './routes/_admin.admin.pwa'
 import { Route as AdminAdminProjectsRouteImport } from './routes/_admin.admin.projects'
 import { Route as AdminAdminPortfolioRouteImport } from './routes/_admin.admin.portfolio'
 import { Route as AdminAdminPageLoaderRouteImport } from './routes/_admin.admin.page-loader'
@@ -214,6 +215,11 @@ const AdminAdminRuntimeRoute = AdminAdminRuntimeRouteImport.update({
 const AdminAdminReviewsRoute = AdminAdminReviewsRouteImport.update({
   id: '/admin/reviews',
   path: '/admin/reviews',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdminPwaRoute = AdminAdminPwaRouteImport.update({
+  id: '/admin/pwa',
+  path: '/admin/pwa',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAdminProjectsRoute = AdminAdminProjectsRouteImport.update({
@@ -396,6 +402,7 @@ export interface FileRoutesByFullPath {
   '/admin/page-loader': typeof AdminAdminPageLoaderRoute
   '/admin/portfolio': typeof AdminAdminPortfolioRoute
   '/admin/projects': typeof AdminAdminProjectsRoute
+  '/admin/pwa': typeof AdminAdminPwaRoute
   '/admin/reviews': typeof AdminAdminReviewsRoute
   '/admin/runtime': typeof AdminAdminRuntimeRoute
   '/admin/seo': typeof AdminAdminSeoRoute
@@ -454,6 +461,7 @@ export interface FileRoutesByTo {
   '/admin/page-loader': typeof AdminAdminPageLoaderRoute
   '/admin/portfolio': typeof AdminAdminPortfolioRoute
   '/admin/projects': typeof AdminAdminProjectsRoute
+  '/admin/pwa': typeof AdminAdminPwaRoute
   '/admin/reviews': typeof AdminAdminReviewsRoute
   '/admin/runtime': typeof AdminAdminRuntimeRoute
   '/admin/seo': typeof AdminAdminSeoRoute
@@ -514,6 +522,7 @@ export interface FileRoutesById {
   '/_admin/admin/page-loader': typeof AdminAdminPageLoaderRoute
   '/_admin/admin/portfolio': typeof AdminAdminPortfolioRoute
   '/_admin/admin/projects': typeof AdminAdminProjectsRoute
+  '/_admin/admin/pwa': typeof AdminAdminPwaRoute
   '/_admin/admin/reviews': typeof AdminAdminReviewsRoute
   '/_admin/admin/runtime': typeof AdminAdminRuntimeRoute
   '/_admin/admin/seo': typeof AdminAdminSeoRoute
@@ -574,6 +583,7 @@ export interface FileRouteTypes {
     | '/admin/page-loader'
     | '/admin/portfolio'
     | '/admin/projects'
+    | '/admin/pwa'
     | '/admin/reviews'
     | '/admin/runtime'
     | '/admin/seo'
@@ -632,6 +642,7 @@ export interface FileRouteTypes {
     | '/admin/page-loader'
     | '/admin/portfolio'
     | '/admin/projects'
+    | '/admin/pwa'
     | '/admin/reviews'
     | '/admin/runtime'
     | '/admin/seo'
@@ -691,6 +702,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/page-loader'
     | '/_admin/admin/portfolio'
     | '/_admin/admin/projects'
+    | '/_admin/admin/pwa'
     | '/_admin/admin/reviews'
     | '/_admin/admin/runtime'
     | '/_admin/admin/seo'
@@ -950,6 +962,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminReviewsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/pwa': {
+      id: '/_admin/admin/pwa'
+      path: '/admin/pwa'
+      fullPath: '/admin/pwa'
+      preLoaderRoute: typeof AdminAdminPwaRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/projects': {
       id: '/_admin/admin/projects'
       path: '/admin/projects'
@@ -1164,6 +1183,7 @@ interface AdminRouteChildren {
   AdminAdminPageLoaderRoute: typeof AdminAdminPageLoaderRoute
   AdminAdminPortfolioRoute: typeof AdminAdminPortfolioRoute
   AdminAdminProjectsRoute: typeof AdminAdminProjectsRoute
+  AdminAdminPwaRoute: typeof AdminAdminPwaRoute
   AdminAdminReviewsRoute: typeof AdminAdminReviewsRoute
   AdminAdminRuntimeRoute: typeof AdminAdminRuntimeRoute
   AdminAdminSeoRoute: typeof AdminAdminSeoRoute
@@ -1198,6 +1218,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminPageLoaderRoute: AdminAdminPageLoaderRoute,
   AdminAdminPortfolioRoute: AdminAdminPortfolioRoute,
   AdminAdminProjectsRoute: AdminAdminProjectsRoute,
+  AdminAdminPwaRoute: AdminAdminPwaRoute,
   AdminAdminReviewsRoute: AdminAdminReviewsRoute,
   AdminAdminRuntimeRoute: AdminAdminRuntimeRoute,
   AdminAdminSeoRoute: AdminAdminSeoRoute,

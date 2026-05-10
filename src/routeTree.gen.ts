@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProjectsRouteImport } from './routes/projects'
@@ -72,6 +73,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReviewsRoute = ReviewsRouteImport.update({
@@ -350,6 +356,7 @@ export interface FileRoutesByFullPath {
   '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/reviews': typeof ReviewsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/env-import': typeof ApiEnvImportRoute
@@ -405,6 +412,7 @@ export interface FileRoutesByTo {
   '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/reviews': typeof ReviewsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/env-import': typeof ApiEnvImportRoute
@@ -462,6 +470,7 @@ export interface FileRoutesById {
   '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/reviews': typeof ReviewsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/env-import': typeof ApiEnvImportRoute
@@ -519,6 +528,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/reset-password'
     | '/reviews'
+    | '/robots.txt'
     | '/services'
     | '/sitemap.xml'
     | '/api/env-import'
@@ -574,6 +584,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/reset-password'
     | '/reviews'
+    | '/robots.txt'
     | '/services'
     | '/sitemap.xml'
     | '/api/env-import'
@@ -630,6 +641,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/reset-password'
     | '/reviews'
+    | '/robots.txt'
     | '/services'
     | '/sitemap.xml'
     | '/api/env-import'
@@ -687,6 +699,7 @@ export interface RootRouteChildren {
   ProjectsRoute: typeof ProjectsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ReviewsRoute: typeof ReviewsRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
   ServicesRoute: typeof ServicesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiEnvImportRoute: typeof ApiEnvImportRoute
@@ -713,6 +726,13 @@ declare module '@tanstack/react-router' {
       path: '/services'
       fullPath: '/services'
       preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reviews': {
@@ -1166,6 +1186,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsRoute: ProjectsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ReviewsRoute: ReviewsRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
   ServicesRoute: ServicesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiEnvImportRoute: ApiEnvImportRoute,

@@ -234,11 +234,11 @@ function HeadingShimmerAdmin() {
 
         <FormRow
           label="Add a custom page path"
-          hint="Use this for routes not listed above (e.g. /portfolio/some-folder). Matches the path and any sub-routes."
+          hint="Exact match by default (e.g. /portfolio/my-folder). Use * to match a single segment or /portfolio/* to match every sub-route."
         >
           <div className="flex gap-2">
             <Input
-              placeholder="/some/path"
+              placeholder="/portfolio/* or /some/path"
               value={customPath}
               onChange={(e) => setCustomPath(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addCustomPath()}

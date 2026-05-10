@@ -84,6 +84,12 @@ function AdminDashboard() {
         </div>
         <div className="flex items-center gap-2">
           <Link
+            to="/admin/launcher"
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:border-primary/40"
+          >
+            <Layers className="h-3.5 w-3.5" /> Manage modules
+          </Link>
+          <Link
             to="/admin/messages"
             className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold hover:border-primary/40"
           >

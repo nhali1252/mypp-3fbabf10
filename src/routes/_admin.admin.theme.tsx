@@ -14,8 +14,28 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AdminPage, AdminCard } from "@/components/admin/AdminPage";
-import { Palette, Layers, Sparkles, Sun, Moon, Copy, Check } from "lucide-react";
+import { Palette, Layers, Sparkles, Sun, Moon, Copy, Check, ShieldCheck } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
+import { contrastRatio, gradeContrast, gradeStyle } from "@/lib/contrast";
+
+/**
+ * Text/background pairs that actually appear on public pages. Each pair is
+ * graded against WCAG 2.1 ratios. Pairs marked `large` use ≥18pt / ≥14pt bold
+ * thresholds (3:1 AA, 4.5:1 AAA) — appropriate for hero headings.
+ */
+const CONTRAST_PAIRS: Array<{ label: string; fg: string; bg: string; large?: boolean; note?: string }> = [
+  { label: "Body text on background", fg: "var(--foreground)", bg: "var(--background)" },
+  { label: "Body text on card", fg: "var(--foreground)", bg: "var(--card)" },
+  { label: "Muted text on background", fg: "var(--muted-foreground)", bg: "var(--background)" },
+  { label: "Muted text on card", fg: "var(--muted-foreground)", bg: "var(--card)" },
+  { label: "Primary accent text on background", fg: "var(--primary)", bg: "var(--background)", note: "Italic gold accents (\"people\", \"folder\", \"build\")" },
+  { label: "Primary accent text on card", fg: "var(--primary)", bg: "var(--card)" },
+  { label: "Hero accent (large text)", fg: "var(--primary)", bg: "var(--background)", large: true, note: "Headings ≥18pt or ≥14pt bold" },
+  { label: "Primary button label on primary", fg: "var(--primary-foreground)", bg: "var(--primary)" },
+  { label: "Secondary button label", fg: "var(--secondary-foreground)", bg: "var(--secondary)" },
+  { label: "Destructive button label", fg: "var(--destructive-foreground)", bg: "var(--destructive)" },
+  { label: "Destructive text on background", fg: "var(--destructive)", bg: "var(--background)" },
+];
 
 export const Route = createFileRoute("/_admin/admin/theme")({
   component: AdminThemePage,
@@ -126,6 +146,72 @@ function GradientSwatch({ name, value }: { name: string; value: string }) {
           <p className="truncate text-[10px] text-muted-foreground">{value || "—"}</p>
         </div>
         <CopyBtn text={`var(--${name})`} />
+      </div>
+    </div>
+  );
+}
+
+function ContrastChecker({ tick }: { tick: number }) {
+  // tick forces a re-render after the theme class changes so var() values re-resolve
+  void tick;
+  const rows = CONTRAST_PAIRS.map((p) => {
+    const ratio = contrastRatio(p.fg, p.bg);
+    const grade = ratio == null ? "Fail" : gradeContrast(ratio, p.large);
+    const style = gradeStyle(grade as ReturnType<typeof gradeContrast>);
+    return { ...p, ratio, grade, style };
+  });
+  const failing = rows.filter((r) => r.grade === "Fail").length;
+  const warning = rows.filter((r) => r.grade === "AA Large" && !r.large).length;
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5">
+          <ShieldCheck className="h-3.5 w-3.5" />
+          {failing === 0 && warning === 0
+            ? "All checked pairs meet WCAG AA."
+            : `${failing} failing · ${warning} marginal`}
+        </span>
+        <span className="text-foreground/40">·</span>
+        <span>Thresholds: AA 4.5:1, AAA 7:1 (large text 3:1 / 4.5:1)</span>
+      </div>
+      <div className="overflow-hidden rounded-xl border border-border">
+        <table className="w-full text-sm">
+          <thead className="bg-card">
+            <tr className="text-left text-[11px] uppercase tracking-wider text-muted-foreground">
+              <th className="px-3 py-2 font-medium">Pair</th>
+              <th className="px-3 py-2 font-medium">Sample</th>
+              <th className="px-3 py-2 font-medium text-right">Ratio</th>
+              <th className="px-3 py-2 font-medium text-right">Grade</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => (
+              <tr key={r.label} className={i % 2 ? "bg-card/40" : "bg-background/40"}>
+                <td className="px-3 py-3 align-middle">
+                  <p className="font-medium text-foreground">{r.label}</p>
+                  {r.note && <p className="text-[11px] text-muted-foreground">{r.note}</p>}
+                </td>
+                <td className="px-3 py-3 align-middle">
+                  <span
+                    className="inline-block rounded-md px-3 py-1.5"
+                    style={{ background: r.bg, color: r.fg }}
+                  >
+                    <span className={r.large ? "text-lg font-bold" : ""}>Aa Sample</span>
+                  </span>
+                </td>
+                <td className="px-3 py-3 text-right align-middle font-mono text-xs">
+                  {r.ratio != null ? `${r.ratio.toFixed(2)}:1` : "—"}
+                </td>
+                <td className="px-3 py-3 text-right align-middle">
+                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ${r.style.className}`}>
+                    {r.style.label}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
@@ -307,6 +393,10 @@ function AdminThemePage() {
             <p className="font-numeric text-3xl tabular-nums text-foreground">1,284 · 99.9%</p>
           </div>
         </div>
+      </AdminCard>
+
+      <AdminCard title="Contrast (WCAG)">
+        <ContrastChecker tick={tick} />
       </AdminCard>
 
       <AdminCard title="Component previews">

@@ -10,6 +10,7 @@ import { PageViewTracker } from "@/components/PageViewTracker";
 import { MaintenanceGate } from "@/components/MaintenanceGate";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { StaleBuildBanner } from "@/components/dev/StaleBuildBanner";
+import { InstallPrompt } from "@/components/InstallPrompt";
 
 import appCss from "../styles.css?url";
 
@@ -125,7 +126,8 @@ function RootComponent() {
             <RouteTransition />
           </MaintenanceGate>
           <Toaster richColors position="top-right" />
-          <StaleBuildBanner />
+            <StaleBuildBanner />
+            <InstallPrompt />
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

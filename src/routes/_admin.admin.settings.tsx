@@ -72,7 +72,7 @@ function AdminSettings() {
     }
     setSaving(true);
     try {
-      const welcomeMs = Math.max(0, Math.min(5000, Number(form.welcome_animation_ms ?? 600) || 0));
+      const welcomeMs = Math.max(0, Math.min(5000, Number(form.welcome_animation_ms ?? 2000) || 0));
       const motionPref = ["on", "off", "auto"].includes(form.default_motion_pref)
         ? form.default_motion_pref
         : "auto";

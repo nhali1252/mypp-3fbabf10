@@ -283,11 +283,29 @@ export const deleteComment = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const sb = context.supabase as any;
     // Snapshot the row before deletion so the audit log keeps a trace.
-    const { data: snap } = await sb
+    const { data: snap, error: fetchErr } = await sb
       .from("feed_comments")
       .select("*")
       .eq("id", data.id)
       .maybeSingle();
+    if (fetchErr) throw new Error(fetchErr.message);
+    if (!snap) throw new Error("Comment not found");
+
+    // Defense in depth — RLS already restricts deletes to the author or an
+    // admin, but re-check explicitly so a future RLS regression can't turn
+    // this into an IDOR.
+    const isAdmin = await sb
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .eq("role", "admin")
+      .maybeSingle()
+      .then((r: any) => !!r.data);
+
+    if (!isAdmin && snap.user_id !== context.userId) {
+      throw new Error("Forbidden — you can only delete your own comments");
+    }
+
     const { error } = await sb.from("feed_comments").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     await logModeration(sb, context.userId, "comment", data.id, "delete", data.reason, snap);

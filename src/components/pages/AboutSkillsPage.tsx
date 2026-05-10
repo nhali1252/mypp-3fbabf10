@@ -451,6 +451,11 @@ function renderHeadline(headline: string, highlight: string) {
           style={{
             backgroundImage:
               "linear-gradient(110deg, var(--primary) 0%, color-mix(in oklab, var(--primary) 40%, var(--foreground)) 100%)",
+            // The parent <h1> has `text-3d` (text-shadow). With a transparent
+            // text fill the shadow bleeds through and looks like a grey/blue
+            // haze. Cancel the shadow on the gradient span.
+            textShadow: "none",
+            WebkitTextFillColor: "transparent",
           }}
           delay={runningDelay}
           stagger={0.06}

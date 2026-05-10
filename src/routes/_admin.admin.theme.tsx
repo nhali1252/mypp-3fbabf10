@@ -151,6 +151,72 @@ function GradientSwatch({ name, value }: { name: string; value: string }) {
   );
 }
 
+function ContrastChecker({ tick }: { tick: number }) {
+  // tick forces a re-render after the theme class changes so var() values re-resolve
+  void tick;
+  const rows = CONTRAST_PAIRS.map((p) => {
+    const ratio = contrastRatio(p.fg, p.bg);
+    const grade = ratio == null ? "Fail" : gradeContrast(ratio, p.large);
+    const style = gradeStyle(grade as ReturnType<typeof gradeContrast>);
+    return { ...p, ratio, grade, style };
+  });
+  const failing = rows.filter((r) => r.grade === "Fail").length;
+  const warning = rows.filter((r) => r.grade === "AA Large" && !r.large).length;
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5">
+          <ShieldCheck className="h-3.5 w-3.5" />
+          {failing === 0 && warning === 0
+            ? "All checked pairs meet WCAG AA."
+            : `${failing} failing · ${warning} marginal`}
+        </span>
+        <span className="text-foreground/40">·</span>
+        <span>Thresholds: AA 4.5:1, AAA 7:1 (large text 3:1 / 4.5:1)</span>
+      </div>
+      <div className="overflow-hidden rounded-xl border border-border">
+        <table className="w-full text-sm">
+          <thead className="bg-card">
+            <tr className="text-left text-[11px] uppercase tracking-wider text-muted-foreground">
+              <th className="px-3 py-2 font-medium">Pair</th>
+              <th className="px-3 py-2 font-medium">Sample</th>
+              <th className="px-3 py-2 font-medium text-right">Ratio</th>
+              <th className="px-3 py-2 font-medium text-right">Grade</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => (
+              <tr key={r.label} className={i % 2 ? "bg-card/40" : "bg-background/40"}>
+                <td className="px-3 py-3 align-middle">
+                  <p className="font-medium text-foreground">{r.label}</p>
+                  {r.note && <p className="text-[11px] text-muted-foreground">{r.note}</p>}
+                </td>
+                <td className="px-3 py-3 align-middle">
+                  <span
+                    className="inline-block rounded-md px-3 py-1.5"
+                    style={{ background: r.bg, color: r.fg }}
+                  >
+                    <span className={r.large ? "text-lg font-bold" : ""}>Aa Sample</span>
+                  </span>
+                </td>
+                <td className="px-3 py-3 text-right align-middle font-mono text-xs">
+                  {r.ratio != null ? `${r.ratio.toFixed(2)}:1` : "—"}
+                </td>
+                <td className="px-3 py-3 text-right align-middle">
+                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ${r.style.className}`}>
+                    {r.style.label}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 function ComponentPreviews() {
   return (
     <div className="space-y-6">

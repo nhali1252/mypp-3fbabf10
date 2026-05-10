@@ -4,7 +4,8 @@ import { HireMeModal } from "./HireMeModal";
 interface HireMeCtx {
   open: boolean;
   preselectedService: string | null;
-  openHireMe: (service?: string | null) => void;
+  openHireMe: () => void;
+  openHireMeForService: (service: string) => void;
   closeHireMe: () => void;
 }
 
@@ -14,8 +15,12 @@ export function HireMeProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [preselectedService, setPreselectedService] = useState<string | null>(null);
 
-  const openHireMe = useCallback((service?: string | null) => {
-    setPreselectedService(service ?? null);
+  const openHireMe = useCallback(() => {
+    setPreselectedService(null);
+    setOpen(true);
+  }, []);
+  const openHireMeForService = useCallback((service: string) => {
+    setPreselectedService(service);
     setOpen(true);
   }, []);
   const closeHireMe = useCallback(() => setOpen(false), []);

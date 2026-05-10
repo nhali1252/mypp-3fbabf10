@@ -75,7 +75,15 @@ export const Route = createRootRoute({
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8064b1d7-871a-477a-b618-87007df00f10/id-preview-5772792c--7987935c-76fc-4499-851e-e85dd50daeb6.lovable.app-1776791998407.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8064b1d7-871a-477a-b618-87007df00f10/id-preview-5772792c--7987935c-76fc-4499-851e-e85dd50daeb6.lovable.app-1776791998407.png" },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      {
+        rel: "alternate",
+        type: "application/rss+xml",
+        title: "Ali Nur Hasan — RSS feed",
+        href: "/feed.xml",
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,

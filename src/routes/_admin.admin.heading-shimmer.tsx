@@ -14,6 +14,7 @@ import {
   isShimmerPathDisabled,
 } from "@/hooks/useHeadingShimmer";
 import { HeadingShimmerOverridesCard } from "@/components/admin/HeadingShimmerOverridesCard";
+import { HeadingShimmerImportExport } from "@/components/admin/HeadingShimmerImportExport";
 
 export const Route = createFileRoute("/_admin/admin/heading-shimmer")({
   component: HeadingShimmerAdmin,

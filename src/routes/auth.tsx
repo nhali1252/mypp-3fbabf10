@@ -108,8 +108,17 @@ function AuthPage() {
           </button>
         </form>
 
+        <div className="mt-4 text-center">
+          <Link
+            to="/forgot-password"
+            className="text-xs font-semibold text-primary hover:underline"
+          >
+            Forgot password?
+          </Link>
+        </div>
+
         <div className="mt-5 text-xs text-muted-foreground text-center">
-          <p>Accounts are created by an administrator. Contact your admin if you forgot your password.</p>
+          <p>Accounts are created by an administrator.</p>
         </div>
       </div>
     </div>

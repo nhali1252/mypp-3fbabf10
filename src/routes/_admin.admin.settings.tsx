@@ -94,6 +94,8 @@ function AdminSettings() {
         reactions_enabled: form.reactions_enabled !== false,
         reactions_show_count: form.reactions_show_count !== false,
         watermark_text: (form.watermark_text || "").trim() || null,
+        maintenance_mode: form.maintenance_mode === true,
+        maintenance_message: (form.maintenance_message || "").trim() || null,
         page_key: pageKey,
       };
       if (data?.id) {

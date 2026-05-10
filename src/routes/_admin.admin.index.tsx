@@ -18,7 +18,7 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   ShieldCheck, ShieldAlert, ClipboardCheck, ArrowRight, Inbox,
   Sparkles, User, FolderOpen, Layers, Briefcase, Mail, Star,
-  Plus, ChevronDown, ChevronUp,
+  Plus, ChevronDown, ChevronUp, Database,
 } from "lucide-react";
 import { PAGE_BLOCKS, type PageBlock } from "@/admin/page-blocks";
 import { AdminStats } from "@/components/admin/AdminStats";

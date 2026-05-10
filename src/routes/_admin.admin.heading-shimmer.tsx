@@ -86,10 +86,9 @@ function HeadingShimmerAdmin() {
       disabled_paths: disabledPaths,
     };
     const r = resolveShimmerForPath(draftBase, overrides, previewPath);
-    // Per-page disable list also forces the heading to plain.
-    const disabledByPath = disabledPaths.some(
-      (p) => previewPath === p || previewPath.startsWith(p + "/"),
-    );
+    // Per-page disable list also forces the heading to plain (supports
+    // exact paths and wildcard patterns like `/portfolio/*`).
+    const disabledByPath = isShimmerPathDisabled(disabledPaths, previewPath);
     return { ...r, enabled: r.enabled && !disabledByPath, disabledByPath };
   }, [enabled, intensity, sweepSize, speedMs, disabledPaths, overrides, previewPath]);
 

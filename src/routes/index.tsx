@@ -419,6 +419,13 @@ function Launcher() {
         show={splashVisible}
         status={splashStatus ?? "loading"}
         errorMessage={error instanceof Error ? error.message : undefined}
+        statusLine={
+          manualSplash
+            ? "Refreshing content…"
+            : firstSplash
+              ? "Preparing your experience…"
+              : undefined
+        }
         onRetry={splashStatus === "error" || splashStatus === "empty" ? handleRefresh : undefined}
         onDismiss={
           splashStatus === "error" || splashStatus === "empty"

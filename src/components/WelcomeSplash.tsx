@@ -33,6 +33,8 @@ type Props = {
   onRetry?: () => void;
   /** Click handler for the dismiss button (empty/error states). */
   onDismiss?: () => void;
+  /** Optional short status line shown under the loading bar. */
+  statusLine?: string;
 };
 
 /**
@@ -51,6 +53,7 @@ export function WelcomeSplash({
   errorMessage,
   onRetry,
   onDismiss,
+  statusLine,
 }: Props) {
   const controlled = show !== undefined;
   const [mounted, setMounted] = useState(false);
@@ -193,6 +196,18 @@ export function WelcomeSplash({
                   className="h-full w-1/2 bg-gradient-to-r from-transparent via-primary to-transparent"
                 />
               </motion.div>
+            )}
+
+            {status === "loading" && statusLine && (
+              <motion.p
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.55 }}
+                aria-live="polite"
+                className="mt-4 text-xs sm:text-sm text-muted-foreground/80 tracking-wide"
+              >
+                {statusLine}
+              </motion.p>
             )}
 
             {isInteractive && (

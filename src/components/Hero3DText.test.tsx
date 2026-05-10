@@ -1,6 +1,23 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeAll } from "vitest";
 import { render } from "@testing-library/react";
 import { Hero3DText } from "./Hero3DText";
+
+beforeAll(() => {
+  if (!window.matchMedia) {
+    // jsdom doesn't ship matchMedia; Hero3DText uses it to detect mobile.
+    window.matchMedia = (q: string) =>
+      ({
+        matches: false,
+        media: q,
+        onchange: null,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        addListener: () => {},
+        removeListener: () => {},
+        dispatchEvent: () => false,
+      }) as unknown as MediaQueryList;
+  }
+});
 
 /**
  * Visual-regression snapshot test for Hero3DText letter/word spans.

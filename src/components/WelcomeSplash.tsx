@@ -198,6 +198,18 @@ export function WelcomeSplash({
               </motion.div>
             )}
 
+            {status === "loading" && statusLine && (
+              <motion.p
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.55 }}
+                aria-live="polite"
+                className="mt-4 text-xs sm:text-sm text-muted-foreground/80 tracking-wide"
+              >
+                {statusLine}
+              </motion.p>
+            )}
+
             {isInteractive && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}

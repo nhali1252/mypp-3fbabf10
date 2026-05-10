@@ -74,8 +74,40 @@ jobs:
           VITE_SUPABASE_PROJECT_ID: ${{ env.PUB_SUPABASE_PROJECT_ID }}
 
       # wrangler-action uploads everything in `secrets:` to Cloudflare as
-      # encrypted Worker secrets on every deploy — no manual Cloudflare clicks.
-      # Empty values are skipped automatically by wrangler.
+      # encrypted Worker secrets on every deploy. IMPORTANT: `wrangler secret
+      # put` rejects empty values, so we must NOT list optional secrets that
+      # weren't set in GitHub. Build the list dynamically below.
+      - name: Build dynamic secrets list (skip empty optionals)
+        id: secrets_list
+        shell: bash
+        env:
+          SUPABASE_URL: ${{ env.PUB_SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ env.PUB_SUPABASE_PUBLISHABLE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_JWKS: ${{ secrets.SUPABASE_JWKS }}
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          LOVABLE_API_KEY: ${{ secrets.LOVABLE_API_KEY }}
+          ENV_IMPORT_TOKEN: ${{ secrets.ENV_IMPORT_TOKEN }}
+        run: |
+          NAMES=()
+          # Always-present (validated above + hardcoded public values)
+          NAMES+=("SUPABASE_URL")
+          NAMES+=("SUPABASE_PUBLISHABLE_KEY")
+          NAMES+=("SUPABASE_SERVICE_ROLE_KEY")
+          # Optionals — only include if non-empty
+          [ -n "$SUPABASE_ANON_KEY" ]   && NAMES+=("SUPABASE_ANON_KEY")
+          [ -n "$SUPABASE_JWKS" ]       && NAMES+=("SUPABASE_JWKS")
+          [ -n "$SUPABASE_DB_URL" ]     && NAMES+=("SUPABASE_DB_URL")
+          [ -n "$LOVABLE_API_KEY" ]     && NAMES+=("LOVABLE_API_KEY")
+          [ -n "$ENV_IMPORT_TOKEN" ]    && NAMES+=("ENV_IMPORT_TOKEN")
+          {
+            echo "names<<EOF"
+            for n in "${NAMES[@]}"; do echo "$n"; done
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          echo "✓ Will sync these secrets to Cloudflare: ${NAMES[*]}"
+
       - name: Deploy to Cloudflare Workers (auto-sync all secrets)
         uses: cloudflare/wrangler-action@v3
         env:
@@ -91,12 +123,4 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
-          secrets: |
-            SUPABASE_URL
-            SUPABASE_PUBLISHABLE_KEY
-            SUPABASE_SERVICE_ROLE_KEY
-            SUPABASE_ANON_KEY
-            SUPABASE_JWKS
-            SUPABASE_DB_URL
-            LOVABLE_API_KEY
-            ENV_IMPORT_TOKEN
+          secrets: ${{ steps.secrets_list.outputs.names }}

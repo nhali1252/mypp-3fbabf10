@@ -185,12 +185,9 @@ export function PageLoader({
         ) : null}
 
         <div className="font-serif-display italic text-4xl sm:text-5xl tracking-tight select-none">
-          <span className="text-foreground">{siteName}</span>
-          {tail && (
-            <span className="bg-gradient-to-r from-[oklch(0.82_0.09_82)] to-[oklch(0.66_0.07_70)] bg-clip-text text-transparent">
-              {tail}
-            </span>
-          )}
+          <span className="bg-gradient-to-r from-[oklch(0.82_0.09_82)] to-[oklch(0.66_0.07_70)] bg-clip-text text-transparent">
+            {match.label || siteName}
+          </span>
         </div>
 
         {tagline && (

@@ -512,14 +512,16 @@ function Launcher() {
               text={hero.headline_top}
               className="block"
               delay={welcomeSec * 0.07}
-              stagger={0.08}
+              stagger={0.05}
+              byLetter
             />
             <Hero3DText
               as="span"
               text={hero.headline_bottom}
               className="block bg-clip-text text-transparent"
-              delay={welcomeSec * 0.07 + 0.25}
-              stagger={0.08}
+              delay={welcomeSec * 0.07 + 0.35}
+              stagger={0.05}
+              byLetter
             />
             <style>{`
               h1 > span.bg-clip-text {

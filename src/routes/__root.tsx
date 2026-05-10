@@ -11,6 +11,7 @@ import { MaintenanceGate } from "@/components/MaintenanceGate";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { MotionPrefProvider } from "@/components/MotionPrefProvider";
 import { StaleBuildBanner } from "@/components/dev/StaleBuildBanner";
+import { HeadingShimmerVars } from "@/components/HeadingShimmerVars";
 
 
 import appCss from "../styles.css?url";

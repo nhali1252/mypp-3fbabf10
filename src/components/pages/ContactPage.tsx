@@ -124,18 +124,19 @@ export function ContactPage() {
           >
             <Sparkles className="w-3.5 h-3.5" /> Start a project
           </motion.button>
-          <motion.h1
-            initial={{ opacity: 0, y: 22 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.05 }}
+          <h1
             className="font-black tracking-tight leading-[1.02] mt-5 text-3d text-3d-pop"
             style={{ fontSize: "clamp(34px, 6.4vw, 78px)" }}
           >
-            Let's design something{" "}
-            <span className="font-serif-display italic font-medium text-primary">
-              remarkable.
-            </span>
-          </motion.h1>
+            <Hero3DText as="span" text="Let's design something " delay={0.1} stagger={0.07} />
+            <Hero3DText
+              as="span"
+              text="remarkable."
+              className="font-serif-display italic font-medium text-primary"
+              delay={0.5}
+              stagger={0.07}
+            />
+          </h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}

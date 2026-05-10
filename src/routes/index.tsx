@@ -12,6 +12,7 @@ import { MotionToggle } from "@/components/MotionToggle";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Footer } from "@/components/Footer";
 import { useSiteSettings, isSectionVisible } from "@/hooks/useSiteSettings";
+import { WelcomeSplash } from "@/components/WelcomeSplash";
 
 
 export const Route = createFileRoute("/")({

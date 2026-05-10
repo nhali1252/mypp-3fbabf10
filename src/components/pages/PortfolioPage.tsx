@@ -33,11 +33,25 @@ type PItem = {
 
 export function PortfolioPage() {
   const { data: portfolioDoc, isLoading: foldersLoading } = useContentDoc<PortfolioDoc>("portfolio");
-  const folders: PFolder[] = (portfolioDoc ?? []).map(({ items: _items, ...f }) => f);
+  const allFolders: PFolder[] = (portfolioDoc ?? []).map(({ items: _items, ...f }) => f);
 
-  const [openFolder, setOpenFolder] = useState<PFolder | null>(null);
+  // Only top-level folders show on the landing grid; subfolders are revealed
+  // when the user opens their parent.
+  const rootFolders = useMemo(
+    () => allFolders.filter((f) => !f.parent_id),
+    [allFolders],
+  );
+
+  // Folder navigation stack — each entry is one level deep. The last entry is
+  // the currently open folder. Empty stack = closed viewer.
+  const [folderStack, setFolderStack] = useState<PFolder[]>([]);
   const [previewItem, setPreviewItem] = useState<PItem | null>(null);
 
+  const openFolder = (f: PFolder) => setFolderStack([f]);
+  const drillInto = (f: PFolder) => setFolderStack((s) => [...s, f]);
+  const goBack = () => setFolderStack((s) => s.slice(0, -1));
+  const jumpTo = (i: number) => setFolderStack((s) => s.slice(0, i + 1));
+  const closeViewer = () => setFolderStack([]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -105,14 +119,14 @@ export function PortfolioPage() {
                 <div key={i} className="aspect-[4/3] rounded-2xl border border-border skeleton-shimmer" />
               ))}
             </div>
-          ) : folders.length === 0 ? (
+          ) : rootFolders.length === 0 ? (
             <div className="text-center py-20 text-sm text-muted-foreground border border-dashed border-border rounded-2xl">
               No folders yet — add some from <code>/admin/portfolio</code>.
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {folders.map((f, i) => (
-                <FolderCard key={f.id} folder={f} index={i} onOpen={() => setOpenFolder(f)} />
+              {rootFolders.map((f, i) => (
+                <FolderCard key={f.id} folder={f} index={i} onOpen={() => openFolder(f)} />
               ))}
             </div>
           )}
@@ -120,10 +134,15 @@ export function PortfolioPage() {
       </section>
 
       <AnimatePresence>
-        {openFolder && (
+        {folderStack.length > 0 && (
           <FolderViewer
-            folder={openFolder}
-            onClose={() => setOpenFolder(null)}
+            stack={folderStack}
+            allFolders={allFolders}
+            portfolioDoc={portfolioDoc ?? []}
+            onClose={closeViewer}
+            onBack={goBack}
+            onJump={jumpTo}
+            onDrillInto={drillInto}
             onPreview={setPreviewItem}
           />
         )}

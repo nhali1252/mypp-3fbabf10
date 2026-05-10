@@ -168,9 +168,13 @@ function ServicesTasTajPageInner() {
                         {s.description}
                       </p>
                     )}
-                    <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.2em] text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                      Learn more <ArrowRight className="w-3.5 h-3.5" />
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() => openHireMeForService(s.title)}
+                      className="mt-5 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.2em] text-primary hover:text-primary/80 transition-colors"
+                    >
+                      Start a project <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </motion.article>
               );

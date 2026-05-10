@@ -310,6 +310,7 @@ function AdminSettings() {
         </div>
       </AdminCard>
 
+      <AdminCard title="Services hero (used on /services page)">
         <div className="grid gap-4">
           <FormRow label="Hero title"><Input value={form.hero_title || ""} onChange={(e) => set("hero_title", e.target.value)} placeholder="Premium Taxi & Service Bookings" /></FormRow>
           <FormRow label="Hero subtitle"><Textarea rows={2} value={form.hero_subtitle || ""} onChange={(e) => set("hero_subtitle", e.target.value)} placeholder="Reliable rides, on-demand services, transparent pricing." /></FormRow>

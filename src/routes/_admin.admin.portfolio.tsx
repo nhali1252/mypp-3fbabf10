@@ -325,7 +325,6 @@ function AdminPortfolio() {
       );
       qc.invalidateQueries({ queryKey });
       qc.invalidateQueries({ queryKey: ["public_portfolio_folders"] });
-      qc.invalidateQueries({ queryKey: ["content", "portfolio"] });
       qc.invalidateQueries({ queryKey: ["public_portfolio_items"] });
       qc.invalidateQueries({ queryKey: ["content", "portfolio"] });
     } catch (e: any) {

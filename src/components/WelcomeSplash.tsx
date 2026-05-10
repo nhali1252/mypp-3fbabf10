@@ -10,24 +10,35 @@ type Props = {
   title?: string;
   /** Sub-line under the title. */
   subtitle?: string;
+  /**
+   * Controlled visibility. When provided, overrides the session-storage
+   * auto behavior — caller decides when the splash appears.
+   */
+  show?: boolean;
+  /** Called when the splash finishes fading out. */
+  onDone?: () => void;
 };
 
 /**
- * Full-screen welcome splash shown on every fresh load of the homepage.
- * Renders client-side only (no SSR markup) so a refresh always replays it.
+ * Full-screen welcome splash. By default shows once per browser session
+ * on mount. Pass `show` to control it imperatively (e.g. on manual refresh).
  */
 export function WelcomeSplash({
   durationMs = 2200,
   eyebrow = "Portfolio",
   title = "Welcome",
   subtitle = "Ali Nur Hasan",
+  show,
+  onDone,
 }: Props) {
+  const controlled = show !== undefined;
   const [mounted, setMounted] = useState(false);
-  const [visible, setVisible] = useState(false);
+  const [autoVisible, setAutoVisible] = useState(false);
   const reduce = useReducedMotion();
 
   useEffect(() => {
     setMounted(true);
+    if (controlled) return;
     let shouldShow = true;
     try {
       if (sessionStorage.getItem("welcomeSplash.seen") === "1") {
@@ -39,10 +50,15 @@ export function WelcomeSplash({
       /* ignore storage errors */
     }
     if (!shouldShow) return;
-    setVisible(true);
-    const t = setTimeout(() => setVisible(false), reduce ? 600 : durationMs);
+    setAutoVisible(true);
+    const t = setTimeout(() => {
+      setAutoVisible(false);
+      onDone?.();
+    }, reduce ? 600 : durationMs);
     return () => clearTimeout(t);
-  }, [durationMs, reduce]);
+  }, [durationMs, reduce, controlled, onDone]);
+
+  const visible = controlled ? !!show : autoVisible;
 
   if (!mounted) return null;
 

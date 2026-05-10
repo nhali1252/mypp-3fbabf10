@@ -2,7 +2,11 @@
 @source "../src";
 @import "tw-animate-css";
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&family=Inter:wght@400;500;600;700;800;900&family=Lora:wght@400;500;600;700&display=swap');
+/* Google Fonts (Cormorant Garamond, Inter, Lora) are loaded via <link> tags
+   in src/routes/__root.tsx — keeping them out of the CSS bundle avoids the
+   PostCSS "@import must precede all other statements" warning that Tailwind
+   v4's inlined `@import "tailwindcss"` triggers. */
+
 
 @custom-variant dark (&:is(.dark *));
 

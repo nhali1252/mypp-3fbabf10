@@ -126,7 +126,8 @@ function RootComponent() {
             <RouteTransition />
           </MaintenanceGate>
           <Toaster richColors position="top-right" />
-          <StaleBuildBanner />
+            <StaleBuildBanner />
+            <InstallPrompt />
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from "framer-motion";
-import { useMemo, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 
 interface Hero3DTextProps {
   text: string;
@@ -8,12 +8,15 @@ interface Hero3DTextProps {
   style?: CSSProperties;
   delay?: number;
   stagger?: number;
+  /** Reveal each character separately. Default reveals each word. */
+  byLetter?: boolean;
 }
 
 /**
- * Cinematic word-by-word 3D reveal.
- * Each word starts blurred, tilted on X (perspective rotateX) and offset,
- * then settles into place. Respects prefers-reduced-motion.
+ * Cinematic 3D reveal for headlines. Each unit (word or letter) starts
+ * tilted, blurred and offset, then settles into place. Honors
+ * prefers-reduced-motion. On small viewports the blur step is dropped
+ * (GPU-expensive on mobile) without losing the choreography.
  */
 export function Hero3DText({
   text,
@@ -21,16 +24,37 @@ export function Hero3DText({
   className = "",
   style,
   delay = 0,
-  stagger = 0.11,
+  stagger,
+  byLetter = false,
 }: Hero3DTextProps) {
   const reduced = useReducedMotion();
-  const words = useMemo(() => text.split(/(\s+)/), [text]);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 640px)");
+    const apply = () => setIsMobile(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+
+  // Split into reveal units. Word mode keeps whitespace as inert spans so
+  // wrapping behaves naturally; letter mode preserves spaces too.
+  const units = useMemo(() => {
+    if (byLetter) return Array.from(text);
+    return text.split(/(\s+)/);
+  }, [text, byLetter]);
 
   const MotionTag = motion[Tag] as typeof motion.h1;
 
   if (reduced) {
     return <Tag className={className} style={style}>{text}</Tag>;
   }
+
+  // Sensible default stagger per mode
+  const childStagger = stagger ?? (byLetter ? 0.04 : 0.11);
+  const useBlur = !isMobile;
 
   return (
     <MotionTag
@@ -40,13 +64,13 @@ export function Hero3DText({
       animate="visible"
       variants={{
         hidden: {},
-        visible: { transition: { delayChildren: delay, staggerChildren: stagger } },
+        visible: { transition: { delayChildren: delay, staggerChildren: childStagger } },
       }}
     >
-      {words.map((w, i) =>
-        /\s+/.test(w) ? (
-          <span key={i}>{w}</span>
-        ) : (
+      {units.map((w, i) => {
+        const isSpace = /^\s+$/.test(w);
+        if (isSpace) return <span key={i}>{w}</span>;
+        return (
           <motion.span
             key={i}
             className="inline-block will-change-[transform,opacity,filter]"
@@ -56,26 +80,28 @@ export function Hero3DText({
                 opacity: 0,
                 y: "0.45em",
                 rotateX: -55,
-                filter: "blur(8px)",
+                ...(useBlur ? { filter: "blur(8px)" } : {}),
               },
               visible: {
                 opacity: 1,
                 y: 0,
                 rotateX: 0,
-                filter: "blur(0px)",
+                ...(useBlur ? { filter: "blur(0px)" } : {}),
                 transition: {
-                  duration: 1.15,
+                  duration: byLetter ? 0.85 : 1.15,
                   ease: [0.16, 1, 0.3, 1],
-                  opacity: { duration: 0.9, ease: "easeOut" },
-                  filter: { duration: 0.7, ease: "easeOut" },
+                  opacity: { duration: byLetter ? 0.6 : 0.9, ease: "easeOut" },
+                  ...(useBlur
+                    ? { filter: { duration: byLetter ? 0.5 : 0.7, ease: "easeOut" } }
+                    : {}),
                 },
               },
             }}
           >
-            {w}
+            {w === " " ? "\u00A0" : w}
           </motion.span>
-        )
-      )}
+        );
+      })}
     </MotionTag>
   );
 }

@@ -15,7 +15,7 @@ export type PageLoaderSettings = {
 export const PAGE_LOADER_DEFAULTS: PageLoaderSettings = {
   id: "",
   initial_ms: 250,
-  route_ms: 250,
+  route_ms: 520,
   default_label: "",
   default_tagline: "",
   routes: {

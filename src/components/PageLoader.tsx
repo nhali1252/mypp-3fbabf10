@@ -134,12 +134,43 @@ export function PageLoader({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Route-change loader intentionally disabled: the per-route fade in
-  // RouteTransition is enough, and showing a second full-screen overlay
-  // on every navigation caused a visible "double page" flicker.
+  // Route-change loader: short brand cover between page navigations.
+  // Skips the very first run (initial loader handles that) and any same-path
+  // updates. Duration is `routeMs` (default ~520ms from PAGE_LOADER_DEFAULTS),
+  // which is long enough to feel branded but short enough not to feel slow.
+  // The overlay sits on z-[9999] above RouteTransition so the incoming page
+  // mounts behind it — eliminating any per-page mount flicker.
   useEffect(() => {
+    if (isFirstRun.current) return;
+    if (lastPath.current === pathname) return;
+    const fromPath = lastPath.current;
     lastPath.current = pathname;
-  }, [pathname]);
+
+    const start = performance.now();
+    setShow(true);
+    setHiding(false);
+
+    const hideTimer = window.setTimeout(() => {
+      setHiding(true);
+      trackLoaderVisible({
+        kind: "route",
+        path: pathname,
+        fromPath,
+        configuredMs: routeMs,
+        actualMs: performance.now() - start,
+      });
+    }, routeMs);
+
+    const removeTimer = window.setTimeout(() => {
+      setShow(false);
+      setHiding(false);
+    }, routeMs + 280);
+
+    return () => {
+      window.clearTimeout(hideTimer);
+      window.clearTimeout(removeTimer);
+    };
+  }, [pathname, routeMs]);
 
   if (!show) return null;
 

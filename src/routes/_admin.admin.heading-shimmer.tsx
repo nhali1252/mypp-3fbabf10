@@ -158,6 +158,15 @@ function HeadingShimmerAdmin() {
       description="Tune the gold animated effect applied to all section headings (h1/h2/h3) and pick which pages should use a plain style instead."
       actions={
         <div className="flex items-center gap-2 flex-wrap">
+          <HeadingShimmerImportExport
+            currentSettings={{
+              enabled,
+              intensity,
+              sweep_size: sweepSize,
+              speed_ms: speedMs,
+              disabled_paths: disabledPaths,
+            }}
+          />
           <button
             onClick={resetDefaults}
             className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-background hover:bg-muted text-sm"

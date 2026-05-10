@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Inbox, Heart, MessageSquare, FolderOpen, Briefcase, Star, Image as ImageIcon,
+  Inbox, Heart, MessageSquare, FolderOpen, Briefcase, Image as ImageIcon, Eye,
 } from "lucide-react";
 
 type Stats = {

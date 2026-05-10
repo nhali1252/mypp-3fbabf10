@@ -100,6 +100,7 @@ export function ProjectsPage() {
         </div>
       </section>
 
+      <PageQuote slug="projects" />
       <Footer />
     </div>
   );

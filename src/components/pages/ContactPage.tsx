@@ -379,6 +379,7 @@ export function ContactPage() {
         </div>
       </section>
 
+      <PageQuote slug="contact" />
       <Footer />
 
       <style>{`

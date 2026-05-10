@@ -281,6 +281,7 @@ export function ReviewsPage() {
         </div>
       </section>
 
+      <PageQuote slug="reviews" />
       <Footer />
     </div>
   );

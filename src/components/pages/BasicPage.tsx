@@ -34,6 +34,7 @@ export function BasicPage() {
           <ActivitiesSection />
           <ContactSection />
         </main>
+        <PageQuote slug="basic" />
         <Footer />
       </div>
     </HireMeProvider>

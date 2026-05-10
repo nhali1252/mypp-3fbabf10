@@ -412,6 +412,7 @@ function AboutSkillsInner() {
         </div>
       </section>
 
+      <PageQuote slug="about" />
       <Footer />
       <HireMeFloatingButton />
     </div>

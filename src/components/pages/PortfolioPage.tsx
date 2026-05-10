@@ -132,6 +132,7 @@ export function PortfolioPage() {
         {previewItem && <ItemPreview item={previewItem} onClose={() => setPreviewItem(null)} />}
       </AnimatePresence>
 
+      <PageQuote slug="portfolio" />
       <Footer />
     </div>
   );

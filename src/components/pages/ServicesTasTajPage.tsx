@@ -347,6 +347,7 @@ function ServicesTasTajPageInner() {
         </div>
       </section>
 
+      <PageQuote slug="services" />
       <Footer />
     </div>
   );

@@ -221,8 +221,17 @@ function HeadingShimmerAdmin() {
           <button
             onClick={resetDefaults}
             className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-background hover:bg-muted text-sm"
+            title="Reset the form on screen — does not save"
           >
-            <RotateCcw size={14} /> Reset to defaults
+            <RotateCcw size={14} /> Reset form
+          </button>
+          <button
+            onClick={resetAll}
+            disabled={saving || isLoading}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-destructive/40 bg-background hover:bg-destructive/10 text-destructive text-sm disabled:opacity-50"
+            title="Wipe saved settings AND every per-route override back to defaults"
+          >
+            <Eraser size={14} /> Reset everything
           </button>
           <button
             onClick={save}

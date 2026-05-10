@@ -174,7 +174,7 @@ export function ReviewsPage() {
                   <p className="text-sm leading-relaxed text-foreground/90">{r.review}</p>
                   <div className="mt-4 pt-4 border-t border-border/60 flex items-center gap-3">
                     {r.avatar_url ? (
-                      <img src={r.avatar_url} alt={r.client_name} className="w-9 h-9 rounded-full object-cover" />
+                      <img src={r.avatar_url} alt={r.client_name} loading="lazy" decoding="async" className="w-9 h-9 rounded-full object-cover" />
                     ) : (
                       <div className="w-9 h-9 rounded-full bg-primary/15 text-primary grid place-items-center text-xs font-bold">
                         {r.client_name.slice(0, 1).toUpperCase()}

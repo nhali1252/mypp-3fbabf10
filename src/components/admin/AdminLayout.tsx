@@ -42,6 +42,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   ticker: "Ticker",
   pwa: "PWA & install",
   theme: "Theme audit",
+  "heading-shimmer": "Heading shimmer",
 };
 
 function labelize(seg: string) {

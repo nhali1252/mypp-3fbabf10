@@ -160,3 +160,21 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
+
+/**
+ * Floating shimmer toggle, mounted globally so every page has it without
+ * needing to add it to each layout. Hidden on admin routes (which already
+ * expose richer per-route shimmer controls) and during print.
+ */
+function FloatingShimmerToggle() {
+  const { pathname } = useLocation();
+  if (pathname.startsWith("/admin")) return null;
+  return (
+    <div className="pointer-events-none fixed bottom-4 right-4 z-40 print:hidden">
+      <div className="pointer-events-auto">
+        <ShimmerToggle />
+      </div>
+    </div>
+  );
+}
+

@@ -22,6 +22,7 @@ const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
 interface Props {
   open: boolean;
   onClose: () => void;
+  preselectedService?: string | null;
 }
 
 const WhatsAppIcon = ({ size = 14 }: { size?: number }) => (
@@ -30,12 +31,24 @@ const WhatsAppIcon = ({ size = 14 }: { size?: number }) => (
   </svg>
 );
 
-export function HireMeModal({ open, onClose }: Props) {
+export function HireMeModal({ open, onClose, preselectedService }: Props) {
   const reduce = useReducedMotion();
   const { data: contact } = useContactSettings();
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [loading, setLoading] = useState(false);
   const send = useServerFn(submitMessage);
+
+  // When opened with a preselected service, prefill the message body so the
+  // user only needs to add their brief details.
+  useEffect(() => {
+    if (open && preselectedService) {
+      setForm((f) => {
+        const tag = `Service: ${preselectedService}\n\n`;
+        if (f.message.includes(`Service: ${preselectedService}`)) return f;
+        return { ...f, message: tag + (f.message || "") };
+      });
+    }
+  }, [open, preselectedService]);
 
   // Close on Escape.
   useEffect(() => {

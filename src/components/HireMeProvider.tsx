@@ -36,7 +36,7 @@ export function HireMeProvider({ children }: { children: ReactNode }) {
   }, [open]);
 
   return (
-    <Ctx.Provider value={{ open, preselectedService, openHireMe, closeHireMe }}>
+    <Ctx.Provider value={{ open, preselectedService, openHireMe, openHireMeForService, closeHireMe }}>
       {children}
       <HireMeModal open={open} onClose={closeHireMe} preselectedService={preselectedService} />
     </Ctx.Provider>
@@ -50,6 +50,7 @@ export function useHireMe(): HireMeCtx {
       open: false,
       preselectedService: null,
       openHireMe: () => {},
+      openHireMeForService: () => {},
       closeHireMe: () => {},
     };
   }

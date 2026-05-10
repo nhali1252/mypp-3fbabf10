@@ -690,6 +690,42 @@ export type Database = {
         }
         Relationships: []
       }
+      heading_shimmer_overrides: {
+        Row: {
+          created_at: string
+          enabled: boolean | null
+          id: string
+          intensity: number | null
+          notes: string | null
+          path: string
+          speed_ms: number | null
+          sweep_size: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean | null
+          id?: string
+          intensity?: number | null
+          notes?: string | null
+          path: string
+          speed_ms?: number | null
+          sweep_size?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean | null
+          id?: string
+          intensity?: number | null
+          notes?: string | null
+          path?: string
+          speed_ms?: number | null
+          sweep_size?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       heading_shimmer_settings: {
         Row: {
           created_at: string

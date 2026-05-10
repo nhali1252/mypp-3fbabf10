@@ -316,10 +316,25 @@ export function deriveLauncherCards(
 
 function Launcher() {
   const { launcherDoc: initialLauncherDoc } = Route.useLoaderData();
-  const { data: rawDoc, isLoading, isFetching } = useContentDoc<unknown>(
+  const { data: rawDoc, isLoading, isFetching, refetch } = useContentDoc<unknown>(
     "launcher",
     { initialData: initialLauncherDoc },
   );
+  const queryClient = useQueryClient();
+  const [manualSplash, setManualSplash] = useState(false);
+
+  const handleRefresh = async () => {
+    setManualSplash(true);
+    try {
+      await Promise.all([
+        refetch(),
+        queryClient.invalidateQueries({ queryKey: ["content"] }),
+      ]);
+    } finally {
+      // Keep the splash visible briefly so the transition feels intentional.
+      setTimeout(() => setManualSplash(false), 900);
+    }
+  };
 
   // Validate the raw payload at runtime. Malformed docs collapse to a
   // safe empty doc so the UI keeps rendering instead of crashing.

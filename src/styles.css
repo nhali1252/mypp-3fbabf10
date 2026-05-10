@@ -353,6 +353,8 @@
   /* Opt-out: kill-switch, admin chrome, interactive controls, .no-shimmer */
   [data-shimmer="off"] h1, [data-shimmer="off"] h1 > span, [data-shimmer="off"] h1 > span > span,
   [data-shimmer="off"] h2, [data-shimmer="off"] h3,
+  [data-shimmer-user="off"] h1, [data-shimmer-user="off"] h1 > span, [data-shimmer-user="off"] h1 > span > span,
+  [data-shimmer-user="off"] h2, [data-shimmer-user="off"] h3,
   [data-shimmer-fallback="true"] h1, [data-shimmer-fallback="true"] h1 > span, [data-shimmer-fallback="true"] h1 > span > span,
   [data-shimmer-fallback="true"] h2, [data-shimmer-fallback="true"] h3,
   [data-admin] h1, [data-admin] h1 > span, [data-admin] h1 > span > span,
@@ -368,6 +370,24 @@
     color: inherit;
     -webkit-text-fill-color: currentColor;
     animation: none;
+  }
+  /* Per-visitor floating toggle: must out-specify ad-hoc inline <style>
+     blocks (e.g. the home-hero `h1 > span.bg-clip-text > span` rule that
+     ties on specificity 0,1,3 and would otherwise win by document order).
+     Adding the `html` element selector lifts these to 0,1,4+ so toggling
+     the floating button reliably reverts every heading to a plain fill. */
+  html[data-shimmer-user="off"] h1,
+  html[data-shimmer-user="off"] h1 > span,
+  html[data-shimmer-user="off"] h1 > span > span,
+  html[data-shimmer-user="off"] h1 > span > span > span,
+  html[data-shimmer-user="off"] h2,
+  html[data-shimmer-user="off"] h3 {
+    background-image: none !important;
+    -webkit-background-clip: initial !important;
+    background-clip: initial !important;
+    color: inherit !important;
+    -webkit-text-fill-color: currentColor !important;
+    animation: none !important;
   }
   /* Reduced-motion: fully revert the heading shimmer to a solid, readable
      fill instead of leaving the gradient frozen mid-sweep (which can render

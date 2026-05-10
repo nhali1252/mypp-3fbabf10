@@ -1,4 +1,4 @@
-import { Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Link, createRootRoute, HeadContent, Scripts, useLocation } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { Toaster } from "sonner";
@@ -12,6 +12,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { MotionPrefProvider } from "@/components/MotionPrefProvider";
 import { StaleBuildBanner } from "@/components/dev/StaleBuildBanner";
 import { HeadingShimmerVars } from "@/components/HeadingShimmerVars";
+import { ShimmerToggle } from "@/components/ShimmerToggle";
 
 
 import appCss from "../styles.css?url";
@@ -27,6 +28,16 @@ const themeBootScript = `(() => {
     var r = document.documentElement;
     r.classList.add(t);
     r.style.colorScheme = t;
+  } catch (e) {}
+})();`;
+
+// Apply the saved shimmer preference before hydration so visitors who
+// disabled the gold shimmer never see a one-frame flash on first paint.
+const shimmerBootScript = `(() => {
+  try {
+    if (localStorage.getItem('shimmer-pref') === 'off') {
+      document.documentElement.setAttribute('data-shimmer-user', 'off');
+    }
   } catch (e) {}
 })();`;
 
@@ -101,6 +112,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+        <script dangerouslySetInnerHTML={{ __html: shimmerBootScript }} />
       </head>
       <body>
         {children}
@@ -140,9 +152,29 @@ function RootComponent() {
             </MaintenanceGate>
             <Toaster richColors position="top-right" />
               <StaleBuildBanner />
+            <FloatingShimmerToggle />
+
           </AuthProvider>
         </MotionPrefProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
 }
+
+/**
+ * Floating shimmer toggle, mounted globally so every page has it without
+ * needing to add it to each layout. Hidden on admin routes (which already
+ * expose richer per-route shimmer controls) and during print.
+ */
+function FloatingShimmerToggle() {
+  const { pathname } = useLocation();
+  if (pathname.startsWith("/admin")) return null;
+  return (
+    <div className="pointer-events-none fixed bottom-4 right-4 z-40 print:hidden">
+      <div className="pointer-events-auto">
+        <ShimmerToggle />
+      </div>
+    </div>
+  );
+}
+

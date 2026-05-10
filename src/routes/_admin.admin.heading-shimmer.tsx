@@ -266,11 +266,19 @@ function HeadingShimmerAdmin() {
           <Sparkles size={12} /> Sliders update the preview immediately. Click
           "Save changes" to apply site-wide.
         </p>
-        <div className="rounded-2xl border border-border p-8 bg-background">
-          <h2 className="text-4xl md:text-5xl font-black tracking-tight">
+        <div className="rounded-2xl border border-border p-8 bg-background space-y-5">
+          <h1 className="text-5xl md:text-6xl font-black tracking-tight leading-[1.05]">
+            <span>Things I </span>
+            <span className="font-serif-display italic font-medium">
+              {Array.from("build").map((c, i) => (
+                <span key={i}>{c}</span>
+              ))}
+            </span>
+          </h1>
+          <h2 className="text-3xl md:text-4xl font-black tracking-tight">
             Section heading example
           </h2>
-          <h3 className="mt-4 text-2xl font-bold">A smaller subheading.</h3>
+          <h3 className="text-xl md:text-2xl font-bold">A smaller subheading.</h3>
         </div>
       </AdminCard>
     </AdminPage>

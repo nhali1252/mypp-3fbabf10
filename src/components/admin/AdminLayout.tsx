@@ -73,6 +73,7 @@ const groups: Group[] = [
       { to: "/admin/users", label: "Users", Icon: Users },
       { to: "/admin/pwa", label: "PWA & install", Icon: Smartphone },
       { to: "/admin/theme", label: "Theme audit", Icon: Palette },
+      { to: "/admin/heading-shimmer", label: "Heading shimmer", Icon: Sparkles },
       { to: "/admin/settings", label: "Site settings", Icon: Settings },
     ],
   },

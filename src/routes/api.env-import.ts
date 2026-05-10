@@ -18,18 +18,24 @@ import type { Database } from "@/integrations/supabase/types";
  *      user has the `admin` role.
  */
 
-const EXPECTED_VARS = [
+const REQUIRED_VARS = [
   "SUPABASE_URL",
   "SUPABASE_PUBLISHABLE_KEY",
   "SUPABASE_SERVICE_ROLE_KEY",
-  "SUPABASE_ANON_KEY",
-  "SUPABASE_JWKS",
-  "SUPABASE_DB_URL",
-  "LOVABLE_API_KEY",
   "VITE_SUPABASE_URL",
   "VITE_SUPABASE_PUBLISHABLE_KEY",
   "VITE_SUPABASE_PROJECT_ID",
 ] as const;
+
+// Optional: tracked for visibility but absence does NOT mark the run failed.
+const OPTIONAL_VARS = [
+  "SUPABASE_ANON_KEY",
+  "SUPABASE_JWKS",
+  "SUPABASE_DB_URL",
+  "LOVABLE_API_KEY",
+] as const;
+
+const EXPECTED_VARS = [...REQUIRED_VARS, ...OPTIONAL_VARS] as const;
 
 type VarReport = {
   name: string;

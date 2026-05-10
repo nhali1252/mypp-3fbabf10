@@ -301,12 +301,15 @@ function FolderViewer({
                 >
                   <div className="relative aspect-square overflow-hidden bg-muted">
                     {it.image_url ? (
-                      <img
-                        src={it.image_url}
-                        alt={it.title}
-                        loading="lazy"
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
+                      <>
+                        <img
+                          src={it.image_url}
+                          alt={it.title}
+                          loading="lazy"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <Watermark text={it.watermark_text ?? undefined} size="sm" />
+                      </>
                     ) : (
                       <div className="w-full h-full grid place-items-center">
                         <ImageIcon className="w-8 h-8 text-muted-foreground" />

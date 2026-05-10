@@ -323,6 +323,35 @@
     border: 1px solid color-mix(in oklab, var(--foreground) 8%, transparent);
   }
 
+  /* ── Zero-JS scroll reveal (CSS scroll-driven animations) ──────────
+     Modern Chromium gets a buttery 60fps fade-up tied to view progress —
+     no observers, no layout thrash. Browsers without `animation-timeline`
+     fall back to the keyframe playing once on mount. Reduced-motion
+     users skip it entirely. */
+  .reveal {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+    animation: revealIn 0.7s var(--ease-smooth) 60ms forwards;
+  }
+  .reveal-soft { animation-duration: 0.55s; }
+  .reveal-strong { transform: translate3d(0, 32px, 0); }
+
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: revealIn 1ms linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 22%;
+    }
+  }
+
+  @keyframes revealIn {
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1 !important; transform: none !important; animation: none !important; }
+  }
+
   /* Soft animated underline for inline links */
   .link-underline { position: relative; }
   .link-underline::after {

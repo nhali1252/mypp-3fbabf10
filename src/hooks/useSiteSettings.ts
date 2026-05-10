@@ -9,6 +9,7 @@ export type SiteSettings = {
   default_motion_pref: MotionPref;
   section_visibility: Record<string, boolean>;
   reactions_enabled: boolean;
+  reactions_show_count: boolean;
   watermark_text: string;
 };
 
@@ -17,6 +18,7 @@ const DEFAULTS: SiteSettings = {
   default_motion_pref: "auto",
   section_visibility: {},
   reactions_enabled: true,
+  reactions_show_count: true,
   watermark_text: "",
 };
 

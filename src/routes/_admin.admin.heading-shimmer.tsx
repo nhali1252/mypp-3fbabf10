@@ -7,7 +7,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { AdminPage, AdminCard, FormRow } from "@/components/admin/AdminPage";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import { useHeadingShimmer, HEADING_SHIMMER_DEFAULTS } from "@/hooks/useHeadingShimmer";
+import {
+  useHeadingShimmer,
+  HEADING_SHIMMER_DEFAULTS,
+  resolveShimmerForPath,
+} from "@/hooks/useHeadingShimmer";
 import { HeadingShimmerOverridesCard } from "@/components/admin/HeadingShimmerOverridesCard";
 
 export const Route = createFileRoute("/_admin/admin/heading-shimmer")({
@@ -29,7 +33,7 @@ const KNOWN_PAGES: Array<{ path: string; label: string }> = [
 ];
 
 function HeadingShimmerAdmin() {
-  const { data, isLoading } = useHeadingShimmer();
+  const { data, overrides, isLoading } = useHeadingShimmer();
   const qc = useQueryClient();
   const [enabled, setEnabled] = useState(true);
   const [intensity, setIntensity] = useState(70);
@@ -37,6 +41,7 @@ function HeadingShimmerAdmin() {
   const [speedMs, setSpeedMs] = useState(4500);
   const [disabledPaths, setDisabledPaths] = useState<string[]>([]);
   const [customPath, setCustomPath] = useState("");
+  const [previewPath, setPreviewPath] = useState<string>("/");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -64,6 +69,40 @@ function HeadingShimmerAdmin() {
     () => disabledPaths.filter((p) => !KNOWN_PAGES.some((k) => k.path === p)),
     [disabledPaths],
   );
+
+  // Effective shimmer settings for the route currently selected in the
+  // Live preview card. Combines the unsaved slider draft (acting as the
+  // global default) with any *saved* per-route override and the per-page
+  // disable list. The preview wrapper applies these as inline CSS vars so
+  // the user sees the route-specific effect before saving.
+  const previewResolved = useMemo(() => {
+    const draftBase = {
+      ...HEADING_SHIMMER_DEFAULTS,
+      enabled,
+      intensity,
+      sweep_size: sweepSize,
+      speed_ms: speedMs,
+      disabled_paths: disabledPaths,
+    };
+    const r = resolveShimmerForPath(draftBase, overrides, previewPath);
+    // Per-page disable list also forces the heading to plain.
+    const disabledByPath = disabledPaths.some(
+      (p) => previewPath === p || previewPath.startsWith(p + "/"),
+    );
+    return { ...r, enabled: r.enabled && !disabledByPath, disabledByPath };
+  }, [enabled, intensity, sweepSize, speedMs, disabledPaths, overrides, previewPath]);
+
+  // Combined list of paths a user might want to preview: known pages,
+  // any custom-disabled paths, and any saved per-route overrides.
+  const previewablePaths = useMemo(() => {
+    const set = new Map<string, string>();
+    KNOWN_PAGES.forEach((p) => set.set(p.path, p.label));
+    customPaths.forEach((p) => set.set(p, `${p} (disabled)`));
+    overrides.forEach((o) => {
+      if (!set.has(o.path)) set.set(o.path, `${o.path} (override)`);
+    });
+    return Array.from(set, ([path, label]) => ({ path, label }));
+  }, [customPaths, overrides]);
 
   function togglePath(path: string, off: boolean) {
     setDisabledPaths((prev) => {
@@ -264,10 +303,82 @@ function HeadingShimmerAdmin() {
 
       <AdminCard title="Live preview">
         <p className="text-xs text-muted-foreground mb-4 inline-flex items-center gap-1.5">
-          <Sparkles size={12} /> Sliders update the preview immediately. Click
-          "Save changes" to apply site-wide.
+          <Sparkles size={12} /> Sliders and the route picker update the
+          preview immediately. Click "Save changes" to apply site-wide.
         </p>
-        <div className="rounded-2xl border border-border p-8 bg-background space-y-5">
+
+        <FormRow
+          label="Preview as route"
+          hint="Picks the resolved settings for that path: per-route override (if any) → per-page disable list → global slider draft above. Lets you sanity-check overrides before saving."
+        >
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              value={previewablePaths.some((p) => p.path === previewPath) ? previewPath : "__custom"}
+              onChange={(e) => {
+                if (e.target.value !== "__custom") setPreviewPath(e.target.value);
+              }}
+              className="px-3 py-2 rounded-xl border border-border bg-background text-sm"
+            >
+              {previewablePaths.map((p) => (
+                <option key={p.path} value={p.path}>
+                  {p.label} — {p.path}
+                </option>
+              ))}
+              <option value="__custom">Custom path…</option>
+            </select>
+            <Input
+              placeholder="/some/path"
+              value={previewPath}
+              onChange={(e) => setPreviewPath(e.target.value || "/")}
+              className="max-w-[260px]"
+            />
+          </div>
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+            <span
+              className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 ${
+                previewResolved.enabled
+                  ? "border-primary/40 text-primary"
+                  : "border-border text-muted-foreground"
+              }`}
+            >
+              {previewResolved.enabled ? "Gold shimmer" : "Plain"}
+            </span>
+            {previewResolved.matched ? (
+              <span className="text-muted-foreground">
+                Matched override{" "}
+                <code className="text-foreground">{previewResolved.matched.path}</code>
+              </span>
+            ) : previewResolved.disabledByPath ? (
+              <span className="text-muted-foreground">
+                Disabled by per-page list
+              </span>
+            ) : (
+              <span className="text-muted-foreground">Using global defaults</span>
+            )}
+            <span className="text-muted-foreground">
+              · {previewResolved.intensity}% · {previewResolved.sweep_size}vw ·{" "}
+              {(previewResolved.speed_ms / 1000).toFixed(1)}s
+            </span>
+          </div>
+        </FormRow>
+
+        {/* Scoped preview: inline CSS vars override :root for this subtree
+            only, so the resolved per-route values apply without changing
+            the global preview the rest of this admin page uses. The
+            `.no-shimmer` wrapper triggers the existing opt-out for the
+            disabled state without touching any global attribute. */}
+        <div
+          className={`mt-4 rounded-2xl border border-border p-8 bg-background space-y-5 ${
+            previewResolved.enabled ? "" : "no-shimmer"
+          }`}
+          style={
+            {
+              "--shimmer-intensity": `${previewResolved.intensity}%`,
+              "--shimmer-sweep-size": `${previewResolved.sweep_size}vw`,
+              "--shimmer-speed": `${previewResolved.speed_ms}ms`,
+            } as React.CSSProperties
+          }
+        >
           <h1 className="text-5xl md:text-6xl font-black tracking-tight leading-[1.05]">
             <span>Things I </span>
             <span className="font-serif-display italic font-medium">

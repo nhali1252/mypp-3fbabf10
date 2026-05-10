@@ -353,6 +353,8 @@
   /* Opt-out: kill-switch, admin chrome, interactive controls, .no-shimmer */
   [data-shimmer="off"] h1, [data-shimmer="off"] h1 > span, [data-shimmer="off"] h1 > span > span,
   [data-shimmer="off"] h2, [data-shimmer="off"] h3,
+  [data-shimmer-user="off"] h1, [data-shimmer-user="off"] h1 > span, [data-shimmer-user="off"] h1 > span > span,
+  [data-shimmer-user="off"] h2, [data-shimmer-user="off"] h3,
   [data-shimmer-fallback="true"] h1, [data-shimmer-fallback="true"] h1 > span, [data-shimmer-fallback="true"] h1 > span > span,
   [data-shimmer-fallback="true"] h2, [data-shimmer-fallback="true"] h3,
   [data-admin] h1, [data-admin] h1 > span, [data-admin] h1 > span > span,

@@ -150,7 +150,7 @@
   --shadow-card: 0 24px 60px oklch(0 0 0 / 0.08), 0 1px 0 oklch(1 0 0 / 0.6) inset;
   --shadow-soft: 0 14px 30px -18px oklch(0 0 0 / 0.18);
   --shadow-elevated: 0 32px 70px -28px oklch(0 0 0 / 0.22), 0 6px 20px -10px oklch(0 0 0 / 0.12);
-  --shadow-glow: 0 12px 38px oklch(0.55 0.09 75 / 0.28);
+  --shadow-glow: 0 12px 38px oklch(0.58 0.13 75 / 0.3);
 }
 
 @layer base {

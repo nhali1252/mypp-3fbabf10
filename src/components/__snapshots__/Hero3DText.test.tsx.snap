@@ -1,0 +1,59 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Hero3DText DOM shape (gradient/transparent-letter regression) > by-letter: each letter is a direct <span> with text content 1`] = `
+<h1
+  class=""
+  style="perspective: 800px;"
+>
+  <span
+    class="inline-block will-change-[transform,opacity,filter]"
+    style="transform-style: preserve-3d;"
+  >
+    H
+  </span>
+  <span
+    class="inline-block will-change-[transform,opacity,filter]"
+    style="transform-style: preserve-3d;"
+  >
+    i
+  </span>
+  <span
+    class="inline-block will-change-[transform,opacity,filter]"
+    style="transform-style: preserve-3d;"
+  >
+    !
+  </span>
+</h1>
+`;
+
+exports[`Hero3DText DOM shape (gradient/transparent-letter regression) > by-word: each word is a direct <span> child of the heading 1`] = `
+<h1
+  class=""
+  style="perspective: 800px;"
+>
+  <span
+    class="inline-block will-change-[transform,opacity,filter]"
+    style="transform-style: preserve-3d;"
+  >
+    Pick
+  </span>
+  <span>
+     
+  </span>
+  <span
+    class="inline-block will-change-[transform,opacity,filter]"
+    style="transform-style: preserve-3d;"
+  >
+    a
+  </span>
+  <span>
+     
+  </span>
+  <span
+    class="inline-block will-change-[transform,opacity,filter]"
+    style="transform-style: preserve-3d;"
+  >
+    page
+  </span>
+</h1>
+`;

@@ -117,6 +117,14 @@ export function Footer() {
                 >
                   <Sparkles className="w-3.5 h-3.5" /> {cta.primary_label}
                 </a>
+              ) : ctaOpensModal ? (
+                <button
+                  type="button"
+                  onClick={() => setHireOpen(true)}
+                  className="press inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-xs font-bold uppercase tracking-[0.18em] hover:opacity-90 transition-opacity shadow-glow"
+                >
+                  <Sparkles className="w-3.5 h-3.5" /> {cta.primary_label}
+                </button>
               ) : (
                 <Link
                   to={cta.primary_url}

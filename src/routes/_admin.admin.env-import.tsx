@@ -3,13 +3,22 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Play, RefreshCw, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, Play, RefreshCw, CheckCircle2, XCircle, Copy } from "lucide-react";
 import { triggerEnvImport, listEnvImports } from "@/server/env-import.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_admin/admin/env-import")({
   component: EnvImportPage,
 });
+
+const REQUIRED_VARS = new Set([
+  "SUPABASE_URL",
+  "SUPABASE_PUBLISHABLE_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "VITE_SUPABASE_URL",
+  "VITE_SUPABASE_PUBLISHABLE_KEY",
+  "VITE_SUPABASE_PROJECT_ID",
+]);
 
 type Snapshot = {
   id: string;
@@ -116,16 +125,34 @@ function EnvImportPage() {
             />
           </div>
 
-          {last.missing?.length > 0 && (
-            <div className="mb-5">
-              <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Missing</div>
-              <div className="flex flex-wrap gap-1.5">
-                {last.missing.map((m) => (
-                  <Badge key={m} variant="destructive">{m}</Badge>
-                ))}
+          {last.missing?.length > 0 && (() => {
+            const missingRequired = last.missing.filter((m) => REQUIRED_VARS.has(m));
+            const missingOptional = last.missing.filter((m) => !REQUIRED_VARS.has(m));
+            return (
+              <div className="mb-5 space-y-3">
+                {missingRequired.length > 0 && (
+                  <div>
+                    <div className="text-xs uppercase tracking-wider text-destructive mb-2">Missing (required)</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {missingRequired.map((m) => (
+                        <Badge key={m} variant="destructive">{m}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {missingOptional.length > 0 && (
+                  <div>
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Missing (optional — not required for the app to run)</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {missingOptional.map((m) => (
+                        <Badge key={m} variant="secondary">{m}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           <div>
             <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Variables</div>
@@ -152,7 +179,29 @@ function EnvImportPage() {
                       </td>
                       <td className="px-3 py-1.5 text-muted-foreground">{v.length || "—"}</td>
                       <td className="px-3 py-1.5 font-mono text-xs text-muted-foreground">
-                        {v.fingerprint ?? "—"}
+                        {v.fingerprint ? (
+                          <div className="flex items-center gap-1.5">
+                            <span>{v.fingerprint}</span>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                try {
+                                  await navigator.clipboard.writeText(v.fingerprint!);
+                                  toast.success(`Copied fingerprint for ${v.name}`);
+                                } catch {
+                                  toast.error("Copy failed");
+                                }
+                              }}
+                              className="inline-flex items-center justify-center h-6 w-6 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                              aria-label={`Copy fingerprint for ${v.name}`}
+                              title="Copy fingerprint"
+                            >
+                              <Copy className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          "—"
+                        )}
                       </td>
                     </tr>
                   ))}

@@ -2,6 +2,7 @@ import { Nav } from "@/components/Nav";
 import { Hero } from "@/components/Hero";
 import { Ticker } from "@/components/Ticker";
 import { Footer } from "@/components/Footer";
+import { PageQuote } from "@/components/PageQuote";
 import { AboutSection } from "@/components/sections/AboutSection";
 import { EducationSection } from "@/components/sections/EducationSection";
 import { SkillsSection } from "@/components/sections/SkillsSection";

@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Save, RotateCcw, Sparkles, Plus, Trash2 } from "lucide-react";
+import { Save, RotateCcw, Sparkles, Plus, Trash2, Eraser } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminPage, AdminCard, FormRow } from "@/components/admin/AdminPage";
 import { Switch } from "@/components/ui/switch";
@@ -152,6 +152,57 @@ function HeadingShimmerAdmin() {
     setDisabledPaths([]);
   }
 
+  /**
+   * Hard reset: wipes the saved global settings AND every per-route override
+   * back to factory defaults. Affects every visitor immediately, so we ask
+   * for confirmation. Local form state is also reset so the UI matches.
+   */
+  async function resetAll() {
+    const overrideCount = overrides.length;
+    if (
+      !confirm(
+        `Reset every heading shimmer setting back to defaults?\n\n` +
+          `This will:\n` +
+          `  • Reset master switch, intensity, sweep, and speed\n` +
+          `  • Clear all custom disabled paths\n` +
+          `  • Delete ${overrideCount} per-route override${overrideCount === 1 ? "" : "s"}\n\n` +
+          `This cannot be undone — export your current config first if you want a backup.`,
+      )
+    ) {
+      return;
+    }
+    setSaving(true);
+    try {
+      const defaults = {
+        enabled: HEADING_SHIMMER_DEFAULTS.enabled,
+        intensity: HEADING_SHIMMER_DEFAULTS.intensity,
+        sweep_size: HEADING_SHIMMER_DEFAULTS.sweep_size,
+        speed_ms: HEADING_SHIMMER_DEFAULTS.speed_ms,
+        disabled_paths: [] as string[],
+      };
+      const settingsRes = data?.id
+        ? await (supabase as any).from("heading_shimmer_settings").update(defaults).eq("id", data.id)
+        : await (supabase as any).from("heading_shimmer_settings").insert(defaults);
+      if (settingsRes.error) throw settingsRes.error;
+
+      // Wipe every override row. `not("id", "is", null)` matches all rows
+      // while satisfying PostgREST's "must filter" requirement on bulk deletes.
+      const delRes = await (supabase as any)
+        .from("heading_shimmer_overrides")
+        .delete()
+        .not("id", "is", null);
+      if (delRes.error) throw delRes.error;
+
+      resetDefaults();
+      qc.invalidateQueries({ queryKey: ["content", "chrome"] });
+      toast.success("All shimmer settings reset to defaults");
+    } catch (e: any) {
+      toast.error(`Reset failed: ${e?.message ?? e}`);
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <AdminPage
       title="Heading shimmer"
@@ -170,8 +221,17 @@ function HeadingShimmerAdmin() {
           <button
             onClick={resetDefaults}
             className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-background hover:bg-muted text-sm"
+            title="Reset the form on screen — does not save"
           >
-            <RotateCcw size={14} /> Reset to defaults
+            <RotateCcw size={14} /> Reset form
+          </button>
+          <button
+            onClick={resetAll}
+            disabled={saving || isLoading}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-destructive/40 bg-background hover:bg-destructive/10 text-destructive text-sm disabled:opacity-50"
+            title="Wipe saved settings AND every per-route override back to defaults"
+          >
+            <Eraser size={14} /> Reset everything
           </button>
           <button
             onClick={save}

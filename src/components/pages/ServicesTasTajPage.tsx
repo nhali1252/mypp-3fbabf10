@@ -15,6 +15,7 @@ import { useContentDoc } from "@/hooks/useContentDoc";
 import { getIcon } from "@/lib/iconRegistry";
 import { Footer } from "@/components/Footer";
 import { PageQuote } from "@/components/PageQuote";
+import { Hero3DText } from "@/components/Hero3DText";
 import { HireMeProvider, useHireMe } from "@/components/HireMeProvider";
 
 type ServiceRow = {

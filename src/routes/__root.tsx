@@ -7,6 +7,7 @@ import { PageLoader } from "@/components/PageLoader";
 import { RouteTransition } from "@/components/RouteTransition";
 import { SiteHead } from "@/components/SiteHead";
 import { PageViewTracker } from "@/components/PageViewTracker";
+import { MaintenanceGate } from "@/components/MaintenanceGate";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { StaleBuildBanner } from "@/components/dev/StaleBuildBanner";
 

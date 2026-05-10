@@ -211,39 +211,8 @@ function AboutSkillsInner() {
         </div>
       </section>
 
-      {/* Editorial quote */}
-      <section className="px-5 sm:px-6 md:px-10 pb-10">
-        <div className="max-w-[1100px] mx-auto">
-          <motion.figure
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="relative rounded-[24px] border border-border bg-card overflow-hidden p-7 sm:p-10 md:p-14"
-          >
-            <Quote className="w-10 h-10 sm:w-12 sm:h-12 text-primary/40 mb-4" />
-            <blockquote
-              className="font-serif-display italic leading-[1.12] tracking-tight text-foreground"
-              style={{ fontSize: "clamp(22px, 3.6vw, 38px)" }}
-            >
-              "Design isn't decoration — it's how a brand earns trust in the first three seconds."
-            </blockquote>
-            <figcaption className="mt-5 flex items-center gap-3 text-xs text-muted-foreground">
-              <div className="w-9 h-9 rounded-full bg-primary/15 text-primary grid place-items-center ring-1 ring-primary/30">
-                <Sparkles className="w-4 h-4" />
-              </div>
-              <div>
-                <div className="font-bold tracking-tight text-foreground">Working principle</div>
-                <div className="uppercase tracking-[0.2em] text-[10px]">how I approach every brief</div>
-              </div>
-            </figcaption>
-            <div
-              aria-hidden
-              className="absolute -top-32 -right-32 w-80 h-80 rounded-full blur-3xl opacity-30 bg-gradient-to-br from-primary/40 to-transparent"
-            />
-          </motion.figure>
-        </div>
-      </section>
+      {/* Editorial quote — managed via Admin → About → Quote */}
+      <PageQuote slug="about" />
 
       {/* Soft skills */}
       <section className="px-5 sm:px-6 md:px-10 pb-10">

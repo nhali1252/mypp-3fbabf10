@@ -164,6 +164,9 @@
     /* Sections pinned via #anchor still respect the fixed nav. */
     scroll-padding-top: 76px;
     text-rendering: optimizeLegibility;
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
   }
   body {
     background-color: var(--color-background);
@@ -172,7 +175,14 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "ss01", "cv11";
+    overscroll-behavior-y: none;
   }
+
+  /* Anchored headings clear the fixed nav */
+  h1, h2, h3, h4, [id] { scroll-margin-top: 88px; }
+
+  /* Crisp media */
+  img, svg, video { image-rendering: auto; }
 
   /* Buttery default for every interactive surface */
   a, button, [role="button"], input, textarea, select, summary, label {

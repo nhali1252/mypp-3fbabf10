@@ -21,7 +21,7 @@ export function Hero3DText({
   className = "",
   style,
   delay = 0,
-  stagger = 0.07,
+  stagger = 0.11,
 }: Hero3DTextProps) {
   const reduced = useReducedMotion();
   const words = useMemo(() => text.split(/(\s+)/), [text]);
@@ -54,9 +54,9 @@ export function Hero3DText({
             variants={{
               hidden: {
                 opacity: 0,
-                y: "0.6em",
-                rotateX: -65,
-                filter: "blur(10px)",
+                y: "0.45em",
+                rotateX: -55,
+                filter: "blur(8px)",
               },
               visible: {
                 opacity: 1,
@@ -64,8 +64,10 @@ export function Hero3DText({
                 rotateX: 0,
                 filter: "blur(0px)",
                 transition: {
-                  duration: 0.8,
-                  ease: [0.22, 1, 0.36, 1],
+                  duration: 1.15,
+                  ease: [0.16, 1, 0.3, 1],
+                  opacity: { duration: 0.9, ease: "easeOut" },
+                  filter: { duration: 0.7, ease: "easeOut" },
                 },
               },
             }}

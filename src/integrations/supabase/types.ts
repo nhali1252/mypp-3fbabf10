@@ -1249,6 +1249,7 @@ export type Database = {
           site_title: string
           theme_primary: string | null
           updated_at: string
+          watermark_text: string | null
           welcome_animation_ms: number
         }
         Insert: {
@@ -1268,6 +1269,7 @@ export type Database = {
           site_title?: string
           theme_primary?: string | null
           updated_at?: string
+          watermark_text?: string | null
           welcome_animation_ms?: number
         }
         Update: {
@@ -1287,6 +1289,7 @@ export type Database = {
           site_title?: string
           theme_primary?: string | null
           updated_at?: string
+          watermark_text?: string | null
           welcome_animation_ms?: number
         }
         Relationships: []

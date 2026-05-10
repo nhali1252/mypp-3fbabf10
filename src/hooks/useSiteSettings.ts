@@ -9,6 +9,7 @@ export type SiteSettings = {
   default_motion_pref: MotionPref;
   section_visibility: Record<string, boolean>;
   reactions_enabled: boolean;
+  watermark_text: string;
 };
 
 const DEFAULTS: SiteSettings = {
@@ -16,6 +17,7 @@ const DEFAULTS: SiteSettings = {
   default_motion_pref: "auto",
   section_visibility: {},
   reactions_enabled: true,
+  watermark_text: "",
 };
 
 const MOTION_KEY = "motion-pref";
@@ -35,7 +37,7 @@ export function useSiteSettings(pageKey: string = "B"): SiteSettings {
       const { data } = await (supabase as any)
         .from("site_settings")
         .select(
-          "welcome_animation_ms, default_motion_pref, section_visibility, reactions_enabled",
+          "welcome_animation_ms, default_motion_pref, section_visibility, reactions_enabled, watermark_text",
         )
         .eq("page_key", pageKey)
         .limit(1)
@@ -52,6 +54,7 @@ export function useSiteSettings(pageKey: string = "B"): SiteSettings {
             ? (data.section_visibility as Record<string, boolean>)
             : {},
         reactions_enabled: data.reactions_enabled !== false,
+        watermark_text: typeof data.watermark_text === "string" ? data.watermark_text : "",
       };
     },
     staleTime: 60_000,

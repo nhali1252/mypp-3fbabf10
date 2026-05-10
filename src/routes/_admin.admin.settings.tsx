@@ -92,6 +92,7 @@ function AdminSettings() {
         default_motion_pref: motionPref,
         section_visibility: sectionVisibility,
         reactions_enabled: form.reactions_enabled !== false,
+        watermark_text: (form.watermark_text || "").trim() || null,
         page_key: pageKey,
       };
       if (data?.id) {
@@ -251,6 +252,16 @@ function AdminSettings() {
                 onCheckedChange={(v) => set("reactions_enabled", v)}
               />
             </label>
+          </FormRow>
+          <FormRow
+            label="Default watermark text"
+            hint="Shown as an overlay on portfolio sample images. Leave empty to disable. Per-item watermark overrides this."
+          >
+            <Input
+              value={form.watermark_text || ""}
+              onChange={(e) => set("watermark_text", e.target.value)}
+              placeholder="© Ali Nur Hasan"
+            />
           </FormRow>
         </div>
       </AdminCard>

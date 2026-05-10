@@ -118,8 +118,8 @@ export function ReviewsPage() {
                   <Star key={i} className={`w-4 h-4 ${i < Math.round(stats.avg) ? "fill-current" : "opacity-30"}`} />
                 ))}
               </div>
-              <span className="text-sm font-bold">{stats.avg.toFixed(1)}</span>
-              <span className="text-xs text-muted-foreground">· {stats.count} review{stats.count !== 1 ? "s" : ""}</span>
+              <span className="text-sm font-bold font-numeric tabular-nums">{stats.avg.toFixed(1)}</span>
+              <span className="text-xs text-muted-foreground">· <span className="font-numeric tabular-nums">{stats.count}</span> review{stats.count !== 1 ? "s" : ""}</span>
             </motion.div>
           )}
         </div>

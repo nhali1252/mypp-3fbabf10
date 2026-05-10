@@ -152,6 +152,14 @@ function RootComponent() {
             </MaintenanceGate>
             <Toaster richColors position="top-right" />
               <StaleBuildBanner />
+            {/* Floating per-user shimmer toggle — visible on every page,
+                hidden on /admin/* (the AdminLayout sets data-admin and the
+                admin chrome already has its own shimmer controls). */}
+            <div className="pointer-events-none fixed bottom-4 right-4 z-40 print:hidden [body:has([data-admin])_&]:hidden">
+              <div className="pointer-events-auto">
+                <ShimmerToggle />
+              </div>
+            </div>
           </AuthProvider>
         </MotionPrefProvider>
       </ThemeProvider>

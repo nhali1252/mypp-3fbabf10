@@ -70,6 +70,40 @@ function HeadingShimmerAdmin() {
     [disabledPaths],
   );
 
+  // Effective shimmer settings for the route currently selected in the
+  // Live preview card. Combines the unsaved slider draft (acting as the
+  // global default) with any *saved* per-route override and the per-page
+  // disable list. The preview wrapper applies these as inline CSS vars so
+  // the user sees the route-specific effect before saving.
+  const previewResolved = useMemo(() => {
+    const draftBase = {
+      ...HEADING_SHIMMER_DEFAULTS,
+      enabled,
+      intensity,
+      sweep_size: sweepSize,
+      speed_ms: speedMs,
+      disabled_paths: disabledPaths,
+    };
+    const r = resolveShimmerForPath(draftBase, overrides, previewPath);
+    // Per-page disable list also forces the heading to plain.
+    const disabledByPath = disabledPaths.some(
+      (p) => previewPath === p || previewPath.startsWith(p + "/"),
+    );
+    return { ...r, enabled: r.enabled && !disabledByPath, disabledByPath };
+  }, [enabled, intensity, sweepSize, speedMs, disabledPaths, overrides, previewPath]);
+
+  // Combined list of paths a user might want to preview: known pages,
+  // any custom-disabled paths, and any saved per-route overrides.
+  const previewablePaths = useMemo(() => {
+    const set = new Map<string, string>();
+    KNOWN_PAGES.forEach((p) => set.set(p.path, p.label));
+    customPaths.forEach((p) => set.set(p, `${p} (disabled)`));
+    overrides.forEach((o) => {
+      if (!set.has(o.path)) set.set(o.path, `${o.path} (override)`);
+    });
+    return Array.from(set, ([path, label]) => ({ path, label }));
+  }, [customPaths, overrides]);
+
   function togglePath(path: string, off: boolean) {
     setDisabledPaths((prev) => {
       const set = new Set(prev);

@@ -693,6 +693,7 @@ export type Database = {
       heading_shimmer_settings: {
         Row: {
           created_at: string
+          disabled_paths: string[]
           enabled: boolean
           id: string
           intensity: number
@@ -702,6 +703,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          disabled_paths?: string[]
           enabled?: boolean
           id?: string
           intensity?: number
@@ -711,6 +713,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          disabled_paths?: string[]
           enabled?: boolean
           id?: string
           intensity?: number

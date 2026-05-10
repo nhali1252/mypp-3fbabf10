@@ -192,6 +192,7 @@ export function Footer() {
         </div>
         <SocialIcons links={social} variant="chip" />
       </div>
+      <HireMeModal open={hireOpen} onClose={() => setHireOpen(false)} />
     </motion.footer>
   );
 }

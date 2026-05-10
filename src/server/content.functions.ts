@@ -128,14 +128,12 @@ async function buildContent(key: ContentKey): Promise<unknown> {
       return data ?? [];
     }
     case "contact": {
-      // Public callers see only display-safe fields. form_receiver_email and
-      // any other internal fields stay server-side.
-      const { data } = await supabaseAdmin
-        .from("contact_settings")
-        .select("email,phone,whatsapp,address,map_link,social_links")
-        .limit(1)
-        .maybeSingle();
-      return data ?? {};
+      // Public callers see only display-safe fields via a SECURITY DEFINER
+      // RPC, so this works without SUPABASE_SERVICE_ROLE_KEY being deployed.
+      // form_receiver_email and other internal fields stay server-side.
+      const { data } = await supabasePublic.rpc("get_public_contact");
+      const row = Array.isArray(data) ? data[0] : data;
+      return row ?? {};
     }
     case "reviews": {
       const { data } = await supabasePublic

@@ -1,16 +1,31 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Save, RotateCcw, Sparkles } from "lucide-react";
+import { Save, RotateCcw, Sparkles, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminPage, AdminCard, FormRow } from "@/components/admin/AdminPage";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
 import { useHeadingShimmer, HEADING_SHIMMER_DEFAULTS } from "@/hooks/useHeadingShimmer";
 
 export const Route = createFileRoute("/_admin/admin/heading-shimmer")({
   component: HeadingShimmerAdmin,
 });
+
+// All public top-level pages that ship with the site. Used to render the
+// per-page toggle list. Custom paths can still be added via the input below.
+const KNOWN_PAGES: Array<{ path: string; label: string }> = [
+  { path: "/", label: "Home (launcher)" },
+  { path: "/basic", label: "Basic info" },
+  { path: "/about-and-skills", label: "About & Skills" },
+  { path: "/portfolio", label: "Portfolio" },
+  { path: "/projects", label: "Projects" },
+  { path: "/services", label: "Services" },
+  { path: "/contact", label: "Contact" },
+  { path: "/reviews", label: "Reviews" },
+  { path: "/feed", label: "Feed" },
+];
 
 function HeadingShimmerAdmin() {
   const { data, isLoading } = useHeadingShimmer();
@@ -19,6 +34,8 @@ function HeadingShimmerAdmin() {
   const [intensity, setIntensity] = useState(70);
   const [sweepSize, setSweepSize] = useState(200);
   const [speedMs, setSpeedMs] = useState(4500);
+  const [disabledPaths, setDisabledPaths] = useState<string[]>([]);
+  const [customPath, setCustomPath] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -27,6 +44,7 @@ function HeadingShimmerAdmin() {
     setIntensity(data.intensity);
     setSweepSize(data.sweep_size);
     setSpeedMs(data.speed_ms);
+    setDisabledPaths(data.disabled_paths);
   }, [data]);
 
   // Live preview: write the values straight to :root so the user sees
@@ -41,29 +59,44 @@ function HeadingShimmerAdmin() {
     else root.setAttribute("data-shimmer", "off");
   }, [enabled, intensity, sweepSize, speedMs]);
 
-  async function save() {
-    if (!data?.id) {
-      // Insert if missing (defensive — migration seeds one row)
-      setSaving(true);
-      const { error } = await (supabase as any)
-        .from("heading_shimmer_settings")
-        .insert({ enabled, intensity, sweep_size: sweepSize, speed_ms: speedMs });
-      setSaving(false);
-      if (error) return toast.error(error.message);
-      toast.success("Heading shimmer saved");
-      qc.invalidateQueries({ queryKey: ["content", "chrome"] });
+  const customPaths = useMemo(
+    () => disabledPaths.filter((p) => !KNOWN_PAGES.some((k) => k.path === p)),
+    [disabledPaths],
+  );
+
+  function togglePath(path: string, off: boolean) {
+    setDisabledPaths((prev) => {
+      const set = new Set(prev);
+      if (off) set.add(path);
+      else set.delete(path);
+      return Array.from(set);
+    });
+  }
+
+  function addCustomPath() {
+    const p = customPath.trim();
+    if (!p.startsWith("/")) {
+      toast.error("Path must start with /");
       return;
     }
+    if (disabledPaths.includes(p)) return;
+    setDisabledPaths((prev) => [...prev, p]);
+    setCustomPath("");
+  }
+
+  async function save() {
+    const payload = {
+      enabled,
+      intensity: clamp(intensity, 0, 100),
+      sweep_size: clamp(sweepSize, 100, 400),
+      speed_ms: clamp(speedMs, 1000, 15000),
+      disabled_paths: disabledPaths,
+    };
     setSaving(true);
-    const { error } = await (supabase as any)
-      .from("heading_shimmer_settings")
-      .update({
-        enabled,
-        intensity: clamp(intensity, 0, 100),
-        sweep_size: clamp(sweepSize, 100, 400),
-        speed_ms: clamp(speedMs, 1000, 15000),
-      })
-      .eq("id", data.id);
+    const q: any = data?.id
+      ? (supabase as any).from("heading_shimmer_settings").update(payload).eq("id", data.id)
+      : (supabase as any).from("heading_shimmer_settings").insert(payload);
+    const { error } = await q;
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Heading shimmer saved");
@@ -75,12 +108,13 @@ function HeadingShimmerAdmin() {
     setIntensity(HEADING_SHIMMER_DEFAULTS.intensity);
     setSweepSize(HEADING_SHIMMER_DEFAULTS.sweep_size);
     setSpeedMs(HEADING_SHIMMER_DEFAULTS.speed_ms);
+    setDisabledPaths([]);
   }
 
   return (
     <AdminPage
       title="Heading shimmer"
-      description="Tune the gold animated effect applied to all section headings (h2/h3) across the site."
+      description="Tune the gold animated effect applied to all section headings (h1/h2/h3) and pick which pages should use a plain style instead."
       actions={
         <div className="flex items-center gap-2 flex-wrap">
           <button
@@ -104,11 +138,79 @@ function HeadingShimmerAdmin() {
           <div>
             <div className="text-sm font-medium">Enable heading shimmer</div>
             <div className="text-xs text-muted-foreground">
-              When off, headings render as plain foreground text everywhere.
+              When off, headings render as plain foreground text on every page.
             </div>
           </div>
           <Switch checked={enabled} onCheckedChange={setEnabled} />
         </div>
+      </AdminCard>
+
+      <AdminCard title="Per-page style">
+        <p className="text-xs text-muted-foreground mb-4">
+          For each page, choose <strong>Gold shimmer</strong> (default animated
+          treatment) or <strong>Plain</strong> (solid foreground text). Pages
+          set to Plain still respect the master switch above.
+        </p>
+        <div className="divide-y divide-border rounded-xl border border-border overflow-hidden">
+          {KNOWN_PAGES.map((page) => {
+            const off = disabledPaths.includes(page.path);
+            return (
+              <div key={page.path} className="flex items-center justify-between gap-4 px-4 py-3 bg-card">
+                <div className="min-w-0">
+                  <div className="text-sm font-medium truncate">{page.label}</div>
+                  <code className="text-xs text-muted-foreground">{page.path}</code>
+                </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className={`text-xs font-semibold ${off ? "text-muted-foreground" : "text-primary"}`}>
+                    {off ? "Plain" : "Gold shimmer"}
+                  </span>
+                  <Switch checked={!off} onCheckedChange={(on) => togglePath(page.path, !on)} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {customPaths.length > 0 && (
+          <div className="mt-4">
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+              Custom paths (forced to Plain)
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {customPaths.map((p) => (
+                <button
+                  key={p}
+                  onClick={() => togglePath(p, false)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background text-xs hover:bg-muted"
+                  title="Remove"
+                >
+                  <code>{p}</code>
+                  <Trash2 size={12} className="text-destructive" />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <FormRow
+          label="Add a custom page path"
+          hint="Use this for routes not listed above (e.g. /portfolio/some-folder). Matches the path and any sub-routes."
+        >
+          <div className="flex gap-2">
+            <Input
+              placeholder="/some/path"
+              value={customPath}
+              onChange={(e) => setCustomPath(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && addCustomPath()}
+            />
+            <button
+              onClick={addCustomPath}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border bg-background hover:bg-muted text-sm"
+            >
+              <Plus size={14} /> Add
+            </button>
+          </div>
+        </FormRow>
       </AdminCard>
 
       <AdminCard title="Look & feel">

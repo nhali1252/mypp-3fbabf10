@@ -329,12 +329,13 @@ function ServicesTasTajPageInner() {
             Share a few details and I'll reply with first thoughts within 24 hours.
           </p>
           <div className="relative mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              to="/contact"
+            <button
+              type="button"
+              onClick={() => openHireMe()}
               className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-bold hover:opacity-90 transition-opacity shadow-glow"
             >
               Start a project <ArrowRight className="w-4 h-4" />
-            </Link>
+            </button>
             <Link
               to="/projects"
               className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-bold hover:border-primary hover:text-primary transition-colors"

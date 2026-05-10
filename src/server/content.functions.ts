@@ -34,7 +34,13 @@ async function buildContent(key: ContentKey): Promise<unknown> {
       const [hero, about, contact, siteSettings] = await Promise.all([
         supabasePublic.from("hero_content").select("*").limit(1).maybeSingle(),
         supabasePublic.from("about_content").select("*").limit(1).maybeSingle(),
-        supabasePublic.from("contact_settings").select("*").limit(1).maybeSingle(),
+        // contact_settings is no longer publicly readable; use admin client
+        // and project only the display-safe fields.
+        supabaseAdmin
+          .from("contact_settings")
+          .select("email,phone,whatsapp,address,map_link,social_links")
+          .limit(1)
+          .maybeSingle(),
         supabasePublic.from("site_settings").select("*"),
       ]);
       const h = hero.data ?? ({} as any);

@@ -168,6 +168,11 @@
   --space-h5-mb: 0.75em;
   --space-p-gap: 0.85em;   /* gap between consecutive <p> */
   --space-li-gap: 0em;     /* gap between consecutive <li> */
+
+  /* Body text alignment — justify by default for a polished, premium look.
+   * Tailwind utilities (`text-center`, `text-right`, `text-left`) and the
+   * `.align-*` helpers always win because they're higher-specificity. */
+  --text-align-body: justify;
 }
 
 /* Mobile overrides — only the values that change on phones.

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Settings2, X, Sparkles, SparklesIcon, Sun, Moon, Zap, ZapOff, RotateCcw } from "lucide-react";
+import { Settings2, X, Sparkles, SparklesIcon, Sun, Moon, Zap, ZapOff, RotateCcw, AlignLeft, AlignJustify } from "lucide-react";
 import { useShimmerPref } from "@/hooks/useShimmerPref";
 import { useMotionPref } from "@/hooks/useMotionPref";
+import { useAlignPref } from "@/hooks/useAlignPref";
 import { useTheme } from "@/components/ThemeProvider";
 import {
   useShimmerSpeedPref,
@@ -25,6 +26,7 @@ export function FloatingControlsMenu() {
 
   const { pref: shimmerPref, toggle: toggleShimmer } = useShimmerPref();
   const { pref: motionPref, setMotionPref, reduceMotion } = useMotionPref();
+  const { pref: alignPref, setAlignPref } = useAlignPref();
   const { theme, toggle: toggleTheme } = useTheme();
   const { speedMs, setSpeedMs } = useShimmerSpeedPref();
   const { data } = useHeadingShimmer();
@@ -56,6 +58,9 @@ export function FloatingControlsMenu() {
         : "Off";
   const MotionIcon = motionPref === "off" ? ZapOff : motionPref === "on" ? Zap : Sparkles;
   const nextMotion = motionPref === "auto" ? "off" : motionPref === "off" ? "on" : "auto";
+  const AlignIcon = alignPref === "left" ? AlignLeft : AlignJustify;
+  const alignLabel = alignPref === "auto" ? "Auto" : alignPref === "justify" ? "Justify" : "Left";
+  const nextAlign = alignPref === "auto" ? "justify" : alignPref === "justify" ? "left" : "auto";
   const effectiveSpeed = speedMs ?? data.speed_ms;
   const seconds = (effectiveSpeed / 1000).toFixed(1);
   const speedOverridden = speedMs != null;
@@ -104,6 +109,12 @@ export function FloatingControlsMenu() {
                 label="Theme"
                 value={isDark ? "Dark" : "Light"}
                 onClick={toggleTheme}
+              />
+              <Row
+                icon={<AlignIcon className="w-4 h-4" />}
+                label="Text align"
+                value={alignLabel}
+                onClick={() => setAlignPref(nextAlign)}
               />
 
               <div className="mt-1 rounded-xl border border-border/70 bg-card/40 px-3 py-2.5">

@@ -133,3 +133,42 @@ export const verifyWorkerHealth = createServerFn({ method: "GET" })
         : "One or more required worker secrets are missing. Push any commit to main to re-trigger the GitHub Actions deploy — it auto-syncs every secret to Cloudflare.",
     };
   });
+
+/**
+ * Reveal the FULL value of a single env var. Admin-only. Never persisted.
+ * Forwards to /api/env-import?reveal=NAME so the value comes from the
+ * deployed worker's runtime env, not from the server-fn process.
+ */
+export const revealEnvVar = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => {
+    const name = (data as { name?: string })?.name;
+    if (!name || typeof name !== "string") throw new Error("name is required");
+    return { name };
+  })
+  .handler(async ({ context, data }) => {
+    const { userId } = context;
+    if (!userId) throw new Error("Not signed in");
+
+    const { data: isAdmin, error: roleErr } = await supabaseAdmin.rpc("has_role", {
+      _user_id: userId,
+      _role: "admin",
+    });
+    if (roleErr) throw new Error(roleErr.message);
+    if (!isAdmin) throw new Error("Admin role required");
+
+    const token = process.env.ENV_IMPORT_TOKEN;
+    const host = getRequestHost();
+    const proto = host?.includes("localhost") ? "http" : "https";
+    const url = `${proto}://${host}/api/env-import?reveal=${encodeURIComponent(data.name)}`;
+
+    const incomingAuth = getRequestHeader("authorization");
+    const headers: Record<string, string> = {};
+    if (token) headers["x-env-import-token"] = token;
+    if (incomingAuth) headers["authorization"] = incomingAuth;
+
+    const res = await fetch(url, { method: "POST", headers });
+    const body = (await res.json().catch(() => ({}))) as { value?: string | null };
+    if (!res.ok) throw new Error(`Reveal failed (${res.status})`);
+    return { name: data.name, value: body?.value ?? null };
+  });

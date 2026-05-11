@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Play, RefreshCw, CheckCircle2, XCircle, Copy } from "lucide-react";
-import { triggerEnvImport, listEnvImports } from "@/server/env-import.functions";
+import { triggerEnvImport, listEnvImports, revealEnvVar } from "@/server/env-import.functions";
+import { Eye } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_admin/admin/env-import")({
@@ -198,6 +199,27 @@ function EnvImportPage() {
                             >
                               <Copy className="h-3 w-3" />
                             </button>
+                            {v.present && (
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  if (!confirm(`Reveal & copy the FULL value of ${v.name}?\n\nThis exposes the secret to your clipboard.`)) return;
+                                  try {
+                                    const res = await revealEnvVar({ data: { name: v.name } });
+                                    if (!res.value) { toast.error("No value returned"); return; }
+                                    await navigator.clipboard.writeText(res.value);
+                                    toast.success(`Copied full value of ${v.name}`);
+                                  } catch (e) {
+                                    toast.error(e instanceof Error ? e.message : "Reveal failed");
+                                  }
+                                }}
+                                className="inline-flex items-center justify-center h-6 w-6 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                                aria-label={`Copy full value of ${v.name}`}
+                                title="Copy full value (admin only)"
+                              >
+                                <Eye className="h-3 w-3" />
+                              </button>
+                            )}
                           </div>
                         ) : (
                           "—"

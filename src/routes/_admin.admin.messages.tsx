@@ -1,13 +1,21 @@
+import { useEffect, useMemo } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { listMessages, updateMessage, deleteMessage } from "@/server/messages.functions";
+import {
+  listMessages,
+  updateMessage,
+  deleteMessage,
+  getMessageEmailStatuses,
+  type EmailStatusRow,
+} from "@/server/messages.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { AdminPage, AdminCard, EmptyState } from "@/components/admin/AdminPage";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
-import { Mail, MailOpen, Reply, Trash2, AlertTriangle } from "lucide-react";
+import { Mail, MailOpen, Reply, Trash2, AlertTriangle, CheckCircle2, Clock, XCircle, Inbox, Send as SendIcon } from "lucide-react";
 import { WorkerHealthGate } from "@/components/admin/WorkerHealthGate";
 
 export const Route = createFileRoute("/_admin/admin/messages")({ component: AdminMessages });

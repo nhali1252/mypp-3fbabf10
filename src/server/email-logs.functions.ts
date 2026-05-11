@@ -112,3 +112,206 @@ export const listEmailLogs = createServerFn({ method: "POST" })
 
     return { rows: page, templates, stats, total };
   });
+
+// ─── DLQ recovery ─────────────────────────────────────────────────────────────
+
+export type DlqMessage = {
+  msg_id: number;
+  enqueued_at: string;
+  read_ct: number;
+  source_queue: "auth_emails" | "transactional_emails";
+  payload: {
+    message_id?: string;
+    to?: string;
+    label?: string;
+    subject?: string;
+    queued_at?: string;
+  };
+  error_message: string | null;
+};
+
+const DLQ_QUEUES: Array<"auth_emails" | "transactional_emails"> = [
+  "auth_emails",
+  "transactional_emails",
+];
+
+/** Admin: peek both DLQ queues without consuming. */
+export const listDlqMessages = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z.object({ limit: z.number().int().min(1).max(200).default(100) }).parse(data ?? {}),
+  )
+  .handler(async ({ data, context }): Promise<{ messages: DlqMessage[] }> => {
+    await assertAdmin(context.supabase as any, context.userId);
+    const sb = supabaseAdmin as any;
+
+    const all: DlqMessage[] = [];
+    for (const queue of DLQ_QUEUES) {
+      const dlqName = `${queue}_dlq`;
+      const { data: rows, error } = await sb.rpc("peek_dlq", {
+        dlq_name: dlqName,
+        lim: data.limit,
+      });
+      if (error) {
+        console.warn(`[email-logs.listDlqMessages] peek failed for ${dlqName}`, error);
+        continue;
+      }
+      for (const r of (rows ?? []) as any[]) {
+        all.push({
+          msg_id: Number(r.msg_id),
+          enqueued_at: r.enqueued_at,
+          read_ct: Number(r.read_ct ?? 0),
+          source_queue: queue,
+          payload: r.message ?? {},
+          error_message: null,
+        });
+      }
+    }
+
+    // Enrich with latest error_message from email_send_log keyed by payload.message_id
+    const ids = Array.from(
+      new Set(all.map((m) => m.payload.message_id).filter((x): x is string => !!x)),
+    );
+    if (ids.length > 0) {
+      const { data: logs } = await sb
+        .from("email_send_log")
+        .select("message_id, status, error_message, created_at")
+        .in("message_id", ids)
+        .in("status", ["dlq", "failed"])
+        .order("created_at", { ascending: false });
+      const errByMid = new Map<string, string>();
+      for (const r of (logs ?? []) as any[]) {
+        if (r.message_id && !errByMid.has(r.message_id) && r.error_message) {
+          errByMid.set(r.message_id, r.error_message);
+        }
+      }
+      for (const m of all) {
+        if (m.payload.message_id) {
+          m.error_message = errByMid.get(m.payload.message_id) ?? null;
+        }
+      }
+    }
+
+    all.sort((a, b) => (a.enqueued_at < b.enqueued_at ? 1 : -1));
+    return { messages: all };
+  });
+
+/** Admin: requeue a single DLQ message back into its source queue. */
+export const requeueDlqMessage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        msg_id: z.number().int().nonnegative(),
+        source_queue: z.enum(["auth_emails", "transactional_emails"]),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: true; new_msg_id: number | null }> => {
+    await assertAdmin(context.supabase as any, context.userId);
+    const sb = supabaseAdmin as any;
+    const dlqName = `${data.source_queue}_dlq`;
+
+    // Read payload first so we can write a recovery log entry.
+    const { data: rows } = await sb.rpc("peek_dlq", { dlq_name: dlqName, lim: 200 });
+    const found = ((rows ?? []) as any[]).find((r) => Number(r.msg_id) === data.msg_id);
+
+    const { data: newId, error } = await sb.rpc("requeue_from_dlq", {
+      dlq_name: dlqName,
+      target_queue: data.source_queue,
+      message_id: data.msg_id,
+    });
+    if (error) throw new Error(error.message);
+
+    // Refresh queued_at and stamp a fresh "pending" log so the dashboard shows the new attempt.
+    if (found?.message?.message_id) {
+      try {
+        await sb.from("email_send_log").insert({
+          message_id: found.message.message_id,
+          template_name: found.message.label || data.source_queue,
+          recipient_email: found.message.to || "",
+          status: "pending",
+          error_message: "Requeued from DLQ by admin",
+        });
+      } catch (e) {
+        console.warn("[email-logs.requeueDlqMessage] log insert failed", e);
+      }
+    }
+    return { ok: true, new_msg_id: newId === null ? null : Number(newId) };
+  });
+
+/** Admin: permanently drop a DLQ message. */
+export const purgeDlqMessage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        msg_id: z.number().int().nonnegative(),
+        source_queue: z.enum(["auth_emails", "transactional_emails"]),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await assertAdmin(context.supabase as any, context.userId);
+    const sb = supabaseAdmin as any;
+    const { error } = await sb.rpc("delete_email", {
+      queue_name: `${data.source_queue}_dlq`,
+      message_id: data.msg_id,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ─── Retry-policy config ──────────────────────────────────────────────────────
+
+export type RetryConfig = {
+  max_retries: number;
+  batch_size: number;
+  send_delay_ms: number;
+  auth_email_ttl_minutes: number;
+  transactional_email_ttl_minutes: number;
+};
+
+export const getRetryConfig = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<RetryConfig> => {
+    await assertAdmin(context.supabase as any, context.userId);
+    const { data, error } = await (supabaseAdmin as any)
+      .from("email_send_state")
+      .select(
+        "max_retries, batch_size, send_delay_ms, auth_email_ttl_minutes, transactional_email_ttl_minutes",
+      )
+      .limit(1)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return {
+      max_retries: data?.max_retries ?? 5,
+      batch_size: data?.batch_size ?? 10,
+      send_delay_ms: data?.send_delay_ms ?? 200,
+      auth_email_ttl_minutes: data?.auth_email_ttl_minutes ?? 15,
+      transactional_email_ttl_minutes: data?.transactional_email_ttl_minutes ?? 60,
+    };
+  });
+
+export const updateRetryConfig = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        max_retries: z.number().int().min(1).max(20),
+        batch_size: z.number().int().min(1).max(200).optional(),
+        send_delay_ms: z.number().int().min(0).max(5000).optional(),
+        auth_email_ttl_minutes: z.number().int().min(1).max(1440).optional(),
+        transactional_email_ttl_minutes: z.number().int().min(1).max(1440).optional(),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await assertAdmin(context.supabase as any, context.userId);
+    const { error } = await (supabaseAdmin as any)
+      .from("email_send_state")
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq("id", 1);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });

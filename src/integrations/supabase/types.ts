@@ -250,6 +250,7 @@ export type Database = {
           auth_email_ttl_minutes: number
           batch_size: number
           id: number
+          max_retries: number
           retry_after_until: string | null
           send_delay_ms: number
           transactional_email_ttl_minutes: number
@@ -259,6 +260,7 @@ export type Database = {
           auth_email_ttl_minutes?: number
           batch_size?: number
           id?: number
+          max_retries?: number
           retry_after_until?: string | null
           send_delay_ms?: number
           transactional_email_ttl_minutes?: number
@@ -268,6 +270,7 @@ export type Database = {
           auth_email_ttl_minutes?: number
           batch_size?: number
           id?: number
+          max_retries?: number
           retry_after_until?: string | null
           send_delay_ms?: number
           transactional_email_ttl_minutes?: number
@@ -1722,6 +1725,15 @@ export type Database = {
         }
         Returns: number
       }
+      peek_dlq: {
+        Args: { dlq_name: string; lim?: number }
+        Returns: {
+          enqueued_at: string
+          message: Json
+          msg_id: number
+          read_ct: number
+        }[]
+      }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
@@ -1729,6 +1741,10 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      requeue_from_dlq: {
+        Args: { dlq_name: string; message_id: number; target_queue: string }
+        Returns: number
       }
     }
     Enums: {

@@ -2,7 +2,7 @@ import { sendLovableEmail } from '@lovable.dev/email-js'
 import { createClient } from '@supabase/supabase-js'
 import { createFileRoute } from '@tanstack/react-router'
 
-const MAX_RETRIES = 5
+const DEFAULT_MAX_RETRIES = 5
 const DEFAULT_BATCH_SIZE = 10
 const DEFAULT_SEND_DELAY_MS = 200
 const DEFAULT_AUTH_TTL_MINUTES = 15
@@ -94,7 +94,7 @@ export const Route = createFileRoute("/lovable/email/queue/process")({
         // 1. Check rate-limit cooldown and read queue config
         const { data: state } = await supabase
           .from('email_send_state')
-          .select('retry_after_until, batch_size, send_delay_ms, auth_email_ttl_minutes, transactional_email_ttl_minutes')
+          .select('retry_after_until, batch_size, send_delay_ms, auth_email_ttl_minutes, transactional_email_ttl_minutes, max_retries')
           .single()
 
         if (state?.retry_after_until && new Date(state.retry_after_until) > new Date()) {
@@ -103,6 +103,7 @@ export const Route = createFileRoute("/lovable/email/queue/process")({
 
         const batchSize = state?.batch_size ?? DEFAULT_BATCH_SIZE
         const sendDelayMs = state?.send_delay_ms ?? DEFAULT_SEND_DELAY_MS
+        const maxRetries = state?.max_retries ?? DEFAULT_MAX_RETRIES
         const ttlMinutes: Record<string, number> = {
           auth_emails: state?.auth_email_ttl_minutes ?? DEFAULT_AUTH_TTL_MINUTES,
           transactional_emails: state?.transactional_email_ttl_minutes ?? DEFAULT_TRANSACTIONAL_TTL_MINUTES,
@@ -190,8 +191,8 @@ export const Route = createFileRoute("/lovable/email/queue/process")({
             }
 
             // Move to DLQ if max failed send attempts reached.
-            if (failedAttempts >= MAX_RETRIES) {
-              await moveToDlq(supabase, queue, msg, `Max retries (${MAX_RETRIES}) exceeded (attempted ${failedAttempts} times)`)
+            if (failedAttempts >= maxRetries) {
+              await moveToDlq(supabase, queue, msg, `Max retries (${maxRetries}) exceeded (attempted ${failedAttempts} times)`)
               continue
             }
 

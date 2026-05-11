@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Footer } from "@/components/Footer";
 import { PageQuote } from "@/components/PageQuote";
 import { Hero3DText } from "@/components/Hero3DText";
+import { toExternalUrl } from "@/lib/external-url";
 
 type Project = {
   id: string;
@@ -195,7 +196,7 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
           <div className="flex flex-wrap gap-2 sm:gap-2.5 pt-1">
             {project.live_url && (
               <a
-                href={project.live_url}
+                href={toExternalUrl(project.live_url)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-primary text-primary-foreground px-3.5 sm:px-4 py-1.5 sm:py-2 text-[11.5px] sm:text-xs font-bold hover:opacity-90 transition-opacity"
@@ -205,7 +206,7 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
             )}
             {project.github_url && (
               <a
-                href={project.github_url}
+                href={toExternalUrl(project.github_url)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-border px-3.5 sm:px-4 py-1.5 sm:py-2 text-[11.5px] sm:text-xs font-bold hover:border-primary hover:text-primary transition-colors"

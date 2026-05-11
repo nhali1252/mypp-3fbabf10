@@ -2,6 +2,7 @@ import { useProjects } from "@/hooks/useContent";
 import { SectionHeader } from "../SectionHeader";
 import { ArrowUpRight } from "lucide-react";
 import { Stagger, StaggerItem } from "../motion/Reveal";
+import { toExternalUrl } from "@/lib/external-url";
 
 interface Project {
   id: string;
@@ -24,7 +25,7 @@ export function ProjectsSection() {
         {(projects as Project[]).map((p) => (
           <StaggerItem key={p.id}>
             <a
-              href={p.live_url || "#"}
+              href={p.live_url ? toExternalUrl(p.live_url) : "#"}
               target={p.live_url ? "_blank" : undefined}
               rel="noreferrer"
               className="group block bg-gradient-card border border-white/5 rounded-[24px] overflow-hidden relative transition-all duration-500 hover:-translate-y-2 hover:shadow-card hover:border-primary/30 h-full"

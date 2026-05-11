@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Inbox, Image as ImageIcon, ClipboardCheck,
   Settings, Users, LogOut, ExternalLink, Menu, X,
   RefreshCw, MessageSquare, Shield, Activity, KeyRound,
-  ChevronRight, Home, Smartphone, Palette, HeartPulse, Sparkles, Mail,
+  ChevronRight, Home, Smartphone, Palette, HeartPulse, Sparkles, Mail, Calendar,
 } from "lucide-react";
 
 // Static label map for breadcrumb segments (covers nav items + extras)
@@ -44,6 +44,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   theme: "Theme audit",
   "heading-shimmer": "Heading shimmer",
   "email-logs": "Email logs",
+  bookings: "Bookings",
 };
 
 function labelize(seg: string) {
@@ -65,6 +66,7 @@ const groups: Group[] = [
     label: "System",
     items: [
       { to: "/admin/messages", label: "Messages", Icon: Inbox },
+      { to: "/admin/bookings", label: "Bookings", Icon: Calendar },
       { to: "/admin/email-logs", label: "Email logs", Icon: Mail },
       { to: "/admin/comments", label: "Comments", Icon: MessageSquare },
       { to: "/admin/audit", label: "Audit log", Icon: Shield },

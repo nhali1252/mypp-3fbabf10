@@ -192,10 +192,9 @@
     --track-body: 0.005em;
     --space-p-gap: 1em;
     --space-li-gap: 0.35em;
-    /* On very narrow viewports (<640px) full justification produces big
-     * inter-word gaps even with hyphenation enabled. Fall back to left
-     * alignment so mobile reading stays comfortable. */
-    --text-align-body: left;
+    /* Keep justification on mobile too — matches the polished, document-like
+     * look the user expects. Hyphens + inter-word justify keep gaps tight. */
+    --text-align-body: justify;
   }
 }
 

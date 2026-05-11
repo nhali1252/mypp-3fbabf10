@@ -110,6 +110,12 @@ export function FloatingControlsMenu() {
                 value={isDark ? "Dark" : "Light"}
                 onClick={toggleTheme}
               />
+              <Row
+                icon={<AlignIcon className="w-4 h-4" />}
+                label="Text align"
+                value={alignLabel}
+                onClick={() => setAlignPref(nextAlign)}
+              />
 
               <div className="mt-1 rounded-xl border border-border/70 bg-card/40 px-3 py-2.5">
                 <div className="flex items-baseline justify-between mb-1">

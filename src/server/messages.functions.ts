@@ -60,6 +60,33 @@ const submitSchema = z.object({
 /** Dedup window: ignore identical submissions from the same email within this many minutes. */
 const DEDUP_WINDOW_MINUTES = 10;
 
+type AuditStatus = "info" | "success" | "warn" | "error";
+type AuditEntry = {
+  message_row_id: string | null;
+  event: string;
+  message_id?: string | null;
+  recipient_email?: string | null;
+  status?: AuditStatus;
+  error_message?: string | null;
+  details?: Record<string, unknown>;
+};
+/** Best-effort append to message_audit_log — never throws. */
+async function recordAudit(entry: AuditEntry): Promise<void> {
+  try {
+    await (supabaseAdmin as any).from("message_audit_log").insert({
+      message_row_id: entry.message_row_id,
+      event: entry.event,
+      message_id: entry.message_id ?? null,
+      recipient_email: entry.recipient_email ?? null,
+      status: entry.status ?? "info",
+      error_message: entry.error_message ?? null,
+      details: entry.details ?? {},
+    });
+  } catch (e) {
+    console.warn("[messages.recordAudit] failed", entry.event, e);
+  }
+}
+
 /** Public: insert a new message. */
 export const submitMessage = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => submitSchema.parse(data))
@@ -87,11 +114,28 @@ export const submitMessage = createServerFn({ method: "POST" })
           email: data.email,
           existingId: dup.id,
         });
+        await recordAudit({
+          message_row_id: dup.id,
+          event: "inbox.deduped",
+          recipient_email: data.email,
+          status: "warn",
+          details: {
+            window_minutes: DEDUP_WINDOW_MINUTES,
+            subject: incomingSubject || null,
+          },
+        });
         return { ok: true, id: dup.id as string, deduped: true };
       }
-    } catch (e) {
+    } catch (e: any) {
       // Dedup is best-effort — never block a real submission on a check failure.
       console.warn("[messages.submitMessage] dedup check failed", e);
+      await recordAudit({
+        message_row_id: null,
+        event: "inbox.dedup_check_failed",
+        recipient_email: data.email,
+        status: "warn",
+        error_message: e?.message ?? String(e),
+      });
     }
 
     const messageRowId = crypto.randomUUID();
@@ -106,18 +150,50 @@ export const submitMessage = createServerFn({ method: "POST" })
       subject: data.subject || null,
       message: data.message,
     });
-    if (error) throw new Error(error.message);
+    if (error) {
+      await recordAudit({
+        message_row_id: messageRowId,
+        event: "inbox.insert_failed",
+        recipient_email: data.email,
+        status: "error",
+        error_message: error.message,
+      });
+      throw new Error(error.message);
+    }
+    await recordAudit({
+      message_row_id: messageRowId,
+      event: "inbox.inserted",
+      recipient_email: data.email,
+      status: "success",
+      details: {
+        subject: data.subject || null,
+        has_phone: !!data.phone,
+        message_length: data.message.length,
+      },
+    });
 
     // Fire-and-forget email notifications. Failures must not block the form response.
     try {
       await sendContactNotification(data, messageRowId);
-    } catch (e) {
+    } catch (e: any) {
       console.error("[messages.submitMessage] admin notify failed", e);
+      await recordAudit({
+        message_row_id: messageRowId,
+        event: "notify.threw",
+        status: "error",
+        error_message: e?.message ?? String(e),
+      });
     }
     try {
       await sendContactConfirmation(data, messageRowId);
-    } catch (e) {
+    } catch (e: any) {
       console.error("[messages.submitMessage] sender confirmation failed", e);
+      await recordAudit({
+        message_row_id: messageRowId,
+        event: "confirm.threw",
+        status: "error",
+        error_message: e?.message ?? String(e),
+      });
     }
     return { ok: true, id: messageRowId, deduped: false };
   });

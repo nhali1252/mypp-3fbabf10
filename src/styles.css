@@ -438,15 +438,25 @@
   h2 + p, h3 + p, h4 + p { margin-top: 0; }
   p + p { margin-top: 0.85em; }
 
-  /* Mobile: slightly looser line-height on small headings (helps balance
-   * after `text-wrap: balance` shortens the measure) and tighter body
-   * leading so cards stay compact. */
+  /* Mobile: looser body leading + a touch more open paragraph spacing.
+   * Narrower measures (≈40–55ch on phones) need MORE leading than desktop,
+   * not less — the eye has to find the next line return on a shorter ruler.
+   * Headings stay slightly looser so balanced wraps don't collide.
+   *   - body line-height 1.7 (was 1.55, was 1.65 desktop) — generous on mobile
+   *   - list line-height 1.65 — list items get an extra tick of breathing room
+   *   - p + p   1.0em        — full-line gap between paragraphs
+   *   - blockquote / dd 1.7  — match body
+   *   - subtle positive tracking on body copy (+0.005em) opens up the
+   *     screen-rendered Inter glyphs at small sizes
+   */
   @media (max-width: 640px) {
     h1 { line-height: 1.08; letter-spacing: -0.02em; }
     h2 { line-height: 1.14; letter-spacing: -0.018em; }
     h3 { line-height: 1.22; letter-spacing: -0.012em; }
-    p, li, dd { line-height: 1.55; }
-    p + p { margin-top: 0.7em; }
+    p, dd, blockquote { line-height: 1.7; letter-spacing: 0.005em; }
+    li { line-height: 1.65; letter-spacing: 0.005em; }
+    p + p { margin-top: 1em; }
+    li + li { margin-top: 0.35em; }
   }
 
   /* Crisp media */

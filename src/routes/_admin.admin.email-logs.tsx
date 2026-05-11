@@ -161,6 +161,10 @@ function EmailLogsPage() {
         <StatCard label="Suppressed" value={stats.suppressed} icon={<AlertTriangle className="w-4 h-4" />} tone="muted" />
       </div>
 
+      {/* Retry policy + DLQ recovery */}
+      <RetryPolicyCard />
+      <DlqRecoveryCard />
+
       {/* Table */}
       <AdminCard>
         {isLoading ? (

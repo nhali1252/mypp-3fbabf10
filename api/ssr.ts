@@ -15,7 +15,7 @@ function setNodeResponse(res: any, response: Response) {
 }
 
 export const config = {
-  runtime: 'nodejs',
+  runtime: 'nodejs@20',
 };
 
 export default async function handler(req: any, res: any) {

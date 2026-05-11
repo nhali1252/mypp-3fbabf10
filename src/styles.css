@@ -497,18 +497,40 @@
     letter-spacing: var(--track-h5);
     font-weight: var(--weight-h5);
   }
+  /* Body text — justified by default (token-driven), with `inter-word`
+   * spacing + automatic hyphenation so we get clean newspaper-style
+   * justification with no rivers of whitespace.
+   * Headings stay LEFT-aligned (their rules above don't set text-align).
+   * Tailwind `text-center` / `text-left` / `text-right` and the `.align-*`
+   * helpers override this cleanly because the utilities layer ships
+   * after the base layer. */
   p, dd {
     line-height: var(--lh-body);
     letter-spacing: var(--track-body);
+    text-align: var(--text-align-body);
+    text-justify: inter-word;
+    hyphens: auto;
+    -webkit-hyphens: auto;
   }
   li {
     line-height: var(--lh-list);
     letter-spacing: var(--track-body);
+    /* Lists stay left-aligned — justifying a single-line list item
+     * creates ugly inter-word gaps. */
   }
   blockquote {
     line-height: var(--lh-blockquote);
     letter-spacing: var(--track-body);
+    text-align: var(--text-align-body);
+    text-justify: inter-word;
+    hyphens: auto;
+    -webkit-hyphens: auto;
   }
+
+  /* Justification opt-out — apply on a single short paragraph,
+   * a tooltip, a button label, etc. where justify would look bad. */
+  .text-left-flat,
+  .no-justify { text-align: left; hyphens: manual; }
 
   /* Optical kerning + ligatures everywhere — costs nothing, looks better */
   body { font-kerning: normal; font-variant-ligatures: common-ligatures; }

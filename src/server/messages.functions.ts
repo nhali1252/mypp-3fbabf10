@@ -12,7 +12,7 @@ import { supabasePublic } from "@/integrations/supabase/client.public";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { template as contactNotification } from "@/lib/email-templates/contact-notification";
 import { template as contactConfirmation } from "@/lib/email-templates/contact-confirmation";
-import { loadBranding } from "@/server/email-template-settings.functions";
+import { loadBranding } from "@/server/email-template-branding.server";
 
 export type Message = {
   id: string;

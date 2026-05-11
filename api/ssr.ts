@@ -20,29 +20,38 @@ export const config = {
 
 export default async function handler(req: any, res: any) {
   try {
+    if (!server || typeof server.fetch !== 'function') {
+      console.error('Server entry point not found or missing fetch method');
+      res.statusCode = 500;
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+      res.end('Server initialization failed');
+      return;
+    }
+
     const host = req.headers.host ?? 'localhost';
     const protocol = req.headers['x-forwarded-proto'] ?? 'https';
     const url = new URL(req.url ?? '/', `${protocol}://${host}`);
 
-    let body: BodyInit | undefined;
-    if (!['GET', 'HEAD'].includes(req.method ?? 'GET')) {
-      if (req.body) {
-        body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
-      }
+    const init: RequestInit = {
+      method: req.method || 'GET',
+      headers: req.headers as HeadersInit,
+    };
+
+    if (!['GET', 'HEAD'].includes(req.method || 'GET') && req.body) {
+      init.body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
     }
 
-    const request = new Request(url.toString(), {
-      method: req.method,
-      headers: req.headers as HeadersInit,
-      body,
-    });
-
+    const request = new Request(url.toString(), init);
     const response = await server.fetch(request);
 
     setNodeResponse(res, response);
 
-    const buffer = await response.arrayBuffer();
-    res.end(Buffer.from(buffer));
+    if (response.body) {
+      const buffer = await response.arrayBuffer();
+      res.end(Buffer.from(buffer));
+    } else {
+      res.end();
+    }
   } catch (error: unknown) {
     console.error('SSR handler error:', error);
     res.statusCode = 500;

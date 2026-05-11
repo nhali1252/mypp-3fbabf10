@@ -595,7 +595,7 @@ function Launcher() {
                   to={c.route}
                   onFocus={() => setHovered(i)}
                   onBlur={() => setHovered((h) => (h === i ? null : h))}
-                  className="launcher-card group relative block rounded-[26px] border border-border bg-card p-7 md:p-8 overflow-hidden h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:border-primary/60 focus-visible:border-primary/60 hover:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)] focus-visible:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
+                  className="launcher-card group relative block rounded-[26px] border border-border bg-card p-5 sm:p-7 md:p-8 overflow-hidden h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:border-primary/60 focus-visible:border-primary/60 hover:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)] focus-visible:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
                   style={{
                     transitionProperty: "border-color, box-shadow, transform",
                     transitionDuration: `${baseDur}ms`,
@@ -717,7 +717,7 @@ function LauncherSkeleton({ index, reduceMotion }: { index: number; reduceMotion
   return (
     <div
       aria-hidden
-      className="relative rounded-[26px] border border-border bg-card p-7 md:p-8 overflow-hidden h-full"
+      className="relative rounded-[26px] border border-border bg-card p-5 sm:p-7 md:p-8 overflow-hidden h-full"
       style={{
         opacity: 0,
         animation: reduceMotion

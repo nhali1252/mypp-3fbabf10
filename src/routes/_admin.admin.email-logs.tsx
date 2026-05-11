@@ -303,3 +303,250 @@ function statusTone(status: string): { cls: string; Icon: typeof CheckCircle2 } 
       return { cls: "border-destructive/50 bg-destructive/10 text-destructive", Icon: XCircle };
   }
 }
+
+// ─── Retry policy ─────────────────────────────────────────────────────────────
+
+function RetryPolicyCard() {
+  const getFn = useServerFn(getRetryConfig);
+  const updateFn = useServerFn(updateRetryConfig);
+  const qc = useQueryClient();
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-retry-config"],
+    queryFn: () => getFn(),
+  });
+  const [maxRetries, setMaxRetries] = useState<number>(5);
+  const [authTtl, setAuthTtl] = useState<number>(15);
+  const [txTtl, setTxTtl] = useState<number>(60);
+  useEffect(() => {
+    if (data) {
+      setMaxRetries(data.max_retries);
+      setAuthTtl(data.auth_email_ttl_minutes);
+      setTxTtl(data.transactional_email_ttl_minutes);
+    }
+  }, [data]);
+
+  const save = useMutation({
+    mutationFn: () =>
+      updateFn({
+        data: {
+          max_retries: maxRetries,
+          auth_email_ttl_minutes: authTtl,
+          transactional_email_ttl_minutes: txTtl,
+        },
+      }),
+    onSuccess: () => {
+      toast.success("Retry policy updated");
+      qc.invalidateQueries({ queryKey: ["admin-retry-config"] });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed to update"),
+  });
+
+  return (
+    <AdminCard>
+      <div className="flex items-center gap-2 mb-3">
+        <Settings className="w-4 h-4 text-muted-foreground" />
+        <h3 className="text-sm font-semibold">Retry policy</h3>
+        <span className="text-xs text-muted-foreground">
+          How many times the queue retries before parking a message in DLQ.
+        </span>
+      </div>
+      {isLoading ? (
+        <div className="text-sm text-muted-foreground">Loading…</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <NumberField
+            label="Max retries"
+            hint="1–20"
+            value={maxRetries}
+            min={1}
+            max={20}
+            onChange={setMaxRetries}
+          />
+          <NumberField
+            label="Auth TTL (min)"
+            hint="OTP / verification"
+            value={authTtl}
+            min={1}
+            max={1440}
+            onChange={setAuthTtl}
+          />
+          <NumberField
+            label="Transactional TTL (min)"
+            hint="Contact / receipts"
+            value={txTtl}
+            min={1}
+            max={1440}
+            onChange={setTxTtl}
+          />
+        </div>
+      )}
+      <div className="mt-3 flex justify-end">
+        <Button size="sm" onClick={() => save.mutate()} disabled={save.isPending || isLoading}>
+          {save.isPending ? "Saving…" : "Save policy"}
+        </Button>
+      </div>
+    </AdminCard>
+  );
+}
+
+function NumberField({
+  label, hint, value, min, max, onChange,
+}: {
+  label: string; hint?: string; value: number; min: number; max: number;
+  onChange: (n: number) => void;
+}) {
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {label}{hint && <span className="ml-1 normal-case font-normal opacity-60">· {hint}</span>}
+      </span>
+      <Input
+        type="number"
+        min={min}
+        max={max}
+        value={value}
+        onChange={(e) => {
+          const n = Number(e.target.value);
+          if (!Number.isNaN(n)) onChange(Math.max(min, Math.min(max, n)));
+        }}
+        className="h-9"
+      />
+    </label>
+  );
+}
+
+// ─── DLQ recovery ─────────────────────────────────────────────────────────────
+
+function DlqRecoveryCard() {
+  const listFn = useServerFn(listDlqMessages);
+  const requeueFn = useServerFn(requeueDlqMessage);
+  const purgeFn = useServerFn(purgeDlqMessage);
+  const qc = useQueryClient();
+
+  const { data, isLoading, isFetching, refetch } = useQuery({
+    queryKey: ["admin-dlq-messages"],
+    queryFn: () => listFn({ data: { limit: 100 } }),
+    refetchInterval: 60_000,
+  });
+
+  const requeue = useMutation({
+    mutationFn: (m: DlqMessage) =>
+      requeueFn({ data: { msg_id: m.msg_id, source_queue: m.source_queue } }),
+    onSuccess: () => {
+      toast.success("Re-queued — dispatcher will retry within ~5s");
+      qc.invalidateQueries({ queryKey: ["admin-dlq-messages"] });
+      qc.invalidateQueries({ queryKey: ["admin-email-logs"] });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Re-queue failed"),
+  });
+
+  const purge = useMutation({
+    mutationFn: (m: DlqMessage) =>
+      purgeFn({ data: { msg_id: m.msg_id, source_queue: m.source_queue } }),
+    onSuccess: () => {
+      toast.success("Removed from DLQ");
+      qc.invalidateQueries({ queryKey: ["admin-dlq-messages"] });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Delete failed"),
+  });
+
+  const messages = data?.messages ?? [];
+
+  return (
+    <AdminCard>
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2">
+          <ShieldAlert className="w-4 h-4 text-destructive" />
+          <h3 className="text-sm font-semibold">Dead-letter queue</h3>
+          <span className="text-xs text-muted-foreground">
+            {messages.length} parked message{messages.length === 1 ? "" : "s"}
+          </span>
+        </div>
+        <Button size="sm" variant="outline" onClick={() => refetch()} disabled={isFetching}>
+          <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isFetching ? "animate-spin" : ""}`} />
+          Refresh
+        </Button>
+      </div>
+
+      {isLoading ? (
+        <div className="py-6 text-center text-sm text-muted-foreground">Loading DLQ…</div>
+      ) : messages.length === 0 ? (
+        <div className="py-6 text-center text-sm text-muted-foreground">
+          No messages parked in the dead-letter queue. ✨
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground border-b border-border">
+                <th className="py-2 pr-3 font-semibold">Parked at</th>
+                <th className="py-2 pr-3 font-semibold">Queue</th>
+                <th className="py-2 pr-3 font-semibold">Recipient</th>
+                <th className="py-2 pr-3 font-semibold">Subject / label</th>
+                <th className="py-2 pr-3 font-semibold">Last error</th>
+                <th className="py-2 pr-3 font-semibold text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {messages.map((m) => {
+                const busy =
+                  (requeue.isPending && requeue.variables?.msg_id === m.msg_id) ||
+                  (purge.isPending && purge.variables?.msg_id === m.msg_id);
+                return (
+                  <tr
+                    key={`${m.source_queue}:${m.msg_id}`}
+                    className="border-b border-border/60 align-top hover:bg-muted/30"
+                  >
+                    <td className="py-2.5 pr-3 whitespace-nowrap text-xs text-muted-foreground">
+                      {new Date(m.enqueued_at).toLocaleString()}
+                    </td>
+                    <td className="py-2.5 pr-3">
+                      <Badge variant="outline" className="text-[10px]">
+                        {m.source_queue}
+                      </Badge>
+                    </td>
+                    <td className="py-2.5 pr-3 break-all">{m.payload.to ?? "—"}</td>
+                    <td className="py-2.5 pr-3">
+                      <div className="text-xs font-medium">{m.payload.subject ?? m.payload.label ?? "—"}</div>
+                      <div className="text-[10px] text-muted-foreground font-mono break-all">
+                        {m.payload.message_id ?? `pgmq#${m.msg_id}`}
+                      </div>
+                    </td>
+                    <td className="py-2.5 pr-3">
+                      <div className="text-xs text-destructive break-words font-mono max-w-sm">
+                        {m.error_message ?? "(no log entry)"}
+                      </div>
+                    </td>
+                    <td className="py-2.5 pr-3 text-right whitespace-nowrap">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="mr-2"
+                        disabled={busy}
+                        onClick={() => requeue.mutate(m)}
+                      >
+                        <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+                        Re-queue
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive hover:text-destructive"
+                        disabled={busy}
+                        onClick={() => {
+                          if (confirm("Permanently drop this DLQ message?")) purge.mutate(m);
+                        }}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </AdminCard>
+  );
+}

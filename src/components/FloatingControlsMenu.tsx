@@ -58,6 +58,9 @@ export function FloatingControlsMenu() {
         : "Off";
   const MotionIcon = motionPref === "off" ? ZapOff : motionPref === "on" ? Zap : Sparkles;
   const nextMotion = motionPref === "auto" ? "off" : motionPref === "off" ? "on" : "auto";
+  const AlignIcon = alignPref === "left" ? AlignLeft : AlignJustify;
+  const alignLabel = alignPref === "auto" ? "Auto" : alignPref === "justify" ? "Justify" : "Left";
+  const nextAlign = alignPref === "auto" ? "justify" : alignPref === "justify" ? "left" : "auto";
   const effectiveSpeed = speedMs ?? data.speed_ms;
   const seconds = (effectiveSpeed / 1000).toFixed(1);
   const speedOverridden = speedMs != null;

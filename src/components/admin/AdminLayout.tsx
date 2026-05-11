@@ -44,6 +44,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   theme: "Theme audit",
   "heading-shimmer": "Heading shimmer",
   "email-logs": "Email logs",
+  "email-templates": "Email templates",
   bookings: "Bookings",
 };
 
@@ -68,6 +69,7 @@ const groups: Group[] = [
       { to: "/admin/messages", label: "Messages", Icon: Inbox },
       { to: "/admin/bookings", label: "Bookings", Icon: Calendar },
       { to: "/admin/email-logs", label: "Email logs", Icon: Mail },
+      { to: "/admin/email-templates", label: "Email templates", Icon: Sparkles },
       { to: "/admin/comments", label: "Comments", Icon: MessageSquare },
       { to: "/admin/audit", label: "Audit log", Icon: Shield },
       { to: "/admin/diagnostics", label: "Diagnostics", Icon: Activity },

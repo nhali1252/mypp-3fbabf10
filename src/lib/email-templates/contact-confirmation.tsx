@@ -11,12 +11,19 @@ import {
   Text,
 } from '@react-email/components'
 import type { TemplateEntry } from './registry'
+import {
+  DEFAULT_CONFIRMATION_BRANDING,
+  type ContactEmailBranding,
+  applyTokens,
+  mergeBranding,
+} from './branding'
 
 interface ContactConfirmationProps {
   name?: string
   subject?: string
   message?: string
   submittedAt?: string
+  branding?: ContactEmailBranding | null
 }
 
 function ContactConfirmation({
@@ -24,45 +31,61 @@ function ContactConfirmation({
   subject = '(no subject)',
   message = '',
   submittedAt = new Date().toISOString(),
+  branding,
 }: ContactConfirmationProps) {
+  const b = mergeBranding(DEFAULT_CONFIRMATION_BRANDING, branding as any)
+  const tokens = { name, subject, message }
+  const heading = applyTokens(b.heading, tokens)
+  const preheader = applyTokens(b.preheader, tokens)
+  const intro = applyTokens(b.introText, tokens)
+  const footer = applyTokens(b.footerNote, tokens)
+
   return (
     <Html>
       <Head />
-      <Preview>{`Thanks for reaching out, ${name} — I’ll get back to you soon.`}</Preview>
-      <Body style={{ backgroundColor: '#ffffff', fontFamily: 'system-ui, -apple-system, sans-serif', margin: 0, padding: '24px 0' }}>
-        <Container style={{ backgroundColor: '#0b0b0d', border: '1px solid #2a2a30', borderRadius: 14, padding: 28, maxWidth: 560 }}>
-          <Heading style={{ color: '#f5f5f7', fontSize: 22, margin: '0 0 6px' }}>
-            Thanks, {name} 👋
+      <Preview>{preheader}</Preview>
+      <Body style={{ backgroundColor: b.bgColor, fontFamily: 'system-ui, -apple-system, sans-serif', margin: 0, padding: '24px 0' }}>
+        <Container style={{ backgroundColor: b.containerBg, border: `1px solid ${b.borderColor}`, borderRadius: 14, padding: 28, maxWidth: 560 }}>
+          <Heading style={{ color: b.textColor, fontSize: 22, margin: '0 0 6px' }}>
+            {heading}
           </Heading>
-          <Text style={{ color: '#c9a961', fontSize: 13, letterSpacing: 1, textTransform: 'uppercase', margin: '0 0 18px' }}>
-            Message received
+          {b.eyebrow ? (
+            <Text style={{ color: b.accentColor, fontSize: 13, letterSpacing: 1, textTransform: 'uppercase', margin: '0 0 18px' }}>
+              {b.eyebrow}
+            </Text>
+          ) : null}
+
+          <Text style={{ color: b.textColor, fontSize: 15, lineHeight: 1.6, margin: '0 0 16px' }}>
+            {intro}
           </Text>
 
-          <Text style={{ color: '#e5e5ea', fontSize: 15, lineHeight: 1.6, margin: '0 0 16px' }}>
-            I’ve got your message and I’ll get back to you as soon as I can — usually within a day or two.
-          </Text>
-
-          <Section style={{ backgroundColor: '#141418', borderRadius: 10, padding: '16px 18px', marginBottom: 16 }}>
-            <Text style={{ color: '#9b9ba3', fontSize: 12, textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 6px' }}>
+          <Section style={{ backgroundColor: b.cardBg, borderRadius: 10, padding: '16px 18px', marginBottom: 16 }}>
+            <Text style={{ color: b.mutedColor, fontSize: 12, textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 6px' }}>
               Your message
             </Text>
-            <Text style={{ color: '#f5f5f7', fontSize: 14, fontWeight: 600, margin: '0 0 8px' }}>
+            <Text style={{ color: b.textColor, fontSize: 14, fontWeight: 600, margin: '0 0 8px' }}>
               {subject}
             </Text>
-            <Text style={{ color: '#cfcfd6', fontSize: 14, lineHeight: 1.6, whiteSpace: 'pre-wrap', margin: 0 }}>
+            <Text style={{ color: b.mutedColor, fontSize: 14, lineHeight: 1.6, whiteSpace: 'pre-wrap', margin: 0 }}>
               {message}
             </Text>
-            <Text style={{ color: '#6b6b75', fontSize: 12, margin: '12px 0 0' }}>
+            <Text style={{ color: b.mutedColor, fontSize: 12, margin: '12px 0 0' }}>
               Sent {new Date(submittedAt).toLocaleString()}
             </Text>
           </Section>
 
-          <Hr style={{ borderColor: '#2a2a30', margin: '20px 0 12px' }} />
-          <Text style={{ color: '#9b9ba3', fontSize: 13, lineHeight: 1.6, margin: 0 }}>
-            — Ali Nur Hasan
-            <br />
-            <a href="https://alii.uk" style={{ color: '#c9a961', textDecoration: 'none' }}>alii.uk</a>
+          <Hr style={{ borderColor: b.borderColor, margin: '20px 0 12px' }} />
+          <Text style={{ color: b.mutedColor, fontSize: 13, lineHeight: 1.6, margin: 0 }}>
+            {b.signatureName ? <>— {b.signatureName}<br /></> : null}
+            {b.signatureUrl ? (
+              <a href={b.signatureUrl} style={{ color: b.accentColor, textDecoration: 'none' }}>
+                {b.signatureUrlLabel || b.signatureUrl}
+              </a>
+            ) : null}
           </Text>
+          {footer ? (
+            <Text style={{ color: b.mutedColor, fontSize: 12, margin: '12px 0 0' }}>{footer}</Text>
+          ) : null}
         </Container>
       </Body>
     </Html>
@@ -71,8 +94,10 @@ function ContactConfirmation({
 
 export const template = {
   component: ContactConfirmation,
-  subject: (data: Record<string, any>) =>
-    `Thanks for reaching out${data?.name ? `, ${data.name}` : ''} — Ali Nur Hasan`,
+  subject: (data: Record<string, any>) => {
+    const b = mergeBranding(DEFAULT_CONFIRMATION_BRANDING, data?.branding ?? null)
+    return applyTokens(b.subject, { name: data?.name, subject: data?.subject })
+  },
   displayName: 'Contact confirmation (to sender)',
   previewData: {
     name: 'Jane',

@@ -1,62 +1,60 @@
-let serverEntry: any;
-
-try {
-  serverEntry = require('../dist/server/server.js');
-} catch (e) {
-  // Fallback for ESM environments
-  console.log('Failed to require server, will attempt dynamic import on request');
-}
-
 export const config = {
   runtime: 'nodejs',
 };
 
-async function getServer() {
-  if (serverEntry) {
-    if (serverEntry?.fetch) return serverEntry;
-    if (serverEntry?.default?.fetch) return serverEntry.default;
-    return serverEntry;
-  }
+function normalizeServerModule(serverModule: any) {
+  if (!serverModule) return null;
+  if (typeof serverModule === 'function') return serverModule;
+  if (typeof serverModule.fetch === 'function') return serverModule.fetch.bind(serverModule);
+  if (serverModule.default && typeof serverModule.default === 'function') return serverModule.default;
+  if (serverModule.default?.fetch) return serverModule.default.fetch.bind(serverModule.default);
+  return null;
+}
 
+async function loadServerHandler() {
   try {
     const imported = await import('../dist/server/server.js');
-    if (imported?.fetch) return imported;
-    if (imported?.default?.fetch) return imported.default;
-    return imported;
-  } catch (e) {
-    console.error('Failed to import server:', e);
+    return normalizeServerModule(imported);
+  } catch (error: unknown) {
+    console.error('Failed to load server module:', error);
     return null;
   }
 }
 
-export default async function handler(request: Request): Promise<Response> {
+export default async function handler(req: any, res: any) {
+  const serverHandler = await loadServerHandler();
+
+  if (!serverHandler) {
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.end('Server initialization failed');
+    return;
+  }
+
   try {
-    const server = await getServer();
-    
-    if (!server || typeof server.fetch !== 'function') {
-      console.error('Server entry not found or invalid:', { hasServer: !!server, hasFetch: server?.fetch ? true : false });
-      return new Response('Server initialization failed', { 
-        status: 500,
-        headers: { 'Content-Type': 'text/plain' }
-      });
-    }
+    const host = req.headers.host ?? 'localhost';
+    const protocol = req.headers['x-forwarded-proto'] ?? 'https';
+    const url = new URL(req.url ?? '/', `${protocol}://${host}`);
 
-    const response = await server.fetch(request);
-    return response;
+    const request = new Request(url.toString(), {
+      method: req.method,
+      headers: req.headers as HeadersInit,
+      body: ['GET', 'HEAD'].includes(req.method ?? 'GET') ? undefined : req,
+    });
+
+    const response = await serverHandler(request);
+
+    res.statusCode = response.status;
+    response.headers.forEach((value, name) => {
+      res.setHeader(name, value);
+    });
+
+    const buffer = await response.arrayBuffer();
+    res.end(Buffer.from(buffer));
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    const errorStack = error instanceof Error ? error.stack : '';
-    
-    console.error('SSR handler error:', {
-      message: errorMessage,
-      stack: errorStack,
-      url: request.url,
-      method: request.method
-    });
-
-    return new Response('Internal Server Error', {
-      status: 500,
-      headers: { 'Content-Type': 'text/plain' }
-    });
+    console.error('SSR handler error:', error);
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.end('Internal Server Error');
   }
 }

@@ -351,7 +351,7 @@ async function sendContactNotification(
     payload: {
       message_id: messageId,
       to: recipient,
-      from: "Portfolio Contact <noreply@mail.alii.uk>",
+      from: "Portfolio Contact <noreply@alii.uk>",
       sender_domain: "notify.mail.alii.uk",
       subject,
       html,

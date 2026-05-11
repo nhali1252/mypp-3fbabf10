@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Settings2, X, Sparkles, SparklesIcon, Sun, Moon, Zap, ZapOff, RotateCcw } from "lucide-react";
+import { Settings2, X, Sparkles, SparklesIcon, Sun, Moon, Zap, ZapOff, RotateCcw, AlignLeft, AlignJustify } from "lucide-react";
 import { useShimmerPref } from "@/hooks/useShimmerPref";
 import { useMotionPref } from "@/hooks/useMotionPref";
+import { useAlignPref } from "@/hooks/useAlignPref";
 import { useTheme } from "@/components/ThemeProvider";
 import {
   useShimmerSpeedPref,

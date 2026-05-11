@@ -67,7 +67,11 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "h-10 px-2 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+      "h-10 px-2 text-left align-middle font-medium text-muted-foreground",
+      // Long header tokens break inside the word as a last resort, so
+      // a long ID can't blow out the column on mobile.
+      "[overflow-wrap:anywhere] [word-break:break-word]",
+      "[&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
       className,
     )}
     {...props}
@@ -82,7 +86,13 @@ const TableCell = React.forwardRef<
   <td
     ref={ref}
     className={cn(
-      "p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+      "p-2 align-middle",
+      // Same safeguard as TableHead: long unbroken IDs/URLs/tokens wrap
+      // inside the cell rather than forcing the table wider than the
+      // viewport. Components that need single-line ellipsis should opt
+      // in explicitly via `truncate` (with `max-w-*`) on the cell.
+      "[overflow-wrap:anywhere] [word-break:break-word]",
+      "[&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
       className,
     )}
     {...props}

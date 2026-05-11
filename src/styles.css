@@ -547,8 +547,10 @@
     text-justify: inter-word;
     /* Cap how far inter-word gaps can stretch when justifying — kills rivers */
     word-spacing: 0;
-    hyphens: auto;
     -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    -ms-hyphens: auto;
+    hyphens: auto;
   }
   li {
     line-height: var(--lh-list);
@@ -561,14 +563,23 @@
     letter-spacing: var(--track-body);
     text-align: var(--text-align-body);
     text-justify: inter-word;
-    hyphens: auto;
+    word-spacing: 0;
     -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    -ms-hyphens: auto;
+    hyphens: auto;
   }
 
   /* Justification opt-out — apply on a single short paragraph,
    * a tooltip, a button label, etc. where justify would look bad. */
   .text-left-flat,
-  .no-justify { text-align: left; hyphens: manual; }
+  .no-justify {
+    text-align: left;
+    -webkit-hyphens: manual;
+    -moz-hyphens: manual;
+    -ms-hyphens: manual;
+    hyphens: manual;
+  }
 
   /* Optical kerning + ligatures everywhere — costs nothing, looks better */
   body { font-kerning: normal; font-variant-ligatures: common-ligatures; }

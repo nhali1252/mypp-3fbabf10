@@ -1292,5 +1292,105 @@
     .shadow-glow {
       box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.4) !important;
     }
+
+    /* === Mobile sweep additions ====================================
+     * Project-wide mobile polish that doesn't require per-page edits.
+     * ============================================================= */
+
+    /* 1. iOS form zoom guard — Safari zooms when an input's font-size
+     *    is < 16px. Lift every text-input control to 16px on mobile so
+     *    tapping a field never triggers an auto-zoom + layout snap. */
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
+    textarea,
+    select {
+      font-size: max(16px, 1rem) !important;
+    }
+
+    /* 2. Touch-target minimums — small icon buttons, badges-as-links,
+     *    nav links etc. should hit the WCAG 2.5.5 target of 44×44px.
+     *    `min-block-size`/`min-inline-size` keeps text-button widths
+     *    intact while expanding pure icon controls. */
+    button,
+    [role="button"],
+    a.btn,
+    a[aria-label],
+    summary {
+      min-block-size: 40px;
+    }
+    button[aria-label]:not(.btn-inline),
+    [role="button"][aria-label]:not(.btn-inline) {
+      min-inline-size: 40px;
+    }
+
+    /* 3. Section padding clamp — many sections use `py-20`/`py-24`/`py-32`
+     *    which leaves huge dead space on small screens. Cap to a tighter
+     *    rhythm so above-the-fold content stays visible. */
+    .py-32 { padding-top: 3.5rem !important; padding-bottom: 3.5rem !important; }
+    .py-24 { padding-top: 3rem !important; padding-bottom: 3rem !important; }
+    .py-20 { padding-top: 2.5rem !important; padding-bottom: 2.5rem !important; }
+    .py-16 { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+
+    /* 4. Container gutter — guarantees ≥16px side breathing room even
+     *    when a section forgets `px-*`. Prevents edge-bleeding text. */
+    main { padding-inline: max(env(safe-area-inset-left), 0px)
+                          max(env(safe-area-inset-right), 0px); }
+    section > .container,
+    section > div.max-w-7xl,
+    section > div.max-w-6xl,
+    section > div.max-w-5xl,
+    section > div.max-w-4xl,
+    section > div.max-w-3xl {
+      padding-inline: max(1rem, env(safe-area-inset-left)) max(1rem, env(safe-area-inset-right));
+    }
+
+    /* 5. Safe-area for fixed top nav + bottom CTAs on notched devices */
+    header.fixed,
+    nav.fixed {
+      padding-top: env(safe-area-inset-top);
+    }
+    footer,
+    [data-mobile-cta] {
+      padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+
+    /* 6. Heading scale clamp — prevents 6xl/7xl headlines from overflowing
+     *    on 320px screens. Uses Tailwind class names directly so no JSX
+     *    changes needed. `clamp()` keeps the desktop ceiling intact. */
+    .text-7xl { font-size: clamp(2.25rem, 9vw, 3.5rem) !important; line-height: 1.05 !important; }
+    .text-6xl { font-size: clamp(2rem,   8vw, 3rem)    !important; line-height: 1.08 !important; }
+    .text-5xl { font-size: clamp(1.75rem, 7vw, 2.5rem) !important; line-height: 1.12 !important; }
+    .text-4xl { font-size: clamp(1.5rem,  6vw, 2.125rem) !important; line-height: 1.18 !important; }
+
+    /* 7. Grid → single column on the smallest screens. Avoids 2-col grids
+     *    crushing card content below the readable threshold. */
+    @media (max-width: 420px) {
+      .grid.grid-cols-2:not(.keep-cols),
+      .grid.sm\:grid-cols-2:not(.keep-cols) {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    /* 8. Smooth-momentum scroll for any horizontally-scrolling row
+     *    (carousels, chip rows, tag clouds). */
+    .overflow-x-auto,
+    .overflow-x-scroll {
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x proximity;
+      scrollbar-width: none;
+    }
+    .overflow-x-auto::-webkit-scrollbar,
+    .overflow-x-scroll::-webkit-scrollbar { display: none; }
+
+    /* 9. Disable hover-only effects on touch devices — prevents the
+     *    "stuck hover" state after tapping cards/buttons on iOS. */
+    @media (hover: none) {
+      .hover\:scale-105:hover,
+      .hover\:scale-110:hover,
+      .group:hover .group-hover\:scale-105,
+      .group:hover .group-hover\:scale-110 {
+        transform: none !important;
+      }
+    }
   }
 }
+

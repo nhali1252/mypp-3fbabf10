@@ -6,6 +6,9 @@ import {
   Settings, Users, LogOut, ExternalLink, Menu, X,
   RefreshCw, MessageSquare, Shield, Activity, KeyRound,
   ChevronRight, Home, Smartphone, Palette, HeartPulse, Sparkles, Mail, Calendar,
+  User, GraduationCap, Briefcase, FolderKanban, Star, Phone, Search,
+  Compass, Loader, Rocket, AppWindow, Megaphone, Radio, Layers, Folder,
+  Database, FlaskConical, Type, Wand2,
 } from "lucide-react";
 
 // Static label map for breadcrumb segments (covers nav items + extras)
@@ -46,6 +49,9 @@ const SEGMENT_LABELS: Record<string, string> = {
   "email-logs": "Email logs",
   "email-templates": "Email templates",
   bookings: "Bookings",
+  backup: "Backup",
+  "wrap-fixtures": "Wrap fixtures",
+  "overflow-tests": "Overflow tests",
 };
 
 function labelize(seg: string) {
@@ -64,24 +70,65 @@ const groups: Group[] = [
     ],
   },
   {
-    label: "System",
+    label: "Content",
+    items: [
+      { to: "/admin/hero", label: "Hero", Icon: Sparkles },
+      { to: "/admin/about", label: "About", Icon: User },
+      { to: "/admin/skills", label: "Skills", Icon: Wand2 },
+      { to: "/admin/education", label: "Education", Icon: GraduationCap },
+      { to: "/admin/activities", label: "Activities", Icon: Activity },
+      { to: "/admin/portfolio", label: "Portfolio", Icon: Briefcase },
+      { to: "/admin/projects", label: "Projects", Icon: FolderKanban },
+      { to: "/admin/reviews", label: "Reviews", Icon: Star },
+      { to: "/admin/contact", label: "Contact", Icon: Phone },
+      { to: "/admin/seo", label: "SEO", Icon: Search },
+    ],
+  },
+  {
+    label: "Layout & UI",
+    items: [
+      { to: "/admin/navigation", label: "Navigation", Icon: Compass },
+      { to: "/admin/page-loader", label: "Page loader", Icon: Loader },
+      { to: "/admin/launcher", label: "Launcher", Icon: Rocket },
+      { to: "/admin/footer-apps", label: "Footer apps", Icon: AppWindow },
+      { to: "/admin/footer-cta", label: "Footer CTA", Icon: Megaphone },
+      { to: "/admin/ticker", label: "Ticker", Icon: Radio },
+      { to: "/admin/slots", label: "Slots", Icon: Layers },
+      { to: "/admin/folders", label: "Folders", Icon: Folder },
+      { to: "/admin/heading-shimmer", label: "Heading shimmer", Icon: Type },
+    ],
+  },
+  {
+    label: "Communication",
     items: [
       { to: "/admin/messages", label: "Messages", Icon: Inbox },
       { to: "/admin/bookings", label: "Bookings", Icon: Calendar },
+      { to: "/admin/comments", label: "Comments", Icon: MessageSquare },
       { to: "/admin/email-logs", label: "Email logs", Icon: Mail },
       { to: "/admin/email-templates", label: "Email templates", Icon: Sparkles },
-      { to: "/admin/comments", label: "Comments", Icon: MessageSquare },
+    ],
+  },
+  {
+    label: "System",
+    items: [
+      { to: "/admin/users", label: "Users", Icon: Users },
+      { to: "/admin/media", label: "Media library", Icon: ImageIcon },
+      { to: "/admin/settings", label: "Site settings", Icon: Settings },
+      { to: "/admin/pwa", label: "PWA & install", Icon: Smartphone },
+      { to: "/admin/theme", label: "Theme audit", Icon: Palette },
       { to: "/admin/audit", label: "Audit log", Icon: Shield },
       { to: "/admin/diagnostics", label: "Diagnostics", Icon: Activity },
       { to: "/health", label: "Health", Icon: HeartPulse },
-      { to: "/admin/env-import", label: "Env import", Icon: KeyRound },
       { to: "/admin/runtime", label: "Runtime", Icon: RefreshCw },
-      { to: "/admin/media", label: "Media library", Icon: ImageIcon },
-      { to: "/admin/users", label: "Users", Icon: Users },
-      { to: "/admin/pwa", label: "PWA & install", Icon: Smartphone },
-      { to: "/admin/theme", label: "Theme audit", Icon: Palette },
-      { to: "/admin/heading-shimmer", label: "Heading shimmer", Icon: Sparkles },
-      { to: "/admin/settings", label: "Site settings", Icon: Settings },
+      { to: "/admin/env-import", label: "Env import", Icon: KeyRound },
+      { to: "/admin/backup", label: "Backup", Icon: Database },
+    ],
+  },
+  {
+    label: "Dev tools",
+    items: [
+      { to: "/admin/wrap-fixtures", label: "Wrap fixtures", Icon: FlaskConical },
+      { to: "/admin/overflow-tests", label: "Overflow tests", Icon: FlaskConical },
     ],
   },
 ];

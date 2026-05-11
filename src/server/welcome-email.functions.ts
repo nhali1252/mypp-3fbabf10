@@ -69,7 +69,7 @@ export const sendWelcomeEmail = createServerFn({ method: "POST" })
         message_id: messageId,
         to: data.email,
         from: "Ali Nur Hasan <info@alii.uk>",
-        sender_domain: "notify.alii.uk",
+        sender_domain: "notify.mail.alii.uk",
         subject,
         html,
         text,

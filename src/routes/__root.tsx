@@ -12,7 +12,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { MotionPrefProvider } from "@/components/MotionPrefProvider";
 import { StaleBuildBanner } from "@/components/dev/StaleBuildBanner";
 import { HeadingShimmerVars } from "@/components/HeadingShimmerVars";
-import { ShimmerToggle } from "@/components/ShimmerToggle";
+import { FloatingControlsMenu } from "@/components/FloatingControlsMenu";
 
 
 import appCss from "../styles.css?url";

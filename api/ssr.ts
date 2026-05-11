@@ -13,7 +13,9 @@ function normalizeServerModule(serverModule: any) {
 
 async function loadServerHandler() {
   try {
-    const imported = (await import('../dist/server/server.js')) as any;
+    // @ts-expect-error - dist/server/server.js is the Vite SSR build output (no .d.ts file).
+    // It is guaranteed to exist at runtime thanks to vercel.json includeFiles + build order.
+    const imported = await import('../dist/server/server.js');
     return normalizeServerModule(imported);
   } catch (error: unknown) {
     console.error('Failed to load server module:', error);

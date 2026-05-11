@@ -84,11 +84,7 @@ function AdminBookings() {
           </p>
         </AdminCard>
       ) : bookings.length === 0 ? (
-        <EmptyState
-          icon={<Calendar className="h-8 w-8" />}
-          title="No bookings yet"
-          description="Submissions from the /booking page will show up here."
-        />
+        <EmptyState message="No bookings yet — submissions from the /booking page will show up here." />
       ) : (
         <div className="space-y-3">
           {bookings.map((b) => (
@@ -159,11 +155,12 @@ function AdminBookings() {
                     onConfirm={() => deleteMut.mutate(b.id)}
                     title="Delete booking?"
                     description={`This will permanently remove the booking from ${b.name}.`}
-                  >
-                    <Button variant="ghost" size="sm" className="text-destructive">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </ConfirmDelete>
+                    trigger={
+                      <Button variant="ghost" size="sm" className="text-destructive">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    }
+                  />
                 </div>
               </div>
             </AdminCard>

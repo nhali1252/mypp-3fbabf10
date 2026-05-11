@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Footer } from "@/components/Footer";
 import { PageQuote } from "@/components/PageQuote";
 import { Hero3DText } from "@/components/Hero3DText";
+import { toExternalUrl } from "@/lib/external-url";
 
 type Project = {
   id: string;

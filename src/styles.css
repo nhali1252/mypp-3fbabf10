@@ -522,6 +522,8 @@
     letter-spacing: var(--track-body);
     text-align: var(--text-align-body);
     text-justify: inter-word;
+    /* Cap how far inter-word gaps can stretch when justifying — kills rivers */
+    word-spacing: 0;
     hyphens: auto;
     -webkit-hyphens: auto;
   }

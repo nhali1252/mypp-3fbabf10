@@ -45,13 +45,42 @@
   --font-serif-display: 'Cormorant Garamond', serif;
   --font-numeric: 'Lora', Georgia, serif;
 
-  /* Motion tokens — keep all animation in one consistent language */
+  /* === Motion & visual-effect budget ===
+   * Single source of truth for animation timing, easing, and visual-effect
+   * intensity. Every component should reference these tokens instead of
+   * hard-coding values so the site stays performant and consistent — and
+   * so the mobile media query at the bottom of this file can scale every
+   * effect down at once.
+   *
+   * See docs/animation-guidelines.md for the full rule set.
+   *
+   * Hard caps (mobile, ≤640px):
+   *   - One-shot transitions: ≤ var(--dur-slow) (480ms)
+   *   - Loop animations: ≥ 1.6s per cycle (no fast strobing on touch)
+   *   - Blur radius: ≤ var(--blur-mobile-cap) (60px)
+   *   - Backdrop-blur: ≤ 8px
+   *   - No more than 2 concurrent infinite loops in viewport
+   */
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Durations — use for all transitions & one-shot animations */
+  --dur-instant: 100ms;
   --dur-fast: 180ms;
   --dur-base: 260ms;
   --dur-slow: 480ms;
+  --dur-hero: 800ms; /* desktop only — clamped on mobile below */
+
+  /* Visual-effect budget — blur radii & shadow intensity */
+  --blur-sm: 8px;
+  --blur-md: 24px;
+  --blur-lg: 60px;
+  --blur-xl: 120px;
+  --blur-mobile-cap: 60px;
+  --backdrop-blur-sm: 6px;
+  --backdrop-blur-md: 12px;
+  --backdrop-blur-mobile-cap: 8px;
 }
 
 :root {
@@ -814,6 +843,18 @@
    *      slightly accelerated to feel snappier on touch.
    */
   @media (max-width: 640px) {
+    /* Auto-scale the budget tokens — anything authored with var(--dur-*) or
+     * var(--blur-*) will downshift on mobile with no per-component change. */
+    :root {
+      --dur-fast: 140ms;
+      --dur-base: 200ms;
+      --dur-slow: 320ms;
+      --dur-hero: 480ms;
+      --blur-lg: 48px;
+      --blur-xl: 60px;
+      --backdrop-blur-md: 8px;
+    }
+
     /* Cap the giant ambient blobs so the GPU isn't blurring 600px circles */
     [class*="blur-["] {
       filter: blur(60px) !important;

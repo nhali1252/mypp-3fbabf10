@@ -58,7 +58,7 @@ function AdminEmailTemplates() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-email-templates"],
-    queryFn: () => list({ data: undefined as any }),
+    queryFn: () => list(),
   });
 
   const updateMut = useMutation({

@@ -11,6 +11,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabasePublic } from "@/integrations/supabase/client.public";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { template as contactNotification } from "@/lib/email-templates/contact-notification";
+import { template as contactConfirmation } from "@/lib/email-templates/contact-confirmation";
 
 export type Message = {
   id: string;

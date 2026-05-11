@@ -44,6 +44,7 @@ import { Route as AdminAdminPwaRouteImport } from './routes/_admin.admin.pwa'
 import { Route as AdminAdminProjectsRouteImport } from './routes/_admin.admin.projects'
 import { Route as AdminAdminPortfolioRouteImport } from './routes/_admin.admin.portfolio'
 import { Route as AdminAdminPageLoaderRouteImport } from './routes/_admin.admin.page-loader'
+import { Route as AdminAdminOverflowTestsRouteImport } from './routes/_admin.admin.overflow-tests'
 import { Route as AdminAdminNavigationRouteImport } from './routes/_admin.admin.navigation'
 import { Route as AdminAdminMessagesRouteImport } from './routes/_admin.admin.messages'
 import { Route as AdminAdminMediaRouteImport } from './routes/_admin.admin.media'
@@ -244,6 +245,11 @@ const AdminAdminPageLoaderRoute = AdminAdminPageLoaderRouteImport.update({
   path: '/admin/page-loader',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminOverflowTestsRoute = AdminAdminOverflowTestsRouteImport.update({
+  id: '/admin/overflow-tests',
+  path: '/admin/overflow-tests',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAdminNavigationRoute = AdminAdminNavigationRouteImport.update({
   id: '/admin/navigation',
   path: '/admin/navigation',
@@ -413,6 +419,7 @@ export interface FileRoutesByFullPath {
   '/admin/media': typeof AdminAdminMediaRoute
   '/admin/messages': typeof AdminAdminMessagesRoute
   '/admin/navigation': typeof AdminAdminNavigationRoute
+  '/admin/overflow-tests': typeof AdminAdminOverflowTestsRoute
   '/admin/page-loader': typeof AdminAdminPageLoaderRoute
   '/admin/portfolio': typeof AdminAdminPortfolioRoute
   '/admin/projects': typeof AdminAdminProjectsRoute
@@ -474,6 +481,7 @@ export interface FileRoutesByTo {
   '/admin/media': typeof AdminAdminMediaRoute
   '/admin/messages': typeof AdminAdminMessagesRoute
   '/admin/navigation': typeof AdminAdminNavigationRoute
+  '/admin/overflow-tests': typeof AdminAdminOverflowTestsRoute
   '/admin/page-loader': typeof AdminAdminPageLoaderRoute
   '/admin/portfolio': typeof AdminAdminPortfolioRoute
   '/admin/projects': typeof AdminAdminProjectsRoute
@@ -537,6 +545,7 @@ export interface FileRoutesById {
   '/_admin/admin/media': typeof AdminAdminMediaRoute
   '/_admin/admin/messages': typeof AdminAdminMessagesRoute
   '/_admin/admin/navigation': typeof AdminAdminNavigationRoute
+  '/_admin/admin/overflow-tests': typeof AdminAdminOverflowTestsRoute
   '/_admin/admin/page-loader': typeof AdminAdminPageLoaderRoute
   '/_admin/admin/portfolio': typeof AdminAdminPortfolioRoute
   '/_admin/admin/projects': typeof AdminAdminProjectsRoute
@@ -600,6 +609,7 @@ export interface FileRouteTypes {
     | '/admin/media'
     | '/admin/messages'
     | '/admin/navigation'
+    | '/admin/overflow-tests'
     | '/admin/page-loader'
     | '/admin/portfolio'
     | '/admin/projects'
@@ -661,6 +671,7 @@ export interface FileRouteTypes {
     | '/admin/media'
     | '/admin/messages'
     | '/admin/navigation'
+    | '/admin/overflow-tests'
     | '/admin/page-loader'
     | '/admin/portfolio'
     | '/admin/projects'
@@ -723,6 +734,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/media'
     | '/_admin/admin/messages'
     | '/_admin/admin/navigation'
+    | '/_admin/admin/overflow-tests'
     | '/_admin/admin/page-loader'
     | '/_admin/admin/portfolio'
     | '/_admin/admin/projects'
@@ -1022,6 +1034,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminPageLoaderRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/overflow-tests': {
+      id: '/_admin/admin/overflow-tests'
+      path: '/admin/overflow-tests'
+      fullPath: '/admin/overflow-tests'
+      preLoaderRoute: typeof AdminAdminOverflowTestsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/navigation': {
       id: '/_admin/admin/navigation'
       path: '/admin/navigation'
@@ -1220,6 +1239,7 @@ interface AdminRouteChildren {
   AdminAdminMediaRoute: typeof AdminAdminMediaRoute
   AdminAdminMessagesRoute: typeof AdminAdminMessagesRoute
   AdminAdminNavigationRoute: typeof AdminAdminNavigationRoute
+  AdminAdminOverflowTestsRoute: typeof AdminAdminOverflowTestsRoute
   AdminAdminPageLoaderRoute: typeof AdminAdminPageLoaderRoute
   AdminAdminPortfolioRoute: typeof AdminAdminPortfolioRoute
   AdminAdminProjectsRoute: typeof AdminAdminProjectsRoute
@@ -1257,6 +1277,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminMediaRoute: AdminAdminMediaRoute,
   AdminAdminMessagesRoute: AdminAdminMessagesRoute,
   AdminAdminNavigationRoute: AdminAdminNavigationRoute,
+  AdminAdminOverflowTestsRoute: AdminAdminOverflowTestsRoute,
   AdminAdminPageLoaderRoute: AdminAdminPageLoaderRoute,
   AdminAdminPortfolioRoute: AdminAdminPortfolioRoute,
   AdminAdminProjectsRoute: AdminAdminProjectsRoute,

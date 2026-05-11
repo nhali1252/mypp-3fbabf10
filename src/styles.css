@@ -227,6 +227,69 @@
     overflow-wrap: break-word;
   }
 
+  /* === Global typography rhythm ===
+   * Tightens line-height as type gets larger and loosens it for body copy,
+   * so multi-line wraps look intentional. Letter-spacing follows the same
+   * curve — display sizes get negative tracking (more typographic weight),
+   * body copy stays neutral, eyebrow/label-style copy gets the wide
+   * tracking the design language already uses elsewhere.
+   *
+   * Margins are normalized so consecutive headings + paragraphs always
+   * share the same vertical rhythm — no more ad-hoc `mb-3 sm:mb-4` strings
+   * scattered across components. Tailwind utility classes (mb-*, mt-*) on
+   * a specific element still win because they have higher specificity.
+   */
+  h1 {
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    font-weight: 800;
+  }
+  h2 {
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-weight: 800;
+  }
+  h3 {
+    line-height: 1.18;
+    letter-spacing: -0.015em;
+    font-weight: 700;
+  }
+  h4 {
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    font-weight: 700;
+  }
+  h5, h6 {
+    line-height: 1.35;
+    letter-spacing: -0.005em;
+    font-weight: 600;
+  }
+  p, li, dd {
+    line-height: 1.65;
+    letter-spacing: 0;
+  }
+  /* Optical kerning + ligatures everywhere — costs nothing, looks better */
+  body { font-kerning: normal; font-variant-ligatures: common-ligatures; }
+
+  /* Default vertical rhythm for stacked content (Tailwind utilities still win) */
+  h1 { margin-bottom: 0.5em; }
+  h2 { margin-bottom: 0.6em; }
+  h3 { margin-bottom: 0.65em; }
+  h4, h5, h6 { margin-bottom: 0.75em; }
+  h2 + p, h3 + p, h4 + p { margin-top: 0; }
+  p + p { margin-top: 0.85em; }
+
+  /* Mobile: slightly looser line-height on small headings (helps balance
+   * after `text-wrap: balance` shortens the measure) and tighter body
+   * leading so cards stay compact. */
+  @media (max-width: 640px) {
+    h1 { line-height: 1.08; letter-spacing: -0.02em; }
+    h2 { line-height: 1.14; letter-spacing: -0.018em; }
+    h3 { line-height: 1.22; letter-spacing: -0.012em; }
+    p, li, dd { line-height: 1.55; }
+    p + p { margin-top: 0.7em; }
+  }
+
   /* Crisp media */
   img, svg, video { image-rendering: auto; }
 

@@ -233,12 +233,55 @@
   html, body { overflow-x: clip; }
   #root, main { max-width: 100%; overflow-x: clip; }
 
+  /* === Monospace baseline ===
+   * Single source of truth for every <code>, <kbd>, <samp>, <var>, <pre>.
+   * Without this, inline <code> inherits Inter at body line-height (1.65)
+   * and wrapped tokens visually misalign with surrounding text.
+   *
+   * - Font:   ui-monospace stack (matches the OS chrome font on every
+   *           platform — SF Mono on macOS, Cascadia on Windows, etc.).
+   *   Falls back to JetBrains Mono / Fira Code if you load them later.
+   * - Size:   0.92em — slightly smaller than body so the wider glyphs
+   *           don't visually outweigh the surrounding sentence.
+   * - Lh:     1.55 — tight enough that wrapped tokens stay associated
+   *           with their original line, loose enough to read.
+   * - Tabular figures + slashed zero so 0/O and 1/l/I stay distinct.
+   * - font-variant-ligatures: none — programming ligatures (=>, !==)
+   *   are confusing in user-facing UI; turn them off explicitly.
+   */
+  code, kbd, samp, var, pre {
+    font-family:
+      ui-monospace, "JetBrains Mono", "Fira Code", "SF Mono", Menlo,
+      Consolas, "Liberation Mono", monospace;
+    font-size: 0.92em;
+    line-height: 1.55;
+    font-variant-ligatures: none;
+    font-variant-numeric: tabular-nums slashed-zero;
+    font-feature-settings: "calt" 0, "liga" 0, "tnum", "zero";
+  }
+
   /* Anchors / inline code / mono samples — `anywhere` is intentional here:
    * URLs and tokens are not "real" words, so breaking mid-character is
-   * preferable to overflowing the layout. */
+   * preferable to overflowing the layout. Wrapped tokens stay readable
+   * because the monospace baseline above keeps glyph rhythm consistent
+   * across line breaks. */
   a[href], code, kbd, samp, var {
     overflow-wrap: anywhere;
     word-break: break-word;
+  }
+
+  /* Inline <code> — pill-style chip so a wrapped token reads as a single
+   * semantic unit even when it spans two lines. Padding is em-based so it
+   * stays balanced against the smaller font-size above. */
+  :not(pre) > code {
+    padding: 0.1em 0.35em;
+    border-radius: 0.3rem;
+    background: color-mix(in oklab, var(--muted) 60%, transparent);
+    color: var(--foreground);
+    /* Keeps the chip's background hugging the text on each wrapped line
+     * instead of stretching across the gap between lines. */
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
   }
 
   /* === .break-token — friendly wrap for mixed pasted content ===
@@ -257,10 +300,6 @@
    *     team flagged on `anywhere`).
    *   - `hyphens: auto` — when a word does need to break, prefer a soft
    *     hyphen at a syllable boundary over a raw mid-character cut.
-   *   - `:`, `=`, `/`, `?`, `&`, `#`, `_`, `-`, `.` are common token
-   *     separators — modern browsers already treat most of them as soft
-   *     break opportunities under `break-word`, so "token:VALUE" wraps
-   *     between `:` and `VALUE` instead of mid-character.
    *
    * If you need the *aggressive* old behaviour (e.g. a single 80-char
    * hash in a 40px column), use `.break-token-hard` below or apply
@@ -271,7 +310,6 @@
     word-break: normal;
     hyphens: auto;
     -webkit-hyphens: auto;
-    /* Tabular-style separators become soft break opportunities. */
     line-break: auto;
   }
 
@@ -281,11 +319,40 @@
     hyphens: none;
   }
 
+  /* === <pre> — code blocks scroll inside themselves ===
+   * The opposite policy from inline <code>: NEVER wrap, always scroll.
+   * Wrapping a code block destroys indentation and makes pasted snippets
+   * unusable; horizontal scroll inside the block keeps the page itself
+   * from scrolling (html/body have overflow-x: clip).
+   *
+   * `tab-size: 2` matches the project's editor convention so pasted
+   * snippets line up the same way they do in source files.
+   */
   pre {
     max-width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    white-space: pre;
+    word-break: normal;
+    overflow-wrap: normal;
+    tab-size: 2;
+    -moz-tab-size: 2;
+    padding: 0.875rem 1rem;
+    border-radius: 0.5rem;
+    background: color-mix(in oklab, var(--muted) 60%, transparent);
+    color: var(--foreground);
   }
+
+  /* <code> nested inside <pre> inherits the block's background — strip
+   * the inline chip styles so we don't get a chip-on-chip look. */
+  pre > code {
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+    font-size: inherit;
+    line-height: inherit;
+  }
+
 
   /* Form controls have an intrinsic min-width derived from `size` — that
    * default lets a long value push their parent. Clamp it. */

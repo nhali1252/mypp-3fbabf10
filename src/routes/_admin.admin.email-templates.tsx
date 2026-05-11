@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Save, Eye, RotateCcw, Mail } from "lucide-react";
+import { Save, Eye, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { AdminPage, AdminCard, FormRow } from "@/components/admin/AdminPage";
 import { Input } from "@/components/ui/input";

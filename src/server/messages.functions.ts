@@ -12,6 +12,7 @@ import { supabasePublic } from "@/integrations/supabase/client.public";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { template as contactNotification } from "@/lib/email-templates/contact-notification";
 import { template as contactConfirmation } from "@/lib/email-templates/contact-confirmation";
+import { loadBranding } from "@/server/email-template-settings.functions";
 
 export type Message = {
   id: string;
@@ -208,11 +209,13 @@ async function sendContactConfirmation(
   opts: { retry?: boolean } = {},
 ) {
   const submittedAt = new Date().toISOString();
+  const branding = await loadBranding("contact-confirmation");
   const props = {
     name: data.name,
     subject: data.subject || "(no subject)",
     message: data.message,
     submittedAt,
+    branding,
   };
   const element = React.createElement(contactConfirmation.component, props);
   const [html, text] = await Promise.all([
@@ -301,6 +304,7 @@ async function sendContactNotification(
   }
 
   const submittedAt = new Date().toISOString();
+  const branding = await loadBranding("contact-notification");
   const props = {
     name: data.name,
     email: data.email,
@@ -308,6 +312,7 @@ async function sendContactNotification(
     subject: data.subject || "(no subject)",
     message: data.message,
     submittedAt,
+    branding,
   };
   const element = React.createElement(contactNotification.component, props);
   const [html, text] = await Promise.all([

@@ -1,61 +1,43 @@
 import serverEntry from '../dist/server/index.js';
 
-const server = serverEntry?.fetch ? serverEntry : serverEntry?.default ?? serverEntry;
-
-function setNodeResponse(res: any, response: Response) {
-  res.statusCode = response.status;
-
-  response.headers.forEach((value, name) => {
-    if (name.toLowerCase() === 'set-cookie' && Array.isArray(value)) {
-      res.setHeader(name, value);
-    } else {
-      res.setHeader(name, value);
-    }
-  });
-}
-
 export const config = {
   runtime: 'nodejs',
 };
 
-export default async function handler(req: any, res: any) {
+async function getServer() {
+  if (serverEntry?.fetch) return serverEntry;
+  if (serverEntry?.default?.fetch) return serverEntry.default;
+  return serverEntry;
+}
+
+export default async function handler(request: Request): Promise<Response> {
   try {
+    const server = await getServer();
+    
     if (!server || typeof server.fetch !== 'function') {
-      console.error('Server entry point not found or missing fetch method');
-      res.statusCode = 500;
-      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-      res.end('Server initialization failed');
-      return;
+      console.error('Server entry not found or invalid:', { hasServer: !!server, hasFetch: server?.fetch ? true : false });
+      return new Response('Server initialization failed', { 
+        status: 500,
+        headers: { 'Content-Type': 'text/plain' }
+      });
     }
 
-    const host = req.headers.host ?? 'localhost';
-    const protocol = req.headers['x-forwarded-proto'] ?? 'https';
-    const url = new URL(req.url ?? '/', `${protocol}://${host}`);
-
-    const init: RequestInit = {
-      method: req.method || 'GET',
-      headers: req.headers as HeadersInit,
-    };
-
-    if (!['GET', 'HEAD'].includes(req.method || 'GET') && req.body) {
-      init.body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
-    }
-
-    const request = new Request(url.toString(), init);
     const response = await server.fetch(request);
-
-    setNodeResponse(res, response);
-
-    if (response.body) {
-      const buffer = await response.arrayBuffer();
-      res.end(Buffer.from(buffer));
-    } else {
-      res.end();
-    }
+    return response;
   } catch (error: unknown) {
-    console.error('SSR handler error:', error);
-    res.statusCode = 500;
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    res.end('Internal Server Error');
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : '';
+    
+    console.error('SSR handler error:', {
+      message: errorMessage,
+      stack: errorStack,
+      url: request.url,
+      method: request.method
+    });
+
+    return new Response('Internal Server Error', {
+      status: 500,
+      headers: { 'Content-Type': 'text/plain' }
+    });
   }
 }

@@ -210,6 +210,47 @@
   /* Anchored headings clear the fixed nav */
   h1, h2, h3, h4, [id] { scroll-margin-top: 88px; }
 
+  /* === Long-unbroken-text safeguard ===
+   * Prevents URLs, email addresses, @handles, hashes, file paths, tokens,
+   * or pasted user content from blowing out the viewport on mobile (the
+   * single most common source of horizontal scroll regressions).
+   *
+   * Layered so each element type gets the right strategy:
+   *   - `html, body`            never scroll horizontally
+   *   - `#root` / main wrapper  hard-clip overflow that escaped a child
+   *   - `a, code, kbd, samp`    break inside the word as a last resort
+   *                             (`overflow-wrap: anywhere`) — fine for URLs
+   *                             and tokens, where readability < layout
+   *   - `pre`                   keep formatting but allow horizontal scroll
+   *                             inside the block instead of the page
+   *   - inputs/textareas        clamp their intrinsic min-width so a long
+   *                             value can't push their parent flex/grid
+   *
+   * Components that genuinely need to truncate (badges, table cells,
+   * single-line names) should still apply `truncate` explicitly — this
+   * rule only handles the *overflow* case, not the *truncation* case.
+   */
+  html, body { overflow-x: clip; }
+  #root, main { max-width: 100%; overflow-x: clip; }
+
+  a[href], code, kbd, samp, var, .break-token {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  pre {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Form controls have an intrinsic min-width derived from `size` — that
+   * default lets a long value push their parent. Clamp it. */
+  input, textarea, select {
+    min-width: 0;
+    max-width: 100%;
+  }
+
   /* === Global text alignment & wrapping ===
    * Headings get `text-wrap: balance` so multi-line titles distribute words
    * evenly (no orphan words on the last line). Body copy uses `text-pretty`

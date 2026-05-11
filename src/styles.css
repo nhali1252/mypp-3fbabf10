@@ -181,6 +181,23 @@
   /* Anchored headings clear the fixed nav */
   h1, h2, h3, h4, [id] { scroll-margin-top: 88px; }
 
+  /* === Global text alignment & wrapping ===
+   * Headings get `text-wrap: balance` so multi-line titles distribute words
+   * evenly (no orphan words on the last line). Body copy uses `text-pretty`
+   * for the same reason. `overflow-wrap: anywhere` prevents long URLs or
+   * un-spaced strings from breaking the layout on narrow mobile viewports.
+   * Both text-wrap values fall back to default wrapping in older browsers.
+   */
+  h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  p, li, blockquote, dd {
+    text-wrap: pretty;
+    overflow-wrap: break-word;
+  }
+
   /* Crisp media */
   img, svg, video { image-rendering: auto; }
 

@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
 import { Mail, Phone, MessageCircle, Sparkles, Send, Loader2, Calendar, Clock } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { submitMessage } from "@/server/messages.functions";
 import { useContentDoc } from "@/hooks/useContentDoc";
 import { Footer } from "@/components/Footer";
 import { PageQuote } from "@/components/PageQuote";
@@ -47,6 +48,7 @@ function nextWeekdays(count: number) {
 
 export function ContactPage() {
   const days = useMemo(() => nextWeekdays(7), []);
+  const send = useServerFn(submitMessage);
 
   const contact = useContentDoc<{
     email: string | null;
@@ -75,17 +77,21 @@ export function ContactPage() {
       [projectType, subject.trim()].filter(Boolean).join(" — ") || projectType;
     const scheduleNote =
       day && slot ? `\n\nPreferred call slot: ${day} at ${slot}` : "";
-    const { error } = await (supabase as any).from("messages").insert({
-      name: name.trim(),
-      email: email.trim(),
-      subject: subjectLine,
-      message: message.trim() + scheduleNote,
-    });
-    setSending(false);
-    if (error) {
-      toast.error(error.message);
+    try {
+      await send({
+        data: {
+          name: name.trim(),
+          email: email.trim(),
+          subject: subjectLine,
+          message: message.trim() + scheduleNote,
+        },
+      });
+    } catch (error: any) {
+      setSending(false);
+      toast.error(error?.message || "Could not send. Please try again.");
       return;
     }
+    setSending(false);
     toast.success("Inquiry sent — I'll reply within 24 hours.");
     setName("");
     setEmail("");

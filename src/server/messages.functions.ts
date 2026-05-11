@@ -292,6 +292,11 @@ async function sendContactNotification(
     settings?.form_receiver_email || settings?.email;
   if (!recipient) {
     console.warn("[messages.submitMessage] no recipient email configured; skipping notify");
+    await recordAudit({
+      message_row_id: messageRowId,
+      event: "notify.no_recipient",
+      status: "warn",
+    });
     return null;
   }
 

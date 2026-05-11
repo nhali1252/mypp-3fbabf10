@@ -30,19 +30,9 @@ async function assertAdmin(userId: string) {
   if (!data?.length) throw new Error("Forbidden — admin role required");
 }
 
-/** Best-effort branding loader, used by the email senders. Never throws. */
-export async function loadBranding(key: TemplateKey): Promise<Record<string, string> | null> {
-  try {
-    const { data } = await (supabaseAdmin as any)
-      .from("email_template_settings")
-      .select("settings")
-      .eq("template_key", key)
-      .maybeSingle();
-    return (data?.settings as Record<string, string>) ?? null;
-  } catch {
-    return null;
-  }
-}
+// loadBranding lives in email-template-branding.server.ts so the messages
+// pipeline can use it without dragging supabaseAdmin into client bundles.
+import { loadBranding } from "@/server/email-template-branding.server";
 
 /** Admin: list all template branding overrides. */
 export const listEmailTemplateSettings = createServerFn({ method: "GET" })

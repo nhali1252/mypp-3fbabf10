@@ -1,15 +1,25 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { listEmailLogs, type EmailLogRow } from "@/server/email-logs.functions";
+import {
+  listEmailLogs,
+  listDlqMessages,
+  requeueDlqMessage,
+  purgeDlqMessage,
+  getRetryConfig,
+  updateRetryConfig,
+  type EmailLogRow,
+  type DlqMessage,
+} from "@/server/email-logs.functions";
 import { AdminPage, AdminCard, EmptyState } from "@/components/admin/AdminPage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 import {
   CheckCircle2, Clock, XCircle, AlertTriangle, ShieldAlert, Inbox,
-  RefreshCw, Search,
+  RefreshCw, Search, RotateCcw, Trash2, Settings,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_admin/admin/email-logs")({ component: EmailLogsPage });

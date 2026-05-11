@@ -6,6 +6,9 @@ import {
   Settings, Users, LogOut, ExternalLink, Menu, X,
   RefreshCw, MessageSquare, Shield, Activity, KeyRound,
   ChevronRight, Home, Smartphone, Palette, HeartPulse, Sparkles, Mail, Calendar,
+  User, GraduationCap, Briefcase, FolderKanban, Star, Phone, Search,
+  Compass, Loader, Rocket, AppWindow, Megaphone, Radio, Layers, Folder,
+  Database, FlaskConical, Type, Wand2,
 } from "lucide-react";
 
 // Static label map for breadcrumb segments (covers nav items + extras)

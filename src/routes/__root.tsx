@@ -13,6 +13,7 @@ import { MotionPrefProvider } from "@/components/MotionPrefProvider";
 import { StaleBuildBanner } from "@/components/dev/StaleBuildBanner";
 import { HeadingShimmerVars } from "@/components/HeadingShimmerVars";
 import { FloatingControlsMenu } from "@/components/FloatingControlsMenu";
+import { PwaRegister } from "@/components/PwaRegister";
 
 
 import appCss from "../styles.css?url";
@@ -153,6 +154,7 @@ function RootComponent() {
             <Toaster richColors position="top-right" />
               <StaleBuildBanner />
             <FloatingControlsMount />
+            <PwaRegister />
 
           </AuthProvider>
         </MotionPrefProvider>

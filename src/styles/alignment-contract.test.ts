@@ -129,6 +129,8 @@ const ALLOWLIST: Record<string, string> = {
     "Landing strip stays text-center",
   "src/components/pages/ContactPage.tsx": "Landing strip stays text-center",
   "src/components/pages/ReviewsPage.tsx": "Landing strip stays text-center",
+  // Diagnostic / health readout — monospace technical output, not site copy.
+  "src/routes/health.tsx": "Health-check JSON dump, not user-facing prose",
 };
 
 /** Forbidden inline patterns — both JSX style objects and CSS strings. */

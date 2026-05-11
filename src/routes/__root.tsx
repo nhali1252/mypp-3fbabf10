@@ -152,7 +152,7 @@ function RootComponent() {
             </MaintenanceGate>
             <Toaster richColors position="top-right" />
               <StaleBuildBanner />
-            <FloatingShimmerToggle />
+            <FloatingControlsMount />
 
           </AuthProvider>
         </MotionPrefProvider>
@@ -162,19 +162,13 @@ function RootComponent() {
 }
 
 /**
- * Floating shimmer toggle, mounted globally so every page has it without
+ * Floating preferences hub, mounted globally so every page has it without
  * needing to add it to each layout. Hidden on admin routes (which already
- * expose richer per-route shimmer controls) and during print.
+ * expose richer per-route controls) and during print.
  */
-function FloatingShimmerToggle() {
+function FloatingControlsMount() {
   const { pathname } = useLocation();
   if (pathname.startsWith("/admin")) return null;
-  return (
-    <div className="pointer-events-none fixed bottom-4 right-4 z-40 print:hidden">
-      <div className="pointer-events-auto">
-        <ShimmerToggle />
-      </div>
-    </div>
-  );
+  return <FloatingControlsMenu />;
 }
 

@@ -61,10 +61,12 @@ const submitSchema = z.object({
 export const submitMessage = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => submitSchema.parse(data))
   .handler(async ({ data }) => {
+    const messageRowId = crypto.randomUUID();
     // Use public (anon) client — RLS policy "Anon can submit message" permits
     // this insert, so the contact form works without SUPABASE_SERVICE_ROLE_KEY
     // being deployed to the Worker.
     const { error } = await supabasePublic.from("messages").insert({
+      id: messageRowId,
       name: data.name,
       email: data.email,
       phone: data.phone || null,
@@ -75,16 +77,16 @@ export const submitMessage = createServerFn({ method: "POST" })
 
     // Fire-and-forget email notifications. Failures must not block the form response.
     try {
-      await sendContactNotification(data);
+      await sendContactNotification(data, messageRowId);
     } catch (e) {
       console.error("[messages.submitMessage] admin notify failed", e);
     }
     try {
-      await sendContactConfirmation(data);
+      await sendContactConfirmation(data, messageRowId);
     } catch (e) {
       console.error("[messages.submitMessage] sender confirmation failed", e);
     }
-    return { ok: true };
+    return { ok: true, id: messageRowId };
   });
 
 async function sendContactConfirmation(data: {

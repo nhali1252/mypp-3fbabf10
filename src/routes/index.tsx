@@ -647,7 +647,7 @@ function Launcher() {
                     }}
                   />
 
-                  <div className="relative flex flex-col h-full min-h-[260px]">
+                  <div className="relative flex flex-col h-full min-h-[200px] sm:min-h-[260px]">
                     <div className="flex items-center justify-between mb-7">
                       <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-muted-foreground">
                         {c.label}
@@ -728,7 +728,7 @@ function LauncherSkeleton({ index, reduceMotion }: { index: number; reduceMotion
       <div
         className="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl bg-gradient-to-br from-primary/15 to-primary/0"
       />
-      <div className="relative flex flex-col h-full min-h-[260px]">
+      <div className="relative flex flex-col h-full min-h-[200px] sm:min-h-[260px]">
         <div className="flex items-center justify-between mb-7">
           <div className={`h-3 w-20 rounded-full bg-muted ${pulse}`} />
           <div className={`h-5 w-14 rounded-full bg-muted ${pulse}`} />

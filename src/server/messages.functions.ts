@@ -119,7 +119,7 @@ export const submitMessage = createServerFn({ method: "POST" })
     } catch (e) {
       console.error("[messages.submitMessage] sender confirmation failed", e);
     }
-    return { ok: true, id: messageRowId };
+    return { ok: true, id: messageRowId, deduped: false };
   });
 
 function makeMessageId(leg: EmailLeg, rowId: string, retry: boolean) {

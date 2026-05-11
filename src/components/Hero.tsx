@@ -107,7 +107,7 @@ export function Hero({ showHireMe = true }: { showHireMe?: boolean } = {}) {
 
             {/* Right: content */}
             <motion.div
-              className="relative z-10 px-6 md:px-10 lg:px-14 pb-10 md:pb-0 md:py-10 flex flex-col justify-center text-center md:text-left"
+              className="relative z-10 px-6 md:px-10 lg:px-14 pb-10 md:pb-0 md:py-10 flex flex-col justify-center align-hero"
               initial="hidden"
               animate="visible"
               variants={{

@@ -95,7 +95,7 @@ function AboutSkillsInner() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-            className="text-center lg:text-left"
+            className="align-hero"
           >
             <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-primary mb-3">
               {eyebrow}

@@ -233,9 +233,52 @@
   html, body { overflow-x: clip; }
   #root, main { max-width: 100%; overflow-x: clip; }
 
-  a[href], code, kbd, samp, var, .break-token {
+  /* Anchors / inline code / mono samples — `anywhere` is intentional here:
+   * URLs and tokens are not "real" words, so breaking mid-character is
+   * preferable to overflowing the layout. */
+  a[href], code, kbd, samp, var {
     overflow-wrap: anywhere;
     word-break: break-word;
+  }
+
+  /* === .break-token — friendly wrap for mixed pasted content ===
+   * Designed for blobs the user paste into the UI that mix real words
+   * with key:value tokens, e.g.:
+   *   "Bearer token:eyJhbGciOiJIUzI1Ni..."
+   *   "session_id=abc-123-def, expires=2026-05-11"
+   *   "/api/v1/users/12345/posts?ref=home"
+   *
+   * Behaviour:
+   *   - `overflow-wrap: break-word` — break inside a word ONLY when the
+   *     word would otherwise overflow. Real English words wrap at spaces
+   *     first; only the long unbroken token gets broken.
+   *   - `word-break: normal` — don't aggressively split CJK/punctuation
+   *     mid-character (the source of the "mid-word artifact" the design
+   *     team flagged on `anywhere`).
+   *   - `hyphens: auto` — when a word does need to break, prefer a soft
+   *     hyphen at a syllable boundary over a raw mid-character cut.
+   *   - `:`, `=`, `/`, `?`, `&`, `#`, `_`, `-`, `.` are common token
+   *     separators — modern browsers already treat most of them as soft
+   *     break opportunities under `break-word`, so "token:VALUE" wraps
+   *     between `:` and `VALUE` instead of mid-character.
+   *
+   * If you need the *aggressive* old behaviour (e.g. a single 80-char
+   * hash in a 40px column), use `.break-token-hard` below or apply
+   * `[overflow-wrap:anywhere]` inline.
+   */
+  .break-token {
+    overflow-wrap: break-word;
+    word-break: normal;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    /* Tabular-style separators become soft break opportunities. */
+    line-break: auto;
+  }
+
+  .break-token-hard {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: none;
   }
 
   pre {

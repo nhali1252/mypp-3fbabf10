@@ -77,17 +77,21 @@ export function ContactPage() {
       [projectType, subject.trim()].filter(Boolean).join(" — ") || projectType;
     const scheduleNote =
       day && slot ? `\n\nPreferred call slot: ${day} at ${slot}` : "";
-    const { error } = await (supabase as any).from("messages").insert({
-      name: name.trim(),
-      email: email.trim(),
-      subject: subjectLine,
-      message: message.trim() + scheduleNote,
-    });
-    setSending(false);
-    if (error) {
-      toast.error(error.message);
+    try {
+      await send({
+        data: {
+          name: name.trim(),
+          email: email.trim(),
+          subject: subjectLine,
+          message: message.trim() + scheduleNote,
+        },
+      });
+    } catch (error: any) {
+      setSending(false);
+      toast.error(error?.message || "Could not send. Please try again.");
       return;
     }
+    setSending(false);
     toast.success("Inquiry sent — I'll reply within 24 hours.");
     setName("");
     setEmail("");

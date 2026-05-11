@@ -530,3 +530,37 @@ export const retryMessageEmail = createServerFn({ method: "POST" })
     const result = await sendContactConfirmation(payload, row.id, { retry: true });
     return { ok: true, messageId: result.messageId, recipient: result.recipient };
   });
+
+export type MessageAuditEntry = {
+  id: string;
+  message_row_id: string | null;
+  event: string;
+  message_id: string | null;
+  recipient_email: string | null;
+  status: "info" | "success" | "warn" | "error";
+  error_message: string | null;
+  details: Record<string, any>;
+  created_at: string;
+};
+
+/** Admin: full audit timeline for one inbox message (newest first). */
+export const getMessageAudit = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { id: string }) =>
+    z.object({ id: z.string().uuid() }).parse(data),
+  )
+  .handler(
+    async ({ data, context }): Promise<{ ok: true; entries: MessageAuditEntry[] }> => {
+      await assertAdmin(context.supabase as any, context.userId);
+      const { data: rows, error } = await (supabaseAdmin as any)
+        .from("message_audit_log")
+        .select(
+          "id, message_row_id, event, message_id, recipient_email, status, error_message, details, created_at",
+        )
+        .eq("message_row_id", data.id)
+        .order("created_at", { ascending: false })
+        .limit(200);
+      if (error) throw new Error(error.message);
+      return { ok: true, entries: (rows ?? []) as MessageAuditEntry[] };
+    },
+  );

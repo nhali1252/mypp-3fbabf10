@@ -498,8 +498,10 @@ function Launcher() {
                   className={`w-4 h-4 ${isFetching || manualSplash ? "animate-spin" : ""}`}
                 />
               </button>
-              <MotionToggle />
-              <ThemeToggle />
+              <div className="hidden sm:flex items-center gap-2">
+                <MotionToggle />
+                <ThemeToggle />
+              </div>
             </div>
           </div>
 

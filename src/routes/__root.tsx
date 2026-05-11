@@ -154,6 +154,7 @@ function RootComponent() {
             <Toaster richColors position="top-right" />
               <StaleBuildBanner />
             <FloatingControlsMount />
+            <PwaRegister />
 
           </AuthProvider>
         </MotionPrefProvider>

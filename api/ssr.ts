@@ -24,10 +24,17 @@ export default async function handler(req: any, res: any) {
     const protocol = req.headers['x-forwarded-proto'] ?? 'https';
     const url = new URL(req.url ?? '/', `${protocol}://${host}`);
 
+    let body: BodyInit | undefined;
+    if (!['GET', 'HEAD'].includes(req.method ?? 'GET')) {
+      if (req.body) {
+        body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+      }
+    }
+
     const request = new Request(url.toString(), {
       method: req.method,
       headers: req.headers as HeadersInit,
-      body: ['GET', 'HEAD'].includes(req.method ?? '') ? undefined : req,
+      body,
     });
 
     const response = await server.fetch(request);

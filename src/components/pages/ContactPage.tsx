@@ -48,6 +48,7 @@ function nextWeekdays(count: number) {
 
 export function ContactPage() {
   const days = useMemo(() => nextWeekdays(7), []);
+  const send = useServerFn(submitMessage);
 
   const contact = useContentDoc<{
     email: string | null;

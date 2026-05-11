@@ -352,8 +352,24 @@ async function sendContactNotification(
       status: "failed",
       error_message: enqErr.message,
     });
+    await recordAudit({
+      message_row_id: messageRowId,
+      event: opts.retry ? "retry.notify.failed" : "notify.enqueue_failed",
+      message_id: messageId,
+      recipient_email: recipient,
+      status: "error",
+      error_message: enqErr.message,
+    });
     throw new Error(enqErr.message);
   }
+  await recordAudit({
+    message_row_id: messageRowId,
+    event: opts.retry ? "retry.notify.enqueued" : "notify.enqueued",
+    message_id: messageId,
+    recipient_email: recipient,
+    status: "success",
+    details: { template: "contact-notification" },
+  });
   return { messageId, recipient };
 }
 

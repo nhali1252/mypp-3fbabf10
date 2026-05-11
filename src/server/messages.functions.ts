@@ -282,3 +282,48 @@ export const deleteMessage = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export type EmailLeg = "notify" | "confirm";
+export type EmailStatusRow = {
+  message_row_id: string;
+  leg: EmailLeg;
+  status: string;
+  error_message: string | null;
+  updated_at: string;
+};
+
+/** Admin: latest email send status (notify + confirm) per messages row. */
+export const getMessageEmailStatuses = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { ids: string[] }) =>
+    z.object({ ids: z.array(z.string().uuid()).max(500) }).parse(data),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: true; rows: EmailStatusRow[] }> => {
+    await assertAdmin(context.supabase as any, context.userId);
+    if (data.ids.length === 0) return { ok: true, rows: [] };
+    const keys = data.ids.flatMap((id) => [`notify-${id}`, `confirm-${id}`]);
+    const { data: rows, error } = await (supabaseAdmin as any)
+      .from("email_send_log")
+      .select("message_id, status, error_message, created_at")
+      .in("message_id", keys)
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    // Reduce to latest row per message_id
+    const latest = new Map<string, any>();
+    for (const r of rows ?? []) {
+      if (!latest.has(r.message_id)) latest.set(r.message_id, r);
+    }
+    const out: EmailStatusRow[] = [];
+    for (const [mid, r] of latest) {
+      const [legStr, ...rest] = mid.split("-");
+      if (legStr !== "notify" && legStr !== "confirm") continue;
+      out.push({
+        message_row_id: rest.join("-"),
+        leg: legStr as EmailLeg,
+        status: r.status,
+        error_message: r.error_message ?? null,
+        updated_at: r.created_at,
+      });
+    }
+    return { ok: true, rows: out };
+  });

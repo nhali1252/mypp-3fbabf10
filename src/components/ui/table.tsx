@@ -4,8 +4,15 @@ import { cn } from "@/lib/utils";
 
 const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
-    <div className="relative w-full overflow-auto">
-      <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />
+    // `max-w-full` + `overflow-x-auto` ensure the *table* scrolls inside
+    // its own container instead of pushing the page wide.
+    // `-webkit-overflow-scrolling: touch` keeps momentum scrolling on iOS.
+    <div className="relative w-full max-w-full overflow-x-auto [-webkit-overflow-scrolling:touch]">
+      <table
+        ref={ref}
+        className={cn("w-full caption-bottom text-sm [table-layout:auto]", className)}
+        {...props}
+      />
     </div>
   ),
 );

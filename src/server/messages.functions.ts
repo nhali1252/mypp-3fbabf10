@@ -167,9 +167,13 @@ export const submitMessage = createServerFn({ method: "POST" })
       recipient_email: data.email,
       status: "success",
       details: {
+        sender_name: data.name,
+        sender_email: data.email,
+        phone: data.phone || null,
         subject: data.subject || null,
-        has_phone: !!data.phone,
+        message: data.message,
         message_length: data.message.length,
+        submitted_at: new Date().toISOString(),
       },
     });
 

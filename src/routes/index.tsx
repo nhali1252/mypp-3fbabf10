@@ -474,7 +474,7 @@ function Launcher() {
       />
 
       {showHero && (
-      <header className="relative px-5 sm:px-6 md:px-10 pt-10 md:pt-16">
+      <header className="relative px-4 sm:px-6 md:px-10 pt-6 sm:pt-12 md:pt-16">
         <div className="max-w-[1240px] mx-auto">
           <div className="flex items-center justify-between gap-4 mb-4">
             <motion.div
@@ -498,8 +498,10 @@ function Launcher() {
                   className={`w-4 h-4 ${isFetching || manualSplash ? "animate-spin" : ""}`}
                 />
               </button>
-              <MotionToggle />
-              <ThemeToggle />
+              <div className="hidden sm:flex items-center gap-2">
+                <MotionToggle />
+                <ThemeToggle />
+              </div>
             </div>
           </div>
 
@@ -557,7 +559,7 @@ function Launcher() {
       </header>
       )}
 
-      <main className="relative flex-1 px-5 sm:px-6 md:px-10 py-12 md:py-20">
+      <main className="relative flex-1 px-4 sm:px-6 md:px-10 py-8 sm:py-12 md:py-20">
         {showLauncherCards && (
         <div className="max-w-[1240px] mx-auto grid gap-5 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {showSkeleton
@@ -593,7 +595,7 @@ function Launcher() {
                   to={c.route}
                   onFocus={() => setHovered(i)}
                   onBlur={() => setHovered((h) => (h === i ? null : h))}
-                  className="launcher-card group relative block rounded-[26px] border border-border bg-card p-7 md:p-8 overflow-hidden h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:border-primary/60 focus-visible:border-primary/60 hover:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)] focus-visible:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
+                  className="launcher-card group relative block rounded-[26px] border border-border bg-card p-5 sm:p-7 md:p-8 overflow-hidden h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:border-primary/60 focus-visible:border-primary/60 hover:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)] focus-visible:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
                   style={{
                     transitionProperty: "border-color, box-shadow, transform",
                     transitionDuration: `${baseDur}ms`,
@@ -645,7 +647,7 @@ function Launcher() {
                     }}
                   />
 
-                  <div className="relative flex flex-col h-full min-h-[260px]">
+                  <div className="relative flex flex-col h-full min-h-[200px] sm:min-h-[260px]">
                     <div className="flex items-center justify-between mb-7">
                       <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-muted-foreground">
                         {c.label}
@@ -715,7 +717,7 @@ function LauncherSkeleton({ index, reduceMotion }: { index: number; reduceMotion
   return (
     <div
       aria-hidden
-      className="relative rounded-[26px] border border-border bg-card p-7 md:p-8 overflow-hidden h-full"
+      className="relative rounded-[26px] border border-border bg-card p-5 sm:p-7 md:p-8 overflow-hidden h-full"
       style={{
         opacity: 0,
         animation: reduceMotion
@@ -726,7 +728,7 @@ function LauncherSkeleton({ index, reduceMotion }: { index: number; reduceMotion
       <div
         className="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl bg-gradient-to-br from-primary/15 to-primary/0"
       />
-      <div className="relative flex flex-col h-full min-h-[260px]">
+      <div className="relative flex flex-col h-full min-h-[200px] sm:min-h-[260px]">
         <div className="flex items-center justify-between mb-7">
           <div className={`h-3 w-20 rounded-full bg-muted ${pulse}`} />
           <div className={`h-5 w-14 rounded-full bg-muted ${pulse}`} />

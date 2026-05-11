@@ -17,7 +17,7 @@ export function SkillsSection() {
   const list = groups as Service[];
 
   return (
-    <section id="skills" className="pt-24">
+    <section id="skills" className="pt-14 sm:pt-20 md:pt-24">
       <SectionHeader label="Skills" title="My strengths." />
       {isLoading ? (
         <SectionSkeleton count={4} cols={4} label="Loading skills…" />

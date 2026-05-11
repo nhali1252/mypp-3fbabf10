@@ -65,7 +65,7 @@ function AboutSkillsInner() {
               <Link to="/services" className="text-muted-foreground hover:text-foreground transition-colors">Services</Link>
               <Link to="/contact" className="text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
             </nav>
-            <ThemeToggle />
+            <div className="hidden sm:block"><ThemeToggle /></div>
           </div>
         </div>
       </header>

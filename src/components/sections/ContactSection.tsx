@@ -75,7 +75,7 @@ export function ContactSection() {
   if (contact?.address) rows.push({ key: "loc", label: "Location", value: contact.address, Icon: (p) => <MapPin size={p.size ?? 16} /> });
 
   return (
-    <section id="contact" className="pt-24">
+    <section id="contact" className="pt-14 sm:pt-20 md:pt-24">
       <SectionHeader label="Contact" title="Let's connect." />
       <div className="grid md:grid-cols-[1.25fr_0.75fr] gap-4 mb-5">
         <Reveal as="article" className="bg-gradient-card border border-border rounded-[22px] p-8 shadow-soft transition-shadow hover:shadow-card">

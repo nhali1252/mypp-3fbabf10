@@ -16,7 +16,7 @@ export function ActivitiesSection() {
   const list = items as Activity[];
 
   return (
-    <section id="activities" className="pt-24">
+    <section id="activities" className="pt-14 sm:pt-20 md:pt-24">
       <SectionHeader label="Activities" title="Experience & development." />
       {isLoading ? (
         <SectionSkeleton count={4} cols={2} label="Loading activities…" />

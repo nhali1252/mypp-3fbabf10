@@ -2,6 +2,7 @@ import { useProjects } from "@/hooks/useContent";
 import { SectionHeader } from "../SectionHeader";
 import { ArrowUpRight } from "lucide-react";
 import { Stagger, StaggerItem } from "../motion/Reveal";
+import { toExternalUrl } from "@/lib/external-url";
 
 interface Project {
   id: string;

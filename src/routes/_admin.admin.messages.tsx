@@ -151,7 +151,15 @@ function AdminMessages() {
             </div>
             {m.subject && <div className="font-semibold mb-1">{m.subject}</div>}
             <p className="text-sm whitespace-pre-wrap mb-3">{m.message}</p>
-            <EmailDeliveryRow status={statusByMessage.get(m.id)} />
+            <EmailDeliveryRow
+              status={statusByMessage.get(m.id)}
+              onRetry={(leg) => retryMut.mutate({ id: m.id, leg })}
+              retryingLeg={
+                retryMut.isPending && retryMut.variables?.id === m.id
+                  ? retryMut.variables.leg
+                  : null
+              }
+            />
             <div className="flex gap-2 flex-wrap">
               <Button size="sm" variant="outline" onClick={() => updateMut.mutate({ id: m.id, is_read: !m.is_read })}>
                 {m.is_read ? <><Mail className="w-3.5 h-3.5 mr-1.5" />Mark unread</> : <><MailOpen className="w-3.5 h-3.5 mr-1.5" />Mark read</>}

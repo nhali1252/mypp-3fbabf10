@@ -39,10 +39,24 @@ function normalizeUrl(key: string, raw: string): string {
     return digits ? `https://wa.me/${digits}` : v;
   }
   if (key === "telegram") {
-    const handle = v.replace(/^@/, "");
+    const handle = v.replace(/^@/, "").replace(/^https?:\/\/(t\.me|telegram\.me)\//i, "");
     return `https://t.me/${handle}`;
   }
   if (key === "email") return `mailto:${v}`;
+
+  // Bare handle (no dot, no slash) → expand to platform profile URL.
+  const handle = v.replace(/^@/, "");
+  const isHandle = !/[./]/.test(handle);
+  if (isHandle) {
+    const bases: Record<string, string> = {
+      linkedin: "https://www.linkedin.com/in/",
+      facebook: "https://www.facebook.com/",
+      instagram: "https://www.instagram.com/",
+      twitter: "https://x.com/",
+      github: "https://github.com/",
+    };
+    if (bases[key]) return `${bases[key]}${handle}`;
+  }
   return `https://${v.replace(/^\/+/, "")}`;
 }
 

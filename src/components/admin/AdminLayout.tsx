@@ -65,6 +65,7 @@ const groups: Group[] = [
     label: "System",
     items: [
       { to: "/admin/messages", label: "Messages", Icon: Inbox },
+      { to: "/admin/email-logs", label: "Email logs", Icon: Mail },
       { to: "/admin/comments", label: "Comments", Icon: MessageSquare },
       { to: "/admin/audit", label: "Audit log", Icon: Shield },
       { to: "/admin/diagnostics", label: "Diagnostics", Icon: Activity },

@@ -112,7 +112,7 @@ async function sendContactConfirmation(data: {
       ? contactConfirmation.subject(props)
       : contactConfirmation.subject;
 
-  const messageId = crypto.randomUUID();
+  const messageId = `confirm-${messageRowId}`;
   await (supabaseAdmin as any).from("email_send_log").insert({
     message_id: messageId,
     template_name: "contact-confirmation",

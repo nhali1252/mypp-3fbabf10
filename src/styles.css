@@ -390,10 +390,18 @@
    * scattered across components. Tailwind utility classes (mb-*, mt-*) on
    * a specific element still win because they have higher specificity.
    */
+  /* h1 — desktop tightened for crisper display sizes.
+   * Mobile keeps the softer 1.08 / -0.02em override below, because
+   * shorter measures need more vertical air to breathe. */
   h1 {
-    line-height: 1.05;
-    letter-spacing: -0.025em;
-    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -0.035em;
+    font-weight: 850;
+    /* Trim the half-leading so display sizes hug their cap line —
+     * fixes the "h1 sits too low in its container" feel on hero strips.
+     * Progressive enhancement: ignored by browsers that don't support it. */
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
   }
   h2 {
     line-height: 1.1;
@@ -423,7 +431,7 @@
   body { font-kerning: normal; font-variant-ligatures: common-ligatures; }
 
   /* Default vertical rhythm for stacked content (Tailwind utilities still win) */
-  h1 { margin-bottom: 0.5em; }
+  h1 { margin-bottom: 0.4em; }
   h2 { margin-bottom: 0.6em; }
   h3 { margin-bottom: 0.65em; }
   h4, h5, h6 { margin-bottom: 0.75em; }

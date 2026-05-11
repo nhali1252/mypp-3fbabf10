@@ -61,10 +61,12 @@ const submitSchema = z.object({
 export const submitMessage = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => submitSchema.parse(data))
   .handler(async ({ data }) => {
+    const messageRowId = crypto.randomUUID();
     // Use public (anon) client — RLS policy "Anon can submit message" permits
     // this insert, so the contact form works without SUPABASE_SERVICE_ROLE_KEY
     // being deployed to the Worker.
     const { error } = await supabasePublic.from("messages").insert({
+      id: messageRowId,
       name: data.name,
       email: data.email,
       phone: data.phone || null,
@@ -75,16 +77,16 @@ export const submitMessage = createServerFn({ method: "POST" })
 
     // Fire-and-forget email notifications. Failures must not block the form response.
     try {
-      await sendContactNotification(data);
+      await sendContactNotification(data, messageRowId);
     } catch (e) {
       console.error("[messages.submitMessage] admin notify failed", e);
     }
     try {
-      await sendContactConfirmation(data);
+      await sendContactConfirmation(data, messageRowId);
     } catch (e) {
       console.error("[messages.submitMessage] sender confirmation failed", e);
     }
-    return { ok: true };
+    return { ok: true, id: messageRowId };
   });
 
 async function sendContactConfirmation(data: {
@@ -92,7 +94,7 @@ async function sendContactConfirmation(data: {
   email: string;
   subject?: string;
   message: string;
-}) {
+}, messageRowId: string) {
   const submittedAt = new Date().toISOString();
   const props = {
     name: data.name,
@@ -110,7 +112,7 @@ async function sendContactConfirmation(data: {
       ? contactConfirmation.subject(props)
       : contactConfirmation.subject;
 
-  const messageId = crypto.randomUUID();
+  const messageId = `confirm-${messageRowId}`;
   await (supabaseAdmin as any).from("email_send_log").insert({
     message_id: messageId,
     template_name: "contact-confirmation",
@@ -151,7 +153,7 @@ async function sendContactNotification(data: {
   phone?: string;
   subject?: string;
   message: string;
-}) {
+}, messageRowId: string) {
   // Look up the configured receiver from contact_settings (admin client to bypass RLS).
   const { data: settings } = await (supabaseAdmin as any)
     .from("contact_settings")
@@ -184,7 +186,7 @@ async function sendContactNotification(data: {
       ? contactNotification.subject(props)
       : contactNotification.subject;
 
-  const messageId = crypto.randomUUID();
+  const messageId = `notify-${messageRowId}`;
   await (supabaseAdmin as any).from("email_send_log").insert({
     message_id: messageId,
     template_name: "contact-notification",
@@ -279,4 +281,49 @@ export const deleteMessage = createServerFn({ method: "POST" })
     const { error } = await sb.from("messages").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+export type EmailLeg = "notify" | "confirm";
+export type EmailStatusRow = {
+  message_row_id: string;
+  leg: EmailLeg;
+  status: string;
+  error_message: string | null;
+  updated_at: string;
+};
+
+/** Admin: latest email send status (notify + confirm) per messages row. */
+export const getMessageEmailStatuses = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { ids: string[] }) =>
+    z.object({ ids: z.array(z.string().uuid()).max(500) }).parse(data),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: true; rows: EmailStatusRow[] }> => {
+    await assertAdmin(context.supabase as any, context.userId);
+    if (data.ids.length === 0) return { ok: true, rows: [] };
+    const keys = data.ids.flatMap((id) => [`notify-${id}`, `confirm-${id}`]);
+    const { data: rows, error } = await (supabaseAdmin as any)
+      .from("email_send_log")
+      .select("message_id, status, error_message, created_at")
+      .in("message_id", keys)
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    // Reduce to latest row per message_id
+    const latest = new Map<string, any>();
+    for (const r of rows ?? []) {
+      if (!latest.has(r.message_id)) latest.set(r.message_id, r);
+    }
+    const out: EmailStatusRow[] = [];
+    for (const [mid, r] of latest) {
+      const [legStr, ...rest] = mid.split("-");
+      if (legStr !== "notify" && legStr !== "confirm") continue;
+      out.push({
+        message_row_id: rest.join("-"),
+        leg: legStr as EmailLeg,
+        status: r.status,
+        error_message: r.error_message ?? null,
+        updated_at: r.created_at,
+      });
+    }
+    return { ok: true, rows: out };
   });

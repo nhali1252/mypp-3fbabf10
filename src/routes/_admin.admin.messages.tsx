@@ -7,7 +7,9 @@ import {
   updateMessage,
   deleteMessage,
   getMessageEmailStatuses,
+  retryMessageEmail,
   type EmailStatusRow,
+  type EmailLeg,
 } from "@/server/messages.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -15,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { AdminPage, AdminCard, EmptyState } from "@/components/admin/AdminPage";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
-import { Mail, MailOpen, Reply, Trash2, AlertTriangle, CheckCircle2, Clock, XCircle, Inbox, Send as SendIcon } from "lucide-react";
+import { Mail, MailOpen, Reply, Trash2, AlertTriangle, CheckCircle2, Clock, XCircle, Inbox, Send as SendIcon, RefreshCw } from "lucide-react";
 import { WorkerHealthGate } from "@/components/admin/WorkerHealthGate";
 
 export const Route = createFileRoute("/_admin/admin/messages")({ component: AdminMessages });
@@ -94,6 +96,18 @@ function AdminMessages() {
     onError: (e: any) => toast.error(e?.message || "Delete failed"),
   });
 
+  const retry = useServerFn(retryMessageEmail);
+  const retryMut = useMutation({
+    mutationFn: (vars: { id: string; leg: EmailLeg }) => retry({ data: vars }),
+    onSuccess: (res, vars) => {
+      toast.success(
+        `Re-queued ${vars.leg === "notify" ? "inbox notify" : "sender confirm"} → ${res.recipient}`,
+      );
+      qc.invalidateQueries({ queryKey: ["admin-messages-email-status"] });
+    },
+    onError: (e: any) => toast.error(e?.message || "Retry failed"),
+  });
+
   if (isLoading) return <div className="p-6">Loading…</div>;
   const rows = data?.messages ?? [];
   const unread = rows.filter((r) => !r.is_read).length;
@@ -137,7 +151,15 @@ function AdminMessages() {
             </div>
             {m.subject && <div className="font-semibold mb-1">{m.subject}</div>}
             <p className="text-sm whitespace-pre-wrap mb-3">{m.message}</p>
-            <EmailDeliveryRow status={statusByMessage.get(m.id)} />
+            <EmailDeliveryRow
+              status={statusByMessage.get(m.id)}
+              onRetry={(leg) => retryMut.mutate({ id: m.id, leg })}
+              retryingLeg={
+                retryMut.isPending && retryMut.variables?.id === m.id
+                  ? retryMut.variables.leg
+                  : null
+              }
+            />
             <div className="flex gap-2 flex-wrap">
               <Button size="sm" variant="outline" onClick={() => updateMut.mutate({ id: m.id, is_read: !m.is_read })}>
                 {m.is_read ? <><Mail className="w-3.5 h-3.5 mr-1.5" />Mark unread</> : <><MailOpen className="w-3.5 h-3.5 mr-1.5" />Mark read</>}
@@ -160,14 +182,30 @@ function AdminMessages() {
 
 function EmailDeliveryRow({
   status,
+  onRetry,
+  retryingLeg,
 }: {
   status?: { notify?: EmailStatusRow; confirm?: EmailStatusRow };
+  onRetry: (leg: EmailLeg) => void;
+  retryingLeg: EmailLeg | null;
 }) {
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2 text-xs">
       <span className="text-muted-foreground uppercase tracking-wider text-[10px] font-semibold">Email delivery</span>
-      <EmailLegBadge label="Inbox notify" icon={<Inbox className="w-3 h-3" />} row={status?.notify} />
-      <EmailLegBadge label="Sender confirm" icon={<SendIcon className="w-3 h-3" />} row={status?.confirm} />
+      <EmailLegBadge
+        label="Inbox notify"
+        icon={<Inbox className="w-3 h-3" />}
+        row={status?.notify}
+        onRetry={() => onRetry("notify")}
+        isRetrying={retryingLeg === "notify"}
+      />
+      <EmailLegBadge
+        label="Sender confirm"
+        icon={<SendIcon className="w-3 h-3" />}
+        row={status?.confirm}
+        onRetry={() => onRetry("confirm")}
+        isRetrying={retryingLeg === "confirm"}
+      />
     </div>
   );
 }
@@ -176,10 +214,14 @@ function EmailLegBadge({
   label,
   icon,
   row,
+  onRetry,
+  isRetrying,
 }: {
   label: string;
   icon: React.ReactNode;
   row?: EmailStatusRow;
+  onRetry: () => void;
+  isRetrying: boolean;
 }) {
   const status = row?.status ?? "queued";
   const tone = statusTone(status);
@@ -189,15 +231,30 @@ function EmailLegBadge({
     : row?.updated_at
       ? `${status} · ${new Date(row.updated_at).toLocaleString()}`
       : "Not yet logged";
+  const canRetry = ["failed", "dlq", "bounced", "complained", "suppressed"].includes(status);
   return (
-    <span
-      title={tip}
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 ${tone.cls}`}
-    >
-      {icon}
-      <span className="text-muted-foreground">{label}:</span>
-      <StatusIcon className="w-3 h-3" />
-      <span className="font-medium capitalize">{status}</span>
+    <span className="inline-flex items-center gap-1">
+      <span
+        title={tip}
+        className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 ${tone.cls}`}
+      >
+        {icon}
+        <span className="text-muted-foreground">{label}:</span>
+        <StatusIcon className="w-3 h-3" />
+        <span className="font-medium capitalize">{status}</span>
+      </span>
+      {canRetry && (
+        <button
+          type="button"
+          onClick={onRetry}
+          disabled={isRetrying}
+          title="Re-queue this email"
+          className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-background/40 px-2 py-0.5 text-[11px] hover:bg-accent/40 disabled:opacity-50"
+        >
+          <RefreshCw className={`w-3 h-3 ${isRetrying ? "animate-spin" : ""}`} />
+          Retry
+        </button>
+      )}
     </span>
   );
 }

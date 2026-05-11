@@ -56,15 +56,15 @@ export function Hero3DText({
 
   const MotionTag = motion[Tag] as typeof motion.h1;
 
-  if (reduced || isMobile) {
-    // Mobile gets a plain render: avoids GPU-blur cost and the stuck-blur
-    // bug observed on some Android Chrome builds where filter animations
-    // never complete during route transitions.
+  if (reduced) {
     return <Tag className={className} style={style}>{text}</Tag>;
   }
 
   // Sensible default stagger per mode
   const childStagger = stagger ?? (byLetter ? 0.04 : 0.11);
+  // Mobile keeps the choreography (opacity + y + rotateX) but drops the
+  // GPU-expensive blur step — that's what previously got "stuck" on some
+  // Android Chrome builds and left the headline permanently blurry.
   const useBlur = !isMobile;
 
   return (

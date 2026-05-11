@@ -191,8 +191,8 @@ export const Route = createFileRoute("/lovable/email/queue/process")({
             }
 
             // Move to DLQ if max failed send attempts reached.
-            if (failedAttempts >= MAX_RETRIES) {
-              await moveToDlq(supabase, queue, msg, `Max retries (${MAX_RETRIES}) exceeded (attempted ${failedAttempts} times)`)
+            if (failedAttempts >= maxRetries) {
+              await moveToDlq(supabase, queue, msg, `Max retries (${maxRetries}) exceeded (attempted ${failedAttempts} times)`)
               continue
             }
 

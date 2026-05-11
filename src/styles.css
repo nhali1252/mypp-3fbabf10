@@ -274,6 +274,38 @@
   /* Lower paint cost for long pages without breaking SSR/SEO. */
   section { content-visibility: auto; contain-intrinsic-size: 1px 600px; }
 
+  /* === Page-wide text-alignment system ===
+   * Two opinionated utility classes so every page agrees on where text
+   * recenters at each breakpoint. Use these instead of ad-hoc
+   * `text-center md:text-left` strings — that way one rule change here
+   * re-aligns the whole site.
+   *
+   *   .align-hero     — section/page heroes. Centered on phone (cleaner with
+   *                     short measure + balanced wrap), left-aligned from
+   *                     `md` (≥768px) up where horizontal real-estate allows.
+   *   .align-body     — long-form paragraphs / list copy. Always left-aligned
+   *                     for readability; never centered (centered body copy
+   *                     is harder to scan).
+   *   .align-eyebrow  — small uppercase tags above headlines. Mirrors hero.
+   *
+   * Page-hero blocks that intentionally stay centered at every breakpoint
+   * (Portfolio, Projects, Services, Contact, Reviews landing strips) keep
+   * their explicit `text-center` — they are landing strips, not hero text.
+   */
+  .align-hero,
+  .align-eyebrow {
+    text-align: center;
+  }
+  .align-body {
+    text-align: left;
+  }
+  @media (min-width: 768px) {
+    .align-hero,
+    .align-eyebrow {
+      text-align: left;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     *, *::before, *::after {

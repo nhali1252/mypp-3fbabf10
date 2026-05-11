@@ -447,21 +447,44 @@
    * un-spaced strings from breaking the layout on narrow mobile viewports.
    * Both text-wrap values fall back to default wrapping in older browsers.
    */
+  /* Cross-browser hyphenation + word-break — applied to ALL text-bearing
+   * elements so behavior is consistent on Safari (needs -webkit-),
+   * Firefox (needs -moz- on older builds), Chromium, and the legacy
+   * IE/Edge engines (need -ms-). `lang` on <html> is required for
+   * dictionary-based hyphenation in Safari/Firefox — set in <SiteHead>. */
   h1, h2, h3, h4, h5, h6 {
     text-wrap: balance;
     text-wrap-style: balance;
     overflow-wrap: break-word;
+    word-wrap: break-word;          /* legacy alias, still needed for old WebKit */
+    word-break: normal;
+    line-break: auto;
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    -ms-hyphens: auto;
     hyphens: auto;
     /* Don't hyphenate display type unless we really must */
+    -webkit-hyphenate-limit-before: 5;
+    -webkit-hyphenate-limit-after: 4;
     hyphenate-limit-chars: 10 5 4;
   }
   p, li, blockquote, dd {
     text-wrap: pretty;
     text-wrap-style: pretty;
     overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: normal;
+    line-break: auto;
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    -ms-hyphens: auto;
+    hyphens: auto;
     /* Avoid awkward hyphenation: at least 6-char words, ≥3 before, ≥2 after */
+    -webkit-hyphenate-limit-before: 3;
+    -webkit-hyphenate-limit-after: 2;
     hyphenate-limit-chars: 6 3 2;
     /* Cap consecutive hyphenated lines so paragraphs don't look ladder-like */
+    -webkit-hyphenate-limit-lines: 2;
     hyphenate-limit-lines: 2;
     /* Modern CJK / Latin spacing trim */
     text-spacing-trim: space-all;

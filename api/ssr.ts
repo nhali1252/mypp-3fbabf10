@@ -13,7 +13,7 @@ function normalizeServerModule(serverModule: any) {
 
 async function loadServerHandler() {
   try {
-    const imported = await import('../dist/server/server.js');
+    const imported = (await import('../dist/server/server.js')) as any;
     return normalizeServerModule(imported);
   } catch (error: unknown) {
     console.error('Failed to load server module:', error);
@@ -45,7 +45,7 @@ export default async function handler(req: any, res: any) {
     const response = await serverHandler(request);
 
     res.statusCode = response.status;
-    response.headers.forEach((value, name) => {
+    response.headers.forEach((value: string, name: string) => {
       res.setHeader(name, value);
     });
 

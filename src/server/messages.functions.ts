@@ -152,13 +152,11 @@ async function sendContactConfirmation(
   return { messageId, recipient: data.email };
 }
 
-async function sendContactNotification(data: {
-  name: string;
-  email: string;
-  phone?: string;
-  subject?: string;
-  message: string;
-}, messageRowId: string) {
+async function sendContactNotification(
+  data: { name: string; email: string; phone?: string; subject?: string; message: string },
+  messageRowId: string,
+  opts: { retry?: boolean } = {},
+) {
   // Look up the configured receiver from contact_settings (admin client to bypass RLS).
   const { data: settings } = await (supabaseAdmin as any)
     .from("contact_settings")
@@ -169,7 +167,7 @@ async function sendContactNotification(data: {
     settings?.form_receiver_email || settings?.email;
   if (!recipient) {
     console.warn("[messages.submitMessage] no recipient email configured; skipping notify");
-    return;
+    return null;
   }
 
   const submittedAt = new Date().toISOString();
@@ -191,7 +189,7 @@ async function sendContactNotification(data: {
       ? contactNotification.subject(props)
       : contactNotification.subject;
 
-  const messageId = `notify-${messageRowId}`;
+  const messageId = makeMessageId("notify", messageRowId, !!opts.retry);
   await (supabaseAdmin as any).from("email_send_log").insert({
     message_id: messageId,
     template_name: "contact-notification",
@@ -224,7 +222,9 @@ async function sendContactNotification(data: {
       status: "failed",
       error_message: enqErr.message,
     });
+    throw new Error(enqErr.message);
   }
+  return { messageId, recipient };
 }
 
 /** Admin: list all messages, newest first. */

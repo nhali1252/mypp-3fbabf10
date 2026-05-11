@@ -182,14 +182,30 @@ function AdminMessages() {
 
 function EmailDeliveryRow({
   status,
+  onRetry,
+  retryingLeg,
 }: {
   status?: { notify?: EmailStatusRow; confirm?: EmailStatusRow };
+  onRetry: (leg: EmailLeg) => void;
+  retryingLeg: EmailLeg | null;
 }) {
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2 text-xs">
       <span className="text-muted-foreground uppercase tracking-wider text-[10px] font-semibold">Email delivery</span>
-      <EmailLegBadge label="Inbox notify" icon={<Inbox className="w-3 h-3" />} row={status?.notify} />
-      <EmailLegBadge label="Sender confirm" icon={<SendIcon className="w-3 h-3" />} row={status?.confirm} />
+      <EmailLegBadge
+        label="Inbox notify"
+        icon={<Inbox className="w-3 h-3" />}
+        row={status?.notify}
+        onRetry={() => onRetry("notify")}
+        isRetrying={retryingLeg === "notify"}
+      />
+      <EmailLegBadge
+        label="Sender confirm"
+        icon={<SendIcon className="w-3 h-3" />}
+        row={status?.confirm}
+        onRetry={() => onRetry("confirm")}
+        isRetrying={retryingLeg === "confirm"}
+      />
     </div>
   );
 }
@@ -198,10 +214,14 @@ function EmailLegBadge({
   label,
   icon,
   row,
+  onRetry,
+  isRetrying,
 }: {
   label: string;
   icon: React.ReactNode;
   row?: EmailStatusRow;
+  onRetry: () => void;
+  isRetrying: boolean;
 }) {
   const status = row?.status ?? "queued";
   const tone = statusTone(status);
@@ -211,15 +231,30 @@ function EmailLegBadge({
     : row?.updated_at
       ? `${status} · ${new Date(row.updated_at).toLocaleString()}`
       : "Not yet logged";
+  const canRetry = ["failed", "dlq", "bounced", "complained", "suppressed"].includes(status);
   return (
-    <span
-      title={tip}
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 ${tone.cls}`}
-    >
-      {icon}
-      <span className="text-muted-foreground">{label}:</span>
-      <StatusIcon className="w-3 h-3" />
-      <span className="font-medium capitalize">{status}</span>
+    <span className="inline-flex items-center gap-1">
+      <span
+        title={tip}
+        className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 ${tone.cls}`}
+      >
+        {icon}
+        <span className="text-muted-foreground">{label}:</span>
+        <StatusIcon className="w-3 h-3" />
+        <span className="font-medium capitalize">{status}</span>
+      </span>
+      {canRetry && (
+        <button
+          type="button"
+          onClick={onRetry}
+          disabled={isRetrying}
+          title="Re-queue this email"
+          className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-background/40 px-2 py-0.5 text-[11px] hover:bg-accent/40 disabled:opacity-50"
+        >
+          <RefreshCw className={`w-3 h-3 ${isRetrying ? "animate-spin" : ""}`} />
+          Retry
+        </button>
+      )}
     </span>
   );
 }

@@ -22,6 +22,7 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FeedDotxmlRouteImport } from './routes/feed[.]xml'
 import { Route as FeedRouteImport } from './routes/feed'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as BookingRouteImport } from './routes/booking'
 import { Route as BasicRouteImport } from './routes/basic'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AboutAndSkillsRouteImport } from './routes/about-and-skills'
@@ -62,6 +63,7 @@ import { Route as AdminAdminDiagnosticsRouteImport } from './routes/_admin.admin
 import { Route as AdminAdminContactRouteImport } from './routes/_admin.admin.contact'
 import { Route as AdminAdminCommentsRouteImport } from './routes/_admin.admin.comments'
 import { Route as AdminAdminChecklistRouteImport } from './routes/_admin.admin.checklist'
+import { Route as AdminAdminBookingsRouteImport } from './routes/_admin.admin.bookings'
 import { Route as AdminAdminBackupRouteImport } from './routes/_admin.admin.backup'
 import { Route as AdminAdminAuditRouteImport } from './routes/_admin.admin.audit'
 import { Route as AdminAdminActivitiesRouteImport } from './routes/_admin.admin.activities'
@@ -136,6 +138,11 @@ const FeedRoute = FeedRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookingRoute = BookingRouteImport.update({
+  id: '/booking',
+  path: '/booking',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BasicRoute = BasicRouteImport.update({
@@ -338,6 +345,11 @@ const AdminAdminChecklistRoute = AdminAdminChecklistRouteImport.update({
   path: '/admin/checklist',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminBookingsRoute = AdminAdminBookingsRouteImport.update({
+  id: '/admin/bookings',
+  path: '/admin/bookings',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAdminBackupRoute = AdminAdminBackupRouteImport.update({
   id: '/admin/backup',
   path: '/admin/backup',
@@ -397,6 +409,7 @@ export interface FileRoutesByFullPath {
   '/about-and-skills': typeof AboutAndSkillsRoute
   '/auth': typeof AuthRoute
   '/basic': typeof BasicRoute
+  '/booking': typeof BookingRoute
   '/contact': typeof ContactRoute
   '/feed': typeof FeedRoute
   '/feed.xml': typeof FeedDotxmlRoute
@@ -416,6 +429,7 @@ export interface FileRoutesByFullPath {
   '/admin/activities': typeof AdminAdminActivitiesRoute
   '/admin/audit': typeof AdminAdminAuditRoute
   '/admin/backup': typeof AdminAdminBackupRoute
+  '/admin/bookings': typeof AdminAdminBookingsRoute
   '/admin/checklist': typeof AdminAdminChecklistRoute
   '/admin/comments': typeof AdminAdminCommentsRoute
   '/admin/contact': typeof AdminAdminContactRoute
@@ -461,6 +475,7 @@ export interface FileRoutesByTo {
   '/about-and-skills': typeof AboutAndSkillsRoute
   '/auth': typeof AuthRoute
   '/basic': typeof BasicRoute
+  '/booking': typeof BookingRoute
   '/contact': typeof ContactRoute
   '/feed': typeof FeedRoute
   '/feed.xml': typeof FeedDotxmlRoute
@@ -480,6 +495,7 @@ export interface FileRoutesByTo {
   '/admin/activities': typeof AdminAdminActivitiesRoute
   '/admin/audit': typeof AdminAdminAuditRoute
   '/admin/backup': typeof AdminAdminBackupRoute
+  '/admin/bookings': typeof AdminAdminBookingsRoute
   '/admin/checklist': typeof AdminAdminChecklistRoute
   '/admin/comments': typeof AdminAdminCommentsRoute
   '/admin/contact': typeof AdminAdminContactRoute
@@ -527,6 +543,7 @@ export interface FileRoutesById {
   '/about-and-skills': typeof AboutAndSkillsRoute
   '/auth': typeof AuthRoute
   '/basic': typeof BasicRoute
+  '/booking': typeof BookingRoute
   '/contact': typeof ContactRoute
   '/feed': typeof FeedRoute
   '/feed.xml': typeof FeedDotxmlRoute
@@ -546,6 +563,7 @@ export interface FileRoutesById {
   '/_admin/admin/activities': typeof AdminAdminActivitiesRoute
   '/_admin/admin/audit': typeof AdminAdminAuditRoute
   '/_admin/admin/backup': typeof AdminAdminBackupRoute
+  '/_admin/admin/bookings': typeof AdminAdminBookingsRoute
   '/_admin/admin/checklist': typeof AdminAdminChecklistRoute
   '/_admin/admin/comments': typeof AdminAdminCommentsRoute
   '/_admin/admin/contact': typeof AdminAdminContactRoute
@@ -593,6 +611,7 @@ export interface FileRouteTypes {
     | '/about-and-skills'
     | '/auth'
     | '/basic'
+    | '/booking'
     | '/contact'
     | '/feed'
     | '/feed.xml'
@@ -612,6 +631,7 @@ export interface FileRouteTypes {
     | '/admin/activities'
     | '/admin/audit'
     | '/admin/backup'
+    | '/admin/bookings'
     | '/admin/checklist'
     | '/admin/comments'
     | '/admin/contact'
@@ -657,6 +677,7 @@ export interface FileRouteTypes {
     | '/about-and-skills'
     | '/auth'
     | '/basic'
+    | '/booking'
     | '/contact'
     | '/feed'
     | '/feed.xml'
@@ -676,6 +697,7 @@ export interface FileRouteTypes {
     | '/admin/activities'
     | '/admin/audit'
     | '/admin/backup'
+    | '/admin/bookings'
     | '/admin/checklist'
     | '/admin/comments'
     | '/admin/contact'
@@ -722,6 +744,7 @@ export interface FileRouteTypes {
     | '/about-and-skills'
     | '/auth'
     | '/basic'
+    | '/booking'
     | '/contact'
     | '/feed'
     | '/feed.xml'
@@ -741,6 +764,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/activities'
     | '/_admin/admin/audit'
     | '/_admin/admin/backup'
+    | '/_admin/admin/bookings'
     | '/_admin/admin/checklist'
     | '/_admin/admin/comments'
     | '/_admin/admin/contact'
@@ -788,6 +812,7 @@ export interface RootRouteChildren {
   AboutAndSkillsRoute: typeof AboutAndSkillsRoute
   AuthRoute: typeof AuthRoute
   BasicRoute: typeof BasicRoute
+  BookingRoute: typeof BookingRoute
   ContactRoute: typeof ContactRoute
   FeedRoute: typeof FeedRoute
   FeedDotxmlRoute: typeof FeedDotxmlRoute
@@ -902,6 +927,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/booking': {
+      id: '/booking'
+      path: '/booking'
+      fullPath: '/booking'
+      preLoaderRoute: typeof BookingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/basic': {
@@ -1184,6 +1216,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminChecklistRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/bookings': {
+      id: '/_admin/admin/bookings'
+      path: '/admin/bookings'
+      fullPath: '/admin/bookings'
+      preLoaderRoute: typeof AdminAdminBookingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/backup': {
       id: '/_admin/admin/backup'
       path: '/admin/backup'
@@ -1262,6 +1301,7 @@ interface AdminRouteChildren {
   AdminAdminActivitiesRoute: typeof AdminAdminActivitiesRoute
   AdminAdminAuditRoute: typeof AdminAdminAuditRoute
   AdminAdminBackupRoute: typeof AdminAdminBackupRoute
+  AdminAdminBookingsRoute: typeof AdminAdminBookingsRoute
   AdminAdminChecklistRoute: typeof AdminAdminChecklistRoute
   AdminAdminCommentsRoute: typeof AdminAdminCommentsRoute
   AdminAdminContactRoute: typeof AdminAdminContactRoute
@@ -1302,6 +1342,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminActivitiesRoute: AdminAdminActivitiesRoute,
   AdminAdminAuditRoute: AdminAdminAuditRoute,
   AdminAdminBackupRoute: AdminAdminBackupRoute,
+  AdminAdminBookingsRoute: AdminAdminBookingsRoute,
   AdminAdminChecklistRoute: AdminAdminChecklistRoute,
   AdminAdminCommentsRoute: AdminAdminCommentsRoute,
   AdminAdminContactRoute: AdminAdminContactRoute,
@@ -1345,6 +1386,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutAndSkillsRoute: AboutAndSkillsRoute,
   AuthRoute: AuthRoute,
   BasicRoute: BasicRoute,
+  BookingRoute: BookingRoute,
   ContactRoute: ContactRoute,
   FeedRoute: FeedRoute,
   FeedDotxmlRoute: FeedDotxmlRoute,

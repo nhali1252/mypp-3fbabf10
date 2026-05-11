@@ -438,6 +438,7 @@ function Launcher() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-hidden">
       <WelcomeSplash
+        durationMs={5500}
         show={splashVisible}
         status={splashStatus ?? "loading"}
         errorMessage={error instanceof Error ? error.message : undefined}

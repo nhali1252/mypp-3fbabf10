@@ -68,8 +68,8 @@ export const sendWelcomeEmail = createServerFn({ method: "POST" })
       payload: {
         message_id: messageId,
         to: data.email,
-        from: "Ali Nur Hasan <info@alii.uk>",
-        sender_domain: "notify.mail.alii.uk",
+        from: "Ali Nur Hasan <info@i.alii.uk>",
+        sender_domain: "notify.i.alii.uk",
         subject,
         html,
         text,

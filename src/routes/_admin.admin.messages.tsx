@@ -96,6 +96,18 @@ function AdminMessages() {
     onError: (e: any) => toast.error(e?.message || "Delete failed"),
   });
 
+  const retry = useServerFn(retryMessageEmail);
+  const retryMut = useMutation({
+    mutationFn: (vars: { id: string; leg: EmailLeg }) => retry({ data: vars }),
+    onSuccess: (res, vars) => {
+      toast.success(
+        `Re-queued ${vars.leg === "notify" ? "inbox notify" : "sender confirm"} → ${res.recipient}`,
+      );
+      qc.invalidateQueries({ queryKey: ["admin-messages-email-status"] });
+    },
+    onError: (e: any) => toast.error(e?.message || "Retry failed"),
+  });
+
   if (isLoading) return <div className="p-6">Loading…</div>;
   const rows = data?.messages ?? [];
   const unread = rows.filter((r) => !r.is_read).length;

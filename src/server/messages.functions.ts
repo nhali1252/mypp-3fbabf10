@@ -11,6 +11,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabasePublic } from "@/integrations/supabase/client.public";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { template as contactNotification } from "@/lib/email-templates/contact-notification";
+import { template as contactConfirmation } from "@/lib/email-templates/contact-confirmation";
 
 export type Message = {
   id: string;
@@ -72,15 +73,77 @@ export const submitMessage = createServerFn({ method: "POST" })
     });
     if (error) throw new Error(error.message);
 
-    // Fire-and-forget email notification to the site owner.
-    // Failures must not block the contact form response.
+    // Fire-and-forget email notifications. Failures must not block the form response.
     try {
       await sendContactNotification(data);
     } catch (e) {
-      console.error("[messages.submitMessage] email notify failed", e);
+      console.error("[messages.submitMessage] admin notify failed", e);
+    }
+    try {
+      await sendContactConfirmation(data);
+    } catch (e) {
+      console.error("[messages.submitMessage] sender confirmation failed", e);
     }
     return { ok: true };
   });
+
+async function sendContactConfirmation(data: {
+  name: string;
+  email: string;
+  subject?: string;
+  message: string;
+}) {
+  const submittedAt = new Date().toISOString();
+  const props = {
+    name: data.name,
+    subject: data.subject || "(no subject)",
+    message: data.message,
+    submittedAt,
+  };
+  const element = React.createElement(contactConfirmation.component, props);
+  const [html, text] = await Promise.all([
+    render(element),
+    render(element, { plainText: true }),
+  ]);
+  const subject =
+    typeof contactConfirmation.subject === "function"
+      ? contactConfirmation.subject(props)
+      : contactConfirmation.subject;
+
+  const messageId = crypto.randomUUID();
+  await (supabaseAdmin as any).from("email_send_log").insert({
+    message_id: messageId,
+    template_name: "contact-confirmation",
+    recipient_email: data.email,
+    status: "pending",
+  });
+  const { error: enqErr } = await (supabaseAdmin as any).rpc("enqueue_email", {
+    queue_name: "transactional_emails",
+    payload: {
+      message_id: messageId,
+      to: data.email,
+      from: "Ali Nur Hasan <info@alii.uk>",
+      sender_domain: "notify.alii.uk",
+      subject,
+      html,
+      text,
+      purpose: "transactional",
+      label: "contact-confirmation",
+      idempotency_key: messageId,
+      queued_at: submittedAt,
+    },
+  });
+  if (enqErr) {
+    console.error("[messages.submitMessage] confirmation enqueue failed", enqErr);
+    await (supabaseAdmin as any).from("email_send_log").insert({
+      message_id: messageId,
+      template_name: "contact-confirmation",
+      recipient_email: data.email,
+      status: "failed",
+      error_message: enqErr.message,
+    });
+  }
+}
 
 async function sendContactNotification(data: {
   name: string;

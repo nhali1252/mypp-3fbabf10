@@ -31,6 +31,7 @@ import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe
 import { Route as ApiEnvImportRouteImport } from './routes/api.env-import'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin.admin.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as AdminAdminWrapFixturesRouteImport } from './routes/_admin.admin.wrap-fixtures'
 import { Route as AdminAdminUsersRouteImport } from './routes/_admin.admin.users'
 import { Route as AdminAdminTickerRouteImport } from './routes/_admin.admin.ticker'
 import { Route as AdminAdminThemeRouteImport } from './routes/_admin.admin.theme'
@@ -179,6 +180,11 @@ const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   id: '/lovable/email/suppression',
   path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAdminWrapFixturesRoute = AdminAdminWrapFixturesRouteImport.update({
+  id: '/admin/wrap-fixtures',
+  path: '/admin/wrap-fixtures',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminAdminUsersRoute = AdminAdminUsersRouteImport.update({
   id: '/admin/users',
@@ -433,6 +439,7 @@ export interface FileRoutesByFullPath {
   '/admin/theme': typeof AdminAdminThemeRoute
   '/admin/ticker': typeof AdminAdminTickerRoute
   '/admin/users': typeof AdminAdminUsersRoute
+  '/admin/wrap-fixtures': typeof AdminAdminWrapFixturesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/admin/': typeof AdminAdminIndexRoute
   '/admin/page/$slug': typeof AdminAdminPageSlugRoute
@@ -495,6 +502,7 @@ export interface FileRoutesByTo {
   '/admin/theme': typeof AdminAdminThemeRoute
   '/admin/ticker': typeof AdminAdminTickerRoute
   '/admin/users': typeof AdminAdminUsersRoute
+  '/admin/wrap-fixtures': typeof AdminAdminWrapFixturesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/admin': typeof AdminAdminIndexRoute
   '/admin/page/$slug': typeof AdminAdminPageSlugRoute
@@ -559,6 +567,7 @@ export interface FileRoutesById {
   '/_admin/admin/theme': typeof AdminAdminThemeRoute
   '/_admin/admin/ticker': typeof AdminAdminTickerRoute
   '/_admin/admin/users': typeof AdminAdminUsersRoute
+  '/_admin/admin/wrap-fixtures': typeof AdminAdminWrapFixturesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_admin/admin/': typeof AdminAdminIndexRoute
   '/_admin/admin/page/$slug': typeof AdminAdminPageSlugRoute
@@ -623,6 +632,7 @@ export interface FileRouteTypes {
     | '/admin/theme'
     | '/admin/ticker'
     | '/admin/users'
+    | '/admin/wrap-fixtures'
     | '/lovable/email/suppression'
     | '/admin/'
     | '/admin/page/$slug'
@@ -685,6 +695,7 @@ export interface FileRouteTypes {
     | '/admin/theme'
     | '/admin/ticker'
     | '/admin/users'
+    | '/admin/wrap-fixtures'
     | '/lovable/email/suppression'
     | '/admin'
     | '/admin/page/$slug'
@@ -748,6 +759,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/theme'
     | '/_admin/admin/ticker'
     | '/_admin/admin/users'
+    | '/_admin/admin/wrap-fixtures'
     | '/lovable/email/suppression'
     | '/_admin/admin/'
     | '/_admin/admin/page/$slug'
@@ -942,6 +954,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/lovable/email/suppression'
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_admin/admin/wrap-fixtures': {
+      id: '/_admin/admin/wrap-fixtures'
+      path: '/admin/wrap-fixtures'
+      fullPath: '/admin/wrap-fixtures'
+      preLoaderRoute: typeof AdminAdminWrapFixturesRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/_admin/admin/users': {
       id: '/_admin/admin/users'
@@ -1253,6 +1272,7 @@ interface AdminRouteChildren {
   AdminAdminThemeRoute: typeof AdminAdminThemeRoute
   AdminAdminTickerRoute: typeof AdminAdminTickerRoute
   AdminAdminUsersRoute: typeof AdminAdminUsersRoute
+  AdminAdminWrapFixturesRoute: typeof AdminAdminWrapFixturesRoute
   AdminAdminIndexRoute: typeof AdminAdminIndexRoute
   AdminAdminPageSlugRoute: typeof AdminAdminPageSlugRoute
 }
@@ -1291,6 +1311,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminThemeRoute: AdminAdminThemeRoute,
   AdminAdminTickerRoute: AdminAdminTickerRoute,
   AdminAdminUsersRoute: AdminAdminUsersRoute,
+  AdminAdminWrapFixturesRoute: AdminAdminWrapFixturesRoute,
   AdminAdminIndexRoute: AdminAdminIndexRoute,
   AdminAdminPageSlugRoute: AdminAdminPageSlugRoute,
 }

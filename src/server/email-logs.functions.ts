@@ -126,7 +126,6 @@ export type DlqMessage = {
     label?: string;
     subject?: string;
     queued_at?: string;
-    [k: string]: unknown;
   };
   error_message: string | null;
 };

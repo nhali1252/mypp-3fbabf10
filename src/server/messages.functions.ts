@@ -153,7 +153,7 @@ async function sendContactNotification(data: {
   phone?: string;
   subject?: string;
   message: string;
-}) {
+}, messageRowId: string) {
   // Look up the configured receiver from contact_settings (admin client to bypass RLS).
   const { data: settings } = await (supabaseAdmin as any)
     .from("contact_settings")

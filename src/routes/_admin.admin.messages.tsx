@@ -31,6 +31,53 @@ function AdminMessages() {
     queryFn: () => list(),
   });
 
+  const messageIds = useMemo(
+    () => (data?.messages ?? []).map((m) => m.id),
+    [data],
+  );
+
+  const fetchStatuses = useServerFn(getMessageEmailStatuses);
+  const statusesQuery = useQuery({
+    queryKey: ["admin-messages-email-status", messageIds],
+    queryFn: () => fetchStatuses({ data: { ids: messageIds } }),
+    enabled: messageIds.length > 0,
+    refetchInterval: 15000,
+  });
+
+  // Realtime: refetch statuses whenever a relevant email_send_log row arrives.
+  useEffect(() => {
+    if (messageIds.length === 0) return;
+    const idSet = new Set(messageIds);
+    const channel = supabase
+      .channel("admin-email-send-log")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "email_send_log" },
+        (payload: any) => {
+          const mid: string | undefined = payload?.new?.message_id;
+          if (!mid) return;
+          const rowId = mid.replace(/^(notify|confirm)-/, "");
+          if (rowId !== mid && idSet.has(rowId)) {
+            qc.invalidateQueries({ queryKey: ["admin-messages-email-status"] });
+          }
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [messageIds, qc]);
+
+  const statusByMessage = useMemo(() => {
+    const map = new Map<string, { notify?: EmailStatusRow; confirm?: EmailStatusRow }>();
+    for (const row of statusesQuery.data?.rows ?? []) {
+      const entry = map.get(row.message_row_id) ?? {};
+      entry[row.leg] = row;
+      map.set(row.message_row_id, entry);
+    }
+    return map;
+  }, [statusesQuery.data]);
+
   const updateMut = useMutation({
     mutationFn: (vars: { id: string; is_read?: boolean; is_replied?: boolean }) =>
       update({ data: vars }),

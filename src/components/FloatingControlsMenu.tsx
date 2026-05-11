@@ -26,6 +26,7 @@ export function FloatingControlsMenu() {
 
   const { pref: shimmerPref, toggle: toggleShimmer } = useShimmerPref();
   const { pref: motionPref, setMotionPref, reduceMotion } = useMotionPref();
+  const { pref: alignPref, setAlignPref } = useAlignPref();
   const { theme, toggle: toggleTheme } = useTheme();
   const { speedMs, setSpeedMs } = useShimmerSpeedPref();
   const { data } = useHeadingShimmer();

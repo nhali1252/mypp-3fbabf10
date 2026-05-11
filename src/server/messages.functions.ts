@@ -256,8 +256,24 @@ async function sendContactConfirmation(
       status: "failed",
       error_message: enqErr.message,
     });
+    await recordAudit({
+      message_row_id: messageRowId,
+      event: opts.retry ? "retry.confirm.failed" : "confirm.enqueue_failed",
+      message_id: messageId,
+      recipient_email: data.email,
+      status: "error",
+      error_message: enqErr.message,
+    });
     throw new Error(enqErr.message);
   }
+  await recordAudit({
+    message_row_id: messageRowId,
+    event: opts.retry ? "retry.confirm.enqueued" : "confirm.enqueued",
+    message_id: messageId,
+    recipient_email: data.email,
+    status: "success",
+    details: { template: "contact-confirmation" },
+  });
   return { messageId, recipient: data.email };
 }
 

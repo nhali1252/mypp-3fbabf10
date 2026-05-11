@@ -69,8 +69,8 @@ export const CAPS = {
 
 export type MotionBudget = {
   isMobile: boolean;
-  duration: typeof DURATION_DESKTOP;
-  blur: typeof BLUR_DESKTOP;
+  duration: DurationBudget;
+  blur: BlurBudget;
   ease: typeof EASE;
 };
 

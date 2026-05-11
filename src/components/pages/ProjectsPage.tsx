@@ -206,7 +206,7 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
             )}
             {project.github_url && (
               <a
-                href={project.github_url}
+                href={toExternalUrl(project.github_url)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-border px-3.5 sm:px-4 py-1.5 sm:py-2 text-[11.5px] sm:text-xs font-bold hover:border-primary hover:text-primary transition-colors"

@@ -461,74 +461,63 @@
    * scattered across components. Tailwind utility classes (mb-*, mt-*) on
    * a specific element still win because they have higher specificity.
    */
-  /* h1 — desktop tightened for crisper display sizes.
-   * Mobile keeps the softer 1.08 / -0.02em override below, because
-   * shorter measures need more vertical air to breathe. */
+  /* Headings + body — every value reads from a token in :root.
+   * Tweak the token (top of file), not the rule.
+   * h1 also gets text-box-trim so display sizes hug their cap line
+   * (progressive enhancement; ignored where unsupported). */
   h1 {
-    line-height: 1.0;
-    letter-spacing: -0.035em;
-    font-weight: 850;
-    /* Trim the half-leading so display sizes hug their cap line —
-     * fixes the "h1 sits too low in its container" feel on hero strips.
-     * Progressive enhancement: ignored by browsers that don't support it. */
+    line-height: var(--lh-h1);
+    letter-spacing: var(--track-h1);
+    font-weight: var(--weight-h1);
     text-box-trim: trim-both;
     text-box-edge: cap alphabetic;
   }
   h2 {
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    font-weight: 800;
+    line-height: var(--lh-h2);
+    letter-spacing: var(--track-h2);
+    font-weight: var(--weight-h2);
   }
   h3 {
-    line-height: 1.18;
-    letter-spacing: -0.015em;
-    font-weight: 700;
+    line-height: var(--lh-h3);
+    letter-spacing: var(--track-h3);
+    font-weight: var(--weight-h3);
   }
   h4 {
-    line-height: 1.25;
-    letter-spacing: -0.01em;
-    font-weight: 700;
+    line-height: var(--lh-h4);
+    letter-spacing: var(--track-h4);
+    font-weight: var(--weight-h4);
   }
   h5, h6 {
-    line-height: 1.35;
-    letter-spacing: -0.005em;
-    font-weight: 600;
+    line-height: var(--lh-h5);
+    letter-spacing: var(--track-h5);
+    font-weight: var(--weight-h5);
   }
-  p, li, dd {
-    line-height: 1.65;
-    letter-spacing: 0;
+  p, dd {
+    line-height: var(--lh-body);
+    letter-spacing: var(--track-body);
   }
+  li {
+    line-height: var(--lh-list);
+    letter-spacing: var(--track-body);
+  }
+  blockquote {
+    line-height: var(--lh-blockquote);
+    letter-spacing: var(--track-body);
+  }
+
   /* Optical kerning + ligatures everywhere — costs nothing, looks better */
   body { font-kerning: normal; font-variant-ligatures: common-ligatures; }
 
-  /* Default vertical rhythm for stacked content (Tailwind utilities still win) */
-  h1 { margin-bottom: 0.4em; }
-  h2 { margin-bottom: 0.6em; }
-  h3 { margin-bottom: 0.65em; }
-  h4, h5, h6 { margin-bottom: 0.75em; }
+  /* Vertical rhythm — token-driven (Tailwind utilities still win). */
+  h1 { margin-bottom: var(--space-h1-mb); }
+  h2 { margin-bottom: var(--space-h2-mb); }
+  h3 { margin-bottom: var(--space-h3-mb); }
+  h4 { margin-bottom: var(--space-h4-mb); }
+  h5, h6 { margin-bottom: var(--space-h5-mb); }
   h2 + p, h3 + p, h4 + p { margin-top: 0; }
-  p + p { margin-top: 0.85em; }
+  p + p { margin-top: var(--space-p-gap); }
+  li + li { margin-top: var(--space-li-gap); }
 
-  /* Mobile: looser body leading + a touch more open paragraph spacing.
-   * Narrower measures (≈40–55ch on phones) need MORE leading than desktop,
-   * not less — the eye has to find the next line return on a shorter ruler.
-   * Headings stay slightly looser so balanced wraps don't collide.
-   *   - body line-height 1.7 (was 1.55, was 1.65 desktop) — generous on mobile
-   *   - list line-height 1.65 — list items get an extra tick of breathing room
-   *   - p + p   1.0em        — full-line gap between paragraphs
-   *   - blockquote / dd 1.7  — match body
-   *   - subtle positive tracking on body copy (+0.005em) opens up the
-   *     screen-rendered Inter glyphs at small sizes
-   */
-  @media (max-width: 640px) {
-    h1 { line-height: 1.08; letter-spacing: -0.02em; }
-    h2 { line-height: 1.14; letter-spacing: -0.018em; }
-    h3 { line-height: 1.22; letter-spacing: -0.012em; }
-    p, dd, blockquote { line-height: 1.7; letter-spacing: 0.005em; }
-    li { line-height: 1.65; letter-spacing: 0.005em; }
-    p + p { margin-top: 1em; }
-    li + li { margin-top: 0.35em; }
-  }
 
   /* Crisp media */
   img, svg, video { image-rendering: auto; }

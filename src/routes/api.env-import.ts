@@ -167,6 +167,20 @@ async function handle(request: Request) {
   const auth = await verifyAdmin(request);
   if (auth instanceof Response) return auth;
 
+  // Reveal mode: return the FULL value of a single requested var.
+  // Never persisted to env_imports. Admin-only (already enforced above).
+  const url = new URL(request.url);
+  const revealName = url.searchParams.get("reveal");
+  if (revealName) {
+    if (!(EXPECTED_VARS as readonly string[]).includes(revealName)) {
+      return jsonError(400, "Unknown variable name");
+    }
+    const value = process.env[revealName] ?? null;
+    return new Response(
+      JSON.stringify({ success: value !== null, name: revealName, value }),
+      { status: value !== null ? 200 : 404, headers: { "content-type": "application/json" } },
+    );
+  }
 
   const report = await buildReport();
 

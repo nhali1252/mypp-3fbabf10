@@ -57,10 +57,43 @@ const submitSchema = z.object({
   message: z.string().trim().min(1).max(5000),
 });
 
+/** Dedup window: ignore identical submissions from the same email within this many minutes. */
+const DEDUP_WINDOW_MINUTES = 10;
+
 /** Public: insert a new message. */
 export const submitMessage = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => submitSchema.parse(data))
   .handler(async ({ data }) => {
+    // Dedup: if the same email submitted the same (subject + message) within the
+    // dedup window, treat as a duplicate — skip insert AND skip email notifications.
+    try {
+      const sinceIso = new Date(Date.now() - DEDUP_WINDOW_MINUTES * 60_000).toISOString();
+      const { data: existing } = await (supabaseAdmin as any)
+        .from("messages")
+        .select("id, subject, message, created_at")
+        .eq("email", data.email)
+        .gte("created_at", sinceIso)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      const incomingSubject = (data.subject || "").trim();
+      const incomingMessage = data.message.trim();
+      const dup = (existing ?? []).find(
+        (r: any) =>
+          (r.message ?? "").trim() === incomingMessage &&
+          ((r.subject ?? "") || "").trim() === incomingSubject,
+      );
+      if (dup) {
+        console.info("[messages.submitMessage] duplicate suppressed", {
+          email: data.email,
+          existingId: dup.id,
+        });
+        return { ok: true, id: dup.id as string, deduped: true };
+      }
+    } catch (e) {
+      // Dedup is best-effort — never block a real submission on a check failure.
+      console.warn("[messages.submitMessage] dedup check failed", e);
+    }
+
     const messageRowId = crypto.randomUUID();
     // Use public (anon) client — RLS policy "Anon can submit message" permits
     // this insert, so the contact form works without SUPABASE_SERVICE_ROLE_KEY
@@ -86,7 +119,7 @@ export const submitMessage = createServerFn({ method: "POST" })
     } catch (e) {
       console.error("[messages.submitMessage] sender confirmation failed", e);
     }
-    return { ok: true, id: messageRowId };
+    return { ok: true, id: messageRowId, deduped: false };
   });
 
 function makeMessageId(leg: EmailLeg, rowId: string, retry: boolean) {

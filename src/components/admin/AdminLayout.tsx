@@ -49,6 +49,9 @@ const SEGMENT_LABELS: Record<string, string> = {
   "email-logs": "Email logs",
   "email-templates": "Email templates",
   bookings: "Bookings",
+  backup: "Backup",
+  "wrap-fixtures": "Wrap fixtures",
+  "overflow-tests": "Overflow tests",
 };
 
 function labelize(seg: string) {

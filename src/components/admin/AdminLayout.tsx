@@ -43,6 +43,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   pwa: "PWA & install",
   theme: "Theme audit",
   "heading-shimmer": "Heading shimmer",
+  "email-logs": "Email logs",
 };
 
 function labelize(seg: string) {

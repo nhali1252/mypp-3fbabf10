@@ -431,7 +431,7 @@
   body { font-kerning: normal; font-variant-ligatures: common-ligatures; }
 
   /* Default vertical rhythm for stacked content (Tailwind utilities still win) */
-  h1 { margin-bottom: 0.5em; }
+  h1 { margin-bottom: 0.4em; }
   h2 { margin-bottom: 0.6em; }
   h3 { margin-bottom: 0.65em; }
   h4, h5, h6 { margin-bottom: 0.75em; }

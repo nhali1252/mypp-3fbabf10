@@ -89,12 +89,15 @@ export const submitMessage = createServerFn({ method: "POST" })
     return { ok: true, id: messageRowId };
   });
 
-async function sendContactConfirmation(data: {
-  name: string;
-  email: string;
-  subject?: string;
-  message: string;
-}, messageRowId: string) {
+function makeMessageId(leg: EmailLeg, rowId: string, retry: boolean) {
+  return retry ? `${leg}-${rowId}-r${Date.now()}` : `${leg}-${rowId}`;
+}
+
+async function sendContactConfirmation(
+  data: { name: string; email: string; subject?: string; message: string },
+  messageRowId: string,
+  opts: { retry?: boolean } = {},
+) {
   const submittedAt = new Date().toISOString();
   const props = {
     name: data.name,
@@ -112,7 +115,7 @@ async function sendContactConfirmation(data: {
       ? contactConfirmation.subject(props)
       : contactConfirmation.subject;
 
-  const messageId = `confirm-${messageRowId}`;
+  const messageId = makeMessageId("confirm", messageRowId, !!opts.retry);
   await (supabaseAdmin as any).from("email_send_log").insert({
     message_id: messageId,
     template_name: "contact-confirmation",
@@ -144,7 +147,9 @@ async function sendContactConfirmation(data: {
       status: "failed",
       error_message: enqErr.message,
     });
+    throw new Error(enqErr.message);
   }
+  return { messageId, recipient: data.email };
 }
 
 async function sendContactNotification(data: {

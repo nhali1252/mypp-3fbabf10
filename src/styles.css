@@ -168,6 +168,11 @@
   --space-h5-mb: 0.75em;
   --space-p-gap: 0.85em;   /* gap between consecutive <p> */
   --space-li-gap: 0em;     /* gap between consecutive <li> */
+
+  /* Body text alignment — justify by default for a polished, premium look.
+   * Tailwind utilities (`text-center`, `text-right`, `text-left`) and the
+   * `.align-*` helpers always win because they're higher-specificity. */
+  --text-align-body: justify;
 }
 
 /* Mobile overrides — only the values that change on phones.
@@ -187,6 +192,10 @@
     --track-body: 0.005em;
     --space-p-gap: 1em;
     --space-li-gap: 0.35em;
+    /* On very narrow viewports (<640px) full justification produces big
+     * inter-word gaps even with hyphenation enabled. Fall back to left
+     * alignment so mobile reading stays comfortable. */
+    --text-align-body: left;
   }
 }
 
@@ -492,18 +501,40 @@
     letter-spacing: var(--track-h5);
     font-weight: var(--weight-h5);
   }
+  /* Body text — justified by default (token-driven), with `inter-word`
+   * spacing + automatic hyphenation so we get clean newspaper-style
+   * justification with no rivers of whitespace.
+   * Headings stay LEFT-aligned (their rules above don't set text-align).
+   * Tailwind `text-center` / `text-left` / `text-right` and the `.align-*`
+   * helpers override this cleanly because the utilities layer ships
+   * after the base layer. */
   p, dd {
     line-height: var(--lh-body);
     letter-spacing: var(--track-body);
+    text-align: var(--text-align-body);
+    text-justify: inter-word;
+    hyphens: auto;
+    -webkit-hyphens: auto;
   }
   li {
     line-height: var(--lh-list);
     letter-spacing: var(--track-body);
+    /* Lists stay left-aligned — justifying a single-line list item
+     * creates ugly inter-word gaps. */
   }
   blockquote {
     line-height: var(--lh-blockquote);
     letter-spacing: var(--track-body);
+    text-align: var(--text-align-body);
+    text-justify: inter-word;
+    hyphens: auto;
+    -webkit-hyphens: auto;
   }
+
+  /* Justification opt-out — apply on a single short paragraph,
+   * a tooltip, a button label, etc. where justify would look bad. */
+  .text-left-flat,
+  .no-justify { text-align: left; hyphens: manual; }
 
   /* Optical kerning + ligatures everywhere — costs nothing, looks better */
   body { font-kerning: normal; font-variant-ligatures: common-ligatures; }

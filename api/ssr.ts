@@ -1,13 +1,32 @@
-import serverEntry from '../dist/server/index.js';
+let serverEntry: any;
+
+try {
+  serverEntry = require('../dist/server/server.js');
+} catch (e) {
+  // Fallback for ESM environments
+  console.log('Failed to require server, will attempt dynamic import on request');
+}
 
 export const config = {
   runtime: 'nodejs',
 };
 
 async function getServer() {
-  if (serverEntry?.fetch) return serverEntry;
-  if (serverEntry?.default?.fetch) return serverEntry.default;
-  return serverEntry;
+  if (serverEntry) {
+    if (serverEntry?.fetch) return serverEntry;
+    if (serverEntry?.default?.fetch) return serverEntry.default;
+    return serverEntry;
+  }
+
+  try {
+    const imported = await import('../dist/server/server.js');
+    if (imported?.fetch) return imported;
+    if (imported?.default?.fetch) return imported.default;
+    return imported;
+  } catch (e) {
+    console.error('Failed to import server:', e);
+    return null;
+  }
 }
 
 export default async function handler(request: Request): Promise<Response> {

@@ -781,4 +781,46 @@
       scroll-behavior: auto !important;
     }
   }
+
+  /* === Mobile performance optimizations ===
+   * Tames GPU-heavy effects on small screens to keep scrolling smooth and
+   * avoid the stuck-blur / dropped-frame issues seen on mid-tier Android
+   * devices. Applied at the same breakpoint as the Hero3DText guard
+   * (≤640px) so visual language stays consistent across components.
+   *
+   * What we tone down:
+   *   1. Large radial blur "bloom" backdrops — capped at 60px (was 100-140)
+   *   2. backdrop-blur strengths — capped to `sm` equivalent
+   *   3. Heavy box shadows — softened
+   *   4. Long animation durations on infinite loops left at full speed
+   *      (shimmer is intentional brand motion); only one-shot reveals are
+   *      slightly accelerated to feel snappier on touch.
+   */
+  @media (max-width: 640px) {
+    /* Cap the giant ambient blobs so the GPU isn't blurring 600px circles */
+    [class*="blur-["] {
+      filter: blur(60px) !important;
+    }
+    .blur-3xl { filter: blur(48px) !important; }
+    .blur-2xl { filter: blur(32px) !important; }
+
+    /* Lighter backdrop blurs — full-strength backdrop-filter is the single
+     * biggest scroll-jank source on mobile Chrome. */
+    .backdrop-blur-xl,
+    .backdrop-blur-lg,
+    .backdrop-blur-md {
+      backdrop-filter: blur(8px) !important;
+      -webkit-backdrop-filter: blur(8px) !important;
+    }
+
+    /* Snappier reveal/transition timings on touch */
+    .animate-fade-in { animation-duration: 0.22s !important; }
+    .animate-scale-in { animation-duration: 0.18s !important; }
+
+    /* Softer shadows — large spread shadows force extra raster passes */
+    .shadow-2xl,
+    .shadow-glow {
+      box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.4) !important;
+    }
+  }
 }

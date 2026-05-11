@@ -157,3 +157,63 @@ function AdminMessages() {
     </AdminPage>
   );
 }
+
+function EmailDeliveryRow({
+  status,
+}: {
+  status?: { notify?: EmailStatusRow; confirm?: EmailStatusRow };
+}) {
+  return (
+    <div className="mb-4 flex flex-wrap items-center gap-2 text-xs">
+      <span className="text-muted-foreground uppercase tracking-wider text-[10px] font-semibold">Email delivery</span>
+      <EmailLegBadge label="Inbox notify" icon={<Inbox className="w-3 h-3" />} row={status?.notify} />
+      <EmailLegBadge label="Sender confirm" icon={<SendIcon className="w-3 h-3" />} row={status?.confirm} />
+    </div>
+  );
+}
+
+function EmailLegBadge({
+  label,
+  icon,
+  row,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  row?: EmailStatusRow;
+}) {
+  const status = row?.status ?? "queued";
+  const tone = statusTone(status);
+  const StatusIcon = tone.icon;
+  const tip = row?.error_message
+    ? `${status} — ${row.error_message}`
+    : row?.updated_at
+      ? `${status} · ${new Date(row.updated_at).toLocaleString()}`
+      : "Not yet logged";
+  return (
+    <span
+      title={tip}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 ${tone.cls}`}
+    >
+      {icon}
+      <span className="text-muted-foreground">{label}:</span>
+      <StatusIcon className="w-3 h-3" />
+      <span className="font-medium capitalize">{status}</span>
+    </span>
+  );
+}
+
+function statusTone(status: string): { cls: string; icon: typeof CheckCircle2 } {
+  switch (status) {
+    case "sent":
+      return { cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300", icon: CheckCircle2 };
+    case "failed":
+    case "dlq":
+    case "bounced":
+    case "complained":
+    case "suppressed":
+      return { cls: "border-destructive/50 bg-destructive/10 text-destructive", icon: XCircle };
+    case "pending":
+    default:
+      return { cls: "border-amber-500/40 bg-amber-500/10 text-amber-300", icon: Clock };
+  }
+}

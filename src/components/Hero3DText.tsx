@@ -56,7 +56,10 @@ export function Hero3DText({
 
   const MotionTag = motion[Tag] as typeof motion.h1;
 
-  if (reduced) {
+  if (reduced || isMobile) {
+    // Mobile gets a plain render: avoids GPU-blur cost and the stuck-blur
+    // bug observed on some Android Chrome builds where filter animations
+    // never complete during route transitions.
     return <Tag className={className} style={style}>{text}</Tag>;
   }
 

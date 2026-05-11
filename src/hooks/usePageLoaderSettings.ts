@@ -14,8 +14,12 @@ export type PageLoaderSettings = {
 
 export const PAGE_LOADER_DEFAULTS: PageLoaderSettings = {
   id: "",
+  // Initial mount loader: keep the branded Welcome splash visible long
+  // enough to feel intentional (~5.5s, matches WelcomeSplash duration on /).
   initial_ms: 5500,
-  route_ms: 1200,
+  // Route transitions: snappy brand cover between pages — long enough to
+  // hide mount flicker, short enough to feel instant on mobile.
+  route_ms: 380,
   default_label: "",
   default_tagline: "",
   routes: {

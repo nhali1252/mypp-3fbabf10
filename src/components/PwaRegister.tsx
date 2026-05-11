@@ -44,10 +44,11 @@ export function PwaRegister() {
         });
     };
 
-    if ("requestIdleCallback" in window) {
-      (window as any).requestIdleCallback(register, { timeout: 4000 });
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => void };
+    if (typeof w.requestIdleCallback === "function") {
+      w.requestIdleCallback(register, { timeout: 4000 });
     } else {
-      window.setTimeout(register, 1500);
+      setTimeout(register, 1500);
     }
   }, []);
 

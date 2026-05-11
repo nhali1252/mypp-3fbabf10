@@ -6,7 +6,6 @@
   "installCommand": "bun install",
   "functions": {
     "api/ssr.ts": {
-      "runtime": "nodejs@20",
       "memory": 1024,
       "maxDuration": 30,
       "includeFiles": "dist/server/**"

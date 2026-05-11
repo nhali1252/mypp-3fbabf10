@@ -136,7 +136,8 @@ function AdminMessages() {
               </div>
             </div>
             {m.subject && <div className="font-semibold mb-1">{m.subject}</div>}
-            <p className="text-sm whitespace-pre-wrap mb-4">{m.message}</p>
+            <p className="text-sm whitespace-pre-wrap mb-3">{m.message}</p>
+            <EmailDeliveryRow status={statusByMessage.get(m.id)} />
             <div className="flex gap-2 flex-wrap">
               <Button size="sm" variant="outline" onClick={() => updateMut.mutate({ id: m.id, is_read: !m.is_read })}>
                 {m.is_read ? <><Mail className="w-3.5 h-3.5 mr-1.5" />Mark unread</> : <><MailOpen className="w-3.5 h-3.5 mr-1.5" />Mark read</>}

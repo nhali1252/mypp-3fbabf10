@@ -23,23 +23,33 @@ export const EASE = {
   inOutSoft: [0.65, 0, 0.35, 1] as const,
 } as const;
 
+/** Duration record shape — same keys for desktop & mobile. */
+export type DurationBudget = {
+  instant: number;
+  fast: number;
+  base: number;
+  slow: number;
+  hero: number;
+};
+export type BlurBudget = { sm: number; md: number; lg: number; xl: number };
+
 /** Desktop durations (ms). Mirror of `--dur-*` in styles.css. */
-export const DURATION_DESKTOP = {
+export const DURATION_DESKTOP: DurationBudget = {
   instant: 100,
   fast: 180,
   base: 260,
   slow: 480,
   hero: 800,
-} as const;
+};
 
 /** Mobile-clamped durations (ms). Same shape — just shorter. */
-export const DURATION_MOBILE = {
+export const DURATION_MOBILE: DurationBudget = {
   instant: 80,
   fast: 140,
   base: 200,
   slow: 320,
   hero: 480,
-} as const;
+};
 
 /** Blur radii budget (px). */
 export const BLUR_DESKTOP = { sm: 8, md: 24, lg: 60, xl: 120 } as const;

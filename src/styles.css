@@ -892,6 +892,18 @@
     to   { opacity: 1; transform: scale(1); }
   }
 
+  /* === Table cell wrap safeguard ===
+   * The shadcn <Table> primitive already wraps in `overflow-x-auto`, but
+   * any raw <table> (markdown content, embeds, third-party HTML) needs the
+   * same defenses so a long ID/token can't push the page wide on mobile.
+   *   - The table itself stays inside its parent (`max-width: 100%`).
+   *   - Cells break unbroken strings as a last resort.
+   * Cells that need single-line ellipsis must opt in via `truncate` +
+   * a `max-width` on the cell.
+   */
+  table { max-width: 100%; }
+  th, td { overflow-wrap: anywhere; word-break: break-word; }
+
 
   .ticker-track { animation: tick 28s linear infinite; }
   .ticker-wrap:hover .ticker-track { animation-play-state: paused; }

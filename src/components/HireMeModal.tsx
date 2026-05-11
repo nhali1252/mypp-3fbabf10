@@ -119,7 +119,7 @@ export function HireMeModal({ open, onClose, preselectedService }: Props) {
       {open && (
         <motion.div
           key="hireme-overlay"
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6"
+          className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center sm:p-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -138,12 +138,12 @@ export function HireMeModal({ open, onClose, preselectedService }: Props) {
             onClick={onClose}
           />
 
-          {/* Panel */}
+          {/* Panel — bottom sheet on mobile, centered card on ≥sm */}
           <motion.div
-            className="relative w-full max-w-[560px] max-h-[90vh] overflow-y-auto bg-gradient-card border border-white/10 rounded-[28px] shadow-card p-6 sm:p-8"
-            initial={{ opacity: 0, y: reduce ? 0 : 24, scale: reduce ? 1 : 0.96 }}
+            className="relative w-full sm:max-w-[560px] max-h-[92dvh] sm:max-h-[90vh] overflow-y-auto bg-gradient-card border border-white/10 rounded-t-[28px] sm:rounded-[28px] shadow-card p-6 sm:p-8 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+            initial={{ opacity: 0, y: reduce ? 0 : 40, scale: reduce ? 1 : 1 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: reduce ? 0 : 16, scale: reduce ? 1 : 0.97 }}
+            exit={{ opacity: 0, y: reduce ? 0 : 40, scale: reduce ? 1 : 1 }}
             transition={{ duration: 0.42, ease }}
           >
             {/* Glow accent */}

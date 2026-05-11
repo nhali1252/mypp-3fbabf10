@@ -186,7 +186,7 @@ async function sendContactNotification(data: {
       ? contactNotification.subject(props)
       : contactNotification.subject;
 
-  const messageId = crypto.randomUUID();
+  const messageId = `notify-${messageRowId}`;
   await (supabaseAdmin as any).from("email_send_log").insert({
     message_id: messageId,
     template_name: "contact-notification",

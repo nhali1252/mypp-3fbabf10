@@ -286,13 +286,16 @@ async function sendContactNotification(
   opts: { retry?: boolean } = {},
 ) {
   // Look up the configured receiver from contact_settings (admin client to bypass RLS).
-  const { data: settings } = await (supabaseAdmin as any)
+  // Prefer page_key='B' (Basic / primary), then any other row as fallback. Without an
+  // explicit ORDER BY, .limit(1) is non-deterministic and could pick the wrong row.
+  const { data: settingsRows } = await (supabaseAdmin as any)
     .from("contact_settings")
-    .select("form_receiver_email, email")
-    .limit(1)
-    .maybeSingle();
+    .select("page_key, form_receiver_email, email")
+    .order("page_key", { ascending: true });
+  const rows: any[] = settingsRows ?? [];
+  const primary = rows.find((r) => r.page_key === "B") ?? rows[0] ?? null;
   const recipient: string | undefined =
-    settings?.form_receiver_email || settings?.email;
+    primary?.form_receiver_email || primary?.email;
   if (!recipient) {
     console.warn("[messages.submitMessage] no recipient email configured; skipping notify");
     await recordAudit({

@@ -5,7 +5,7 @@
  * Verifies that:
  *   1. wrangler config (wrangler.jsonc / wrangler.toml) declares the required
  *      public `vars` (SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY).
- *   2. The required SECRET (SUPABASE_SERVICE_ROLE_KEY) is either:
+ *   2. The required SECRETS (SUPABASE_SERVICE_ROLE_KEY, LOVABLE_API_KEY) are either:
  *        - present in the local environment (CI/local), OR
  *        - listed by `wrangler secret list` if the wrangler CLI is available
  *          and authenticated.
@@ -24,7 +24,7 @@ import path from "node:path";
 import process from "node:process";
 
 const REQUIRED_VARS = ["SUPABASE_URL", "SUPABASE_PUBLISHABLE_KEY"];
-const REQUIRED_SECRETS = ["SUPABASE_SERVICE_ROLE_KEY"];
+const REQUIRED_SECRETS = ["SUPABASE_SERVICE_ROLE_KEY", "LOVABLE_API_KEY"];
 
 const warnOnly = process.argv.includes("--warn");
 const root = process.cwd();

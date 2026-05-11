@@ -8,16 +8,17 @@ on:
 # ----------------------------------------------------------------------------
 # AUTOMATIC SECRET SYNC TO CLOUDFLARE
 # ----------------------------------------------------------------------------
-# You only need THREE GitHub Actions secrets — set them once in:
+# You only need FOUR GitHub Actions secrets — set them once in:
 #   GitHub repo → Settings → Secrets and variables → Actions
 #
 #   1. CLOUDFLARE_API_TOKEN        (required to deploy at all)
 #   2. CLOUDFLARE_ACCOUNT_ID       (required to deploy at all)
 #   3. SUPABASE_SERVICE_ROLE_KEY   (so admin server fns can talk to the DB)
+#   4. LOVABLE_API_KEY             (so Lovable email previews/hooks work)
 #
 # Optional extras (only add if you actually use them):
 #   - SUPABASE_JWKS, SUPABASE_DB_URL, SUPABASE_ANON_KEY
-#   - LOVABLE_API_KEY, ENV_IMPORT_TOKEN
+#   - ENV_IMPORT_TOKEN
 #
 # Public values (URL + publishable key + project id) are hardcoded below
 # because they're already in wrangler.jsonc and the client bundle — they are
@@ -52,6 +53,7 @@ jobs:
         shell: bash
         env:
           SRK: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          LOVABLE_KEY: ${{ secrets.LOVABLE_API_KEY }}
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
@@ -59,6 +61,7 @@ jobs:
           [ -z "$CF_TOKEN" ]   && MISSING+=("CLOUDFLARE_API_TOKEN")
           [ -z "$CF_ACCOUNT" ] && MISSING+=("CLOUDFLARE_ACCOUNT_ID")
           [ -z "$SRK" ]        && MISSING+=("SUPABASE_SERVICE_ROLE_KEY")
+          [ -z "$LOVABLE_KEY" ] && MISSING+=("LOVABLE_API_KEY")
           if [ ${#MISSING[@]} -gt 0 ]; then
             echo "::error ::Missing required GitHub Actions secrets: ${MISSING[*]}"
             echo "::error ::Add them in: GitHub → Settings → Secrets and variables → Actions"
@@ -95,11 +98,11 @@ jobs:
           NAMES+=("SUPABASE_URL")
           NAMES+=("SUPABASE_PUBLISHABLE_KEY")
           NAMES+=("SUPABASE_SERVICE_ROLE_KEY")
+          NAMES+=("LOVABLE_API_KEY")
           # Optionals — only include if non-empty
           [ -n "$SUPABASE_ANON_KEY" ]   && NAMES+=("SUPABASE_ANON_KEY")
           [ -n "$SUPABASE_JWKS" ]       && NAMES+=("SUPABASE_JWKS")
           [ -n "$SUPABASE_DB_URL" ]     && NAMES+=("SUPABASE_DB_URL")
-          [ -n "$LOVABLE_API_KEY" ]     && NAMES+=("LOVABLE_API_KEY")
           [ -n "$ENV_IMPORT_TOKEN" ]    && NAMES+=("ENV_IMPORT_TOKEN")
           {
             echo "names<<EOF"

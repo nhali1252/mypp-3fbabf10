@@ -38,7 +38,7 @@ import { loadBranding } from "@/server/email-template-branding.server";
 export const listEmailTemplateSettings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin((context as any).user.id);
+    await assertAdmin((context as any).userId);
     const { data, error } = await (supabaseAdmin as any)
       .from("email_template_settings")
       .select("template_key, settings, updated_at")
@@ -64,7 +64,7 @@ export const updateEmailTemplateSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => updateSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const userId = (context as any).user.id as string;
+    const userId = (context as any).userId as string;
     await assertAdmin(userId);
     // Strip empty strings so defaults still apply.
     const cleaned: Record<string, string> = {};
@@ -97,7 +97,7 @@ export const previewEmailTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => previewSchema.parse(input))
   .handler(async ({ data, context }) => {
-    await assertAdmin((context as any).user.id);
+    await assertAdmin((context as any).userId);
     const tmpl = TEMPLATES[data.template_key];
     let branding = data.settings;
     if (!branding) {

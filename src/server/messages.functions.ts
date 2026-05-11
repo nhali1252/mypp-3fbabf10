@@ -167,9 +167,13 @@ export const submitMessage = createServerFn({ method: "POST" })
       recipient_email: data.email,
       status: "success",
       details: {
+        sender_name: data.name,
+        sender_email: data.email,
+        phone: data.phone || null,
         subject: data.subject || null,
-        has_phone: !!data.phone,
+        message: data.message,
         message_length: data.message.length,
+        submitted_at: new Date().toISOString(),
       },
     });
 
@@ -275,7 +279,15 @@ async function sendContactConfirmation(
     message_id: messageId,
     recipient_email: data.email,
     status: "success",
-    details: { template: "contact-confirmation" },
+    details: {
+      template: "contact-confirmation",
+      sender_name: data.name,
+      sender_email: data.email,
+      subject: data.subject || null,
+      message: data.message,
+      submitted_at: submittedAt,
+      email_subject_line: subject,
+    },
   });
   return { messageId, recipient: data.email };
 }
@@ -376,7 +388,17 @@ async function sendContactNotification(
     message_id: messageId,
     recipient_email: recipient,
     status: "success",
-    details: { template: "contact-notification" },
+    details: {
+      template: "contact-notification",
+      sender_name: data.name,
+      sender_email: data.email,
+      phone: data.phone || null,
+      subject: data.subject || null,
+      message: data.message,
+      submitted_at: submittedAt,
+      email_subject_line: subject,
+      reply_to: data.email,
+    },
   });
   return { messageId, recipient };
 }

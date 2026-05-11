@@ -306,29 +306,81 @@ export const getMessageEmailStatuses = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<{ ok: true; rows: EmailStatusRow[] }> => {
     await assertAdmin(context.supabase as any, context.userId);
     if (data.ids.length === 0) return { ok: true, rows: [] };
-    const keys = data.ids.flatMap((id) => [`notify-${id}`, `confirm-${id}`]);
+    // Build OR filter to also catch retry rows (`notify-<id>-r...`, `confirm-<id>-r...`)
+    const orFilter = data.ids
+      .flatMap((id) => [`message_id.like.notify-${id}%`, `message_id.like.confirm-${id}%`])
+      .join(",");
     const { data: rows, error } = await (supabaseAdmin as any)
       .from("email_send_log")
       .select("message_id, status, error_message, created_at")
-      .in("message_id", keys)
+      .or(orFilter)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    // Reduce to latest row per message_id
-    const latest = new Map<string, any>();
+    type Acc = { message_id: string; created_at: string; status: string; error_message: string | null };
+    const best = new Map<string, Acc>(); // key = `${leg}:${rowId}`
     for (const r of rows ?? []) {
-      if (!latest.has(r.message_id)) latest.set(r.message_id, r);
+      const m = String(r.message_id).match(/^(notify|confirm)-([0-9a-f-]{36})/i);
+      if (!m) continue;
+      const leg = m[1] as EmailLeg;
+      const rowId = m[2];
+      const key = `${leg}:${rowId}`;
+      const prev = best.get(key);
+      // Newer message_id (retry) wins; within same message_id newer created_at wins
+      if (
+        !prev ||
+        r.message_id > prev.message_id ||
+        (r.message_id === prev.message_id && r.created_at > prev.created_at)
+      ) {
+        best.set(key, {
+          message_id: r.message_id,
+          created_at: r.created_at,
+          status: r.status,
+          error_message: r.error_message ?? null,
+        });
+      }
     }
     const out: EmailStatusRow[] = [];
-    for (const [mid, r] of latest) {
-      const [legStr, ...rest] = mid.split("-");
-      if (legStr !== "notify" && legStr !== "confirm") continue;
+    for (const [key, r] of best) {
+      const [leg, rowId] = key.split(":");
       out.push({
-        message_row_id: rest.join("-"),
-        leg: legStr as EmailLeg,
+        message_row_id: rowId,
+        leg: leg as EmailLeg,
         status: r.status,
-        error_message: r.error_message ?? null,
+        error_message: r.error_message,
         updated_at: r.created_at,
       });
     }
     return { ok: true, rows: out };
+  });
+
+/** Admin: re-enqueue a failed/pending email for a given message + leg. */
+export const retryMessageEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { id: string; leg: EmailLeg }) =>
+    z.object({ id: z.string().uuid(), leg: z.enum(["notify", "confirm"]) }).parse(data),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: true; messageId: string; recipient: string }> => {
+    await assertAdmin(context.supabase as any, context.userId);
+    const { data: row, error } = await (supabaseAdmin as any)
+      .from("messages")
+      .select("id, name, email, phone, subject, message")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!row) throw new Error("Message not found");
+
+    const payload = {
+      name: row.name,
+      email: row.email,
+      phone: row.phone || "",
+      subject: row.subject || "",
+      message: row.message,
+    };
+    if (data.leg === "notify") {
+      const result = await sendContactNotification(payload, row.id, { retry: true });
+      if (!result) throw new Error("No recipient configured in contact settings");
+      return { ok: true, messageId: result.messageId, recipient: result.recipient };
+    }
+    const result = await sendContactConfirmation(payload, row.id, { retry: true });
+    return { ok: true, messageId: result.messageId, recipient: result.recipient };
   });

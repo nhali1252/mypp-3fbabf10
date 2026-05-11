@@ -28,7 +28,15 @@ export function Hero3DText({
   byLetter = false,
 }: Hero3DTextProps) {
   const reduced = useReducedMotion();
-  const [isMobile, setIsMobile] = useState(false);
+  // Initialize from the matchMedia synchronously on the client so the very
+  // first render on mobile already skips the blur+3D animation. Without
+  // this, the hidden variant (blur(8px), rotateX -55) flashes on first
+  // paint and on some mobile browsers the filter can get "stuck" mid-
+  // animation, leaving the headline permanently blurry.
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === "undefined") return true; // assume mobile on SSR — safer
+    return window.matchMedia("(max-width: 640px)").matches;
+  });
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -48,7 +56,10 @@ export function Hero3DText({
 
   const MotionTag = motion[Tag] as typeof motion.h1;
 
-  if (reduced) {
+  if (reduced || isMobile) {
+    // Mobile gets a plain render: avoids GPU-blur cost and the stuck-blur
+    // bug observed on some Android Chrome builds where filter animations
+    // never complete during route transitions.
     return <Tag className={className} style={style}>{text}</Tag>;
   }
 

@@ -208,13 +208,7 @@ function TemplateEditor({
         </div>
       </div>
 
-      <AdminCard
-        title={
-          <span className="flex items-center gap-2">
-            <Mail className="w-4 h-4" /> Live preview
-          </span> as any
-        }
-      >
+      <AdminCard title="Live preview">
         <div className="text-xs text-muted-foreground mb-2 truncate">
           <span className="font-medium">Subject:</span> {previewSubject || "—"}
         </div>

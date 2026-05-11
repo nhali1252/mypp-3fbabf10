@@ -126,8 +126,8 @@ async function sendBookingConfirmation(
     payload: {
       message_id: messageId,
       to: data.email,
-      from: "Ali Nur Hasan <info@alii.uk>",
-      sender_domain: "notify.mail.alii.uk",
+      from: "Ali Nur Hasan <info@i.alii.uk>",
+      sender_domain: "notify.i.alii.uk",
       subject,
       html,
       text,
@@ -201,8 +201,8 @@ async function sendBookingNotification(
     payload: {
       message_id: messageId,
       to: recipient,
-      from: "mypp <noreply@alii.uk>",
-      sender_domain: "notify.mail.alii.uk",
+      from: "mypp <noreply@i.alii.uk>",
+      sender_domain: "notify.i.alii.uk",
       subject,
       html,
       text,

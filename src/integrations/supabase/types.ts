@@ -927,6 +927,42 @@ export type Database = {
         }
         Relationships: []
       }
+      message_audit_log: {
+        Row: {
+          created_at: string
+          details: Json
+          error_message: string | null
+          event: string
+          id: string
+          message_id: string | null
+          message_row_id: string | null
+          recipient_email: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json
+          error_message?: string | null
+          event: string
+          id?: string
+          message_id?: string | null
+          message_row_id?: string | null
+          recipient_email?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          error_message?: string | null
+          event?: string
+          id?: string
+          message_id?: string | null
+          message_row_id?: string | null
+          recipient_email?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           created_at: string

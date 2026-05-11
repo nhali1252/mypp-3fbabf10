@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Play, RefreshCw, CheckCircle2, XCircle, Copy } from "lucide-react";
-import { triggerEnvImport, listEnvImports } from "@/server/env-import.functions";
+import { triggerEnvImport, listEnvImports, revealEnvVar } from "@/server/env-import.functions";
+import { Eye } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_admin/admin/env-import")({

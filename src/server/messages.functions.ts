@@ -94,7 +94,7 @@ async function sendContactConfirmation(data: {
   email: string;
   subject?: string;
   message: string;
-}) {
+}, messageRowId: string) {
   const submittedAt = new Date().toISOString();
   const props = {
     name: data.name,

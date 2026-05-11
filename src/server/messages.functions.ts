@@ -279,7 +279,15 @@ async function sendContactConfirmation(
     message_id: messageId,
     recipient_email: data.email,
     status: "success",
-    details: { template: "contact-confirmation" },
+    details: {
+      template: "contact-confirmation",
+      sender_name: data.name,
+      sender_email: data.email,
+      subject: data.subject || null,
+      message: data.message,
+      submitted_at: submittedAt,
+      email_subject_line: subject,
+    },
   });
   return { messageId, recipient: data.email };
 }

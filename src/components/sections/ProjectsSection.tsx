@@ -18,7 +18,7 @@ export function ProjectsSection() {
   const { data: projects = [] } = useProjects();
 
   return (
-    <section id="portfolio" className="pt-24">
+    <section id="portfolio" className="pt-14 sm:pt-20 md:pt-24">
       <SectionHeader label="Projects" title="Academic work." />
       <Stagger className="grid md:grid-cols-2 lg:grid-cols-3 gap-4" stagger={0.1}>
         {(projects as Project[]).map((p) => (

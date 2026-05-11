@@ -18,7 +18,7 @@ export function EducationSection() {
   const list = items as EducationItem[];
 
   return (
-    <section id="education" className="pt-24">
+    <section id="education" className="pt-14 sm:pt-20 md:pt-24">
       <SectionHeader label="Education" title="Academic background." />
       {isLoading ? (
         <SectionSkeleton count={2} label="Loading education…" />

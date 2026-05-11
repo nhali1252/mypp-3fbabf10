@@ -17,7 +17,7 @@ export function AboutSection() {
 
   if (isLoading) {
     return (
-      <section id="about" className="pt-24">
+      <section id="about" className="pt-14 sm:pt-20 md:pt-24">
         <SectionHeader label="About me" title="Loading…" />
         <SectionSkeleton count={2} cols={2} label="Loading about…" />
       </section>
@@ -26,7 +26,7 @@ export function AboutSection() {
 
   if (isError) {
     return (
-      <section id="about" className="pt-24">
+      <section id="about" className="pt-14 sm:pt-20 md:pt-24">
         <SectionHeader label="About me" title="Couldn't load profile." />
         <SectionError
           title="About content is unavailable"
@@ -40,7 +40,7 @@ export function AboutSection() {
 
 
   return (
-    <section id="about" className="pt-24">
+    <section id="about" className="pt-14 sm:pt-20 md:pt-24">
       <SectionHeader label="About me" title={about?.title || "Creative designer for modern brands."} />
 
       <Stagger className="grid md:grid-cols-2 gap-4 mb-5" stagger={0.12}>

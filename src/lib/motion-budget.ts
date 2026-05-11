@@ -52,8 +52,8 @@ export const DURATION_MOBILE: DurationBudget = {
 };
 
 /** Blur radii budget (px). */
-export const BLUR_DESKTOP = { sm: 8, md: 24, lg: 60, xl: 120 } as const;
-export const BLUR_MOBILE = { sm: 6, md: 16, lg: 40, xl: 60 } as const;
+export const BLUR_DESKTOP: BlurBudget = { sm: 8, md: 24, lg: 60, xl: 120 };
+export const BLUR_MOBILE: BlurBudget = { sm: 6, md: 16, lg: 40, xl: 60 };
 
 /** Hard caps — anything exceeding these triggers a dev-mode warning. */
 export const CAPS = {

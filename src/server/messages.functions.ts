@@ -243,8 +243,8 @@ async function sendContactConfirmation(
     payload: {
       message_id: messageId,
       to: data.email,
-      from: "Ali Nur Hasan <info@alii.uk>",
-      sender_domain: "notify.alii.uk",
+      from: "Ali Nur Hasan <noreply@mail.alii.uk>",
+      sender_domain: "notify.mail.alii.uk",
       subject,
       html,
       text,

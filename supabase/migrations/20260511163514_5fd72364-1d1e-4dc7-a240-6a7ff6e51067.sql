@@ -1,0 +1,1 @@
+UPDATE contact_settings SET email = 'info@alii.uk', form_receiver_email = 'info@alii.uk' WHERE page_key = 'B';

@@ -843,6 +843,18 @@
    *      slightly accelerated to feel snappier on touch.
    */
   @media (max-width: 640px) {
+    /* Auto-scale the budget tokens — anything authored with var(--dur-*) or
+     * var(--blur-*) will downshift on mobile with no per-component change. */
+    :root {
+      --dur-fast: 140ms;
+      --dur-base: 200ms;
+      --dur-slow: 320ms;
+      --dur-hero: 480ms;
+      --blur-lg: 48px;
+      --blur-xl: 60px;
+      --backdrop-blur-md: 8px;
+    }
+
     /* Cap the giant ambient blobs so the GPU isn't blurring 600px circles */
     [class*="blur-["] {
       filter: blur(60px) !important;

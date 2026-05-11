@@ -117,6 +117,77 @@
   --shadow-soft: 0 18px 40px -22px oklch(0 0 0 / 0.6);
   --shadow-elevated: 0 40px 80px -28px oklch(0 0 0 / 0.65), 0 8px 24px -12px oklch(0 0 0 / 0.4);
   --shadow-glow: 0 12px 38px oklch(0.72 0.07 78 / 0.35);
+
+  /* === Typography rhythm tokens =========================================
+   * Single source of truth for line-height, letter-spacing, font-weight,
+   * and vertical margins on h1–h6 / body / list / blockquote. Tweak any
+   * value here and the change propagates everywhere — no hunting through
+   * styles.css.
+   *
+   * Naming:
+   *   --lh-*      line-height
+   *   --track-*   letter-spacing  (negative = tighter)
+   *   --weight-*  font-weight
+   *   --space-*   vertical margin (em-based, scales with font-size)
+   *
+   * Mobile overrides live in the `@media (max-width: 640px) :root` block
+   * a few lines below — only the values that NEED to change on phones
+   * are redeclared, everything else inherits the desktop scale.
+   * -------------------------------------------------------------------- */
+
+  /* Line-height: tightens as type gets larger, loosens for body. */
+  --lh-h1: 1.0;
+  --lh-h2: 1.1;
+  --lh-h3: 1.18;
+  --lh-h4: 1.25;
+  --lh-h5: 1.35;
+  --lh-body: 1.65;
+  --lh-list: 1.65;
+  --lh-blockquote: 1.65;
+
+  /* Letter-spacing: negative on display, neutral on body. */
+  --track-h1: -0.035em;
+  --track-h2: -0.02em;
+  --track-h3: -0.015em;
+  --track-h4: -0.01em;
+  --track-h5: -0.005em;
+  --track-body: 0em;
+
+  /* Font-weight curve. */
+  --weight-h1: 850;
+  --weight-h2: 800;
+  --weight-h3: 700;
+  --weight-h4: 700;
+  --weight-h5: 600;
+
+  /* Vertical rhythm. */
+  --space-h1-mb: 0.4em;
+  --space-h2-mb: 0.6em;
+  --space-h3-mb: 0.65em;
+  --space-h4-mb: 0.75em;
+  --space-h5-mb: 0.75em;
+  --space-p-gap: 0.85em;   /* gap between consecutive <p> */
+  --space-li-gap: 0em;     /* gap between consecutive <li> */
+}
+
+/* Mobile overrides — only the values that change on phones.
+ * Narrower measures (40–55ch) need MORE leading and bigger gaps so the
+ * eye can find each line return on a shorter ruler. */
+@media (max-width: 640px) {
+  :root {
+    --lh-h1: 1.08;
+    --lh-h2: 1.14;
+    --lh-h3: 1.22;
+    --lh-body: 1.7;
+    --lh-list: 1.65;
+    --lh-blockquote: 1.7;
+    --track-h1: -0.02em;
+    --track-h2: -0.018em;
+    --track-h3: -0.012em;
+    --track-body: 0.005em;
+    --space-p-gap: 1em;
+    --space-li-gap: 0.35em;
+  }
 }
 
 .dark {

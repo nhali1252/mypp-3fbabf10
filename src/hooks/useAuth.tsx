@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
+import { sendWelcomeEmail } from "@/server/welcome-email.functions";
 
 type Role = "admin" | "editor";
 
@@ -70,6 +71,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         data: { display_name: displayName },
       },
     });
+    if (!error) {
+      // Fire-and-forget welcome email; never block signup UX on email failures.
+      sendWelcomeEmail({ data: { email, name: displayName } }).catch((e) =>
+        console.error("[useAuth] welcome email failed", e),
+      );
+    }
     return { error: error?.message ?? null };
   };
 

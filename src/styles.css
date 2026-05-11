@@ -449,12 +449,22 @@
    */
   h1, h2, h3, h4, h5, h6 {
     text-wrap: balance;
+    text-wrap-style: balance;
     overflow-wrap: break-word;
     hyphens: auto;
+    /* Don't hyphenate display type unless we really must */
+    hyphenate-limit-chars: 10 5 4;
   }
   p, li, blockquote, dd {
     text-wrap: pretty;
+    text-wrap-style: pretty;
     overflow-wrap: break-word;
+    /* Avoid awkward hyphenation: at least 6-char words, ≥3 before, ≥2 after */
+    hyphenate-limit-chars: 6 3 2;
+    /* Cap consecutive hyphenated lines so paragraphs don't look ladder-like */
+    hyphenate-limit-lines: 2;
+    /* Modern CJK / Latin spacing trim */
+    text-spacing-trim: space-all;
   }
 
   /* === Global typography rhythm ===
@@ -512,6 +522,8 @@
     letter-spacing: var(--track-body);
     text-align: var(--text-align-body);
     text-justify: inter-word;
+    /* Cap how far inter-word gaps can stretch when justifying — kills rivers */
+    word-spacing: 0;
     hyphens: auto;
     -webkit-hyphens: auto;
   }

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Server, MapPin, Activity, RefreshCw, Loader2, Clock, BarChart3 } from "lucide-react";
+import { Server, MapPin, Activity, RefreshCw, Loader2, Clock, BarChart3, ChevronDown, Copy } from "lucide-react";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -21,6 +21,8 @@ import {
   ReferenceLine,
   CartesianGrid,
 } from "recharts";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_admin/admin/runtime")({
   component: RuntimePage,
@@ -35,6 +37,7 @@ type ServerInfo = {
   timezone?: string;
   ip?: string;
   serverTime?: string;
+  rawHeaders?: Record<string, string>;
 };
 
 function RuntimePage() {
@@ -265,6 +268,61 @@ function RuntimePage() {
           </div>
         </div>
       </section>
+
+      <Collapsible className="rounded-2xl border border-border bg-card">
+        <CollapsibleTrigger className="group flex w-full items-center gap-2 px-5 py-4 text-left">
+          <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+          <span className="text-sm font-semibold">Raw edge headers</span>
+          <span className="ml-2 text-xs text-muted-foreground">
+            {info?.rawHeaders ? `${Object.keys(info.rawHeaders).length} headers` : "—"}
+          </span>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!info?.rawHeaders) return;
+              navigator.clipboard.writeText(JSON.stringify(info.rawHeaders, null, 2));
+              toast.success("Copied raw headers");
+            }}
+            className="ml-auto inline-flex items-center justify-center h-7 w-7 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Copy raw headers"
+            title="Copy as JSON"
+          >
+            <Copy className="h-3.5 w-3.5" />
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="px-5 pb-5">
+            <p className="text-xs text-muted-foreground mb-3">
+              Cloudflare <code className="font-mono">cf-*</code> request headers used to compute
+              location, timezone, and IP. Forwarded by the edge — not user-supplied.
+            </p>
+            {info?.rawHeaders && Object.keys(info.rawHeaders).length > 0 ? (
+              <div className="rounded-lg border border-border overflow-hidden">
+                <table className="w-full text-xs">
+                  <tbody>
+                    {Object.entries(info.rawHeaders)
+                      .sort(([a], [b]) => a.localeCompare(b))
+                      .map(([k, v]) => (
+                        <tr key={k} className="border-t first:border-t-0">
+                          <td className="px-3 py-1.5 font-mono text-muted-foreground whitespace-nowrap align-top">
+                            {k}
+                          </td>
+                          <td className="px-3 py-1.5 font-mono break-all">{v}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-xs text-muted-foreground py-3 text-center">
+                No <code className="font-mono">cf-*</code> headers present (likely not running behind
+                Cloudflare in this environment).
+              </div>
+            )}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
 
       <div className="flex flex-wrap items-center gap-3">
         <Button variant="outline" size="sm" onClick={loadInfo} disabled={loading}>

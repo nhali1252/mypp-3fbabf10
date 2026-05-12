@@ -23,6 +23,13 @@ function handle(request: Request) {
     });
   }
 
+  const rawHeaders: Record<string, string> = {};
+  h.forEach((value, key) => {
+    if (key.startsWith("cf-") || key === "x-forwarded-for" || key === "x-real-ip") {
+      rawHeaders[key] = value;
+    }
+  });
+
   const body = {
     colo: h.get("cf-ray")?.split("-")[1] ?? null,
     city: h.get("cf-ipcity") ?? null,
@@ -31,6 +38,7 @@ function handle(request: Request) {
     timezone: h.get("cf-timezone") ?? null,
     ip: h.get("cf-connecting-ip") ?? h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
     serverTime: new Date().toISOString(),
+    rawHeaders,
   };
 
   return new Response(JSON.stringify(body), {

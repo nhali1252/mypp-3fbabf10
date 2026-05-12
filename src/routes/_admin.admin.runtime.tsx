@@ -1,7 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Server, MapPin, Activity, RefreshCw, Loader2, Clock } from "lucide-react";
+import { Server, MapPin, Activity, RefreshCw, Loader2, Clock, BarChart3 } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ReferenceLine,
+  CartesianGrid,
+} from "recharts";
 
 export const Route = createFileRoute("/_admin/admin/runtime")({
   component: RuntimePage,
@@ -43,17 +53,22 @@ function RuntimePage() {
     }
   }, []);
 
+  const [samples, setSamples] = useState<number[]>([]);
+
   const measurePing = useCallback(async () => {
     setPinging(true);
+    setSamples([]);
     try {
-      const samples: number[] = [];
-      for (let i = 0; i < 5; i++) {
+      const collected: number[] = [];
+      for (let i = 0; i < 10; i++) {
         const t = performance.now();
         await fetch("/api/server-info?ping=1", { cache: "no-store" });
-        samples.push(performance.now() - t);
+        const dt = performance.now() - t;
+        collected.push(dt);
+        setSamples([...collected]);
       }
-      samples.sort((a, b) => a - b);
-      setPing(Math.round(samples[Math.floor(samples.length / 2)]));
+      const sorted = [...collected].sort((a, b) => a - b);
+      setPing(Math.round(sorted[Math.floor(sorted.length / 2)]));
     } catch {
       setPing(null);
     } finally {

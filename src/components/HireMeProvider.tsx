@@ -33,16 +33,30 @@ export function HireMeProvider({ children }: { children: ReactNode }) {
     if (!open) return;
     const html = document.documentElement;
     const body = document.body;
+    const visualViewport = window.visualViewport;
+    const syncViewportVars = () => {
+      const height = visualViewport?.height ?? window.innerHeight;
+      const top = visualViewport?.offsetTop ?? 0;
+      html.style.setProperty("--hireme-vv-height", `${height}px`);
+      html.style.setProperty("--hireme-vv-top", `${top}px`);
+    };
     const scrollbarW = window.innerWidth - html.clientWidth;
     const prev = {
       htmlOverflow: html.style.overflow,
       bodyOverflow: body.style.overflow,
       bodyPaddingRight: body.style.paddingRight,
     };
+    syncViewportVars();
+    visualViewport?.addEventListener("resize", syncViewportVars);
+    visualViewport?.addEventListener("scroll", syncViewportVars);
     html.style.overflow = "hidden";
     body.style.overflow = "hidden";
     if (scrollbarW > 0) body.style.paddingRight = `${scrollbarW}px`;
     return () => {
+      visualViewport?.removeEventListener("resize", syncViewportVars);
+      visualViewport?.removeEventListener("scroll", syncViewportVars);
+      html.style.removeProperty("--hireme-vv-height");
+      html.style.removeProperty("--hireme-vv-top");
       html.style.overflow = prev.htmlOverflow;
       body.style.overflow = prev.bodyOverflow;
       body.style.paddingRight = prev.bodyPaddingRight;

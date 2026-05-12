@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactElement } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Mail, X, Send as SendIcon } from "lucide-react";
 import { z } from "zod";
@@ -114,12 +115,12 @@ export function HireMeModal({ open, onClose, preselectedService }: Props) {
     onClose();
   }
 
-  return (
+  const modal = (
     <AnimatePresence>
       {open && (
         <motion.div
           key="hireme-overlay"
-          className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center sm:p-6"
+          className="fixed inset-x-0 top-[var(--hireme-vv-top,0px)] z-[100] flex items-end justify-center sm:items-center sm:p-6 h-[var(--hireme-vv-height,100dvh)] overflow-hidden overscroll-contain"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -140,11 +141,11 @@ export function HireMeModal({ open, onClose, preselectedService }: Props) {
 
           {/* Panel — bottom sheet on mobile, centered card on ≥sm */}
           <motion.div
-            className="relative w-full sm:max-w-[560px] max-h-[92dvh] sm:max-h-[90vh] overflow-y-auto bg-gradient-card border border-white/10 rounded-t-[28px] sm:rounded-[28px] shadow-card p-6 sm:p-8 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
-            initial={{ opacity: 0, y: reduce ? 0 : 40, scale: reduce ? 1 : 1 }}
+            className="relative w-full sm:max-w-[560px] max-h-[min(88dvh,calc(var(--hireme-vv-height,100dvh)-1rem))] sm:max-h-[min(90vh,calc(var(--hireme-vv-height,100dvh)-3rem))] overflow-y-auto overscroll-contain bg-gradient-card border border-white/10 rounded-t-[28px] sm:rounded-[28px] shadow-card p-6 sm:p-8 pb-[max(5.5rem,env(safe-area-inset-bottom))] sm:pb-8 [scrollbar-gutter:stable]"
+            initial={{ opacity: 0, y: reduce ? 0 : 28, scale: 1 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: reduce ? 0 : 40, scale: reduce ? 1 : 1 }}
-            transition={{ duration: 0.42, ease }}
+            exit={{ opacity: 0, y: reduce ? 0 : 28, scale: 1 }}
+            transition={{ duration: 0.32, ease }}
           >
             {/* Glow accent */}
             <div
@@ -263,4 +264,6 @@ export function HireMeModal({ open, onClose, preselectedService }: Props) {
       )}
     </AnimatePresence>
   );
+
+  return typeof document === "undefined" ? null : createPortal(modal, document.body);
 }

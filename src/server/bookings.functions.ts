@@ -116,6 +116,7 @@ async function sendBookingConfirmation(
 
   const messageId = makeMessageId("confirm", rowId, !!opts.retry);
   const sb = supabaseAdmin as any;
+  const unsubscribeToken = await getOrCreateUnsubscribeToken(data.email);
   await sb.from("email_send_log").insert({
     message_id: messageId,
     template_name: "booking-confirmation",
@@ -135,6 +136,7 @@ async function sendBookingConfirmation(
       purpose: "transactional",
       label: "booking-confirmation",
       idempotency_key: messageId,
+      unsubscribe_token: unsubscribeToken,
       queued_at: new Date().toISOString(),
     },
   });

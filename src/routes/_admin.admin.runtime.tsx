@@ -121,7 +121,23 @@ function RuntimePage() {
 
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [intervalSec, setIntervalSec] = useState(15);
+  const [privacy, setPrivacy] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("runtime.privacy") === "1";
+  });
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("runtime.privacy", privacy ? "1" : "0");
+    }
+  }, [privacy]);
   const busyRef = useRef(false);
+
+  const maskIp = (ip: string) => {
+    if (ip.includes(":")) return ip.split(":").slice(0, 2).join(":") + "::•••";
+    const parts = ip.split(".");
+    if (parts.length === 4) return `${parts[0]}.${parts[1]}.•••.•••`;
+    return "•••";
+  };
 
   useEffect(() => {
     loadInfo();
@@ -205,11 +221,18 @@ function RuntimePage() {
             <MapPin className="h-4 w-4 text-primary" />
             <h2 className="text-sm font-semibold">Server location</h2>
           </div>
-          <div className="text-lg font-semibold">{location}</div>
+          <div className="text-lg font-semibold">
+            {privacy ? (info?.colo ? `Edge ${info.colo}` : "Hidden") : location}
+          </div>
           <div className="mt-2 text-xs text-muted-foreground space-y-0.5">
             {info?.colo && <div>Edge: <span className="font-mono">{info.colo}</span></div>}
-            {info?.timezone && <div>TZ: <span className="font-mono">{info.timezone}</span></div>}
-            {info?.ip && <div>IP: <span className="font-mono">{info.ip}</span></div>}
+            {!privacy && info?.timezone && <div>TZ: <span className="font-mono">{info.timezone}</span></div>}
+            {info?.ip && (
+              <div>IP: <span className="font-mono">{privacy ? maskIp(info.ip) : info.ip}</span></div>
+            )}
+            {privacy && (
+              <div className="italic opacity-70">City &amp; full IP hidden by privacy mode.</div>
+            )}
           </div>
         </div>
 
@@ -368,8 +391,12 @@ function RuntimePage() {
                         {new Date(r.at).toLocaleTimeString()}
                       </td>
                       <td className="px-3 py-1.5">
-                        {r.location}
-                        {r.colo && <span className="ml-1 text-muted-foreground font-mono">({r.colo})</span>}
+                        {privacy ? (r.colo ? `Edge ${r.colo}` : "—") : (
+                          <>
+                            {r.location}
+                            {r.colo && <span className="ml-1 text-muted-foreground font-mono">({r.colo})</span>}
+                          </>
+                        )}
                       </td>
                       <td className="px-3 py-1.5 text-right font-mono tabular-nums">{r.min} ms</td>
                       <td className="px-3 py-1.5 text-right font-mono tabular-nums">{r.avg} ms</td>
@@ -389,6 +416,7 @@ function RuntimePage() {
       </section>
 
 
+      {!privacy && (
       <Collapsible className="rounded-2xl border border-border bg-card">
         <CollapsibleTrigger className="group flex w-full items-center gap-2 px-5 py-4 text-left">
           <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
@@ -443,6 +471,7 @@ function RuntimePage() {
           </div>
         </CollapsibleContent>
       </Collapsible>
+      )}
 
       <div className="flex flex-wrap items-center gap-3">
         <Button variant="outline" size="sm" onClick={loadInfo} disabled={loading}>
@@ -454,7 +483,14 @@ function RuntimePage() {
           Re-measure ping
         </Button>
 
-        <div className="ml-auto flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-1.5">
+        <div className="ml-auto flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card px-3 py-1.5">
+          <div className="flex items-center gap-2">
+            <Switch id="privacy-mode" checked={privacy} onCheckedChange={setPrivacy} />
+            <Label htmlFor="privacy-mode" className="text-xs cursor-pointer">
+              Privacy mode
+            </Label>
+          </div>
+          <span className="h-4 w-px bg-border" aria-hidden />
           <div className="flex items-center gap-2">
             <Switch
               id="auto-refresh"

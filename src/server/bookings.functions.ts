@@ -12,6 +12,7 @@ import { supabasePublic } from "@/integrations/supabase/client.public";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { template as bookingConfirmation } from "@/lib/email-templates/booking-confirmation";
 import { template as bookingNotification } from "@/lib/email-templates/booking-notification";
+import { getOrCreateUnsubscribeToken } from "@/server/unsubscribe-token.server";
 
 export type Booking = {
   id: string;
@@ -115,6 +116,7 @@ async function sendBookingConfirmation(
 
   const messageId = makeMessageId("confirm", rowId, !!opts.retry);
   const sb = supabaseAdmin as any;
+  const unsubscribeToken = await getOrCreateUnsubscribeToken(data.email);
   await sb.from("email_send_log").insert({
     message_id: messageId,
     template_name: "booking-confirmation",
@@ -134,6 +136,7 @@ async function sendBookingConfirmation(
       purpose: "transactional",
       label: "booking-confirmation",
       idempotency_key: messageId,
+      unsubscribe_token: unsubscribeToken,
       queued_at: new Date().toISOString(),
     },
   });
@@ -190,6 +193,7 @@ async function sendBookingNotification(
       : bookingNotification.subject;
 
   const messageId = makeMessageId("notify", rowId, !!opts.retry);
+  const unsubscribeToken = await getOrCreateUnsubscribeToken(recipient);
   await sb.from("email_send_log").insert({
     message_id: messageId,
     template_name: "booking-notification",
@@ -210,6 +214,7 @@ async function sendBookingNotification(
       label: "booking-notification",
       idempotency_key: messageId,
       reply_to: data.email,
+      unsubscribe_token: unsubscribeToken,
       queued_at: submittedAt,
     },
   });

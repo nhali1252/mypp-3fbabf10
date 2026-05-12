@@ -13,6 +13,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { template as contactNotification } from "@/lib/email-templates/contact-notification";
 import { template as contactConfirmation } from "@/lib/email-templates/contact-confirmation";
 import { loadBranding } from "@/server/email-template-branding.server";
+import { getOrCreateUnsubscribeToken } from "@/server/unsubscribe-token.server";
 
 export type Message = {
   id: string;
@@ -207,6 +208,7 @@ function makeMessageId(leg: EmailLeg, rowId: string, retry: boolean) {
   return retry ? `${leg}-${rowId}-r${Date.now()}` : `${leg}-${rowId}`;
 }
 
+
 async function sendContactConfirmation(
   data: { name: string; email: string; subject?: string; message: string },
   messageRowId: string,
@@ -232,6 +234,7 @@ async function sendContactConfirmation(
       : contactConfirmation.subject;
 
   const messageId = makeMessageId("confirm", messageRowId, !!opts.retry);
+  const unsubscribeToken = await getOrCreateUnsubscribeToken(data.email);
   await (supabaseAdmin as any).from("email_send_log").insert({
     message_id: messageId,
     template_name: "contact-confirmation",
@@ -251,6 +254,7 @@ async function sendContactConfirmation(
       purpose: "transactional",
       label: "contact-confirmation",
       idempotency_key: messageId,
+      unsubscribe_token: unsubscribeToken,
       queued_at: submittedAt,
     },
   });
@@ -340,6 +344,7 @@ async function sendContactNotification(
       : contactNotification.subject;
 
   const messageId = makeMessageId("notify", messageRowId, !!opts.retry);
+  const unsubscribeToken = await getOrCreateUnsubscribeToken(recipient);
   await (supabaseAdmin as any).from("email_send_log").insert({
     message_id: messageId,
     template_name: "contact-notification",
@@ -360,6 +365,7 @@ async function sendContactNotification(
       label: "contact-notification",
       idempotency_key: messageId,
       reply_to: data.email,
+      unsubscribe_token: unsubscribeToken,
       queued_at: submittedAt,
     },
   });

@@ -11,6 +11,7 @@ import { render } from "@react-email/components";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { template as welcomeTemplate } from "@/lib/email-templates/welcome";
+import { getOrCreateUnsubscribeToken } from "@/server/unsubscribe-token.server";
 
 const schema = z.object({
   email: z.string().trim().email().max(320),
@@ -56,6 +57,8 @@ export const sendWelcomeEmail = createServerFn({ method: "POST" })
     const idBase = userId ?? data.email.toLowerCase();
     const messageId = `welcome-${idBase}-${dayKey}`;
 
+    const unsubscribeToken = await getOrCreateUnsubscribeToken(data.email);
+
     await sb.from("email_send_log").insert({
       message_id: messageId,
       template_name: "welcome",
@@ -76,6 +79,7 @@ export const sendWelcomeEmail = createServerFn({ method: "POST" })
         purpose: "transactional",
         label: "welcome",
         idempotency_key: messageId,
+        unsubscribe_token: unsubscribeToken,
         queued_at: new Date().toISOString(),
       },
     });

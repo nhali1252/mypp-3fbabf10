@@ -265,6 +265,7 @@ async function sendContactConfirmation(
       : contactConfirmation.subject;
 
   const messageId = makeMessageId("confirm", messageRowId, !!opts.retry);
+  const unsubscribeToken = await getOrCreateUnsubscribeToken(data.email);
   await (supabaseAdmin as any).from("email_send_log").insert({
     message_id: messageId,
     template_name: "contact-confirmation",
@@ -284,6 +285,7 @@ async function sendContactConfirmation(
       purpose: "transactional",
       label: "contact-confirmation",
       idempotency_key: messageId,
+      unsubscribe_token: unsubscribeToken,
       queued_at: submittedAt,
     },
   });

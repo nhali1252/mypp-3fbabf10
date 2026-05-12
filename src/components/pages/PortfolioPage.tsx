@@ -57,18 +57,18 @@ export function PortfolioPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="px-5 sm:px-6 md:px-10 pt-7 md:pt-10">
-        <div className="max-w-[1240px] mx-auto flex items-center justify-between gap-3">
+        <div className="max-w-[1240px] mx-auto flex items-center justify-between gap-3 md:gap-4">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-bold uppercase tracking-[0.25em] text-muted-foreground hover:text-foreground transition-colors"
+            className="shrink-0 inline-flex items-center gap-2 text-[11px] sm:text-xs font-bold uppercase tracking-[0.25em] text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
           >
             <ArrowLeft className="w-3.5 h-3.5" /> All pages
           </Link>
-          <nav className="flex items-center gap-3 sm:gap-4 text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em]">
-            <Link to="/about-and-skills" className="text-muted-foreground hover:text-foreground transition-colors">About</Link>
-            <Link to="/portfolio" className="text-primary">Portfolio</Link>
-            <Link to="/projects" className="text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
-            <Link to="/contact" className="text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
+          <nav className="flex items-center gap-3 sm:gap-4 text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] overflow-x-auto whitespace-nowrap min-w-0 -mx-2 px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <Link to="/about-and-skills" className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">About</Link>
+            <Link to="/portfolio" className="shrink-0 text-primary">Portfolio</Link>
+            <Link to="/projects" className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
+            <Link to="/contact" className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
           </nav>
         </div>
       </header>

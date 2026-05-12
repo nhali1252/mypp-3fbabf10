@@ -193,6 +193,7 @@ async function sendBookingNotification(
       : bookingNotification.subject;
 
   const messageId = makeMessageId("notify", rowId, !!opts.retry);
+  const unsubscribeToken = await getOrCreateUnsubscribeToken(recipient);
   await sb.from("email_send_log").insert({
     message_id: messageId,
     template_name: "booking-notification",
@@ -213,6 +214,7 @@ async function sendBookingNotification(
       label: "booking-notification",
       idempotency_key: messageId,
       reply_to: data.email,
+      unsubscribe_token: unsubscribeToken,
       queued_at: submittedAt,
     },
   });

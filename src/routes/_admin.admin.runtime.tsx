@@ -300,6 +300,95 @@ function RuntimePage() {
         </div>
       </section>
 
+      <section className="rounded-2xl border border-border bg-card p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <BarChart3 className="h-4 w-4 text-primary" />
+          <h2 className="text-sm font-semibold">Timeline</h2>
+          <span className="ml-auto text-xs text-muted-foreground">
+            Last {timeline.length}/30 readings (in-memory, this session)
+          </span>
+          {timeline.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => setTimeline([])}
+            >
+              Clear
+            </Button>
+          )}
+        </div>
+        {timeline.length > 0 ? (
+          <>
+            <div className="h-56 -ml-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={timeline.map((r) => ({
+                    t: new Date(r.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+                    min: r.min,
+                    avg: r.avg,
+                    max: r.max,
+                  }))}
+                  margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                  <XAxis dataKey="t" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} unit=" ms" width={56} />
+                  <Tooltip
+                    contentStyle={{
+                      background: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: 8,
+                      fontSize: 12,
+                    }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 11 }} iconSize={10} />
+                  <Line type="monotone" dataKey="min" stroke="hsl(var(--primary) / 0.5)" strokeWidth={1.5} dot={false} />
+                  <Line type="monotone" dataKey="avg" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="max" stroke="hsl(var(--destructive) / 0.7)" strokeWidth={1.5} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-4 rounded-lg border border-border overflow-hidden max-h-64 overflow-y-auto">
+              <table className="w-full text-xs">
+                <thead className="bg-muted/40 text-[10px] uppercase tracking-wider sticky top-0">
+                  <tr>
+                    <th className="text-left px-3 py-2">Time</th>
+                    <th className="text-left px-3 py-2">Location</th>
+                    <th className="text-right px-3 py-2">Min</th>
+                    <th className="text-right px-3 py-2">Avg</th>
+                    <th className="text-right px-3 py-2">Median</th>
+                    <th className="text-right px-3 py-2">Max</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...timeline].reverse().map((r) => (
+                    <tr key={r.at} className="border-t">
+                      <td className="px-3 py-1.5 font-mono text-muted-foreground whitespace-nowrap">
+                        {new Date(r.at).toLocaleTimeString()}
+                      </td>
+                      <td className="px-3 py-1.5">
+                        {r.location}
+                        {r.colo && <span className="ml-1 text-muted-foreground font-mono">({r.colo})</span>}
+                      </td>
+                      <td className="px-3 py-1.5 text-right font-mono tabular-nums">{r.min} ms</td>
+                      <td className="px-3 py-1.5 text-right font-mono tabular-nums">{r.avg} ms</td>
+                      <td className="px-3 py-1.5 text-right font-mono tabular-nums">{r.median} ms</td>
+                      <td className="px-3 py-1.5 text-right font-mono tabular-nums">{r.max} ms</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : (
+          <div className="text-sm text-muted-foreground py-8 text-center">
+            No readings yet — each ping sweep adds an entry. Enable auto-refresh to build a series.
+          </div>
+        )}
+      </section>
+
+
       <Collapsible className="rounded-2xl border border-border bg-card">
         <CollapsibleTrigger className="group flex w-full items-center gap-2 px-5 py-4 text-left">
           <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />

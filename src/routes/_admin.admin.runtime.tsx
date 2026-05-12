@@ -160,8 +160,63 @@ function RuntimePage() {
             {ping != null ? `${ping} ms` : "—"}
           </div>
           <div className="mt-2 text-xs text-muted-foreground">
-            Median of 5 round-trips from your browser to the edge.
+            Median of 10 round-trips from your browser to the edge.
           </div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-5 sm:col-span-2">
+          <div className="flex items-center gap-2 mb-3">
+            <BarChart3 className="h-4 w-4 text-primary" />
+            <h2 className="text-sm font-semibold">Latency samples</h2>
+            <span className="ml-auto text-xs text-muted-foreground">
+              {samples.length}/10 samples
+            </span>
+          </div>
+          {samples.length > 0 ? (
+            <>
+              <div className="grid grid-cols-3 gap-3 mb-4">
+                <Stat label="Min" value={`${Math.round(Math.min(...samples))} ms`} tone="ok" />
+                <Stat
+                  label="Avg"
+                  value={`${Math.round(samples.reduce((a, b) => a + b, 0) / samples.length)} ms`}
+                />
+                <Stat label="Max" value={`${Math.round(Math.max(...samples))} ms`} tone="bad" />
+              </div>
+              <div className="h-48 -ml-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={samples.map((ms, i) => ({ name: `#${i + 1}`, ms: Math.round(ms) }))}
+                    margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                    <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} unit=" ms" width={56} />
+                    <Tooltip
+                      cursor={{ fill: "hsl(var(--muted) / 0.4)" }}
+                      contentStyle={{
+                        background: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: 8,
+                        fontSize: 12,
+                      }}
+                      formatter={(v: number) => [`${v} ms`, "Latency"]}
+                    />
+                    <ReferenceLine
+                      y={samples.reduce((a, b) => a + b, 0) / samples.length}
+                      stroke="hsl(var(--primary))"
+                      strokeDasharray="4 4"
+                      label={{ value: "avg", fill: "hsl(var(--primary))", fontSize: 10, position: "right" }}
+                    />
+                    <Bar dataKey="ms" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </>
+          ) : (
+            <div className="text-sm text-muted-foreground py-8 text-center">
+              {pinging ? "Measuring…" : "Click \"Re-measure ping\" to collect samples."}
+            </div>
+          )}
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-5 sm:col-span-2">

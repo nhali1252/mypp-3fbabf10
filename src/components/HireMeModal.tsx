@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactElement } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Mail, X, Send as SendIcon } from "lucide-react";
 import { z } from "zod";
@@ -114,7 +115,7 @@ export function HireMeModal({ open, onClose, preselectedService }: Props) {
     onClose();
   }
 
-  return (
+  const modal = (
     <AnimatePresence>
       {open && (
         <motion.div
@@ -263,4 +264,6 @@ export function HireMeModal({ open, onClose, preselectedService }: Props) {
       )}
     </AnimatePresence>
   );
+
+  return typeof document === "undefined" ? null : createPortal(modal, document.body);
 }

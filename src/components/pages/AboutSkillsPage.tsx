@@ -49,23 +49,25 @@ function AboutSkillsInner() {
     <div className="min-h-screen bg-background text-foreground">
       {/* Top nav */}
       <header className="px-5 sm:px-6 md:px-10 pt-7 md:pt-10">
-        <div className="max-w-[1200px] mx-auto flex items-center justify-between gap-3">
+        <div className="max-w-[1200px] mx-auto flex items-center justify-between gap-3 md:gap-4">
           <Link
             to="/"
-            className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.25em] text-muted-foreground hover:text-foreground transition-colors"
+            className="shrink-0 text-[11px] sm:text-xs font-bold uppercase tracking-[0.25em] text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
           >
             ← All pages
           </Link>
-          <div className="flex items-center gap-3 sm:gap-4">
-            <nav className="flex items-center gap-3 sm:gap-4 text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em]">
-              <Link to="/basic" className="text-muted-foreground hover:text-foreground transition-colors">Basic</Link>
-              <Link to="/about-and-skills" className="text-primary">About</Link>
-              <Link to="/projects" className="text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
-              <Link to="/portfolio" className="text-muted-foreground hover:text-foreground transition-colors">Portfolio</Link>
-              <Link to="/services" className="text-muted-foreground hover:text-foreground transition-colors">Services</Link>
-              <Link to="/contact" className="text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1 justify-end">
+            <nav
+              className="flex items-center gap-3 sm:gap-4 text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] overflow-x-auto whitespace-nowrap scrollbar-none -mx-2 px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              <Link to="/basic" className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">Basic</Link>
+              <Link to="/about-and-skills" className="shrink-0 text-primary">About</Link>
+              <Link to="/projects" className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
+              <Link to="/portfolio" className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">Portfolio</Link>
+              <Link to="/services" className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">Services</Link>
+              <Link to="/contact" className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
             </nav>
-            <div className="hidden sm:block"><ThemeToggle /></div>
+            <div className="hidden sm:block shrink-0"><ThemeToggle /></div>
           </div>
         </div>
       </header>

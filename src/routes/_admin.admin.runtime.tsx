@@ -251,3 +251,18 @@ function RuntimePage() {
     </div>
   );
 }
+
+function Stat({ label, value, tone }: { label: string; value: string; tone?: "ok" | "bad" }) {
+  return (
+    <div className="rounded-lg border border-border p-3">
+      <div className="text-xs uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div
+        className={`text-base font-mono font-semibold mt-0.5 tabular-nums ${
+          tone === "ok" ? "text-emerald-400" : tone === "bad" ? "text-destructive" : ""
+        }`}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}

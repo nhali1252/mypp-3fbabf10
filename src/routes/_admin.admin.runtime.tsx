@@ -121,7 +121,23 @@ function RuntimePage() {
 
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [intervalSec, setIntervalSec] = useState(15);
+  const [privacy, setPrivacy] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("runtime.privacy") === "1";
+  });
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("runtime.privacy", privacy ? "1" : "0");
+    }
+  }, [privacy]);
   const busyRef = useRef(false);
+
+  const maskIp = (ip: string) => {
+    if (ip.includes(":")) return ip.split(":").slice(0, 2).join(":") + "::•••";
+    const parts = ip.split(".");
+    if (parts.length === 4) return `${parts[0]}.${parts[1]}.•••.•••`;
+    return "•••";
+  };
 
   useEffect(() => {
     loadInfo();

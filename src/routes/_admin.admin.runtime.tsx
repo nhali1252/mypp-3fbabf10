@@ -20,6 +20,9 @@ import {
   Tooltip,
   ReferenceLine,
   CartesianGrid,
+  LineChart,
+  Line,
+  Legend,
 } from "recharts";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";

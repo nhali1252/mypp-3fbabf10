@@ -215,14 +215,20 @@ export function PageLoader({
           />
         ) : null}
 
-        <div className="page-loader-title font-serif-display italic text-4xl sm:text-5xl tracking-tight select-none">
+        <div
+          className="page-loader-title font-serif-display italic tracking-tight select-none leading-[1.05]"
+          style={{ fontSize: "clamp(3.25rem, 11vw, 5.5rem)" }}
+        >
           <span className="page-loader-shimmer bg-gradient-to-r from-[oklch(0.82_0.09_82)] via-[oklch(0.95_0.05_85)] to-[oklch(0.66_0.07_70)] bg-clip-text text-transparent">
             {match.label || siteName}
           </span>
         </div>
 
         {tagline && (
-          <p className="page-loader-tagline mt-2 text-[9px] uppercase tracking-[0.34em] text-foreground/55">
+          <p
+            className="page-loader-tagline mt-3 uppercase tracking-[0.36em] text-foreground/60"
+            style={{ fontSize: "clamp(0.7rem, 1.6vw, 0.85rem)" }}
+          >
             {tagline}
           </p>
         )}

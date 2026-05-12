@@ -208,38 +208,6 @@ function makeMessageId(leg: EmailLeg, rowId: string, retry: boolean) {
   return retry ? `${leg}-${rowId}-r${Date.now()}` : `${leg}-${rowId}`;
 }
 
-/**
- * Get-or-create the unsubscribe token for a recipient. The transactional
- * email API rejects sends without one, so every enqueue MUST include it.
- */
-async function getOrCreateUnsubscribeToken(email: string): Promise<string> {
-  const normalized = email.toLowerCase();
-  const { data: existing } = await (supabaseAdmin as any)
-    .from("email_unsubscribe_tokens")
-    .select("token, used_at")
-    .eq("email", normalized)
-    .maybeSingle();
-  if (existing?.token && !existing.used_at) return existing.token as string;
-
-  // Generate a URL-safe random token (32 bytes → 43 chars base64url)
-  const bytes = new Uint8Array(32);
-  crypto.getRandomValues(bytes);
-  const token = btoa(String.fromCharCode(...bytes))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-
-  await (supabaseAdmin as any)
-    .from("email_unsubscribe_tokens")
-    .upsert({ token, email: normalized }, { onConflict: "email", ignoreDuplicates: true });
-
-  const { data: stored } = await (supabaseAdmin as any)
-    .from("email_unsubscribe_tokens")
-    .select("token")
-    .eq("email", normalized)
-    .maybeSingle();
-  return (stored?.token as string) ?? token;
-}
 
 async function sendContactConfirmation(
   data: { name: string; email: string; subject?: string; message: string },

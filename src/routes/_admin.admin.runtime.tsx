@@ -67,6 +67,19 @@ function RuntimePage() {
 
   const [samples, setSamples] = useState<number[]>([]);
 
+  type Reading = {
+    at: number;
+    location: string;
+    colo: string | null;
+    min: number;
+    avg: number;
+    max: number;
+    median: number;
+  };
+  const [timeline, setTimeline] = useState<Reading[]>([]);
+  const infoRef = useRef<ServerInfo | null>(null);
+  useEffect(() => { infoRef.current = info; }, [info]);
+
   const measurePing = useCallback(async () => {
     setPinging(true);
     setSamples([]);
@@ -80,7 +93,22 @@ function RuntimePage() {
         setSamples([...collected]);
       }
       const sorted = [...collected].sort((a, b) => a - b);
-      setPing(Math.round(sorted[Math.floor(sorted.length / 2)]));
+      const median = Math.round(sorted[Math.floor(sorted.length / 2)]);
+      setPing(median);
+      const i = infoRef.current;
+      const loc = i
+        ? [i.city, i.region, i.country].filter(Boolean).join(", ") || i.colo || "Unknown"
+        : "Unknown";
+      const reading: Reading = {
+        at: Date.now(),
+        location: loc,
+        colo: i?.colo ?? null,
+        min: Math.round(Math.min(...collected)),
+        max: Math.round(Math.max(...collected)),
+        avg: Math.round(collected.reduce((a, b) => a + b, 0) / collected.length),
+        median,
+      };
+      setTimeline((prev) => [...prev, reading].slice(-30));
     } catch {
       setPing(null);
     } finally {

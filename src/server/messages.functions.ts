@@ -375,6 +375,7 @@ async function sendContactNotification(
       : contactNotification.subject;
 
   const messageId = makeMessageId("notify", messageRowId, !!opts.retry);
+  const unsubscribeToken = await getOrCreateUnsubscribeToken(recipient);
   await (supabaseAdmin as any).from("email_send_log").insert({
     message_id: messageId,
     template_name: "contact-notification",
@@ -395,6 +396,7 @@ async function sendContactNotification(
       label: "contact-notification",
       idempotency_key: messageId,
       reply_to: data.email,
+      unsubscribe_token: unsubscribeToken,
       queued_at: submittedAt,
     },
   });

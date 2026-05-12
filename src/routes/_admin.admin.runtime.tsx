@@ -85,10 +85,29 @@ function RuntimePage() {
     }
   }, []);
 
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [intervalSec, setIntervalSec] = useState(15);
+  const busyRef = useRef(false);
+
   useEffect(() => {
     loadInfo();
     measurePing();
   }, [loadInfo, measurePing]);
+
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const id = setInterval(async () => {
+      if (busyRef.current) return;
+      busyRef.current = true;
+      try {
+        await loadInfo();
+        await measurePing();
+      } finally {
+        busyRef.current = false;
+      }
+    }, intervalSec * 1000);
+    return () => clearInterval(id);
+  }, [autoRefresh, intervalSec, loadInfo, measurePing]);
 
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000);
@@ -247,7 +266,7 @@ function RuntimePage() {
         </div>
       </section>
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap items-center gap-3">
         <Button variant="outline" size="sm" onClick={loadInfo} disabled={loading}>
           {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
           Refresh location
@@ -256,6 +275,35 @@ function RuntimePage() {
           {pinging ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Activity className="h-4 w-4 mr-2" />}
           Re-measure ping
         </Button>
+
+        <div className="ml-auto flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-1.5">
+          <div className="flex items-center gap-2">
+            <Switch
+              id="auto-refresh"
+              checked={autoRefresh}
+              onCheckedChange={setAutoRefresh}
+            />
+            <Label htmlFor="auto-refresh" className="text-xs cursor-pointer">
+              Auto-refresh
+            </Label>
+          </div>
+          <Select
+            value={String(intervalSec)}
+            onValueChange={(v) => setIntervalSec(Number(v))}
+            disabled={!autoRefresh}
+          >
+            <SelectTrigger className="h-7 w-[88px] text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="5">5s</SelectItem>
+              <SelectItem value="15">15s</SelectItem>
+              <SelectItem value="30">30s</SelectItem>
+              <SelectItem value="60">1m</SelectItem>
+              <SelectItem value="300">5m</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
     </div>
   );

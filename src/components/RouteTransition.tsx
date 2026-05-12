@@ -20,7 +20,12 @@ export function RouteTransition() {
   useEffect(() => {
     if (last.current === pathname) return;
     last.current = pathname;
-    // Router handles scroll restoration on POP; this only fires on PUSH/replace.
+    // Force hard top-scroll on forward navigation. Router's scrollRestoration
+    // handles back/forward, but PUSH navigations sometimes leave the viewport
+    // mid-page (e.g. clicking the footer CTA from the bottom of a long page).
+    if (typeof window === "undefined") return;
+    if (window.location.hash) return; // let in-page anchor links handle themselves
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
   }, [pathname]);
 
   return (

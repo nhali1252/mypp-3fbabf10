@@ -391,8 +391,12 @@ function RuntimePage() {
                         {new Date(r.at).toLocaleTimeString()}
                       </td>
                       <td className="px-3 py-1.5">
-                        {r.location}
-                        {r.colo && <span className="ml-1 text-muted-foreground font-mono">({r.colo})</span>}
+                        {privacy ? (r.colo ? `Edge ${r.colo}` : "—") : (
+                          <>
+                            {r.location}
+                            {r.colo && <span className="ml-1 text-muted-foreground font-mono">({r.colo})</span>}
+                          </>
+                        )}
                       </td>
                       <td className="px-3 py-1.5 text-right font-mono tabular-nums">{r.min} ms</td>
                       <td className="px-3 py-1.5 text-right font-mono tabular-nums">{r.avg} ms</td>
@@ -412,6 +416,7 @@ function RuntimePage() {
       </section>
 
 
+      {!privacy && (
       <Collapsible className="rounded-2xl border border-border bg-card">
         <CollapsibleTrigger className="group flex w-full items-center gap-2 px-5 py-4 text-left">
           <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
@@ -466,6 +471,7 @@ function RuntimePage() {
           </div>
         </CollapsibleContent>
       </Collapsible>
+      )}
 
       <div className="flex flex-wrap items-center gap-3">
         <Button variant="outline" size="sm" onClick={loadInfo} disabled={loading}>
@@ -477,7 +483,14 @@ function RuntimePage() {
           Re-measure ping
         </Button>
 
-        <div className="ml-auto flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-1.5">
+        <div className="ml-auto flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card px-3 py-1.5">
+          <div className="flex items-center gap-2">
+            <Switch id="privacy-mode" checked={privacy} onCheckedChange={setPrivacy} />
+            <Label htmlFor="privacy-mode" className="text-xs cursor-pointer">
+              Privacy mode
+            </Label>
+          </div>
+          <span className="h-4 w-px bg-border" aria-hidden />
           <div className="flex items-center gap-2">
             <Switch
               id="auto-refresh"

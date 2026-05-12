@@ -1,7 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Server, MapPin, Activity, RefreshCw, Loader2, Clock, BarChart3 } from "lucide-react";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   ResponsiveContainer,
   BarChart,

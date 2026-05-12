@@ -257,6 +257,30 @@ function RuntimePage() {
               {samples.length}/10 samples
             </span>
           </div>
+
+          <div className="mb-4 flex items-center gap-1.5" aria-label="Sample progress">
+            {Array.from({ length: 10 }).map((_, i) => {
+              const done = i < samples.length;
+              const active = pinging && i === samples.length;
+              return (
+                <div
+                  key={i}
+                  className={[
+                    "h-1.5 flex-1 rounded-full transition-colors",
+                    done
+                      ? "bg-primary"
+                      : active
+                      ? "bg-primary/40 animate-pulse"
+                      : "bg-muted",
+                  ].join(" ")}
+                  title={done ? `#${i + 1}: ${Math.round(samples[i])} ms` : `#${i + 1}: pending`}
+                />
+              );
+            })}
+            {pinging && (
+              <Loader2 className="h-3.5 w-3.5 ml-1 animate-spin text-primary shrink-0" />
+            )}
+          </div>
           {samples.length > 0 ? (
             <>
               <div className="grid grid-cols-3 gap-3 mb-4">

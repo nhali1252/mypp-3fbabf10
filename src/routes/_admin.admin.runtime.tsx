@@ -1,7 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Server, MapPin, Activity, RefreshCw, Loader2, Clock } from "lucide-react";
+import { Server, MapPin, Activity, RefreshCw, Loader2, Clock, BarChart3 } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ReferenceLine,
+  CartesianGrid,
+} from "recharts";
 
 export const Route = createFileRoute("/_admin/admin/runtime")({
   component: RuntimePage,
@@ -43,17 +53,22 @@ function RuntimePage() {
     }
   }, []);
 
+  const [samples, setSamples] = useState<number[]>([]);
+
   const measurePing = useCallback(async () => {
     setPinging(true);
+    setSamples([]);
     try {
-      const samples: number[] = [];
-      for (let i = 0; i < 5; i++) {
+      const collected: number[] = [];
+      for (let i = 0; i < 10; i++) {
         const t = performance.now();
         await fetch("/api/server-info?ping=1", { cache: "no-store" });
-        samples.push(performance.now() - t);
+        const dt = performance.now() - t;
+        collected.push(dt);
+        setSamples([...collected]);
       }
-      samples.sort((a, b) => a - b);
-      setPing(Math.round(samples[Math.floor(samples.length / 2)]));
+      const sorted = [...collected].sort((a, b) => a - b);
+      setPing(Math.round(sorted[Math.floor(sorted.length / 2)]));
     } catch {
       setPing(null);
     } finally {
@@ -145,8 +160,63 @@ function RuntimePage() {
             {ping != null ? `${ping} ms` : "—"}
           </div>
           <div className="mt-2 text-xs text-muted-foreground">
-            Median of 5 round-trips from your browser to the edge.
+            Median of 10 round-trips from your browser to the edge.
           </div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-5 sm:col-span-2">
+          <div className="flex items-center gap-2 mb-3">
+            <BarChart3 className="h-4 w-4 text-primary" />
+            <h2 className="text-sm font-semibold">Latency samples</h2>
+            <span className="ml-auto text-xs text-muted-foreground">
+              {samples.length}/10 samples
+            </span>
+          </div>
+          {samples.length > 0 ? (
+            <>
+              <div className="grid grid-cols-3 gap-3 mb-4">
+                <Stat label="Min" value={`${Math.round(Math.min(...samples))} ms`} tone="ok" />
+                <Stat
+                  label="Avg"
+                  value={`${Math.round(samples.reduce((a, b) => a + b, 0) / samples.length)} ms`}
+                />
+                <Stat label="Max" value={`${Math.round(Math.max(...samples))} ms`} tone="bad" />
+              </div>
+              <div className="h-48 -ml-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={samples.map((ms, i) => ({ name: `#${i + 1}`, ms: Math.round(ms) }))}
+                    margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                    <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} unit=" ms" width={56} />
+                    <Tooltip
+                      cursor={{ fill: "hsl(var(--muted) / 0.4)" }}
+                      contentStyle={{
+                        background: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: 8,
+                        fontSize: 12,
+                      }}
+                      formatter={(v: number) => [`${v} ms`, "Latency"]}
+                    />
+                    <ReferenceLine
+                      y={samples.reduce((a, b) => a + b, 0) / samples.length}
+                      stroke="hsl(var(--primary))"
+                      strokeDasharray="4 4"
+                      label={{ value: "avg", fill: "hsl(var(--primary))", fontSize: 10, position: "right" }}
+                    />
+                    <Bar dataKey="ms" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </>
+          ) : (
+            <div className="text-sm text-muted-foreground py-8 text-center">
+              {pinging ? "Measuring…" : "Click \"Re-measure ping\" to collect samples."}
+            </div>
+          )}
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-5 sm:col-span-2">
@@ -177,6 +247,21 @@ function RuntimePage() {
           {pinging ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Activity className="h-4 w-4 mr-2" />}
           Re-measure ping
         </Button>
+      </div>
+    </div>
+  );
+}
+
+function Stat({ label, value, tone }: { label: string; value: string; tone?: "ok" | "bad" }) {
+  return (
+    <div className="rounded-lg border border-border p-3">
+      <div className="text-xs uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div
+        className={`text-base font-mono font-semibold mt-0.5 tabular-nums ${
+          tone === "ok" ? "text-emerald-400" : tone === "bad" ? "text-destructive" : ""
+        }`}
+      >
+        {value}
       </div>
     </div>
   );

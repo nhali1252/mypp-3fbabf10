@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Server, MapPin, Activity, RefreshCw, Loader2, Clock, BarChart3 } from "lucide-react";
+import { Server, MapPin, Activity, RefreshCw, Loader2, Clock, BarChart3, ChevronDown, Copy } from "lucide-react";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -21,6 +21,8 @@ import {
   ReferenceLine,
   CartesianGrid,
 } from "recharts";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_admin/admin/runtime")({
   component: RuntimePage,
@@ -35,6 +37,7 @@ type ServerInfo = {
   timezone?: string;
   ip?: string;
   serverTime?: string;
+  rawHeaders?: Record<string, string>;
 };
 
 function RuntimePage() {

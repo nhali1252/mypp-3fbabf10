@@ -26,29 +26,26 @@ export function HireMeProvider({ children }: { children: ReactNode }) {
   const closeHireMe = useCallback(() => setOpen(false), []);
 
   // Lock body scroll while popup is open WITHOUT jumping the page.
-  // Using `overflow:hidden` on <body> alone is fine, but some browsers/themes
-  // also need the scroll position preserved so the page doesn't visually shift
-  // when the modal opens from the footer (bottom of a long page).
+  // Use overflow:hidden on <html> + scrollbar-gutter compensation. Avoid
+  // position:fixed on <body> — it shrinks the document and can hide the
+  // modal panel on mobile (especially with items-end bottom sheets).
   useEffect(() => {
     if (!open) return;
-    const scrollY = window.scrollY;
+    const html = document.documentElement;
     const body = document.body;
+    const scrollbarW = window.innerWidth - html.clientWidth;
     const prev = {
-      overflow: body.style.overflow,
-      position: body.style.position,
-      top: body.style.top,
-      width: body.style.width,
+      htmlOverflow: html.style.overflow,
+      bodyOverflow: body.style.overflow,
+      bodyPaddingRight: body.style.paddingRight,
     };
-    body.style.position = "fixed";
-    body.style.top = `-${scrollY}px`;
-    body.style.width = "100%";
+    html.style.overflow = "hidden";
     body.style.overflow = "hidden";
+    if (scrollbarW > 0) body.style.paddingRight = `${scrollbarW}px`;
     return () => {
-      body.style.overflow = prev.overflow;
-      body.style.position = prev.position;
-      body.style.top = prev.top;
-      body.style.width = prev.width;
-      window.scrollTo({ top: scrollY, left: 0, behavior: "instant" as ScrollBehavior });
+      html.style.overflow = prev.htmlOverflow;
+      body.style.overflow = prev.bodyOverflow;
+      body.style.paddingRight = prev.bodyPaddingRight;
     };
   }, [open]);
 

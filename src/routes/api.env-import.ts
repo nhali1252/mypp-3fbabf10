@@ -29,6 +29,8 @@ const REQUIRED_VARS = [
 
 // Optional: tracked for visibility but absence does NOT mark the run failed.
 const OPTIONAL_VARS = [
+  "SUPABASE_ANON_KEY",
+  "SUPABASE_JWKS",
   "SUPABASE_DB_URL",
   "LOVABLE_API_KEY",
 ] as const;

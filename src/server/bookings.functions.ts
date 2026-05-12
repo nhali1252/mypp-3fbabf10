@@ -12,6 +12,7 @@ import { supabasePublic } from "@/integrations/supabase/client.public";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { template as bookingConfirmation } from "@/lib/email-templates/booking-confirmation";
 import { template as bookingNotification } from "@/lib/email-templates/booking-notification";
+import { getOrCreateUnsubscribeToken } from "@/server/unsubscribe-token.server";
 
 export type Booking = {
   id: string;

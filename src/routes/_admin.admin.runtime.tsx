@@ -221,11 +221,18 @@ function RuntimePage() {
             <MapPin className="h-4 w-4 text-primary" />
             <h2 className="text-sm font-semibold">Server location</h2>
           </div>
-          <div className="text-lg font-semibold">{location}</div>
+          <div className="text-lg font-semibold">
+            {privacy ? (info?.colo ? `Edge ${info.colo}` : "Hidden") : location}
+          </div>
           <div className="mt-2 text-xs text-muted-foreground space-y-0.5">
             {info?.colo && <div>Edge: <span className="font-mono">{info.colo}</span></div>}
-            {info?.timezone && <div>TZ: <span className="font-mono">{info.timezone}</span></div>}
-            {info?.ip && <div>IP: <span className="font-mono">{info.ip}</span></div>}
+            {!privacy && info?.timezone && <div>TZ: <span className="font-mono">{info.timezone}</span></div>}
+            {info?.ip && (
+              <div>IP: <span className="font-mono">{privacy ? maskIp(info.ip) : info.ip}</span></div>
+            )}
+            {privacy && (
+              <div className="italic opacity-70">City &amp; full IP hidden by privacy mode.</div>
+            )}
           </div>
         </div>
 

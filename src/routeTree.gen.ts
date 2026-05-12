@@ -29,6 +29,7 @@ import { Route as AboutAndSkillsRouteImport } from './routes/about-and-skills'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as ApiServerInfoRouteImport } from './routes/api.server-info'
 import { Route as ApiEnvImportRouteImport } from './routes/api.env-import'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin.admin.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
@@ -173,6 +174,11 @@ const IndexRoute = IndexRouteImport.update({
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
   path: '/email/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiServerInfoRoute = ApiServerInfoRouteImport.update({
+  id: '/api/server-info',
+  path: '/api/server-info',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiEnvImportRoute = ApiEnvImportRouteImport.update({
@@ -431,6 +437,7 @@ export interface FileRoutesByFullPath {
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/env-import': typeof ApiEnvImportRoute
+  '/api/server-info': typeof ApiServerInfoRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/admin/about': typeof AdminAdminAboutRoute
   '/admin/activities': typeof AdminAdminActivitiesRoute
@@ -498,6 +505,7 @@ export interface FileRoutesByTo {
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/env-import': typeof ApiEnvImportRoute
+  '/api/server-info': typeof ApiServerInfoRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/admin/about': typeof AdminAdminAboutRoute
   '/admin/activities': typeof AdminAdminActivitiesRoute
@@ -567,6 +575,7 @@ export interface FileRoutesById {
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/env-import': typeof ApiEnvImportRoute
+  '/api/server-info': typeof ApiServerInfoRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/_admin/admin/about': typeof AdminAdminAboutRoute
   '/_admin/admin/activities': typeof AdminAdminActivitiesRoute
@@ -636,6 +645,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/sitemap.xml'
     | '/api/env-import'
+    | '/api/server-info'
     | '/email/unsubscribe'
     | '/admin/about'
     | '/admin/activities'
@@ -703,6 +713,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/sitemap.xml'
     | '/api/env-import'
+    | '/api/server-info'
     | '/email/unsubscribe'
     | '/admin/about'
     | '/admin/activities'
@@ -771,6 +782,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/sitemap.xml'
     | '/api/env-import'
+    | '/api/server-info'
     | '/email/unsubscribe'
     | '/_admin/admin/about'
     | '/_admin/admin/activities'
@@ -840,6 +852,7 @@ export interface RootRouteChildren {
   ServicesRoute: typeof ServicesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiEnvImportRoute: typeof ApiEnvImportRoute
+  ApiServerInfoRoute: typeof ApiServerInfoRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -989,6 +1002,13 @@ declare module '@tanstack/react-router' {
       path: '/email/unsubscribe'
       fullPath: '/email/unsubscribe'
       preLoaderRoute: typeof EmailUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/server-info': {
+      id: '/api/server-info'
+      path: '/api/server-info'
+      fullPath: '/api/server-info'
+      preLoaderRoute: typeof ApiServerInfoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/env-import': {
@@ -1423,6 +1443,7 @@ const rootRouteChildren: RootRouteChildren = {
   ServicesRoute: ServicesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiEnvImportRoute: ApiEnvImportRoute,
+  ApiServerInfoRoute: ApiServerInfoRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,

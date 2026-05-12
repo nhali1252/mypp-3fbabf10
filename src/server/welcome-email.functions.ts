@@ -11,6 +11,7 @@ import { render } from "@react-email/components";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { template as welcomeTemplate } from "@/lib/email-templates/welcome";
+import { getOrCreateUnsubscribeToken } from "@/server/unsubscribe-token.server";
 
 const schema = z.object({
   email: z.string().trim().email().max(320),

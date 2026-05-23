@@ -18,7 +18,7 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   ShieldCheck, ShieldAlert, ClipboardCheck, ArrowRight, Inbox,
   Sparkles, User, FolderOpen, Layers, Briefcase, Mail, Star,
-  Plus, ChevronDown, ChevronUp, Database,
+  Plus, ChevronDown, ChevronUp, Database, Pencil,
 } from "lucide-react";
 import { PAGE_BLOCKS, type PageBlock } from "@/admin/page-blocks";
 import { AdminStats } from "@/components/admin/AdminStats";
@@ -214,17 +214,19 @@ function PageCard({ block, launcher }: { block: PageBlock; launcher?: LauncherRo
   const accent = launcher?.accent ?? "from-primary/30 to-primary/5";
   const thumbnail = launcher?.thumbnail_url ?? null;
   const badge = launcher?.badge ?? null;
+  // Prefer admin-customised title/description from launcher_pages when set,
+  // so editing a card in /admin/launcher updates the admin dashboard too.
+  const title = launcher?.title?.trim() || block.title;
+  const description = launcher?.description?.trim() || block.description;
 
   return (
-    <Link
-      to="/admin/page/$slug"
-      params={{ slug: block.slug }}
-      className={`group relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br ${accent} p-5 transition hover:border-primary/50 hover:shadow-[0_20px_60px_-30px_color-mix(in_oklab,var(--primary)_60%,transparent)]`}
+    <div
+      className={`group relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br ${accent} transition hover:border-primary/50 hover:shadow-[0_20px_60px_-30px_color-mix(in_oklab,var(--primary)_60%,transparent)]`}
     >
       {thumbnail && (
         <div
           aria-hidden
-          className="absolute inset-0 opacity-20 group-hover:opacity-30 transition"
+          className="absolute inset-0 opacity-20 group-hover:opacity-30 transition pointer-events-none"
           style={{
             backgroundImage: `url(${thumbnail})`,
             backgroundSize: "cover",
@@ -232,31 +234,45 @@ function PageCard({ block, launcher }: { block: PageBlock; launcher?: LauncherRo
           }}
         />
       )}
-      <div className="relative flex items-start justify-between mb-8">
-        <div className="h-11 w-11 rounded-xl bg-background/70 backdrop-blur grid place-items-center">
-          <Icon className="h-5 w-5 text-primary" />
+      <Link
+        to="/admin/page/$slug"
+        params={{ slug: block.slug }}
+        className="relative block p-5"
+      >
+        <div className="flex items-start justify-between mb-8">
+          <div className="h-11 w-11 rounded-xl bg-background/70 backdrop-blur grid place-items-center">
+            <Icon className="h-5 w-5 text-primary" />
+          </div>
+          {badge && (
+            <span className="rounded-full bg-background/70 backdrop-blur px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+              {badge}
+            </span>
+          )}
         </div>
-        {badge && (
-          <span className="rounded-full bg-background/70 backdrop-blur px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-            {badge}
-          </span>
-        )}
-      </div>
-      <div className="relative">
-        <div className="font-bold text-lg">{block.title}</div>
-        <div className="text-xs text-muted-foreground mt-1 line-clamp-2">{block.description}</div>
-        <div className="mt-4 flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">
-            {block.sections.length} section{block.sections.length === 1 ? "" : "s"}
-          </span>
-          <span className="inline-flex items-center gap-1 font-semibold text-primary opacity-0 group-hover:opacity-100 transition">
-            Edit <ArrowRight className="h-3.5 w-3.5" />
-          </span>
+        <div>
+          <div className="font-bold text-lg">{title}</div>
+          <div className="text-xs text-muted-foreground mt-1 line-clamp-2">{description}</div>
+          <div className="mt-4 flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">
+              {block.sections.length} section{block.sections.length === 1 ? "" : "s"}
+            </span>
+            <span className="inline-flex items-center gap-1 font-semibold text-primary opacity-0 group-hover:opacity-100 transition">
+              Edit <ArrowRight className="h-3.5 w-3.5" />
+            </span>
+          </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+      <Link
+        to="/admin/launcher"
+        title="Customize this card (title, description, thumbnail, order)"
+        className="absolute top-3 right-3 z-10 inline-flex items-center gap-1 rounded-lg bg-background/80 backdrop-blur px-2 py-1 text-[10px] font-semibold border border-border opacity-0 group-hover:opacity-100 hover:border-primary/50 transition"
+      >
+        <Pencil className="h-3 w-3" /> Customize
+      </Link>
+    </div>
   );
 }
+
 
 /** Per-feature admin routes that haven't been migrated yet. Removed in Step 4. */
 const LEGACY_LINKS: { to: string; label: string }[] = [

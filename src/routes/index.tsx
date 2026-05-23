@@ -444,7 +444,7 @@ function Launcher() {
   const splashVisible = !splashDismissed && splashStatus !== null;
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-hidden">
+    <div className="min-h-dvh bg-background text-foreground flex flex-col relative overflow-hidden">
       <WelcomeSplash
         durationMs={5500}
         show={splashVisible}

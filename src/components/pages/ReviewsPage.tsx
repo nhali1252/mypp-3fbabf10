@@ -90,7 +90,7 @@ export function ReviewsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-dvh bg-background text-foreground">
       {/* HERO */}
       <section className="relative px-5 sm:px-6 md:px-10 pt-12 sm:pt-16 md:pt-20 pb-8 overflow-hidden">
         <div

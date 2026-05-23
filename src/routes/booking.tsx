@@ -93,7 +93,7 @@ function BookingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-dvh bg-background text-foreground">
       <main className="container mx-auto max-w-2xl px-6 py-16 md:py-24">
         <header className="mb-10 text-center">
           <p className="text-xs uppercase tracking-[0.18em] text-primary/80 mb-3">

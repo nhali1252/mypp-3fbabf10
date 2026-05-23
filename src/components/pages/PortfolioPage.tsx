@@ -55,7 +55,7 @@ export function PortfolioPage() {
   const closeViewer = () => setFolderStack([]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-dvh bg-background text-foreground">
       <header className="px-5 sm:px-6 md:px-10 pt-7 md:pt-10">
         <div className="max-w-[1240px] mx-auto flex items-center justify-between gap-3 md:gap-4">
           <Link

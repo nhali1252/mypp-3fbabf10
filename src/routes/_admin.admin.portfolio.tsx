@@ -221,6 +221,7 @@ function AdminPortfolio() {
   // a portfolio item titled after the file's base name. Useful for quickly
   // populating a brand-new folder from a folder of finished work.
   const proxy = useServerFn(uploadAsset);
+  const insertItemsFn = useServerFn(insertPortfolioItems);
   const [bulkProgress, setBulkProgress] = useState<{ done: number; total: number } | null>(null);
 
   const bulkUpload = useMutation({
@@ -229,37 +230,53 @@ function AdminPortfolio() {
       if (files.length === 0) return;
       setBulkProgress({ done: 0, total: files.length });
       const baseSort = items.length;
+      const uploaded: { title: string; image_url: string; sort_order: number }[] = [];
+      // 1) Upload each file to storage (sequential keeps memory/network sane).
       for (let idx = 0; idx < files.length; idx++) {
         const file = files[idx];
         try {
           const url = await uploadToStorage(file, "projects", proxy);
-          const baseName = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim() || `Item ${idx + 1}`;
-          const { error } = await (supabase as any).from("portfolio_items").insert({
-            folder_id: activeFolderId,
+          const baseName =
+            file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim() ||
+            `Item ${idx + 1}`;
+          uploaded.push({
             title: baseName,
             image_url: url,
+            sort_order: baseSort + idx + 1,
+          });
+        } catch (e: any) {
+          toast.error(`${file.name}: ${e?.message ?? "upload failed"}`);
+        }
+        setBulkProgress({ done: idx + 1, total: files.length });
+      }
+      if (uploaded.length === 0) throw new Error("No files were uploaded");
+      // 2) Insert all rows in one server-side call so RLS runs with the
+      //    verified bearer token instead of relying on the browser session.
+      await insertItemsFn({
+        data: {
+          items: uploaded.map((u) => ({
+            folder_id: activeFolderId,
+            title: u.title,
+            image_url: u.image_url,
             tags: [],
             active: true,
             show_in_feed: true,
             featured: false,
-            sort_order: baseSort + idx + 1,
-          });
-          if (error) throw error;
-        } catch (e: any) {
-          toast.error(`${file.name}: ${e?.message ?? "failed"}`);
-        }
-        setBulkProgress({ done: idx + 1, total: files.length });
-      }
+            sort_order: u.sort_order,
+          })),
+        },
+      });
+      return { count: uploaded.length };
     },
-    onSuccess: () => {
-      toast.success("Bulk upload complete");
+    onSuccess: (res) => {
+      toast.success(`Bulk upload complete — added ${res?.count ?? 0} item(s)`);
       qc.invalidateQueries({ queryKey: ["admin_portfolio_items", activeFolderId] });
       qc.invalidateQueries({ queryKey: ["public_portfolio_items"] });
       qc.invalidateQueries({ queryKey: ["content", "portfolio"] });
       setTimeout(() => setBulkProgress(null), 1200);
     },
     onError: (e: any) => {
-      toast.error(e.message);
+      toast.error(e?.message ?? "Bulk upload failed");
       setBulkProgress(null);
     },
   });

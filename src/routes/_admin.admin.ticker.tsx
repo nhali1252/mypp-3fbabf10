@@ -57,7 +57,7 @@ function AdminTicker() {
                   <Button size="sm" onClick={() => save(r.id)} disabled={!dirty}><Save className="w-3.5 h-3.5" /></Button>
                   <Button variant="outline" size="icon" onClick={() => t.move(rows, r.id, -1)} disabled={i === 0}><ArrowUp className="w-4 h-4" /></Button>
                   <Button variant="outline" size="icon" onClick={() => t.move(rows, r.id, 1)} disabled={i === rows.length - 1}><ArrowDown className="w-4 h-4" /></Button>
-                  <ConfirmDelete onConfirm={() => t.remove(r.id)} trigger={<Button variant="outline" size="icon"><Trash2 className="w-4 h-4" /></Button>} />
+                  <ConfirmDelete onConfirm={() => t.remove(r.id)} trigger={<Button variant="outline" size="icon" aria-label="Delete"><Trash2 className="w-4 h-4" /></Button>} />
                 </div>
               );
             })}

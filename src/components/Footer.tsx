@@ -72,7 +72,7 @@ export function Footer() {
               >
                 <div className="w-14 h-14 rounded-xl bg-gradient-card border border-white/10 grid place-items-center overflow-hidden shrink-0 group-hover:border-primary/40 transition-all">
                   {a.logo_url ? (
-                    <img src={a.logo_url} alt={a.name} className="w-full h-full object-cover" />
+                    <img src={a.logo_url} alt={a.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                   ) : (
                     <AppWindow size={22} className="text-primary" />
                   )}
@@ -171,7 +171,7 @@ export function Footer() {
           aria-label="Home"
         >
           {settings?.logo_url ? (
-            <img src={settings.logo_url} alt="Logo" className="w-10 h-10 rounded-xl object-cover border border-white/10 group-hover:border-primary/40 transition-all" />
+            <img src={settings.logo_url} alt="Logo" loading="lazy" decoding="async" className="w-10 h-10 rounded-xl object-cover border border-white/10 group-hover:border-primary/40 transition-all" />
           ) : (
             <span className="w-10 h-10 grid place-items-center rounded-xl bg-gradient-gold text-primary-foreground font-serif-display italic text-lg shadow-glow">A</span>
           )}

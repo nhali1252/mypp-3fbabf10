@@ -3,7 +3,7 @@ import { useState, useRef, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { uploadAsset } from "@/server/content.functions";
+import { uploadAsset, insertPortfolioItems } from "@/server/content.functions";
 import { AdminPage, AdminCard, FormRow, EmptyState } from "@/components/admin/AdminPage";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 import { MediaPicker, uploadToStorage } from "@/components/admin/MediaPicker";
@@ -186,25 +186,33 @@ function AdminPortfolio() {
   const iSet = (id: string, patch: Partial<Item>) =>
     setItemEdits((e) => ({ ...e, [id]: { ...(e[id] ?? {}), ...patch } }));
 
+  const proxy = useServerFn(uploadAsset);
+  const insertItemsFn = useServerFn(insertPortfolioItems);
+
   const createItem = useMutation({
     mutationFn: async () => {
       if (!activeFolderId) throw new Error("Pick a folder first");
       if (!newItem.title?.trim()) throw new Error("Title required");
-      const { error } = await (supabase as any).from("portfolio_items").insert({
-        folder_id: activeFolderId,
-        title: newItem.title,
-        description: newItem.description ?? null,
-        image_url: newItem.image_url ?? null,
-        external_url: newItem.external_url ?? null,
-        tags: newItem.tags ?? [],
-        active: newItem.active ?? true,
-        show_in_feed: newItem.show_in_feed ?? true,
-        feed_caption: newItem.feed_caption ?? null,
-        featured: newItem.featured ?? false,
-        watermark_text: newItem.watermark_text ?? null,
-        sort_order: items.length + 1,
+      await insertItemsFn({
+        data: {
+          items: [
+            {
+              folder_id: activeFolderId,
+              title: newItem.title.trim(),
+              description: newItem.description ?? null,
+              image_url: newItem.image_url ?? null,
+              external_url: newItem.external_url ?? null,
+              tags: newItem.tags ?? [],
+              active: newItem.active ?? true,
+              show_in_feed: newItem.show_in_feed ?? true,
+              feed_caption: newItem.feed_caption ?? null,
+              featured: newItem.featured ?? false,
+              watermark_text: newItem.watermark_text ?? null,
+              sort_order: items.length + 1,
+            },
+          ],
+        },
       });
-      if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Item added");
@@ -217,11 +225,8 @@ function AdminPortfolio() {
   });
 
   // ---- Bulk multi-file upload ------------------------------------------
-  // Uploads many image files at once into the active folder. Each file becomes
-  // a portfolio item titled after the file's base name. Useful for quickly
-  // populating a brand-new folder from a folder of finished work.
-  const proxy = useServerFn(uploadAsset);
   const [bulkProgress, setBulkProgress] = useState<{ done: number; total: number } | null>(null);
+
 
   const bulkUpload = useMutation({
     mutationFn: async (files: File[]) => {
@@ -229,37 +234,53 @@ function AdminPortfolio() {
       if (files.length === 0) return;
       setBulkProgress({ done: 0, total: files.length });
       const baseSort = items.length;
+      const uploaded: { title: string; image_url: string; sort_order: number }[] = [];
+      // 1) Upload each file to storage (sequential keeps memory/network sane).
       for (let idx = 0; idx < files.length; idx++) {
         const file = files[idx];
         try {
           const url = await uploadToStorage(file, "projects", proxy);
-          const baseName = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim() || `Item ${idx + 1}`;
-          const { error } = await (supabase as any).from("portfolio_items").insert({
-            folder_id: activeFolderId,
+          const baseName =
+            file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim() ||
+            `Item ${idx + 1}`;
+          uploaded.push({
             title: baseName,
             image_url: url,
+            sort_order: baseSort + idx + 1,
+          });
+        } catch (e: any) {
+          toast.error(`${file.name}: ${e?.message ?? "upload failed"}`);
+        }
+        setBulkProgress({ done: idx + 1, total: files.length });
+      }
+      if (uploaded.length === 0) throw new Error("No files were uploaded");
+      // 2) Insert all rows in one server-side call so RLS runs with the
+      //    verified bearer token instead of relying on the browser session.
+      await insertItemsFn({
+        data: {
+          items: uploaded.map((u) => ({
+            folder_id: activeFolderId,
+            title: u.title,
+            image_url: u.image_url,
             tags: [],
             active: true,
             show_in_feed: true,
             featured: false,
-            sort_order: baseSort + idx + 1,
-          });
-          if (error) throw error;
-        } catch (e: any) {
-          toast.error(`${file.name}: ${e?.message ?? "failed"}`);
-        }
-        setBulkProgress({ done: idx + 1, total: files.length });
-      }
+            sort_order: u.sort_order,
+          })),
+        },
+      });
+      return { count: uploaded.length };
     },
-    onSuccess: () => {
-      toast.success("Bulk upload complete");
+    onSuccess: (res) => {
+      toast.success(`Bulk upload complete — added ${res?.count ?? 0} item(s)`);
       qc.invalidateQueries({ queryKey: ["admin_portfolio_items", activeFolderId] });
       qc.invalidateQueries({ queryKey: ["public_portfolio_items"] });
       qc.invalidateQueries({ queryKey: ["content", "portfolio"] });
       setTimeout(() => setBulkProgress(null), 1200);
     },
     onError: (e: any) => {
-      toast.error(e.message);
+      toast.error(e?.message ?? "Bulk upload failed");
       setBulkProgress(null);
     },
   });

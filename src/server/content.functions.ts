@@ -357,3 +357,54 @@ export const uploadAsset = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { key, publicUrl: publicUrlFor(sb, key) };
   });
+
+/**
+ * Bulk-insert portfolio items in one round trip. Used by the admin bulk-upload
+ * flow so we don't depend on the browser supabase client's auth state for
+ * inserts — runs server-side with the caller's verified bearer token + admin
+ * role assertion. Returns the inserted rows.
+ */
+const portfolioItemInputSchema = z.object({
+  folder_id: z.string().uuid(),
+  title: z.string().trim().min(1).max(300),
+  image_url: z.string().url().max(2000).nullable().optional(),
+  description: z.string().max(5000).nullable().optional(),
+  external_url: z.string().max(2000).nullable().optional(),
+  tags: z.array(z.string().max(80)).max(50).optional(),
+  sort_order: z.number().int().min(0).max(100000).optional(),
+  active: z.boolean().optional(),
+  show_in_feed: z.boolean().optional(),
+  feed_caption: z.string().max(2000).nullable().optional(),
+  featured: z.boolean().optional(),
+  watermark_text: z.string().max(200).nullable().optional(),
+});
+
+export const insertPortfolioItems = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { items: z.input<typeof portfolioItemInputSchema>[] }) => ({
+    items: z.array(portfolioItemInputSchema).min(1).max(100).parse(data.items),
+  }))
+  .handler(async ({ data, context }) => {
+    const sb = context.supabase as unknown as typeof supabaseAdmin;
+    await assertAdminOrEditor(sb, context.userId);
+    const rows = data.items.map((it) => ({
+      folder_id: it.folder_id,
+      title: it.title,
+      image_url: it.image_url ?? null,
+      description: it.description ?? null,
+      external_url: it.external_url ?? null,
+      tags: it.tags ?? [],
+      sort_order: it.sort_order ?? 0,
+      active: it.active ?? true,
+      show_in_feed: it.show_in_feed ?? true,
+      feed_caption: it.feed_caption ?? null,
+      featured: it.featured ?? false,
+      watermark_text: it.watermark_text ?? null,
+    }));
+    const { data: inserted, error } = await sb
+      .from("portfolio_items")
+      .insert(rows)
+      .select("id");
+    if (error) throw new Error(error.message);
+    return { inserted: inserted ?? [] };
+  });

@@ -225,12 +225,8 @@ function AdminPortfolio() {
   });
 
   // ---- Bulk multi-file upload ------------------------------------------
-  // Uploads many image files at once into the active folder. Each file becomes
-  // a portfolio item titled after the file's base name. Useful for quickly
-  // populating a brand-new folder from a folder of finished work.
-  const proxy = useServerFn(uploadAsset);
-  const insertItemsFn = useServerFn(insertPortfolioItems);
   const [bulkProgress, setBulkProgress] = useState<{ done: number; total: number } | null>(null);
+
 
   const bulkUpload = useMutation({
     mutationFn: async (files: File[]) => {

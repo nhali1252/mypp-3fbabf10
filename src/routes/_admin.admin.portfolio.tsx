@@ -186,13 +186,14 @@ function AdminPortfolio() {
   const iSet = (id: string, patch: Partial<Item>) =>
     setItemEdits((e) => ({ ...e, [id]: { ...(e[id] ?? {}), ...patch } }));
 
+  const proxy = useServerFn(uploadAsset);
+  const insertItemsFn = useServerFn(insertPortfolioItems);
+
   const createItem = useMutation({
     mutationFn: async () => {
       if (!activeFolderId) throw new Error("Pick a folder first");
       if (!newItem.title?.trim()) throw new Error("Title required");
-      // Route through the server fn so RLS runs with the verified bearer
-      // token instead of relying on the browser supabase session.
-      await insertItemsFnRef.current({
+      await insertItemsFn({
         data: {
           items: [
             {

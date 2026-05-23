@@ -190,21 +190,28 @@ function AdminPortfolio() {
     mutationFn: async () => {
       if (!activeFolderId) throw new Error("Pick a folder first");
       if (!newItem.title?.trim()) throw new Error("Title required");
-      const { error } = await (supabase as any).from("portfolio_items").insert({
-        folder_id: activeFolderId,
-        title: newItem.title,
-        description: newItem.description ?? null,
-        image_url: newItem.image_url ?? null,
-        external_url: newItem.external_url ?? null,
-        tags: newItem.tags ?? [],
-        active: newItem.active ?? true,
-        show_in_feed: newItem.show_in_feed ?? true,
-        feed_caption: newItem.feed_caption ?? null,
-        featured: newItem.featured ?? false,
-        watermark_text: newItem.watermark_text ?? null,
-        sort_order: items.length + 1,
+      // Route through the server fn so RLS runs with the verified bearer
+      // token instead of relying on the browser supabase session.
+      await insertItemsFnRef.current({
+        data: {
+          items: [
+            {
+              folder_id: activeFolderId,
+              title: newItem.title.trim(),
+              description: newItem.description ?? null,
+              image_url: newItem.image_url ?? null,
+              external_url: newItem.external_url ?? null,
+              tags: newItem.tags ?? [],
+              active: newItem.active ?? true,
+              show_in_feed: newItem.show_in_feed ?? true,
+              feed_caption: newItem.feed_caption ?? null,
+              featured: newItem.featured ?? false,
+              watermark_text: newItem.watermark_text ?? null,
+              sort_order: items.length + 1,
+            },
+          ],
+        },
       });
-      if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Item added");

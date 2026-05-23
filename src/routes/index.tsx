@@ -287,13 +287,25 @@ export function safeParseLauncherDoc(input: unknown): LauncherDoc {
  * Deterministically derive the launcher card list:
  *  1. Start from the saved cards (or fallback if empty).
  *  2. De-duplicate by `route` (first occurrence wins, preserves any admin edits).
- *  3. Guarantee a `/feed` card exists by injecting from FALLBACK if missing.
- *  4. Enforce that Feed appears immediately after Portfolio. If Portfolio is
- *     absent, Feed is appended to the end.
+ *  3. Guarantee every canonical card exists by injecting from FALLBACK if missing.
+ *  4. Enforce the canonical display order set in the admin spec:
+ *     Feed → Contact → Reviews → Services → Portfolio → Projects → Basic info → About & Skills.
+ *     Any extra/unknown cards keep their saved order and are appended after the canonical list.
  *
  * Pure + deterministic so SSR and client always produce the same array,
  * which prevents hydration mismatches.
  */
+const CANONICAL_ORDER: string[] = [
+  "/feed",
+  "/contact",
+  "/reviews",
+  "/services",
+  "/portfolio",
+  "/projects",
+  "/basic",
+  "/about-and-skills",
+];
+
 export function deriveLauncherCards(
   saved: LauncherCard[] | null | undefined,
   fallback: LauncherCard[] = FALLBACK,
@@ -309,32 +321,28 @@ export function deriveLauncherCards(
     deduped.push(card);
   }
 
-  // 3: ensure Feed card exists
-  if (!seen.has("/feed")) {
-    const feedCard = fallback.find((c) => c.route === "/feed");
-    if (feedCard) {
-      deduped.push(feedCard);
-      seen.add("/feed");
+  const byRoute = new Map(deduped.map((c) => [c.route, c]));
+
+  // 3: inject any missing canonical cards from fallback
+  for (const route of CANONICAL_ORDER) {
+    if (!byRoute.has(route)) {
+      const fb = fallback.find((c) => c.route === route);
+      if (fb) byRoute.set(route, fb);
     }
   }
 
-  // 4: enforce Portfolio → Feed adjacency
-  const portfolioIdx = deduped.findIndex((c) => c.route === "/portfolio");
-  const feedIdx = deduped.findIndex((c) => c.route === "/feed");
-  if (feedIdx === -1) return deduped;
-  if (portfolioIdx === -1) {
-    // No portfolio — move feed to the end
-    const [feed] = deduped.splice(feedIdx, 1);
-    deduped.push(feed);
-    return deduped;
+  // 4: emit in canonical order first, then any extras kept in saved order
+  const ordered: LauncherCard[] = [];
+  for (const route of CANONICAL_ORDER) {
+    const card = byRoute.get(route);
+    if (card) ordered.push(card);
   }
-  if (feedIdx !== portfolioIdx + 1) {
-    const [feed] = deduped.splice(feedIdx, 1);
-    const newPortfolioIdx = deduped.findIndex((c) => c.route === "/portfolio");
-    deduped.splice(newPortfolioIdx + 1, 0, feed);
+  for (const card of deduped) {
+    if (!CANONICAL_ORDER.includes(card.route)) ordered.push(card);
   }
-  return deduped;
+  return ordered;
 }
+
 
 function Launcher() {
   const { launcherDoc: initialLauncherDoc } = Route.useLoaderData();

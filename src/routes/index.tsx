@@ -634,8 +634,8 @@ function Launcher() {
                       transitionProperty: "transform",
                       transitionDuration: `${shineDur}ms`,
                       transitionTimingFunction: "ease-out",
-                      transform: isHovered || isNeighbor ? "translateX(100%)" : undefined,
-                      transitionDelay: isNeighbor ? staggerDelay : "0ms",
+                      transform: isHovered ? "translateX(100%)" : undefined,
+                      transitionDelay: "0ms",
                     }}
                   />
                   {/* shimmer */}

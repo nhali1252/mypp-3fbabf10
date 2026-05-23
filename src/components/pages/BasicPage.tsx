@@ -20,7 +20,7 @@ export function BasicPage() {
   const showSkills = isSectionVisible(site, "skills", true);
   return (
     <HireMeProvider>
-      <div className="min-h-screen">
+      <div className="min-h-dvh">
         <div className="fixed top-4 right-4 z-50 hidden sm:block">
           <ThemeToggle />
         </div>

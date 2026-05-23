@@ -29,7 +29,7 @@ export function RouteTransition() {
   }, [pathname]);
 
   return (
-    <div key={pathname} className="route-fade-in min-h-screen">
+    <div key={pathname} className="route-fade-in min-h-dvh">
       <Outlet />
       <style>{`
         @keyframes routeFadeIn {

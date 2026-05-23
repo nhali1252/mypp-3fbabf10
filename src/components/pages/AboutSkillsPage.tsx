@@ -46,7 +46,7 @@ function AboutSkillsInner() {
     "I'm Ali Nur Hasan — a Designer with 2 years of design experience working with TasTaj. I create logos, banners, posters, product visuals and basic websites, blending Canva, Adobe tools and AI assistance to deliver clean, brand-ready work.";
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-dvh bg-background text-foreground">
       {/* Top nav */}
       <header className="px-5 sm:px-6 md:px-10 pt-7 md:pt-10">
         <div className="max-w-[1200px] mx-auto flex items-center justify-between gap-3 md:gap-4">

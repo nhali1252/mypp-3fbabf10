@@ -56,7 +56,7 @@ function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen grid place-items-center bg-background p-6">
+    <div className="min-h-dvh grid place-items-center bg-background p-6">
       <div className="w-full max-w-md bg-card border border-border rounded-[24px] p-8 md:p-10 shadow-lg">
         <Link to="/auth" className="text-xs text-muted-foreground hover:text-foreground">← Back to sign in</Link>
         <h1 className="text-2xl md:text-3xl font-black mt-4 mb-1">Set new password</h1>

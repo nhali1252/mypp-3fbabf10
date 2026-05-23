@@ -26,7 +26,7 @@ export function MaintenanceGate({ children }: { children: React.ReactNode }) {
   const siteName = chrome?.site_name || chrome?.site_title || "This site";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-6">
+    <div className="min-h-dvh flex items-center justify-center bg-background px-6">
       <div className="max-w-lg text-center space-y-6">
         <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
           <Wrench className="h-7 w-7" />

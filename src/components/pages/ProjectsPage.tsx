@@ -38,7 +38,7 @@ export function ProjectsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-dvh bg-background text-foreground">
       {/* HERO */}
       <section className="relative px-4 sm:px-6 md:px-10 lg:px-12 pt-8 sm:pt-14 md:pt-20 lg:pt-24 pb-6 sm:pb-10 lg:pb-14 overflow-hidden">
         <div

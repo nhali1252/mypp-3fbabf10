@@ -244,7 +244,7 @@ function CommentItem({
       <div className="flex items-start gap-3">
         <div className="shrink-0 h-9 w-9 rounded-full overflow-hidden bg-muted grid place-items-center text-xs font-bold">
           {author?.avatar_url ? (
-            <img src={author.avatar_url} alt={name} className="h-full w-full object-cover" />
+            <img src={author.avatar_url} alt={name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
           ) : (
             <span>{initial}</span>
           )}

@@ -36,20 +36,14 @@ export function Watermark({
       {/* Diagonal repeating watermark grid */}
       <div
         aria-hidden
-        className="absolute inset-0 opacity-[0.085] mix-blend-overlay"
+        className="absolute inset-0 opacity-[0.22]"
         style={{
           transform: "rotate(-22deg) scale(1.4)",
           transformOrigin: "center",
-          backgroundImage: `repeating-linear-gradient(
-            0deg,
-            transparent 0,
-            transparent ${tileGap - tileFont * 1.6}px,
-            transparent ${tileGap}px
-          )`,
         }}
       >
         <div
-          className="absolute inset-0 flex flex-wrap content-start justify-start gap-x-12 gap-y-8 p-6"
+          className="absolute inset-0 flex flex-wrap content-start justify-start gap-x-10 gap-y-6 p-6"
           style={{
             fontSize: `${tileFont}px`,
           }}
@@ -58,7 +52,10 @@ export function Watermark({
             <span
               key={i}
               className="font-black uppercase tracking-[0.35em] text-white whitespace-nowrap"
-              style={{ textShadow: "0 1px 0 rgba(0,0,0,0.25)" }}
+              style={{
+                textShadow:
+                  "0 2px 4px rgba(0,0,0,0.55), 0 1px 0 rgba(0,0,0,0.35), 0 0 12px rgba(0,0,0,0.3)",
+              }}
             >
               · {brand} ·
             </span>
@@ -67,8 +64,8 @@ export function Watermark({
       </div>
 
       {cornerBadge && (
-        <div className="absolute bottom-2 right-2 inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-black/55 backdrop-blur-sm border border-white/15 text-white">
-          <span className="text-[9px] font-mono uppercase tracking-[0.22em]">
+        <div className="absolute bottom-2 right-2 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-black/70 backdrop-blur-sm border border-white/20 text-white shadow-lg">
+          <span className="text-[10px] font-bold font-mono uppercase tracking-[0.22em]">
             © {brand}
           </span>
         </div>

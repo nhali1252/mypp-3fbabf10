@@ -306,7 +306,7 @@ export function FeedPage() {
                   }
                   aria-busy={isRefetchingForFilters}
                 >
-                  <MasonryGrid items={visibleItems} onOpen={open} />
+                  <MasonryGrid items={visibleItems} expandedId={expandedId} onToggle={toggleExpand} />
                 </div>
                 {isRefetchingForFilters && (
                   <div

@@ -157,54 +157,39 @@ export function FeedPage() {
   });
   const featured = featuredQuery.data ?? [];
 
-  // Lightbox runs over the *visible* items for predictable index/total.
-  // `soloItem` lets us open items that aren't in the current slice (e.g. from
-  // the Featured strip when filters hide them) without disturbing filters.
-  const [activeIdx, setActiveIdx] = useState<number | null>(null);
-  const [soloItem, setSoloItem] = useState<FeedItem | null>(null);
-  const lastFocusRef = useRef<HTMLElement | null>(null);
+  // Inline expand: clicking a card scrolls it to the center of the viewport
+  // and expands it to show full-resolution media + full caption inline.
+  // No center-screen modal/lightbox is opened anymore — works the same on
+  // mobile, tablet, and desktop because nothing is rendered above the page.
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const toggleExpand = useCallback((id: string) => {
+    setExpandedId((cur) => (cur === id ? null : id));
+  }, []);
 
-  const rememberFocus = useCallback(() => {
-    lastFocusRef.current = (document.activeElement as HTMLElement | null) ?? null;
-  }, []);
-  const open = useCallback((i: number) => { rememberFocus(); setSoloItem(null); setActiveIdx(i); }, [rememberFocus]);
-  const openSolo = useCallback((it: FeedItem) => { rememberFocus(); setActiveIdx(null); setSoloItem(it); }, [rememberFocus]);
-  const close = useCallback(() => {
-    setActiveIdx(null);
-    setSoloItem(null);
-    // Restore focus to the trigger after the modal unmounts.
-    requestAnimationFrame(() => lastFocusRef.current?.focus?.());
-  }, []);
-  const next = useCallback(
-    () => setActiveIdx((i) => (i === null ? null : (i + 1) % visibleItems.length)),
-    [visibleItems.length],
-  );
-  const prev = useCallback(
-    () => setActiveIdx((i) => (i === null ? null : (i - 1 + visibleItems.length) % visibleItems.length)),
-    [visibleItems.length],
+  // When a Featured strip item is clicked but isn't in the current slice
+  // (filters hide it), reset filters so the card appears, then expand it.
+  const openFeatured = useCallback(
+    (item: FeedItem) => {
+      const inGrid = visibleItems.some((x) => x.id === item.id);
+      if (!inGrid) {
+        setFolderFilter("all");
+        setMediaFilter("all");
+        setFeaturedOnly(false);
+      }
+      setExpandedId(item.id);
+    },
+    [visibleItems],
   );
 
-  const lightboxOpen = activeIdx !== null || soloItem !== null;
-
+  // Esc collapses the expanded card.
   useEffect(() => {
-    if (!lightboxOpen) return;
+    if (!expandedId) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
-      else if (soloItem === null && e.key === "ArrowRight") next();
-      else if (soloItem === null && e.key === "ArrowLeft") prev();
+      if (e.key === "Escape") setExpandedId(null);
     };
     window.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [lightboxOpen, soloItem, close, next, prev]);
-
-  const active: FeedItem | null = soloItem ?? (activeIdx !== null ? visibleItems[activeIdx] ?? null : null);
-  const lbIndex = soloItem ? 0 : (activeIdx ?? 0);
-  const lbTotal = soloItem ? 1 : visibleItems.length;
+    return () => window.removeEventListener("keydown", onKey);
+  }, [expandedId]);
 
   return (
     <div className="min-h-dvh bg-background text-foreground">

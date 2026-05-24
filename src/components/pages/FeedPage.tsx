@@ -748,17 +748,31 @@ function ViewportRender({
 
 const EAGER_CARD_COUNT = 4;
 
-function MasonryGrid({ items, onOpen }: { items: FeedItem[]; onOpen: (i: number) => void }) {
+function MasonryGrid({
+  items,
+  expandedId,
+  onToggle,
+}: {
+  items: FeedItem[];
+  expandedId: string | null;
+  onToggle: (id: string) => void;
+}) {
   return (
     <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 [column-fill:_balance]">
       {items.map((it, i) => (
         <ViewportRender
           key={it.id}
-          eager={i < EAGER_CARD_COUNT}
+          eager={i < EAGER_CARD_COUNT || expandedId === it.id}
           className="mb-4 break-inside-avoid"
           estimatedMinHeight={420}
         >
-          <FeedCard item={it} index={i} onOpen={() => onOpen(i)} eager={i < EAGER_CARD_COUNT} />
+          <FeedCard
+            item={it}
+            index={i}
+            expanded={expandedId === it.id}
+            onToggle={() => onToggle(it.id)}
+            eager={i < EAGER_CARD_COUNT}
+          />
         </ViewportRender>
       ))}
     </div>
@@ -766,32 +780,61 @@ function MasonryGrid({ items, onOpen }: { items: FeedItem[]; onOpen: (i: number)
 }
 
 function FeedCard({
-  item, index, onOpen, eager = false,
-}: { item: FeedItem; index: number; onOpen: () => void; eager?: boolean }) {
+  item, index, expanded, onToggle, eager = false,
+}: { item: FeedItem; index: number; expanded: boolean; onToggle: () => void; eager?: boolean }) {
   const caption = item.feed_caption ?? item.description ?? "";
+  const cardRef = useRef<HTMLDivElement | null>(null);
+
+  // When this card becomes expanded, smoothly scroll it to the vertical
+  // center of the viewport so the full image is visible on every device.
+  useEffect(() => {
+    if (!expanded) return;
+    const el = cardRef.current;
+    if (!el) return;
+    // Wait one frame so the layout reflects the expanded (uncropped) media.
+    const id = requestAnimationFrame(() => {
+      try {
+        el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+      } catch {
+        el.scrollIntoView();
+      }
+    });
+    return () => cancelAnimationFrame(id);
+  }, [expanded]);
+
   return (
     <motion.div
+      ref={cardRef}
       initial={{ opacity: 0, y: 18 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.45, delay: Math.min(index, 12) * 0.03, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -4 }}
-      className="group overflow-hidden rounded-2xl border border-border hover:border-primary/45 bg-card transition-colors duration-500"
+      whileHover={expanded ? undefined : { y: -4 }}
+      className={`group overflow-hidden rounded-2xl border bg-card transition-colors duration-500 ${
+        expanded
+          ? "border-primary/60 ring-1 ring-primary/30 shadow-xl"
+          : "border-border hover:border-primary/45"
+      }`}
+      aria-expanded={expanded}
     >
       <button
         type="button"
-        onClick={onOpen}
-        aria-label={`Open ${item.title}`}
+        onClick={onToggle}
+        aria-label={expanded ? `Collapse ${item.title}` : `View ${item.title}`}
         className="block w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 rounded-t-2xl"
       >
         <div className="relative w-full overflow-hidden bg-muted">
           <LazyMedia
             item={item}
-            eager={eager}
-            className="w-full h-auto block transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+            eager={eager || expanded}
+            className={
+              expanded
+                ? "w-full h-auto block max-h-[80vh] object-contain mx-auto"
+                : "w-full h-auto block transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+            }
           />
 
-          {item.media_kind === "video" && (
+          {item.media_kind === "video" && !expanded && (
             <div className="absolute inset-0 grid place-items-center pointer-events-none">
               <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-background/80 backdrop-blur border border-primary/40 text-primary shadow-lg">
                 <Play className="w-5 h-5 ml-0.5" />
@@ -812,14 +855,22 @@ function FeedCard({
             </div>
           )}
 
-          <Watermark text={item.watermark_text ?? null} size="sm" cornerBadge />
+          <Watermark text={item.watermark_text ?? null} size={expanded ? "md" : "sm"} cornerBadge />
         </div>
       </button>
 
       <div className="px-4 py-3 border-t border-border">
-        <h3 className="text-sm font-bold tracking-tight truncate">{item.title}</h3>
+        <h3 className={`text-sm font-bold tracking-tight ${expanded ? "" : "truncate"}`}>
+          {item.title}
+        </h3>
         {caption && (
-          <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">{caption}</p>
+          <p
+            className={`text-xs text-muted-foreground mt-1 leading-relaxed whitespace-pre-line ${
+              expanded ? "" : "line-clamp-2"
+            }`}
+          >
+            {caption}
+          </p>
         )}
         <div className="mt-2 flex items-center justify-between gap-3 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">
           {item.date ? (
@@ -833,9 +884,44 @@ function FeedCard({
             <span className="truncate">{item.tags.slice(0, 2).join(" · ")}</span>
           )}
         </div>
+        {expanded && (item.tags.length > 2 || item.external_url) && (
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-mono uppercase tracking-[0.18em]">
+            {item.tags.map((t) => (
+              <span
+                key={t}
+                className="px-2 py-1 rounded-full border border-border bg-background/60 text-muted-foreground"
+              >
+                {t}
+              </span>
+            ))}
+            {item.external_url && (
+              <a
+                href={item.external_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-primary/40 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+              >
+                <ExternalLink className="w-3 h-3" /> Open link
+              </a>
+            )}
+          </div>
+        )}
         <div className="mt-3" onClick={(e) => e.stopPropagation()}>
           <ReactionsBar itemId={item.id} variant="light" />
         </div>
+        {expanded && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggle();
+            }}
+            className="mt-3 inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <X className="w-3 h-3" /> Collapse
+          </button>
+        )}
       </div>
     </motion.div>
   );

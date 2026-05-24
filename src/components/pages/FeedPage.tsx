@@ -157,54 +157,39 @@ export function FeedPage() {
   });
   const featured = featuredQuery.data ?? [];
 
-  // Lightbox runs over the *visible* items for predictable index/total.
-  // `soloItem` lets us open items that aren't in the current slice (e.g. from
-  // the Featured strip when filters hide them) without disturbing filters.
-  const [activeIdx, setActiveIdx] = useState<number | null>(null);
-  const [soloItem, setSoloItem] = useState<FeedItem | null>(null);
-  const lastFocusRef = useRef<HTMLElement | null>(null);
+  // Inline expand: clicking a card scrolls it to the center of the viewport
+  // and expands it to show full-resolution media + full caption inline.
+  // No center-screen modal/lightbox is opened anymore — works the same on
+  // mobile, tablet, and desktop because nothing is rendered above the page.
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const toggleExpand = useCallback((id: string) => {
+    setExpandedId((cur) => (cur === id ? null : id));
+  }, []);
 
-  const rememberFocus = useCallback(() => {
-    lastFocusRef.current = (document.activeElement as HTMLElement | null) ?? null;
-  }, []);
-  const open = useCallback((i: number) => { rememberFocus(); setSoloItem(null); setActiveIdx(i); }, [rememberFocus]);
-  const openSolo = useCallback((it: FeedItem) => { rememberFocus(); setActiveIdx(null); setSoloItem(it); }, [rememberFocus]);
-  const close = useCallback(() => {
-    setActiveIdx(null);
-    setSoloItem(null);
-    // Restore focus to the trigger after the modal unmounts.
-    requestAnimationFrame(() => lastFocusRef.current?.focus?.());
-  }, []);
-  const next = useCallback(
-    () => setActiveIdx((i) => (i === null ? null : (i + 1) % visibleItems.length)),
-    [visibleItems.length],
-  );
-  const prev = useCallback(
-    () => setActiveIdx((i) => (i === null ? null : (i - 1 + visibleItems.length) % visibleItems.length)),
-    [visibleItems.length],
+  // When a Featured strip item is clicked but isn't in the current slice
+  // (filters hide it), reset filters so the card appears, then expand it.
+  const openFeatured = useCallback(
+    (item: FeedItem) => {
+      const inGrid = visibleItems.some((x) => x.id === item.id);
+      if (!inGrid) {
+        setFolderFilter("all");
+        setMediaFilter("all");
+        setFeaturedOnly(false);
+      }
+      setExpandedId(item.id);
+    },
+    [visibleItems],
   );
 
-  const lightboxOpen = activeIdx !== null || soloItem !== null;
-
+  // Esc collapses the expanded card.
   useEffect(() => {
-    if (!lightboxOpen) return;
+    if (!expandedId) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
-      else if (soloItem === null && e.key === "ArrowRight") next();
-      else if (soloItem === null && e.key === "ArrowLeft") prev();
+      if (e.key === "Escape") setExpandedId(null);
     };
     window.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [lightboxOpen, soloItem, close, next, prev]);
-
-  const active: FeedItem | null = soloItem ?? (activeIdx !== null ? visibleItems[activeIdx] ?? null : null);
-  const lbIndex = soloItem ? 0 : (activeIdx ?? 0);
-  const lbTotal = soloItem ? 1 : visibleItems.length;
+    return () => window.removeEventListener("keydown", onKey);
+  }, [expandedId]);
 
   return (
     <div className="min-h-dvh bg-background text-foreground">
@@ -266,14 +251,7 @@ export function FeedPage() {
 
       {/* Featured strip */}
       {!isLoading && !isError && featured.length > 0 && (
-        <FeaturedStrip
-          items={featured}
-          onOpen={(item) => {
-            const i = visibleItems.findIndex((x) => x.id === item.id);
-            if (i >= 0) open(i);
-            else openSolo(item);
-          }}
-        />
+        <FeaturedStrip items={featured} onOpen={openFeatured} />
       )}
 
       {/* Toolbar */}
@@ -328,7 +306,7 @@ export function FeedPage() {
                   }
                   aria-busy={isRefetchingForFilters}
                 >
-                  <MasonryGrid items={visibleItems} onOpen={open} />
+                  <MasonryGrid items={visibleItems} expandedId={expandedId} onToggle={toggleExpand} />
                 </div>
                 {isRefetchingForFilters && (
                   <div
@@ -374,27 +352,6 @@ export function FeedPage() {
           )}
         </div>
       </section>
-
-      <AnimatePresence>
-        {active && (
-          <Lightbox
-            item={active}
-            index={lbIndex}
-            total={lbTotal}
-            onClose={close}
-            onNext={next}
-            onPrev={prev}
-            neighbors={
-              soloItem
-                ? []
-                : [
-                    visibleItems[(lbIndex + 1) % visibleItems.length],
-                    visibleItems[(lbIndex - 1 + visibleItems.length) % visibleItems.length],
-                  ].filter(Boolean) as FeedItem[]
-            }
-          />
-        )}
-      </AnimatePresence>
 
       <Footer />
     </div>
@@ -791,17 +748,31 @@ function ViewportRender({
 
 const EAGER_CARD_COUNT = 4;
 
-function MasonryGrid({ items, onOpen }: { items: FeedItem[]; onOpen: (i: number) => void }) {
+function MasonryGrid({
+  items,
+  expandedId,
+  onToggle,
+}: {
+  items: FeedItem[];
+  expandedId: string | null;
+  onToggle: (id: string) => void;
+}) {
   return (
     <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 [column-fill:_balance]">
       {items.map((it, i) => (
         <ViewportRender
           key={it.id}
-          eager={i < EAGER_CARD_COUNT}
+          eager={i < EAGER_CARD_COUNT || expandedId === it.id}
           className="mb-4 break-inside-avoid"
           estimatedMinHeight={420}
         >
-          <FeedCard item={it} index={i} onOpen={() => onOpen(i)} eager={i < EAGER_CARD_COUNT} />
+          <FeedCard
+            item={it}
+            index={i}
+            expanded={expandedId === it.id}
+            onToggle={() => onToggle(it.id)}
+            eager={i < EAGER_CARD_COUNT}
+          />
         </ViewportRender>
       ))}
     </div>
@@ -809,32 +780,61 @@ function MasonryGrid({ items, onOpen }: { items: FeedItem[]; onOpen: (i: number)
 }
 
 function FeedCard({
-  item, index, onOpen, eager = false,
-}: { item: FeedItem; index: number; onOpen: () => void; eager?: boolean }) {
+  item, index, expanded, onToggle, eager = false,
+}: { item: FeedItem; index: number; expanded: boolean; onToggle: () => void; eager?: boolean }) {
   const caption = item.feed_caption ?? item.description ?? "";
+  const cardRef = useRef<HTMLDivElement | null>(null);
+
+  // When this card becomes expanded, smoothly scroll it to the vertical
+  // center of the viewport so the full image is visible on every device.
+  useEffect(() => {
+    if (!expanded) return;
+    const el = cardRef.current;
+    if (!el) return;
+    // Wait one frame so the layout reflects the expanded (uncropped) media.
+    const id = requestAnimationFrame(() => {
+      try {
+        el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+      } catch {
+        el.scrollIntoView();
+      }
+    });
+    return () => cancelAnimationFrame(id);
+  }, [expanded]);
+
   return (
     <motion.div
+      ref={cardRef}
       initial={{ opacity: 0, y: 18 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.45, delay: Math.min(index, 12) * 0.03, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -4 }}
-      className="group overflow-hidden rounded-2xl border border-border hover:border-primary/45 bg-card transition-colors duration-500"
+      whileHover={expanded ? undefined : { y: -4 }}
+      className={`group overflow-hidden rounded-2xl border bg-card transition-colors duration-500 ${
+        expanded
+          ? "border-primary/60 ring-1 ring-primary/30 shadow-xl"
+          : "border-border hover:border-primary/45"
+      }`}
+      aria-expanded={expanded}
     >
       <button
         type="button"
-        onClick={onOpen}
-        aria-label={`Open ${item.title}`}
+        onClick={onToggle}
+        aria-label={expanded ? `Collapse ${item.title}` : `View ${item.title}`}
         className="block w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 rounded-t-2xl"
       >
         <div className="relative w-full overflow-hidden bg-muted">
           <LazyMedia
             item={item}
-            eager={eager}
-            className="w-full h-auto block transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+            eager={eager || expanded}
+            className={
+              expanded
+                ? "w-full h-auto block max-h-[80vh] object-contain mx-auto"
+                : "w-full h-auto block transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+            }
           />
 
-          {item.media_kind === "video" && (
+          {item.media_kind === "video" && !expanded && (
             <div className="absolute inset-0 grid place-items-center pointer-events-none">
               <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-background/80 backdrop-blur border border-primary/40 text-primary shadow-lg">
                 <Play className="w-5 h-5 ml-0.5" />
@@ -855,14 +855,22 @@ function FeedCard({
             </div>
           )}
 
-          <Watermark text={item.watermark_text ?? null} size="sm" cornerBadge />
+          <Watermark text={item.watermark_text ?? null} size={expanded ? "md" : "sm"} cornerBadge />
         </div>
       </button>
 
       <div className="px-4 py-3 border-t border-border">
-        <h3 className="text-sm font-bold tracking-tight truncate">{item.title}</h3>
+        <h3 className={`text-sm font-bold tracking-tight ${expanded ? "" : "truncate"}`}>
+          {item.title}
+        </h3>
         {caption && (
-          <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">{caption}</p>
+          <p
+            className={`text-xs text-muted-foreground mt-1 leading-relaxed whitespace-pre-line ${
+              expanded ? "" : "line-clamp-2"
+            }`}
+          >
+            {caption}
+          </p>
         )}
         <div className="mt-2 flex items-center justify-between gap-3 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">
           {item.date ? (
@@ -876,9 +884,44 @@ function FeedCard({
             <span className="truncate">{item.tags.slice(0, 2).join(" · ")}</span>
           )}
         </div>
+        {expanded && (item.tags.length > 2 || item.external_url) && (
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-mono uppercase tracking-[0.18em]">
+            {item.tags.map((t) => (
+              <span
+                key={t}
+                className="px-2 py-1 rounded-full border border-border bg-background/60 text-muted-foreground"
+              >
+                {t}
+              </span>
+            ))}
+            {item.external_url && (
+              <a
+                href={item.external_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-primary/40 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+              >
+                <ExternalLink className="w-3 h-3" /> Open link
+              </a>
+            )}
+          </div>
+        )}
         <div className="mt-3" onClick={(e) => e.stopPropagation()}>
           <ReactionsBar itemId={item.id} variant="light" />
         </div>
+        {expanded && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggle();
+            }}
+            className="mt-3 inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <X className="w-3 h-3" /> Collapse
+          </button>
+        )}
       </div>
     </motion.div>
   );

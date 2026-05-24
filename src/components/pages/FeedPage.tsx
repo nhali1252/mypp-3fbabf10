@@ -783,40 +783,39 @@ function FeedCard({
   item, index, expanded, onToggle, eager = false,
 }: { item: FeedItem; index: number; expanded: boolean; onToggle: () => void; eager?: boolean }) {
   const caption = item.feed_caption ?? item.description ?? "";
-  const cardRef = useRef<HTMLDivElement | null>(null);
 
-  // When this card becomes expanded, smoothly scroll it to the vertical
-  // center of the viewport so the full image is visible on every device.
+  // When expanded, lock body scroll so the fullscreen takeover stays put.
   useEffect(() => {
     if (!expanded) return;
-    const el = cardRef.current;
-    if (!el) return;
-    // Wait one frame so the layout reflects the expanded (uncropped) media.
-    const id = requestAnimationFrame(() => {
-      try {
-        el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
-      } catch {
-        el.scrollIntoView();
-      }
-    });
-    return () => cancelAnimationFrame(id);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, [expanded]);
+
 
   return (
     <motion.div
-      ref={cardRef}
       initial={{ opacity: 0, y: 18 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.45, delay: Math.min(index, 12) * 0.03, ease: [0.22, 1, 0.36, 1] }}
       whileHover={expanded ? undefined : { y: -4 }}
-      className={`group overflow-hidden rounded-2xl border bg-card transition-colors duration-500 ${
+      onClick={expanded ? onToggle : undefined}
+      className={
         expanded
-          ? "border-primary/60 ring-1 ring-primary/30 shadow-xl"
-          : "border-border hover:border-primary/45"
-      }`}
+          ? "fixed inset-0 z-[100] bg-background overflow-y-auto overscroll-contain"
+          : "group overflow-hidden rounded-2xl border bg-card transition-colors duration-500 border-border hover:border-primary/45"
+      }
       aria-expanded={expanded}
+      role={expanded ? "dialog" : undefined}
+      aria-modal={expanded || undefined}
     >
+      <div
+        className={expanded ? "min-h-dvh flex flex-col" : ""}
+        onClick={expanded ? (e) => e.stopPropagation() : undefined}
+      >
       <button
         type="button"
         onClick={onToggle}
@@ -922,6 +921,7 @@ function FeedCard({
             <X className="w-3 h-3" /> Collapse
           </button>
         )}
+      </div>
       </div>
     </motion.div>
   );

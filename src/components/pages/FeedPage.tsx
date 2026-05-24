@@ -251,14 +251,7 @@ export function FeedPage() {
 
       {/* Featured strip */}
       {!isLoading && !isError && featured.length > 0 && (
-        <FeaturedStrip
-          items={featured}
-          onOpen={(item) => {
-            const i = visibleItems.findIndex((x) => x.id === item.id);
-            if (i >= 0) open(i);
-            else openSolo(item);
-          }}
-        />
+        <FeaturedStrip items={featured} onOpen={openFeatured} />
       )}
 
       {/* Toolbar */}

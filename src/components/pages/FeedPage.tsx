@@ -922,6 +922,7 @@ function FeedCard({
           </button>
         )}
       </div>
+      </div>
     </motion.div>
   );
 }

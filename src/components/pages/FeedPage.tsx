@@ -783,24 +783,17 @@ function FeedCard({
   item, index, expanded, onToggle, eager = false,
 }: { item: FeedItem; index: number; expanded: boolean; onToggle: () => void; eager?: boolean }) {
   const caption = item.feed_caption ?? item.description ?? "";
-  const cardRef = useRef<HTMLDivElement | null>(null);
 
-  // When this card becomes expanded, smoothly scroll it to the vertical
-  // center of the viewport so the full image is visible on every device.
+  // When expanded, lock body scroll so the fullscreen takeover stays put.
   useEffect(() => {
     if (!expanded) return;
-    const el = cardRef.current;
-    if (!el) return;
-    // Wait one frame so the layout reflects the expanded (uncropped) media.
-    const id = requestAnimationFrame(() => {
-      try {
-        el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
-      } catch {
-        el.scrollIntoView();
-      }
-    });
-    return () => cancelAnimationFrame(id);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, [expanded]);
+
 
   return (
     <motion.div

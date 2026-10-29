@@ -11,15 +11,23 @@ import {
   Cpu, 
   Globe, 
   ShieldAlert, 
-  Sparkles 
+  Sparkles,
+  Zap
 } from "lucide-react";
-import { SUPPORTED_DEVICES, BRAND_SUMMARY, type DeviceEntry, type UnlockStatus } from "@/data/bootloaderDevices";
+import { 
+  SUPPORTED_DEVICES, 
+  BRAND_SUMMARY, 
+  CHIPSET_CATEGORIES,
+  type DeviceEntry, 
+  type UnlockStatus 
+} from "@/data/bootloaderDevices";
 
 export function DeviceMatrixTable() {
   const [search, setSearch] = useState("");
   const [selectedBrand, setSelectedBrand] = useState<string>("All");
   const [selectedStatus, setSelectedStatus] = useState<string>("All");
   const [selectedChipset, setSelectedChipset] = useState<string>("All");
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
   const brands = useMemo(() => ["All", ...Array.from(new Set(SUPPORTED_DEVICES.map((d) => d.brand)))], []);
   const chipsets = useMemo(() => ["All", "Qualcomm", "MediaTek", "Exynos", "Tensor", "Kirin"], []);
@@ -29,17 +37,19 @@ export function DeviceMatrixTable() {
       const matchBrand = selectedBrand === "All" || d.brand === selectedBrand;
       const matchStatus = selectedStatus === "All" || d.status === selectedStatus;
       const matchChip = selectedChipset === "All" || d.chipsetType === selectedChipset;
+      const matchCategory = selectedCategory === "All" || d.chipsetCategory === selectedCategory;
       const q = search.toLowerCase().trim();
       const matchText =
         !q ||
         d.model.toLowerCase().includes(q) ||
         d.codename.toLowerCase().includes(q) ||
         d.chipset.toLowerCase().includes(q) ||
+        d.chipsetCategory.toLowerCase().includes(q) ||
         d.notes.toLowerCase().includes(q);
 
-      return matchBrand && matchStatus && matchChip && matchText;
+      return matchBrand && matchStatus && matchChip && matchCategory && matchText;
     });
-  }, [search, selectedBrand, selectedStatus, selectedChipset]);
+  }, [search, selectedBrand, selectedStatus, selectedChipset, selectedCategory]);
 
   const renderBadge = (status: UnlockStatus, label: string) => {
     switch (status) {
@@ -77,32 +87,38 @@ export function DeviceMatrixTable() {
 
   return (
     <div className="w-full space-y-8">
-      {/* BRAND SUMMARY STATS */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        {BRAND_SUMMARY.slice(0, 5).map((b) => (
-          <div
-            key={b.brand}
-            onClick={() => setSelectedBrand(b.brand.split(" ")[0])}
-            className="cursor-pointer p-4 rounded-xl bg-card/60 border border-border hover:border-primary/50 transition-all"
-          >
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span className="font-bold text-foreground">{b.brand}</span>
-              <span className="font-mono text-primary font-semibold">{b.total} verified</span>
+      {/* BRAND & CHIPSET SUMMARY STATS */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        {BRAND_SUMMARY.slice(0, 6).map((b) => {
+          const isSelected = selectedCategory === b.brand;
+          return (
+            <div
+              key={b.brand}
+              onClick={() => setSelectedCategory(isSelected ? "All" : b.brand)}
+              className={`cursor-pointer p-3.5 rounded-xl border transition-all ${
+                isSelected
+                  ? "bg-primary/15 border-primary shadow-sm ring-1 ring-primary/40"
+                  : "bg-card/60 border-border hover:border-primary/50"
+              }`}
+            >
+              <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                <span className={`font-bold truncate text-[11px] sm:text-xs ${isSelected ? "text-primary" : "text-foreground"}`}>
+                  {b.brand}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-mono">
+                <span className="text-emerald-400 font-semibold">{b.instant} Instant</span>
+                {b.wait > 0 && (
+                  <>
+                    <span>•</span>
+                    <span className="text-amber-400 font-semibold">{b.wait} Bypass</span>
+                  </>
+                )}
+              </div>
+              <p className="mt-1 text-[10px] text-muted-foreground line-clamp-1">{b.note}</p>
             </div>
-            <div className="mt-2 flex items-center gap-2 text-[11px]">
-              <span className="text-emerald-400 font-semibold">{b.instant} Instant</span>
-              <span className="text-border">•</span>
-              <span className="text-amber-400 font-semibold">{b.wait} Bypass</span>
-              {b.locked > 0 && (
-                <>
-                  <span className="text-border">•</span>
-                  <span className="text-rose-400 font-semibold">{b.locked} Locked</span>
-                </>
-              )}
-            </div>
-            <p className="mt-1 text-[10px] text-muted-foreground truncate">{b.note}</p>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* FILTER CONTROLS */}
@@ -114,7 +130,7 @@ export function DeviceMatrixTable() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search model, codename (e.g. marble, husky, fuxi), or chipset..."
+              placeholder="Search model, codename (e.g. marble, fuxi, aurora, pudding), or chipset..."
               className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-background border border-border text-foreground text-xs sm:text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
             />
           </div>
@@ -126,14 +142,27 @@ export function DeviceMatrixTable() {
               onChange={(e) => setSelectedStatus(e.target.value)}
               className="px-3 py-2 rounded-xl bg-background border border-border text-foreground outline-none text-xs"
             >
-              <option value="All">All Unlock Statuses</option>
+              <option value="All">All Statuses</option>
               <option value="supported_instant">Instant / Fastboot</option>
               <option value="supported_wait">Wait Period / Bypass</option>
               <option value="supported_hardware">Hardware Test-Point</option>
               <option value="not_supported">Carrier Locked</option>
             </select>
 
-            {/* Chipset filter */}
+            {/* Chipset Tier Category filter */}
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="px-3 py-2 rounded-xl bg-background border border-border text-foreground outline-none text-xs font-medium"
+            >
+              {CHIPSET_CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat === "All" ? "All Hardware Tiers" : cat}
+                </option>
+              ))}
+            </select>
+
+            {/* Chipset architecture filter */}
             <select
               value={selectedChipset}
               onChange={(e) => setSelectedChipset(e.target.value)}
@@ -141,18 +170,19 @@ export function DeviceMatrixTable() {
             >
               {chipsets.map((c) => (
                 <option key={c} value={c}>
-                  {c === "All" ? "All Chipset Architectures" : c}
+                  {c === "All" ? "All SoC Vendors" : c}
                 </option>
               ))}
             </select>
 
-            {(search || selectedBrand !== "All" || selectedStatus !== "All" || selectedChipset !== "All") && (
+            {(search || selectedBrand !== "All" || selectedStatus !== "All" || selectedChipset !== "All" || selectedCategory !== "All") && (
               <button
                 onClick={() => {
                   setSearch("");
                   setSelectedBrand("All");
                   setSelectedStatus("All");
                   setSelectedChipset("All");
+                  setSelectedCategory("All");
                 }}
                 className="px-3 py-2 rounded-xl bg-muted text-foreground text-xs hover:bg-destructive hover:text-destructive-foreground transition-colors"
               >
@@ -218,7 +248,7 @@ export function DeviceMatrixTable() {
 
                     <td className="py-4 px-4">
                       <div className="font-semibold text-foreground">{d.chipset}</div>
-                      <div className="text-[10px] text-muted-foreground">{d.chipsetType}</div>
+                      <div className="text-[10px] text-muted-foreground font-mono">{d.chipsetCategory}</div>
                     </td>
 
                     <td className="py-4 px-4 max-w-xs">

@@ -13,19 +13,24 @@ import {
   Flame, 
   Lock, 
   Unlock, 
-  Key 
+  Key,
+  Zap,
+  Code2,
+  Binary
 } from "lucide-react";
 import { 
   BOOT_STAGES, 
   BRAND_LOCK_DETAILS, 
   AVB_STATES, 
   FASTBOOT_COMMANDS, 
-  FAQS 
+  FAQS,
+  EXPLOIT_PATHS
 } from "@/data/bootloaderKnowledge";
 
 export function BootloaderKnowledgeBase() {
-  const [activeTab, setActiveTab] = useState<"stages" | "brands" | "avb" | "commands" | "faqs">("stages");
+  const [activeTab, setActiveTab] = useState<"exploits" | "stages" | "brands" | "avb" | "commands" | "faqs">("exploits");
   const [activeBrandIndex, setActiveBrandIndex] = useState(0);
+  const [activeExploitIndex, setActiveExploitIndex] = useState(0);
   const [copiedCmd, setCopiedCmd] = useState<string | null>(null);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(0);
 
@@ -53,6 +58,18 @@ export function BootloaderKnowledgeBase() {
 
       {/* TOP NAVIGATION TABS */}
       <div className="flex items-center justify-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <button
+          onClick={() => setActiveTab("exploits")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+            activeTab === "exploits"
+              ? "bg-primary text-primary-foreground shadow-glow"
+              : "bg-card border border-border text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Zap className="w-4 h-4 text-amber-300" />
+          Exploit & ABL Mechanics
+        </button>
+
         <button
           onClick={() => setActiveTab("stages")}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
@@ -113,6 +130,123 @@ export function BootloaderKnowledgeBase() {
           Technical FAQ
         </button>
       </div>
+
+      {/* TAB CONTENT: 0. EXPLOIT ARCHITECTURES (ALI EDL & CUSTOM ABL) */}
+      {activeTab === "exploits" && (
+        <div className="bg-card/70 border border-border rounded-2xl p-6 sm:p-8 backdrop-blur-xl space-y-8">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 mb-2">
+              <Zap className="w-3 h-3" />
+              Ali EDL Flasher & One-Click Unlocker Architecture
+            </div>
+            <h3 className="text-xl sm:text-2xl font-extrabold text-foreground flex items-center gap-2">
+              <Binary className="w-5 h-5 text-primary" />
+              Proprietary Exploit Paths & Custom ABL Injections
+            </h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              How our automated engineering toolchain bypasses the 2024–2026 HyperOS Mi Community Level 5 restrictions, daily quota limits, and 30-day waiting periods across all Qualcomm & MediaTek chipsets.
+            </p>
+          </div>
+
+          {/* EXPLOIT SELECTOR TABS */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {EXPLOIT_PATHS.map((ep, idx) => (
+              <button
+                key={ep.id}
+                onClick={() => setActiveExploitIndex(idx)}
+                className={`p-4 rounded-xl text-left border transition-all ${
+                  activeExploitIndex === idx
+                    ? "bg-primary/10 border-primary text-foreground shadow-sm ring-1 ring-primary/40"
+                    : "bg-background/60 border-border text-muted-foreground hover:text-foreground hover:bg-background/90"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] font-mono uppercase font-bold text-primary">
+                    Path {idx + 1}
+                  </span>
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                    {ep.id}
+                  </span>
+                </div>
+                <h4 className="text-xs sm:text-sm font-bold text-foreground line-clamp-1">{ep.title}</h4>
+                <p className="text-[11px] text-muted-foreground mt-1 truncate">{ep.targetFirmware}</p>
+              </button>
+            ))}
+          </div>
+
+          {/* ACTIVE EXPLOIT DETAILS */}
+          {EXPLOIT_PATHS[activeExploitIndex] && (
+            <div className="bg-background/80 border border-border rounded-xl p-5 sm:p-6 space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-4">
+                <div>
+                  <h4 className="text-lg font-extrabold text-foreground flex items-center gap-2">
+                    <Code2 className="w-5 h-5 text-primary" />
+                    {EXPLOIT_PATHS[activeExploitIndex].title}
+                  </h4>
+                  <p className="text-xs text-muted-foreground mt-0.5 font-mono">
+                    Target: {EXPLOIT_PATHS[activeExploitIndex].targetFirmware}
+                  </p>
+                </div>
+                <span className="self-start sm:self-auto px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/15 text-primary border border-primary/30">
+                  100% Tested & Verified
+                </span>
+              </div>
+
+              {/* METHODOLOGY CARD */}
+              <div className="p-4 rounded-xl bg-muted/40 border border-border/80 text-xs sm:text-sm space-y-1">
+                <span className="font-bold text-foreground block text-xs uppercase tracking-wider text-primary">
+                  Core Cryptographic Exploit Concept:
+                </span>
+                <p className="text-muted-foreground leading-relaxed text-xs sm:text-sm">
+                  {EXPLOIT_PATHS[activeExploitIndex].methodology}
+                </p>
+              </div>
+
+              {/* STEP BY STEP EXECUTION */}
+              <div className="space-y-3">
+                <span className="font-bold text-foreground text-xs uppercase tracking-wider flex items-center gap-1.5">
+                  <Terminal className="w-4 h-4 text-primary" />
+                  Terminal Execution Sequence:
+                </span>
+                <div className="space-y-2">
+                  {EXPLOIT_PATHS[activeExploitIndex].stepByStep.map((step, sIdx) => (
+                    <div
+                      key={sIdx}
+                      className="p-3 rounded-lg bg-card border border-border/70 font-mono text-xs flex items-start gap-3 hover:border-primary/40 transition-colors"
+                    >
+                      <span className="text-primary font-bold shrink-0">{sIdx + 1}.</span>
+                      <span className="text-foreground/90 select-all leading-relaxed break-all">
+                        {step.replace(/^\d+\.\s*/, "")}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* SAFETY MECHANISM */}
+              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs space-y-1">
+                <span className="font-bold text-emerald-400 flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4" /> Fail-Safe & Reversibility Mechanism:
+                </span>
+                <p className="text-muted-foreground leading-relaxed">
+                  {EXPLOIT_PATHS[activeExploitIndex].safetyMechanism}
+                </p>
+              </div>
+
+              {/* GHOSTAUTH & ALI API NOTICE */}
+              <div className="p-3.5 rounded-lg bg-primary/5 border border-primary/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div className="text-muted-foreground">
+                  <span className="font-bold text-foreground">Backend Authentication Handshake: </span>
+                  Authorized via <code className="font-mono text-primary">https://api.alii.uk</code> & VIP Telegram dispatch.
+                </div>
+                <span className="text-[11px] font-mono text-primary font-semibold">
+                  EDL Flasher Engine v2026.1
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* TAB CONTENT: 1. BOOT CHAIN STAGES */}
       {activeTab === "stages" && (

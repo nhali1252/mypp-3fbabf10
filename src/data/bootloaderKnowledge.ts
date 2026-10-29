@@ -6,6 +6,15 @@ export interface BootStage {
   roleInSecurity: string;
 }
 
+export interface ExploitPath {
+  id: string;
+  title: string;
+  targetFirmware: string;
+  methodology: string;
+  stepByStep: string[];
+  safetyMechanism: string;
+}
+
 export interface BrandLockDetail {
   brand: string;
   lockType: string;
@@ -59,14 +68,65 @@ export const BOOT_STAGES: BootStage[] = [
   },
 ];
 
+export const EXPLOIT_PATHS: ExploitPath[] = [
+  {
+    id: "low-version",
+    title: "Low Version Path (MIUI & Early HyperOS)",
+    targetFirmware: "MIUI 14 & Early HyperOS 1.0 builds",
+    methodology: "Kernel commandline injection via fastboot GPU preemption override + MIUI system service IPC privilege escalation.",
+    stepByStep: [
+      "1. Device boots to Fastboot mode.",
+      "2. Issue command: fastboot oem set-gpu-preemption 0 androidboot.selinux=permissive",
+      "3. Issue command: fastboot continue (Boots into Android OS with SELinux Permissive mode active).",
+      "4. Push engineering bootloader: adb push abl.elf /data/local/tmp/",
+      "5. Exploit MIUI QAS service: adb shell service call miui.mqsas.IMQSNative 21 i32 1 s16 \"dd\" i32 1 s16 'if=/data/local/tmp/abl.elf of=/dev/block/by-name/abl_a' s16 '/data/mqsas/log.txt' i32 60",
+      "6. Repeat dd write to abl_b partition and reboot into fastboot mode with unlocked engineering ABL.",
+    ],
+    safetyMechanism: "SELinux permissive mode allows root-level IPC calls without modifying system partition signatures.",
+  },
+  {
+    id: "high-version",
+    title: "High Version Path (HyperOS 3.0.302 - 3.0.306, AJ, BJ)",
+    targetFirmware: "HyperOS 3.0.302, 3.0.303, 3.0.305, 3.0.306, AJ, BJ builds",
+    methodology: "Kernel-level privilege escalation via automated memory scanning (flash_abl.ps1) + atomic dd partition write.",
+    stepByStep: [
+      "1. Push exploit binary to /data/local/tmp/exploit and engineering abl.elf.",
+      "2. PowerShell script (flash_abl.ps1) executes exploit via ADB shell in an asynchronous process loop.",
+      "3. Dynamically scans live memory stream for kernel symbol table: 'Kallsyms parsed successfully'.",
+      "4. Disables SELinux runtime enforcement: 'SELinux enforcing disabled'.",
+      "5. Confirms root shell acquisition (UID: 0 / euid=0(root)).",
+      "6. Issues atomic dd commands: dd if=/data/local/tmp/abl.elf of=/dev/block/by-name/abl_a bs=4096 conv=fsync",
+      "7. Syncs storage, outputs FLASH_DONE, and reboots directly into Fastboot mode.",
+    ],
+    safetyMechanism: "Includes watchdog stall detection (120s no-progress timeout) and hard ceiling (900s) to prevent system instability.",
+  },
+  {
+    id: "temp-bl-suite",
+    title: "Temp BL Mode & Engineering Firmware Stack",
+    targetFirmware: "Snapdragon 8 Gen 2/3/4 & Snapdragon 8 Elite (SM8750 / SM8850)",
+    methodology: "Flashing the complete 22-partition engineering bootloader suite + partition table switching + custom memory payload boot.",
+    stepByStep: [
+      "1. Fastboot erase frp and erase boot_ab.",
+      "2. Flash engineering partition stack: abl_ab, xbl_ab, tz_ab, keymint_ab, hyp_ab, uefi_ab, cpucp_ab, imagefv_ab, init_boot_ab, vendor_boot_ab, dtbo_ab, vbmeta_system_ab.",
+      "3. Flash temporary partition table: fastboot flash partition:4 gpt_both4.bin",
+      "4. Boot custom unlock payload into RAM: fastboot boot Unlocking-SM8650.img (or SM8750 / SM8850).",
+      "5. The payload executes in RAM and writes the genuine unlock flag into persistent devinfo storage.",
+      "6. Verify unlock status: fastboot getvar unlocked -> unlocked: yes!",
+      "7. Flash back stock partition table (gpt_both4.bin), restore stock abl_a.img / abl_b.img, and flash misc_wipe.img.",
+      "8. Fastboot oem device-info confirms device is permanently unlocked and reboots normally into OS.",
+    ],
+    safetyMechanism: "100% reversible: the stock partition table and stock ABL images are restored before final reboot, ensuring OTA and system stability remain factory-clean.",
+  },
+];
+
 export const BRAND_LOCK_DETAILS: BrandLockDetail[] = [
   {
-    brand: "Xiaomi / Redmi / Poco (HyperOS)",
+    brand: "Xiaomi / Redmi / Poco (HyperOS & Ali EDL Flasher)",
     lockType: "Server-token encrypted Fastboot + Account Tiering",
-    unlockProtocol: "Mi Unlock Protocol (HTTP REST + USB Fastboot handshaking)",
+    unlockProtocol: "Ali One-Click Unlocker & GhostAuth API (https://api.alii.uk)",
     hardwareSecurity: "Qualcomm / MediaTek secure boot + Mi Account hardware bind token stored in nvram/persist",
     pitfalls: "HyperOS introduced severe restrictions in 2024: Mi Community account must be Level 5 in China or >30 days registered globally. Daily quota limits often trigger 'Server error 30001' or 'Quota exhausted'.",
-    ourSolution: "Authorized Xiaomi Server Token Bypass. We provide server token injection that completely bypasses the community level requirements, allowing immediate unlocking without the 168-hour timer.",
+    ourSolution: "Ali EDL Flasher & GhostAuth Suite. Direct server token injection and kernel privilege escalation (flash_abl.ps1) that completely bypasses community levels, allowing immediate unlocking across all Snapdragon 8 Elite, Gen 3, Gen 2, 7s Gen 3, and MTK chipsets.",
   },
   {
     brand: "Samsung (Knox Warranty Architecture)",
@@ -90,7 +150,7 @@ export const BRAND_LOCK_DETAILS: BrandLockDetail[] = [
     unlockProtocol: "Direct Raw NAND/UFS Sector Access via USB VID_05C6&PID_9008",
     hardwareSecurity: "Qualcomm PK Hash (PBL Public Key Hash) burned into SoC Qfprom fuses at factory",
     pitfalls: "Modern chipsets (Snapdragon 8 Gen 1/2/3, 7+ Gen 2) require VIP digitally signed programmer files (`prog_firehose_ddr.elf`) signed with OEM private keys. Generic Sahara loaders are rejected.",
-    ourSolution: "Authorized Qualcomm VIP EDL Server access. We load authenticated OEM programmers to recover hard-bricked devices, repair erased GPT partition tables, and perform cross-region flashing.",
+    ourSolution: "Ali_EDL_Flasher.exe VIP Server access. We load authenticated OEM programmers to recover hard-bricked devices, repair erased GPT partition tables, and perform cross-region flashing.",
   },
   {
     brand: "MediaTek BROM (Boot ROM Exploit)",
@@ -147,24 +207,32 @@ export const FASTBOOT_COMMANDS = [
     desc: "Verifies USB handshake with the device in Fastboot mode. Shows serial number.",
   },
   {
-    cmd: "fastboot oem get_unlock_data",
-    desc: "Retrieves the cryptographic unlock string on Motorola and Sony devices for portal key generation.",
+    cmd: "fastboot oem set-gpu-preemption 0 androidboot.selinux=permissive",
+    desc: "Ali Low-Version Exploit: Sets permissive SELinux flags in Qualcomm bootloader memory.",
+  },
+  {
+    cmd: "fastboot continue",
+    desc: "Boots device from fastboot without modifying on-disk partitions (used with permissive flag injection).",
   },
   {
     cmd: "fastboot flashing unlock",
     desc: "The universal Android standard command (Pixel, Nothing, OnePlus, Transsion) to unlock user partitions.",
   },
   {
-    cmd: "fastboot flashing unlock_critical",
-    desc: "Unlocks critical hardware partitions (abl, xbl, modem) required for custom kernel/bootloader development.",
+    cmd: "fastboot oem get_unlock_data",
+    desc: "Retrieves the cryptographic unlock string on Motorola and Sony devices for portal key generation.",
   },
   {
-    cmd: "fastboot getvar all",
-    desc: "Dumps all hardware parameters: current active slot (a/b), battery voltage, secure boot state, and CID.",
+    cmd: "fastboot flash partition:4 gpt_both4.bin",
+    desc: "Flashes modified engineering partition table to allow custom unlock image execution in RAM.",
   },
   {
-    cmd: "fastboot --set-active=a",
-    desc: "Switches the active boot slot from B to A in dual-slot (A/B Seamless Update) devices.",
+    cmd: "fastboot boot Unlocking-SM8650.img",
+    desc: "Boots the custom memory payload that writes genuine unlock state into persistent devinfo storage.",
+  },
+  {
+    cmd: "fastboot getvar unlocked",
+    desc: "Queries the bootloader unlock status: returns 'unlocked: yes' upon successful payload execution.",
   },
   {
     cmd: "fastboot flash vbmeta --disable-verity --disable-verification vbmeta.img",
@@ -175,8 +243,13 @@ export const FASTBOOT_COMMANDS = [
 export const FAQS: FaqItem[] = [
   {
     category: "General",
-    q: "What exactly is a bootloader and why is it locked by default?",
-    a: "The bootloader is the low-level firmware program that tells the device hardware how to boot the Android operating system kernel. OEMs lock it so that only software cryptographically signed by their private key can run. This prevents malware from replacing the OS, enforces carrier lock contracts, and satisfies DRM licensing requirements (such as Netflix Widevine L1).",
+    q: "What is the Ali One-Click Unlocker & GhostAuth suite?",
+    a: "It is an engineering firmware suite developed by Ali (supported via api.alii.uk and Telegram @nisa_jan). It automates bootloader unlocking for modern Xiaomi, Redmi, and POCO devices across Snapdragon 8 Elite, Gen 3, Gen 2, 7s Gen 3, and MTK chipsets without the 30-day Mi Community account delay.",
+  },
+  {
+    category: "Xiaomi HyperOS",
+    q: "How does the HyperOS high-version exploit (flash_abl.ps1) work?",
+    a: "Modern HyperOS versions (3.0.302 through 3.0.306, AJ, and BJ) patch standard ADB vulnerabilities. Our tool pushes a specialized kernel privilege escalation binary, parses kernel memory structures (kallsyms), disables SELinux enforcement in runtime, acquires root UID: 0, and writes an engineering abl.elf to the abl_a and abl_b partitions before dropping into fastboot mode.",
   },
   {
     category: "General",
@@ -186,36 +259,26 @@ export const FAQS: FaqItem[] = [
   {
     category: "Security & Banking",
     q: "Will my banking apps and Google Wallet still work after unlocking?",
-    a: "Out of the box, Google Play Integrity API checks for an unlocked bootloader and reports `MEETS_BASIC_INTEGRITY=false` and `MEETS_DEVICE_INTEGRITY=false`. However, with modern tools like KernelSU, APatch, or Magisk + PlayIntegrityFix / Zygisk, device integrity can be completely spoofed back to passing state, allowing Google Wallet, banking apps, and Netflix to work flawlessly.",
-  },
-  {
-    category: "Security & Banking",
-    q: "What happens to Widevine DRM (Netflix, Disney+, Prime Video)?",
-    a: "On some devices (especially older Xiaomi, OnePlus, and Sony), unlocking the bootloader causes the hardware Keystore to revoke Widevine L1 certification, causing video streaming apps to fall back to Widevine L3 (standard definition 480p). On Google Pixel, Nothing Phone, and many recent Xiaomi flagships, Widevine L1 is preserved or restored immediately upon re-locking.",
-  },
-  {
-    category: "Xiaomi HyperOS",
-    q: "How does the Xiaomi HyperOS bootloader unlock process work in 2025/2026?",
-    a: "Xiaomi replaced the traditional MIUI 168-hour timer with strict HyperOS restrictions. Users are now required to maintain an active Mi Community account (Level 5 in China or >30 days registered globally) and apply for daily quota tokens. Because quotas run out in seconds, our Remote Server Token service connects directly to authorized backend servers to generate an instant unlock authorization without the community hurdle.",
+    a: "Out of the box, Google Play Integrity API checks for an unlocked bootloader and reports MEETS_DEVICE_INTEGRITY=false. However, using KernelSU or APatch with modern PlayIntegrityFix modules, device integrity can be completely spoofed back to passing state, allowing Google Wallet, banking apps, and Netflix to work flawlessly.",
   },
   {
     category: "Samsung Knox",
     q: "Can a tripped Samsung Knox (0x1) ever be reset back to 0x0?",
-    a: "NO. Samsung Knox is a physical microscopic hardware e-fuse on the SoC silicon. When an unofficial kernel or recovery is booted, Samsung firmware sends a high-current electrical pulse through the fuse, physically severing the microscopic circuit. No software or flashing tool in the world can un-blow a physically severed e-fuse. Samsung Pass and Secure Folder will remain disabled, but standard root and custom ROM features will work fine.",
+    a: "NO. Samsung Knox is a physical microscopic hardware e-fuse on the SoC silicon. When an unofficial kernel or recovery is booted, Samsung firmware sends a high-current electrical pulse through the fuse, physically severing the microscopic circuit. However, KnoxPatch modules can restore app functionality like Secure Folder and Samsung Health.",
   },
   {
     category: "Samsung Knox",
     q: "Why can't US Snapdragon Samsung Galaxy phones (S24, S23, S22) be unlocked?",
-    a: "Samsung models ending in 'U' or 'U1' (North American carriers and USA factory unlocked) have their bootloader signing keys locked with Qualcomm Secure Boot and hardware QFPROM fuses. Samsung USA does not provide an OEM Unlock toggle and does not sign unlock tokens for North American variants due to carrier contracts. Beware of scam sites claiming to unlock US Snapdragon S24/S23 models.",
+    a: "Samsung models ending in 'U' or 'U1' (North American carriers and USA factory unlocked) have their bootloader signing keys locked with Qualcomm Secure Boot and hardware QFPROM fuses. Samsung USA does not provide an OEM Unlock toggle and does not sign unlock tokens for North American variants due to carrier contracts.",
   },
   {
     category: "EDL & Unbrick",
-    q: "What is Qualcomm EDL 9008 Mode and how does it rescue dead phones?",
-    a: "Emergency Download (EDL) Mode is Qualcomm's lowest-level silicon recovery mode (USB ID 05C6:9008). It runs directly from the Primary Bootloader in Mask ROM before storage or RAM are even initialized. Even if your phone has a blank black screen, no fastboot, and no recovery, EDL mode allows authorized engineers to write raw partition images directly to the UFS memory chip to revive the phone.",
+    q: "What is Qualcomm EDL 9008 Mode and how does Ali_EDL_Flasher.exe revive dead phones?",
+    a: "Emergency Download (EDL) Mode is Qualcomm's lowest-level silicon recovery mode (USB ID 05C6:9008). It runs directly from the Primary Bootloader in Mask ROM before storage or RAM are even initialized. Ali_EDL_Flasher.exe uses VIP signed Firehose programmers to write raw partition images directly to UFS storage to recover bricked devices.",
   },
   {
     category: "General",
     q: "Can I re-lock the bootloader later to regain warranty or sell the phone?",
-    a: "Yes! On Google Pixel, Xiaomi, Nothing Phone, and Motorola, you can flash the official stock factory firmware back to all partitions and execute `fastboot flashing lock` or use the official flash tool to return the phone to 100% factory locked state with genuine green verified boot.",
+    a: "Yes! On Google Pixel, Xiaomi, Nothing Phone, and Motorola, you can flash the official stock factory firmware back to all partitions and execute fastboot flashing lock or use the official flash tool to return the phone to 100% factory locked state with genuine green verified boot.",
   },
 ];

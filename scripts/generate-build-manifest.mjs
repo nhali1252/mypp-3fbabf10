@@ -48,7 +48,8 @@ const buildId = `${builtAt.replace(/[:.]/g, "-")}_${gitShort}`;
 
 console.log(`[build-manifest] running tsc --noEmit …`);
 const tscStart = Date.now();
-const tscRes = spawnSync("bunx", ["tsc", "--noEmit", "-p", "tsconfig.json"], {
+const tscBin = resolve(ROOT, "node_modules/typescript/bin/tsc");
+const tscRes = spawnSync(process.execPath, [tscBin, "--noEmit", "-p", "tsconfig.json"], {
   cwd: ROOT,
   encoding: "utf8",
   shell: false,

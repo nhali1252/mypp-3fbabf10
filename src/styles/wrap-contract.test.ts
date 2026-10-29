@@ -181,7 +181,7 @@ describe("Source allowlist — no component overrides the wrap safeguards", () =
     const projectRoot = join(__dirname, "..", "..");
 
     for (const file of walk(SRC_DIR)) {
-      const rel = relative(projectRoot, file);
+      const rel = relative(projectRoot, file).replace(/\\/g, '/');
       const allowReason = ALLOWLIST[rel];
       const content = readFileSync(file, "utf8");
 

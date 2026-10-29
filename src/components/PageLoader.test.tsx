@@ -11,6 +11,15 @@ vi.mock("@/hooks/useContent", () => ({
   useSiteSettings: () => ({ data: { site_name: "Test", hero_subtitle: "" } }),
 }));
 
+vi.mock("@/hooks/usePageLoaderSettings", () => ({
+  usePageLoaderSettings: () => ({ data: null }),
+  PAGE_LOADER_DEFAULTS: {
+    initial_ms: 4000,
+    route_ms: 4000,
+    routes: {},
+  },
+}));
+
 const HIDE_FADE = 260; // matches PageLoader's internal fade-out duration
 
 describe("PageLoader timings", () => {

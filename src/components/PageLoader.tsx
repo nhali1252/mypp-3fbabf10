@@ -66,8 +66,8 @@ function trackLoaderVisible(detail: LoaderVisibleDetail) {
 }
 
 export function PageLoader({
-  initialMs: initialMsProp,
-  routeMs: routeMsProp,
+  initialMs = 4000,
+  routeMs = 4000,
 }: {
   initialMs?: number;
   routeMs?: number;
@@ -76,8 +76,8 @@ export function PageLoader({
   const [hiding, setHiding] = useState(false);
   const { data: settings } = useSiteSettings();
   const { data: loaderCfg } = usePageLoaderSettings();
-  const initialMs = initialMsProp ?? loaderCfg?.initial_ms ?? PAGE_LOADER_DEFAULTS.initial_ms;
-  const routeMs = routeMsProp ?? loaderCfg?.route_ms ?? PAGE_LOADER_DEFAULTS.route_ms;
+  const activeInitialMs = loaderCfg?.initial_ms && initialMs === 4000 ? loaderCfg.initial_ms : initialMs;
+  const activeRouteMs = loaderCfg?.route_ms && routeMs === 4000 ? loaderCfg.route_ms : routeMs;
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isFirstRun = useRef(true);
   const lastPath = useRef(pathname);
@@ -99,13 +99,13 @@ export function PageLoader({
       if (done) return;
       done = true;
       const elapsed = performance.now() - start;
-      const wait = Math.max(0, initialMs - elapsed);
+      const wait = Math.max(0, activeInitialMs - elapsed);
       hideTimer = window.setTimeout(() => {
         setHiding(true);
         trackLoaderVisible({
           kind: "initial",
           path: pathname,
-          configuredMs: initialMs,
+          configuredMs: activeInitialMs,
           actualMs: performance.now() - start,
         });
         removeTimer = window.setTimeout(() => {
@@ -124,7 +124,7 @@ export function PageLoader({
       finish();
     }
 
-    const safety = window.setTimeout(finish, initialMs + 2000);
+    const safety = window.setTimeout(finish, activeInitialMs + 2000);
     return () => {
       if (typeof document !== "undefined") document.removeEventListener("DOMContentLoaded", finish);
       window.clearTimeout(safety);
@@ -156,21 +156,21 @@ export function PageLoader({
         kind: "route",
         path: pathname,
         fromPath,
-        configuredMs: routeMs,
+        configuredMs: activeRouteMs,
         actualMs: performance.now() - start,
       });
-    }, routeMs);
+    }, activeRouteMs);
 
     const removeTimer = window.setTimeout(() => {
       setShow(false);
       setHiding(false);
-    }, routeMs + 280);
+    }, activeRouteMs + 280);
 
     return () => {
       window.clearTimeout(hideTimer);
       window.clearTimeout(removeTimer);
     };
-  }, [pathname, routeMs]);
+  }, [pathname, activeRouteMs]);
 
   if (!show) return null;
 

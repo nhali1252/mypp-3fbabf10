@@ -10,7 +10,7 @@ import {
   retryMessageEmail,
   type EmailStatusRow,
   type EmailLeg,
-} from "@/server/messages.functions";
+} from "@/lib/fns/messages.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

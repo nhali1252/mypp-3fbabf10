@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
-import { prunePageViews } from "@/server/analytics.functions";
+import { prunePageViews } from "@/lib/fns/analytics.functions";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {

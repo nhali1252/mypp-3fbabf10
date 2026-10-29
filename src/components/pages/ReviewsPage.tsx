@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Star, Send, Quote, MessageSquareHeart, CheckCircle2 } from "lucide-react";
 import { z } from "zod";
 import { useContentDoc } from "@/hooks/useContentDoc";
-import { submitReview } from "@/server/content.functions";
+import { submitReview } from "@/lib/fns/content.functions";
 import { Footer } from "@/components/Footer";
 import { PageQuote } from "@/components/PageQuote";
 import { Hero3DText } from "@/components/Hero3DText";

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { exportBackup, importBackup } from "@/server/backup.functions";
+import { exportBackup, importBackup } from "@/lib/fns/backup.functions";
 import { AdminPage, AdminCard, FormRow } from "@/components/admin/AdminPage";
 import { Button } from "@/components/ui/button";
 import { Download, Upload, AlertTriangle } from "lucide-react";

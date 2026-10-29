@@ -3,7 +3,7 @@
  * `getContent` server function.
  */
 import { useQuery } from "@tanstack/react-query";
-import { getContent, type ContentKey } from "@/server/content.functions";
+import { getContent, type ContentKey } from "@/lib/fns/content.functions";
 
 export type { ContentKey };
 

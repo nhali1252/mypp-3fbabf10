@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { listAssets, deleteAsset, uploadAsset, type AssetFolder } from "@/server/content.functions";
+import { listAssets, deleteAsset, uploadAsset, type AssetFolder } from "@/lib/fns/content.functions";
 import { Image as ImageIcon, Upload, X, CheckCircle2, Loader2, Trash2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 

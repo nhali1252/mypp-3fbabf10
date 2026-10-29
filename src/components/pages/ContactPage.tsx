@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
 import { Mail, Phone, MessageCircle, Sparkles, Send, Loader2, Calendar, Clock } from "lucide-react";
 import { toast } from "sonner";
-import { submitMessage } from "@/server/messages.functions";
+import { submitMessage } from "@/lib/fns/messages.functions";
 import { useContentDoc } from "@/hooks/useContentDoc";
 import { Footer } from "@/components/Footer";
 import { PageQuote } from "@/components/PageQuote";

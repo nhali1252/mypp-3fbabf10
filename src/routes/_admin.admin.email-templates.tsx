@@ -13,7 +13,7 @@ import {
   listEmailTemplateSettings,
   updateEmailTemplateSettings,
   previewEmailTemplate,
-} from "@/server/email-template-settings.functions";
+} from "@/lib/fns/email-template-settings.functions";
 
 export const Route = createFileRoute("/_admin/admin/email-templates")({
   component: AdminEmailTemplates,

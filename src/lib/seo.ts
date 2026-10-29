@@ -3,7 +3,7 @@
  * route-defined defaults. Used in every public route's `head()` so admins
  * can override per-page metadata via /admin/seo without code changes.
  */
-import type { SeoRow } from "@/server/seo.functions";
+import type { SeoRow } from "@/lib/fns/seo.functions";
 
 export type SeoFallback = {
   title: string;

@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { listAssets, deleteAsset, uploadAsset, type AssetFolder } from "@/server/content.functions";
+import { listAssets, deleteAsset, uploadAsset, type AssetFolder } from "@/lib/fns/content.functions";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { AdminPage, AdminCard, EmptyState } from "@/components/admin/AdminPage";

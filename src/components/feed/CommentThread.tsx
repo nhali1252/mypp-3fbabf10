@@ -11,7 +11,7 @@ import {
   editComment,
   reportComment,
   type CommentRow,
-} from "@/server/feed-social.functions";
+} from "@/lib/fns/feed-social.functions";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";

@@ -11,7 +11,7 @@ import {
   updateRetryConfig,
   type EmailLogRow,
   type DlqMessage,
-} from "@/server/email-logs.functions";
+} from "@/lib/fns/email-logs.functions";
 import { AdminPage, AdminCard, EmptyState } from "@/components/admin/AdminPage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

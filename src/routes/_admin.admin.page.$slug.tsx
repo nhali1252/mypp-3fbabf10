@@ -37,7 +37,7 @@ export const Route = createFileRoute("/_admin/admin/page/$slug")({
   errorComponent: ({ error }) => (
     <div className="space-y-3">
       <h1 className="text-2xl font-bold">Editor error</h1>
-      <p className="text-sm text-destructive">{error.message}</p>
+      <p className="text-sm text-destructive">{(error as Error).message}</p>
     </div>
   ),
 });

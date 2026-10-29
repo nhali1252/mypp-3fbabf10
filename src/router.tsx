@@ -68,7 +68,7 @@ export const getRouter = () => {
     // a pending placeholder rendered first and the real page faded in over it.
     defaultPendingMs: 1_000_000,
     defaultPendingMinMs: 0,
-    defaultErrorComponent: DefaultErrorComponent,
+    defaultErrorComponent: DefaultErrorComponent as any,
   });
 
   return router;

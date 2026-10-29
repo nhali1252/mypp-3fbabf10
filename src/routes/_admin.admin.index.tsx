@@ -13,7 +13,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
-import { listMessages } from "@/server/messages.functions";
+import { listMessages } from "@/lib/fns/messages.functions";
 import { useAuth } from "@/hooks/useAuth";
 import {
   ShieldCheck, ShieldAlert, ClipboardCheck, ArrowRight, Inbox,

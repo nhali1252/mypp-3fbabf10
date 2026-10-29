@@ -7,7 +7,7 @@ import { SectionHeader } from "../SectionHeader";
 import { Reveal, Stagger, StaggerItem } from "../motion/Reveal";
 import { SocialIcons, type SocialMap } from "../SocialIcons";
 import { useServerFn } from "@tanstack/react-start";
-import { submitMessage } from "@/server/messages.functions";
+import { submitMessage } from "@/lib/fns/messages.functions";
 import { toast } from "sonner";
 
 const schema = z.object({

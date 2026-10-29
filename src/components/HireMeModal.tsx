@@ -6,7 +6,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { useContactSettings } from "@/hooks/useContent";
 import { useServerFn } from "@tanstack/react-start";
-import { submitMessage } from "@/server/messages.functions";
+import { submitMessage } from "@/lib/fns/messages.functions";
 import { SocialIcons, type SocialMap } from "./SocialIcons";
 
 const schema = z.object({

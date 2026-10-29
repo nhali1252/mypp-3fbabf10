@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Calendar, Clock, Loader2, Send, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
-import { submitBooking } from "@/server/bookings.functions";
+import { submitBooking } from "@/lib/fns/bookings.functions";
 import { Footer } from "@/components/Footer";
 
 const services = [

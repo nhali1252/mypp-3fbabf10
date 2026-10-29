@@ -17,7 +17,7 @@ import {
   type TsErrorSource,
 } from "@/lib/build-info";
 import { clearLiveErrors, useLiveTsErrors } from "@/lib/live-ts-errors";
-import { refreshDiagnostics } from "@/server/diagnostics.functions";
+import { refreshDiagnostics } from "@/lib/fns/diagnostics.functions";
 import { CloudflareChallengeStatus } from "@/components/admin/CloudflareChallengeStatus";
 
 export const Route = createFileRoute("/_admin/admin/diagnostics")({

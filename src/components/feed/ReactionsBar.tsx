@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ThumbsUp, Flame, Heart, Sparkles, LogIn } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
-import { listReactions, listMyReactions, toggleReaction } from "@/server/feed-social.functions";
+import { listReactions, listMyReactions, toggleReaction } from "@/lib/fns/feed-social.functions";
 import { toast } from "sonner";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 

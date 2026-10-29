@@ -7,7 +7,7 @@ import {
   Image as ImageIcon, ExternalLink, Calendar, Folder, Star,
   Filter, LayoutGrid, Film, ImagePlay,
 } from "lucide-react";
-import { getFeedSlice, type FeedItem as ServerFeedItem, type FeedFolder, type FeedSort } from "@/server/feed.functions";
+import { getFeedSlice, type FeedItem as ServerFeedItem, type FeedFolder, type FeedSort } from "@/lib/fns/feed.functions";
 import { Footer } from "@/components/Footer";
 import { Watermark } from "@/components/feed/Watermark";
 import { ReactionsBar } from "@/components/feed/ReactionsBar";

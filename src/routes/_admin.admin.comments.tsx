@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { adminListComments, adminSetCommentStatus, deleteComment } from "@/server/feed-social.functions";
+import { adminListComments, adminSetCommentStatus, deleteComment } from "@/lib/fns/feed-social.functions";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, Trash2, Flag, BadgeCheck, Loader2 } from "lucide-react";
 import { toast } from "sonner";

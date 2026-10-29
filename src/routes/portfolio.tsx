@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PortfolioPage } from "@/components/pages/PortfolioPage";
-import { getSeo } from "@/server/seo.functions";
+import { getSeo } from "@/lib/fns/seo.functions";
 import { buildSeoMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/portfolio")({

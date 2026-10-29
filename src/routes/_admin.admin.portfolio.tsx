@@ -3,7 +3,7 @@ import { useState, useRef, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { uploadAsset, insertPortfolioItems } from "@/server/content.functions";
+import { uploadAsset, insertPortfolioItems } from "@/lib/fns/content.functions";
 import { AdminPage, AdminCard, FormRow, EmptyState } from "@/components/admin/AdminPage";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 import { MediaPicker, uploadToStorage } from "@/components/admin/MediaPicker";

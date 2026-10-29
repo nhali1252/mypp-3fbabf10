@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { adminListModerationLog } from "@/server/feed-social.functions";
+import { adminListModerationLog } from "@/lib/fns/feed-social.functions";
 import { Loader2, MessageSquare, Star, Shield, FileX, Eye, EyeOff, Flag, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/_admin/admin/audit")({

@@ -1,0 +1,1 @@
+- Client-callable `*.functions.ts` server functions live in `src/lib/fns/`, never `src/server/` — the TanStack Start import protection blocks `src/server/**` from client bundles; server-only helpers stay as `*.server.ts`.

@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { getPageQuote, savePageQuote } from "@/server/page-quotes.functions";
+import { getPageQuote, savePageQuote } from "@/lib/fns/page-quotes.functions";
 
 type Props = {
   /** Page slug — must match a `page_quotes.page_slug`. */

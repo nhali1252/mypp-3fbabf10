@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, CheckCircle2, Loader2, RefreshCw, ShieldCheck, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { verifyWorkerHealth } from "@/server/env-import.functions";
+import { verifyWorkerHealth } from "@/lib/fns/env-import.functions";
 import { CloudflareChallengeStatus } from "@/components/admin/CloudflareChallengeStatus";
 
 /**

@@ -11,9 +11,8 @@ export const Route = createFileRoute("/about-and-skills")({
   staleTime: 60_000,
   head: ({ loaderData }) => ({
     meta: buildSeoMeta(loaderData?.seo ?? null, {
-      title: "About & Skills — Ali Nur Hasan (TasTaj)",
-      description:
-        "Ali Nur Hasan — designer with 2 years of design experience working with TasTaj on logos, banners, posters, product and basic web design. Canva and Adobe workflow.",
+      title: "Bootloader Architecture & Unlock Guide — Deep Technical Manual",
+      description: "Deep dive into Android bootloader architecture: Primary Bootloader (PBL), XBL, TrustZone, ABL, AVB 2.0 verified boot, Samsung Knox e-fuses, and Qualcomm EDL 9008 protocol.",
     }),
   }),
 });

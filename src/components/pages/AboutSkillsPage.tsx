@@ -1,631 +1,101 @@
 import { Link } from "@tanstack/react-router";
-import { motion, useReducedMotion } from "framer-motion";
-import { useState, type ReactNode } from "react";
-import portrait from "@/assets/ali-portrait-baked.jpg";
-import { ImageOff, ExternalLink, Sparkles, User, Quote, Star } from "lucide-react";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import {
-  useFHero,
-  useFSkills,
-  useFProjects,
-  useFRealtimeSync,
-  useFPhotocard,
-} from "@/hooks/useFContent";
-import { getIcon } from "@/lib/iconRegistry";
-import { HireMeProvider, useHireMe } from "@/components/HireMeProvider";
+import { motion } from "framer-motion";
+import { Cpu, Terminal, ShieldCheck, Sparkles, BookOpen, Layers } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { PageQuote } from "@/components/PageQuote";
 import { Hero3DText } from "@/components/Hero3DText";
+import { BootloaderKnowledgeBase } from "@/components/bootloader/BootloaderKnowledgeBase";
 
-const tools = ["Canva", "Adobe Photoshop", "Adobe Illustrator", "Figma", "AI workflow tools"];
-const marqueeWords = ["Branding", "Logo Design", "Posters", "Banners", "Social", "Packaging", "Web Visuals", "Editorial"];
-
-const stats: { value: string; label: string }[] = [
-  { value: "2+", label: "Years designing" },
-  { value: "120+", label: "Pieces shipped" },
-  { value: "24h", label: "Avg. reply time" },
-  { value: "100%", label: "Brand-ready" },
-];
-
-function AboutSkillsInner() {
-  // Live sync from CMS — admin edits update this page in realtime.
-  useFRealtimeSync();
-  const { data: hero } = useFHero();
-  const { data: skills = [] } = useFSkills();
-  const { data: projects = [] } = useFProjects();
-  const { data: photocard, isLoading: photocardLoading } = useFPhotocard();
-
-  const design = skills.filter((s) => s.kind === "design");
-  const soft = skills.filter((s) => s.kind === "soft");
-
-  const eyebrow = hero?.eyebrow ?? "Skills · About · TasTaj";
-  const headline = hero?.headline ?? "Designer with 2 years of design work with TasTaj.";
-  const highlight = hero?.highlight ?? "2 years";
-  const intro =
-    hero?.intro ??
-    "I'm Ali Nur Hasan — a Designer with 2 years of design experience working with TasTaj. I create logos, banners, posters, product visuals and basic websites, blending Canva, Adobe tools and AI assistance to deliver clean, brand-ready work.";
-
+export function AboutSkillsPage() {
   return (
     <div className="min-h-dvh bg-background text-foreground">
-      {/* Top nav */}
+      {/* Top navigation */}
       <header className="px-5 sm:px-6 md:px-10 pt-7 md:pt-10">
-        <div className="max-w-[1200px] mx-auto flex items-center justify-between gap-3 md:gap-4">
+        <div className="max-w-[1280px] mx-auto flex items-center justify-between gap-4">
           <Link
             to="/"
-            className="shrink-0 text-[11px] sm:text-xs font-bold uppercase tracking-[0.25em] text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+            className="text-xs font-bold uppercase tracking-[0.25em] text-muted-foreground hover:text-foreground transition-colors"
           >
-            ← All pages
+            ← Back to Hub
           </Link>
-          <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1 justify-end">
-            <nav
-              className="flex items-center gap-3 sm:gap-4 text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] overflow-x-auto whitespace-nowrap scrollbar-none -mx-2 px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+
+          <div className="flex items-center gap-3">
+            <Link
+              to="/projects"
+              className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              <Link to="/basic" className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">Basic</Link>
-              <Link to="/about-and-skills" className="shrink-0 text-primary">About</Link>
-              <Link to="/projects" className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
-              <Link to="/portfolio" className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">Portfolio</Link>
-              <Link to="/services" className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">Services</Link>
-              <Link to="/contact" className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
-            </nav>
-            <div className="hidden sm:block shrink-0"><ThemeToggle /></div>
+              Supported Devices
+            </Link>
+            <span className="text-border">•</span>
+            <Link
+              to="/services"
+              className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Services
+            </Link>
+            <span className="text-border">•</span>
+            <Link
+              to="/booking"
+              className="px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:shadow-glow transition-all"
+            >
+              Order Unlock
+            </Link>
           </div>
         </div>
       </header>
 
-      {/* Hero — portrait + intro */}
-      <section className="px-5 sm:px-6 md:px-10 pt-8 sm:pt-12 md:pt-16 pb-10 relative overflow-hidden">
+      {/* HERO */}
+      <section className="relative px-4 sm:px-6 md:px-10 lg:px-12 pt-8 sm:pt-14 md:pt-16 pb-10 sm:pb-14 overflow-hidden">
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-32 left-1/4 w-[480px] h-[480px] rounded-full blur-[140px] opacity-25"
+          className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 w-[min(820px,90vw)] h-[420px] sm:h-[520px] rounded-full blur-[120px] sm:blur-[140px] opacity-50"
           style={{
             background:
-              "radial-gradient(circle, color-mix(in oklab, var(--primary) 70%, transparent) 0%, transparent 70%)",
+              "radial-gradient(closest-side, color-mix(in oklab, var(--primary) 60%, transparent), transparent)",
           }}
         />
-        <div className="max-w-[1200px] mx-auto grid lg:grid-cols-[340px_1fr] gap-8 md:gap-12 items-center relative">
-          <PhotoCard
-            isLoading={photocardLoading}
-            name={photocard?.name ?? "Ali Nur Hasan"}
-            role={photocard?.role ?? "Designer · TasTaj"}
-            badgeTop={photocard?.badge_top ?? "2 yrs"}
-            badgeBottom={photocard?.badge_bottom ?? "✦ Designer"}
-            openLabel={photocard?.open_label ?? "Open"}
-            imageUrl={photocard?.image_url || portrait}
-          />
-
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
+        <div className="relative max-w-[1100px] xl:max-w-[1280px] mx-auto text-center">
+          <motion.span
+            initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-            className="align-hero"
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card/60 backdrop-blur text-xs font-bold uppercase tracking-[0.25em] text-primary"
           >
-            <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-primary mb-3">
-              {eyebrow}
-            </p>
-            <h1
-              className="font-black tracking-tight leading-[1.05] mb-4 text-3d text-3d-pop"
-              style={{ fontSize: "clamp(32px, 5.5vw, 64px)" }}
-            >
-              {renderHeadline(headline, highlight)}
-            </h1>
-            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-2xl mx-auto lg:mx-0 whitespace-pre-line">
-              {intro}
-            </p>
-            <div className="mt-5 flex flex-wrap gap-2 justify-center lg:justify-start">
-              {tools.map((t) => (
-                <span
-                  key={t}
-                  className="text-xs font-semibold px-3 py-1.5 rounded-full border border-border bg-card"
-                >
-                  {t}
-                </span>
-              ))}
-            </div>
-            <div className="mt-7 flex justify-center lg:justify-start gap-3 flex-wrap">
-              <HireMeInlineButton />
-              <Link
-                to="/projects"
-                className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-3 text-xs font-bold uppercase tracking-[0.2em] hover:border-primary hover:text-primary transition-colors"
-              >
-                See projects
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Marquee strip — kinetic visual flair (compact, thin border) */}
-      <section aria-hidden className="relative overflow-hidden border-y border-border/50 bg-card/30 py-2 sm:py-2.5 mb-10">
-        <div className="flex gap-8 whitespace-nowrap ticker-track">
-          {[...marqueeWords, ...marqueeWords, ...marqueeWords].map((w, i) => (
-            <span
-              key={i}
-              className="font-serif-display italic text-sm sm:text-base md:text-lg text-foreground/55 flex items-center gap-8"
-            >
-              {w}
-              <Sparkles className="w-3 h-3 text-primary" />
-            </span>
-          ))}
-        </div>
-      </section>
-
-      {/* Stats cluster */}
-      <section className="px-5 sm:px-6 md:px-10 pb-10">
-        <div className="max-w-[1200px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-          {stats.map((s, i) => (
-            <motion.div
-              key={s.label}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: i * 0.05 }}
-              className="rounded-2xl border border-border bg-card p-5 text-center hover:-translate-y-1 hover:border-primary/40 transition-all"
-            >
-              <div
-                className="font-black tracking-tight bg-clip-text text-transparent font-numeric"
-                style={{
-                  fontSize: "clamp(28px, 3.6vw, 40px)",
-                  backgroundImage:
-                    "linear-gradient(135deg, var(--foreground) 0%, var(--primary) 100%)",
-                }}
-              >
-                {s.value}
-              </div>
-              <div className="mt-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
-                {s.label}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* Design skills grid */}
-      <section className="px-5 sm:px-6 md:px-10 pb-10">
-        <div className="max-w-[1200px] mx-auto">
-          <SectionHeader eyebrow="Design skills" title="What I build every week" />
-          {design.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No skills yet — add some in the admin panel.</p>
-          ) : (
-            <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
-              {design.map((s, i) => {
-                const Icon = getIcon(s.icon);
-                return (
-                  <motion.div
-                    key={s.id}
-                    initial={{ opacity: 0, y: 16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-40px" }}
-                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: i * 0.03 }}
-                    whileHover={{ y: -4 }}
-                    className="group rounded-2xl border border-border bg-card p-4 sm:p-5 hover:border-primary/50 hover:shadow-[0_20px_40px_-20px_color-mix(in_oklab,var(--primary)_45%,transparent)] transition-all"
-                  >
-                    <div className="w-9 h-9 rounded-xl bg-primary/15 text-primary grid place-items-center ring-1 ring-primary/20 mb-3 group-hover:scale-110 group-hover:rotate-3 transition-transform">
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <p className="text-sm font-semibold leading-tight mb-1">{s.title}</p>
-                    {s.description && (
-                      <p className="text-xs text-muted-foreground leading-snug">{s.description}</p>
-                    )}
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Editorial quote — managed via Admin → About → Quote */}
-      <PageQuote slug="about" />
-
-      {/* Soft skills */}
-      <section className="px-5 sm:px-6 md:px-10 pb-10">
-        <div className="max-w-[1200px] mx-auto">
-          <SectionHeader eyebrow="Working style" title="How I work with clients" />
-          {soft.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No working style cards yet.</p>
-          ) : (
-            <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
-              {soft.map((s, i) => {
-                const Icon = getIcon(s.icon);
-                return (
-                  <motion.div
-                    key={s.id}
-                    initial={{ opacity: 0, y: 16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-40px" }}
-                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: i * 0.04 }}
-                    className="rounded-2xl border border-border bg-card p-4 sm:p-5 flex flex-col items-center text-center hover:border-primary/40 transition-colors"
-                  >
-                    <div className="w-9 h-9 rounded-xl bg-primary/15 text-primary grid place-items-center ring-1 ring-primary/20 mb-3">
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <p className="text-sm font-semibold leading-tight mb-1">{s.title}</p>
-                    {s.description && (
-                      <p className="text-xs text-muted-foreground leading-snug">{s.description}</p>
-                    )}
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Weekly portfolio */}
-      {projects.length > 0 && (
-        <section className="px-5 sm:px-6 md:px-10 pb-10">
-          <div className="max-w-[1200px] mx-auto">
-            <SectionHeader eyebrow="Weekly portfolio" title="Recent design work" />
-            <div className="grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {projects.map((p, i) => {
-                const Card = (
-                  <motion.div
-                    initial={{ opacity: 0, y: 18 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-40px" }}
-                    transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: i * 0.04 }}
-                    className="group rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/50 transition-colors h-full flex flex-col"
-                  >
-                    {p.image_url ? (
-                      <div className="aspect-[4/3] bg-muted overflow-hidden">
-                        <img
-                          src={p.image_url}
-                          alt={p.title}
-                          loading="lazy"
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                      </div>
-                    ) : (
-                      <div className="aspect-[4/3] bg-muted/40 grid place-items-center text-xs text-muted-foreground">
-                        No image
-                      </div>
-                    )}
-                    <div className="p-4 sm:p-5 flex-1 flex flex-col">
-                      <div className="flex items-start justify-between gap-2 mb-1">
-                        <h3 className="text-sm font-bold leading-tight">{p.title}</h3>
-                        {p.url && (
-                          <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0 mt-0.5" />
-                        )}
-                      </div>
-                      {p.description && (
-                        <p className="text-xs text-muted-foreground leading-snug mb-3">
-                          {p.description}
-                        </p>
-                      )}
-                      {p.tags.length > 0 && (
-                        <div className="mt-auto flex flex-wrap gap-1.5">
-                          {p.tags.map((t) => (
-                            <span
-                              key={t}
-                              className="text-[10px] font-semibold px-2 py-0.5 rounded-full border border-border bg-background/60"
-                            >
-                              {t}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                );
-                return p.url ? (
-                  <a key={p.id} href={p.url} target="_blank" rel="noopener noreferrer" className="block">
-                    {Card}
-                  </a>
-                ) : (
-                  <div key={p.id}>{Card}</div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Mini testimonial / trust strip */}
-      <section className="px-5 sm:px-6 md:px-10 pb-10">
-        <div className="max-w-[1200px] mx-auto grid sm:grid-cols-3 gap-3 sm:gap-4">
-          {[
-            { name: "TasTaj Studio", role: "Creative collaboration", quote: "Clean, brand-ready, on time — every time." },
-            { name: "Local brand client", role: "Logo & packaging", quote: "Captured our voice in the very first round." },
-            { name: "Founder", role: "Social campaign", quote: "Felt premium without ever feeling overdesigned." },
-          ].map((t, i) => (
-            <motion.div
-              key={t.name}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: i * 0.06 }}
-              className="rounded-2xl border border-border bg-card p-5 hover:border-primary/40 transition-colors"
-            >
-              <div className="flex items-center gap-1 text-primary mb-2">
-                {Array.from({ length: 5 }).map((_, j) => (
-                  <Star key={j} className="w-3.5 h-3.5 fill-current" />
-                ))}
-              </div>
-              <p className="text-sm text-foreground/85 leading-relaxed mb-3">"{t.quote}"</p>
-              <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                <span className="font-bold text-foreground">{t.name}</span> · {t.role}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* TasTaj reference */}
-      <section className="px-5 sm:px-6 md:px-10 pb-16">
-        <div className="max-w-[1200px] mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="relative rounded-[24px] border border-border bg-card overflow-hidden p-7 sm:p-9 md:p-11"
+            <BookOpen className="w-3.5 h-3.5" /> Silicon & Firmware Knowledge Base
+          </motion.span>
+          <h1
+            className="font-black tracking-tight leading-[1.02] mt-4 sm:mt-5 text-3d text-3d-pop"
+            style={{ fontSize: "clamp(30px, 6.4vw, 84px)" }}
           >
-            <div
-              aria-hidden
-              className="absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl opacity-30 bg-gradient-to-br from-primary/40 to-transparent"
+            <Hero3DText as="span" text="Bootloader " delay={0.1} stagger={0.08} />
+            <Hero3DText
+              as="span"
+              text="Architecture"
+              className="font-serif-display italic font-medium text-primary"
+              delay={0.35}
+              stagger={0.08}
             />
-            <div className="relative">
-              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary mb-3">
-                Reference collaborator
-              </p>
-              <h2
-                className="font-black tracking-tight leading-tight mb-3"
-                style={{ fontSize: "clamp(24px, 3.4vw, 38px)" }}
-              >
-                TasTaj
-              </h2>
-              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-2xl">
-                TasTaj is my collaboration / reference name for creative design work. We've
-                collaborated together on creative design projects — sharing craft, tools and
-                workflow to deliver clean, brand-ready outcomes.
-              </p>
-            </div>
-          </motion.div>
+          </h1>
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+            className="text-muted-foreground mt-4 sm:mt-5 max-w-3xl mx-auto text-sm sm:text-base leading-relaxed"
+          >
+            A deep-dive technical manual on the Android boot chain from silicon Mask ROM to Linux kernel, the cryptographic mechanisms behind AVB 2.0, why vendors lock bootloaders, and how to maintain Play Integrity & Widevine DRM post-unlock.
+          </motion.p>
         </div>
       </section>
 
-      <Footer />
-      <HireMeFloatingButton />
-    </div>
-  );
-}
-
-export function AboutSkillsPage() {
-  return (
-    <HireMeProvider>
-      <AboutSkillsInner />
-    </HireMeProvider>
-  );
-}
-
-function HireMeInlineButton() {
-  const { openHireMe } = useHireMe();
-  return (
-    <button
-      type="button"
-      onClick={openHireMe}
-      className="group inline-flex items-center gap-2 rounded-full bg-foreground text-background hover:bg-primary hover:text-primary-foreground px-5 py-3 text-xs font-bold uppercase tracking-[0.2em] hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 shadow-[0_18px_40px_-12px_color-mix(in_oklab,var(--primary)_55%,transparent)] hover:shadow-[0_22px_48px_-12px_color-mix(in_oklab,var(--primary)_75%,transparent)]"
-    >
-      <Sparkles className="w-4 h-4 text-primary group-hover:text-primary-foreground transition-colors" />
-      Hire me
-    </button>
-  );
-}
-
-function HireMeFloatingButton() {
-  const { openHireMe } = useHireMe();
-  return (
-    <button
-      type="button"
-      onClick={openHireMe}
-      aria-label="Hire me"
-      className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground hover:bg-foreground hover:text-background pl-3 pr-4 py-2.5 text-xs font-bold uppercase tracking-[0.18em] shadow-[0_18px_40px_-12px_rgba(0,0,0,0.55)] hover:scale-[1.05] active:scale-[0.98] transition-all duration-300"
-    >
-      <span className="grid place-items-center w-7 h-7 rounded-full bg-primary-foreground/15 group-hover:bg-primary/15">
-        <Sparkles className="w-3.5 h-3.5" />
-      </span>
-      Hire me
-    </button>
-  );
-}
-
-function renderHeadline(headline: string, highlight: string) {
-  if (!highlight || !headline.includes(highlight)) {
-    return <Hero3DText as="span" text={headline} delay={0.15} stagger={0.06} />;
-  }
-  const parts = headline.split(highlight);
-  const nodes: ReactNode[] = [];
-  let runningDelay = 0.15;
-  parts.forEach((p, i) => {
-    if (p) {
-      nodes.push(
-        <Hero3DText key={`p-${i}`} as="span" text={p} delay={runningDelay} stagger={0.06} />
-      );
-      runningDelay += Math.min(p.split(/\s+/).filter(Boolean).length, 6) * 0.06 + 0.05;
-    }
-    if (i < parts.length - 1) {
-      nodes.push(
-        <Hero3DText
-          key={`h-${i}`}
-          as="span"
-          text={highlight}
-          className="hero-gold-highlight"
-          delay={runningDelay}
-          stagger={0.06}
-        />
-      );
-      runningDelay += Math.min(highlight.split(/\s+/).filter(Boolean).length, 6) * 0.06 + 0.05;
-    }
-  });
-  return <>{nodes}</>;
-}
-
-function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
-  return (
-    <div className="mb-6 sm:mb-8">
-      <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-primary mb-2">
-        {eyebrow}
-      </p>
-      <h2
-        className="font-black tracking-tight leading-tight"
-        style={{ fontSize: "clamp(22px, 3vw, 32px)" }}
-      >
-        {title}
-      </h2>
-    </div>
-  );
-}
-
-function PhotoCard({
-  isLoading,
-  name,
-  role,
-  badgeTop,
-  badgeBottom,
-  openLabel,
-  imageUrl,
-}: {
-  isLoading: boolean;
-  name: string;
-  role: string;
-  badgeTop: string | null;
-  badgeBottom: string | null;
-  openLabel: string | null;
-  imageUrl: string;
-}) {
-  const reduce = useReducedMotion();
-  const [imgState, setImgState] = useState<"loading" | "loaded" | "error">("loading");
-
-  const enter = reduce
-    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.4 } }
-    : {
-        initial: { opacity: 0, scale: 0.92, y: 20 },
-        animate: { opacity: 1, scale: 1, y: 0 },
-        transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] as const },
-      };
-
-  return (
-    <motion.div
-      {...enter}
-      className="relative mx-auto lg:mx-0 group isolate"
-      style={{ contain: "layout paint" }}
-    >
-      {/* Static glow — no animation, prevents jank on scroll */}
-      <div
-        aria-hidden
-        className="absolute -inset-4 rounded-[34px] blur-3xl opacity-50 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(circle at 50% 60%, color-mix(in oklab, var(--primary) 55%, transparent), transparent 70%)",
-        }}
-      />
-
-      <div
-        aria-hidden
-        className="absolute -inset-2 rounded-[32px] border border-primary/30 opacity-70 pointer-events-none"
-      />
-
-      <div
-        className="relative w-[260px] h-[330px] sm:w-[300px] sm:h-[380px] rounded-[28px] overflow-hidden border border-border/80 bg-card shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6),0_0_0_1px_color-mix(in_oklab,var(--primary)_25%,transparent)]"
-      >
-        {(isLoading || imgState === "loading") && (
-          <div
-            aria-hidden
-            className="absolute inset-0 bg-gradient-to-br from-muted/60 via-muted/30 to-muted/60 animate-pulse"
-          >
-            <div className="absolute inset-x-3 bottom-3 h-12 rounded-2xl bg-background/40" />
-          </div>
-        )}
-
-        {imgState !== "error" && (
-          <img
-            src={imageUrl}
-            alt={`${name} portrait`}
-            onLoad={() => setImgState("loaded")}
-            onError={() => setImgState("error")}
-            className={`absolute inset-0 w-full h-full object-cover object-top transition-all duration-[1200ms] ease-out ${
-              imgState === "loaded" ? "opacity-100" : "opacity-0"
-            } ${reduce ? "" : "group-hover:scale-[1.05]"}`}
-          />
-        )}
-
-        {imgState === "error" && (
-          <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-card to-muted text-muted-foreground">
-            <div className="flex flex-col items-center gap-2 px-4 text-center">
-              <div className="w-14 h-14 rounded-full bg-primary/15 text-primary grid place-items-center ring-1 ring-primary/30">
-                <User className="w-6 h-6" />
-              </div>
-              <p className="text-xs font-bold tracking-tight">{name}</p>
-              <p className="text-[10px] uppercase tracking-[0.2em] flex items-center gap-1">
-                <ImageOff className="w-3 h-3" /> image unavailable
-              </p>
-            </div>
-          </div>
-        )}
-
-        <div
-          aria-hidden
-          className="absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-black/85 via-black/45 to-transparent"
-        />
-        {!reduce && (
-          <div
-            aria-hidden
-            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
-            style={{
-              background:
-                "linear-gradient(115deg, transparent 30%, color-mix(in oklab, var(--primary) 35%, transparent) 50%, transparent 70%)",
-              mixBlendMode: "overlay",
-            }}
-          />
-        )}
-        <div aria-hidden className="absolute inset-0 rounded-[28px] ring-1 ring-inset ring-white/10" />
-
-        <div className="absolute inset-x-3 bottom-3 rounded-2xl border border-white/15 bg-black/55 backdrop-blur-md px-3 py-2.5 flex items-center gap-2.5 shadow-lg">
-          <span className="grid place-items-center w-7 h-7 rounded-lg bg-primary/30 text-primary-foreground ring-1 ring-primary/40">
-            <Sparkles className="w-3.5 h-3.5" />
-          </span>
-          <div className="min-w-0">
-            <p className="text-[11px] font-bold leading-none tracking-tight truncate text-white">
-              {name}
-            </p>
-            <p className="text-[9px] uppercase tracking-[0.22em] mt-1 truncate text-white/75">
-              {role}
-            </p>
-          </div>
-          {openLabel && (
-            <span className="ml-auto inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.18em] text-primary">
-              <span className="relative flex h-1.5 w-1.5">
-                {!reduce && (
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 animate-ping" />
-                )}
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
-              </span>
-              {openLabel}
-            </span>
-          )}
+      {/* KNOWLEDGE BASE COMPONENT */}
+      <section className="px-4 sm:px-6 md:px-10 lg:px-12 pb-16 sm:pb-24">
+        <div className="max-w-[1280px] mx-auto">
+          <BootloaderKnowledgeBase />
         </div>
-      </div>
+      </section>
 
-      {badgeTop && (
-        <motion.div
-          aria-hidden
-          animate={reduce ? undefined : { y: [0, -6, 0] }}
-          transition={reduce ? undefined : { duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-[0.2em] shadow-[0_12px_30px_-10px_color-mix(in_oklab,var(--primary)_70%,transparent)]"
-        >
-          {badgeTop}
-        </motion.div>
-      )}
-      {badgeBottom && (
-        <motion.div
-          aria-hidden
-          animate={reduce ? undefined : { y: [0, 6, 0] }}
-          transition={reduce ? undefined : { duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
-          className="absolute -bottom-2 -left-3 sm:-bottom-3 sm:-left-4 px-3 py-1.5 rounded-full bg-card border border-border text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/85 shadow-lg"
-        >
-          {badgeBottom}
-        </motion.div>
-      )}
-    </motion.div>
+      <PageQuote slug="about-and-skills" />
+      <Footer />
+    </div>
   );
 }

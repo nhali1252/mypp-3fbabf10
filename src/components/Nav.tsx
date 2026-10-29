@@ -5,11 +5,21 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useNavLinks, useSiteSettings } from "@/hooks/useContent";
 import { useHireMe } from "./HireMeProvider";
 
+
+const DEFAULT_NAV = [
+  { id: "nav-devices", label: "Supported Devices", url: "/projects" },
+  { id: "nav-knowledge", label: "Knowledge Base", url: "/about-and-skills" },
+  { id: "nav-services", label: "Services & Pricing", url: "/services" },
+  { id: "nav-reviews", label: "Reviews", url: "/reviews" },
+  { id: "nav-contact", label: "Diagnostics", url: "/contact" },
+];
+
 export function Nav({ showHireMe = true }: { showHireMe?: boolean } = {}) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [logoBroken, setLogoBroken] = useState(false);
   const { data: links = [] } = useNavLinks();
+  const navLinks = links.length ? links : DEFAULT_NAV;
   const { data: settings } = useSiteSettings();
   const reduce = useReducedMotion();
   const { openHireMe } = useHireMe();
@@ -52,11 +62,11 @@ export function Nav({ showHireMe = true }: { showHireMe?: boolean } = {}) {
         <span className="font-serif-display italic text-[22px] md:text-[26px] leading-none">
           {settings?.site_name?.trim() ||
             settings?.site_title?.split("—")[0]?.trim() ||
-            "Portfolio"}
+            "FastbootDesk"}
         </span>
       </Link>
       <ul className="hidden lg:flex gap-8 list-none text-[13.5px] font-medium text-muted-foreground">
-        {links.map((l: { id: string; label: string; url: string }) => (
+        {navLinks.map((l: { id: string; label: string; url: string }) => (
           <li key={l.id} className="relative group">
             <a
               href={l.url}
@@ -76,18 +86,12 @@ export function Nav({ showHireMe = true }: { showHireMe?: boolean } = {}) {
         ))}
       </ul>
       <div className="flex items-center gap-2">
-        {showHireMe && (
-          <motion.button
-            type="button"
-            onClick={openHireMe}
-            whileHover={reduce ? undefined : { y: -2, scale: 1.04 }}
-            whileTap={reduce ? undefined : { scale: 0.96 }}
-            transition={{ type: "spring", stiffness: 400, damping: 22 }}
-            className="hidden sm:inline-block bg-gradient-gold text-primary-foreground px-5 py-2.5 rounded-full text-[13px] font-bold hover:shadow-glow transition-shadow"
-          >
-            Hire Me
-          </motion.button>
-        )}
+        <Link
+          to="/booking"
+          className="hidden sm:inline-flex items-center gap-1.5 bg-primary text-primary-foreground px-4 py-2 rounded-full text-xs font-bold hover:shadow-glow transition-all"
+        >
+          Book Unlock
+        </Link>
       </div>
 
       <AnimatePresence>

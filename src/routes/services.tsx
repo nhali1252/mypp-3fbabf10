@@ -11,9 +11,8 @@ export const Route = createFileRoute("/services")({
   staleTime: 60_000,
   head: ({ loaderData }) => ({
     meta: buildSeoMeta(loaderData?.seo ?? null, {
-      title: "Services — Ali Nur Hasan (TasTaj)",
-      description:
-        "Brand identity, posters, banners and product visuals — built with intent. A focused range of design services synced with my CMS.",
+      title: "Remote Bootloader Unlock & EDL Unbrick Services — BootUnlock Pro",
+      description: "Professional remote bootloader unlocking, Xiaomi HyperOS token bypass, Qualcomm EDL 9008 unbrick, Samsung Global root, and KernelSU Play Integrity setups.",
     }),
   }),
 });

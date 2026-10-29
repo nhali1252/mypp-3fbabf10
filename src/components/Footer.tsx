@@ -16,8 +16,19 @@ interface FooterApp {
   logo_url?: string | null;
 }
 
+
+const DEFAULT_FOOTER_LINKS = [
+  { id: "fl-devices", label: "Supported Devices", url: "/projects" },
+  { id: "fl-knowledge", label: "Bootloader Manual", url: "/about-and-skills" },
+  { id: "fl-services", label: "Unlock Services", url: "/services" },
+  { id: "fl-booking", label: "Order Session", url: "/booking" },
+  { id: "fl-reviews", label: "Reviews", url: "/reviews" },
+  { id: "fl-contact", label: "Diagnostics", url: "/contact" },
+];
+
 export function Footer() {
   const { data: links = [] } = useFooterLinks();
+  const footerLinks = links.length ? links : DEFAULT_FOOTER_LINKS;
   const { data: settings } = useSiteSettings();
   const { data: contact } = useContactSettings();
   const { data: apps = [] } = useFooterApps();
@@ -176,11 +187,11 @@ export function Footer() {
             <span className="w-10 h-10 grid place-items-center rounded-xl bg-gradient-gold text-primary-foreground font-serif-display italic text-lg shadow-glow">A</span>
           )}
           <span className="text-foreground/85 text-sm">
-            {settings?.footer_text || `© ${new Date().getFullYear()} Portfolio`}
+            {settings?.footer_text || `© ${new Date().getFullYear()} FastbootDesk · Mobile Firmware Engineering`}
           </span>
         </a>
         <div className="flex gap-6 flex-wrap justify-center">
-          {links.map((l: { id: string; label: string; url: string }) => (
+          {footerLinks.map((l: { id: string; label: string; url: string }) => (
             <a
               key={l.id}
               href={l.url}

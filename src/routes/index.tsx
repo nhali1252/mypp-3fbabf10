@@ -16,6 +16,7 @@ import { useSiteSettings, isSectionVisible } from "@/hooks/useSiteSettings";
 import { WelcomeSplash } from "@/components/WelcomeSplash";
 import { PageQuote } from "@/components/PageQuote";
 import { Hero3DText } from "@/components/Hero3DText";
+import { DeviceCompatibilityChecker } from "@/components/bootloader/DeviceCompatibilityChecker";
 
 
 export const Route = createFileRoute("/")({
@@ -43,17 +44,15 @@ export const Route = createFileRoute("/")({
   head: ({ loaderData }) => {
     const seo = loaderData?.seo ?? null;
     const title =
-      seo?.meta_title?.trim() || "Ali Nur Hasan — Pick a page to explore";
+      seo?.meta_title?.trim() || "FastbootDesk — Professional Bootloader Unlock & EDL Service";
     const description =
       seo?.meta_description?.trim() ||
-      "An elegant launcher for Ali Nur Hasan's portfolio — Basic info, Skills & About, and Projects. Powered by TasTaj.";
+      "Verified Android bootloader unlocking service & compatibility matrix. Instant Xiaomi HyperOS token bypass, Qualcomm 9008 EDL unbrick, Samsung Global root, and deep boot architecture guides.";
     const image = seo?.og_image?.trim() || null;
-    const personLd = {
+    const serviceLd = {
       "@context": "https://schema.org",
-      "@type": "Person",
-      name: "Ali Nur Hasan",
-      jobTitle: "Designer",
-      worksFor: { "@type": "Organization", name: "TasTaj" },
+      "@type": "ProfessionalService",
+      name: "FastbootDesk Bootloader Unlock & Engineering Service",
       description,
       ...(image ? { image } : {}),
     };
@@ -62,7 +61,7 @@ export const Route = createFileRoute("/")({
       scripts: [
         {
           type: "application/ld+json",
-          children: JSON.stringify(personLd),
+          children: JSON.stringify(serviceLd),
         },
       ],
     };
@@ -85,107 +84,107 @@ type LauncherCard = {
 
 const FALLBACK: LauncherCard[] = [
   {
-    id: "fb-b",
-    label: "Basic",
-    title: "Basic info",
-    subtitle: "Personal introduction",
-    description: "Hero card with portrait, brand identity and the original portfolio overview.",
-    badge: "Profile",
-    route: "/basic",
-    accent: "from-amber-400/40 to-rose-500/10",
+    id: "fb-projects",
+    label: "Supported Devices",
+    title: "Supported Devices Matrix",
+    subtitle: "Hardware Compatibility",
+    description: "Verified matrix of 60+ mobile phones across Xiaomi, Samsung, Pixel, OnePlus, Motorola. See instant, wait time, and locked statuses.",
+    badge: "Compatibility",
+    route: "/projects",
+    accent: "from-emerald-400/40 to-cyan-500/10",
     thumbnail_url: null,
     sort_order: 1,
     active: true,
   },
   {
-    id: "fb-f",
-    label: "About & Skills",
-    title: "About & Skills",
-    subtitle: "Graphic design craft",
-    description: "2 years of design work with TasTaj — logos, banners, posters, Canva & Adobe workflow.",
-    badge: "Skills",
+    id: "fb-architecture",
+    label: "Knowledge Base",
+    title: "Deep Architecture Guide",
+    subtitle: "PBL to Kernel Boot Chain",
+    description: "Silicon Mask ROM, XBL, TrustZone, ABL Fastboot, Android Verified Boot (AVB 2.0), dm-verity, and Samsung Knox e-fuses.",
+    badge: "Architecture",
     route: "/about-and-skills",
-    accent: "from-emerald-400/40 to-cyan-500/10",
+    accent: "from-sky-500/40 to-indigo-500/10",
     thumbnail_url: null,
     sort_order: 2,
     active: true,
   },
   {
-    id: "fb-portfolio",
-    label: "Portfolio",
-    title: "Portfolio",
-    subtitle: "Client & design work",
-    description: "Branding, posters, packaging, invitations and digital design — selected client and TasTaj projects.",
-    badge: "Work",
-    route: "/portfolio",
-    accent: "from-violet-500/40 to-fuchsia-500/10",
+    id: "fb-services",
+    label: "Services",
+    title: "Unlock Services & Pricing",
+    subtitle: "Transparent Remote Tiers",
+    description: "Fastboot Remote Assist ($19), Xiaomi HyperOS Server Bypass ($39), Qualcomm 9008 EDL Unbrick ($49), and KernelSU Rooting.",
+    badge: "Services",
+    route: "/services",
+    accent: "from-amber-400/40 to-rose-500/10",
     thumbnail_url: null,
     sort_order: 3,
     active: true,
   },
   {
-    id: "fb-feed",
-    label: "Feed",
-    title: "Feed",
-    subtitle: "Live design uploads",
-    description: "A social-style feed that auto-syncs with portfolio uploads — react, comment and explore the latest work.",
-    badge: "Live",
-    route: "/feed",
-    accent: "from-pink-500/40 to-rose-500/10",
+    id: "fb-booking",
+    label: "Order",
+    title: "Schedule Unlock Session",
+    subtitle: "1-on-1 Remote Assistance",
+    description: "Schedule a live AnyDesk or TeamViewer session with a firmware engineer. Guaranteed unlock or 100% immediate refund.",
+    badge: "Booking",
+    route: "/booking",
+    accent: "from-emerald-500/40 to-teal-500/10",
     thumbnail_url: null,
     sort_order: 4,
-    active: true,
-  },
-  {
-    id: "fb-projects",
-    label: "Projects",
-    title: "Projects",
-    subtitle: "Personal & code projects",
-    description: "Pocketo personal-finance app, Hazi Enterprise automation site and other things I build with code.",
-    badge: "Build",
-    route: "/projects",
-    accent: "from-emerald-400/40 to-cyan-500/10",
-    thumbnail_url: null,
-    sort_order: 4,
-    active: true,
-  },
-  {
-    id: "fb-s",
-    label: "Services",
-    title: "Services",
-    subtitle: "What I offer",
-    description: "Editorial services page — branding, design systems and the modern toolkit I work with.",
-    badge: "Offer",
-    route: "/services",
-    accent: "from-sky-500/40 to-indigo-500/10",
-    thumbnail_url: null,
-    sort_order: 5,
     active: true,
   },
   {
     id: "fb-reviews",
     label: "Reviews",
-    title: "Client Reviews",
-    subtitle: "What people say",
-    description: "Honest reviews from clients — read others or leave your own with a star rating in seconds.",
-    badge: "Voices",
+    title: "Verified Customer Reviews",
+    subtitle: "Success Track Record",
+    description: "Real feedback from developers and users who unlocked HyperOS, Samsung Global, Pixel, and unbricked dead phones.",
+    badge: "Reviews",
     route: "/reviews",
     accent: "from-yellow-400/40 to-orange-500/10",
+    thumbnail_url: null,
+    sort_order: 5,
+    active: true,
+  },
+  {
+    id: "fb-contact",
+    label: "Contact",
+    title: "Free Diagnostic Inquiry",
+    subtitle: "Verify Before You Order",
+    description: "Share your phone model, CID, or brick symptoms for a free engineering check before booking.",
+    badge: "Support",
+    route: "/contact",
+    accent: "from-rose-500/40 to-orange-500/10",
     thumbnail_url: null,
     sort_order: 6,
     active: true,
   },
   {
-    id: "fb-c",
-    label: "Contact",
-    title: "Contact",
-    subtitle: "Start a project",
-    description: "Pick a slot, share a brief and I'll reply within 24 hours. Synced to my inbox.",
-    badge: "Talk",
-    route: "/contact",
-    accent: "from-rose-500/40 to-orange-500/10",
+    id: "fb-basic",
+    label: "Overview",
+    title: "FastbootDesk Overview",
+    subtitle: "Firmware Engineering Lab",
+    description: "Learn about our security protocols, equipment, remote connection tools, and hardware safety standards.",
+    badge: "About",
+    route: "/basic",
+    accent: "from-violet-500/40 to-fuchsia-500/10",
     thumbnail_url: null,
     sort_order: 7,
+    active: true,
+  },
+  {
+    id: "fb-feed",
+    label: "Feed",
+    title: "Firmware & Security Feed",
+    subtitle: "Latest Patch Verifications",
+    description: "Live updates on Xiaomi HyperOS token availability, Android 15/16 security patch changes, and new device support.",
+    badge: "Live",
+    route: "/feed",
+    accent: "from-pink-500/40 to-rose-500/10",
+    thumbnail_url: null,
+    sort_order: 8,
     active: true,
   },
 ];
@@ -198,11 +197,11 @@ type LauncherHero = {
 };
 
 const HERO_FALLBACK: LauncherHero = {
-  eyebrow: "Portfolio · TasTaj",
-  headline_top: "Pick a page",
-  headline_bottom: "to explore more.",
+  eyebrow: "FastbootDesk · Firmware Engineering Hub",
+  headline_top: "Bootloader Unlock &",
+  headline_bottom: "Engineering Service.",
   intro:
-    "A curated launcher for Ali Nur Hasan's portfolio. Each card opens an independent page — managed and editable from the admin panel.",
+    "Instant device compatibility verification, remote Xiaomi HyperOS token bypass, Qualcomm EDL 9008 unbrick, Samsung Knox diagnostics, and deep Android boot architecture guides.",
 };
 
 // ---- Runtime validation ----------------------------------------------------
@@ -296,14 +295,14 @@ export function safeParseLauncherDoc(input: unknown): LauncherDoc {
  * which prevents hydration mismatches.
  */
 const CANONICAL_ORDER: string[] = [
-  "/feed",
-  "/contact",
-  "/reviews",
-  "/services",
-  "/portfolio",
   "/projects",
-  "/basic",
   "/about-and-skills",
+  "/services",
+  "/booking",
+  "/reviews",
+  "/contact",
+  "/basic",
+  "/feed",
 ];
 
 export function deriveLauncherCards(
@@ -569,6 +568,9 @@ function Launcher() {
       )}
 
       <main className="relative flex-1 px-4 sm:px-6 md:px-10 py-8 sm:py-12 md:py-20">
+        <div className="max-w-[1240px] mx-auto mb-10 sm:mb-14">
+          <DeviceCompatibilityChecker />
+        </div>
         {showLauncherCards && (
         <div className="max-w-[1240px] mx-auto grid gap-5 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {showSkeleton

@@ -1,24 +1,36 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Calendar, Clock, Loader2, Send, CheckCircle2 } from "lucide-react";
+import { Calendar, Clock, Loader2, Send, CheckCircle2, ShieldCheck, Cpu, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import { submitBooking } from "@/lib/fns/bookings.functions";
 import { Footer } from "@/components/Footer";
 
-const services = [
-  "Brand Identity",
-  "Logo Design",
-  "Packaging",
-  "Print / Editorial",
-  "Invitation Suite",
-  "Social Templates",
-  "Discovery call",
-  "Other",
+const unlockServices = [
+  "Xiaomi HyperOS Remote Token Bypass ($39)",
+  "Fastboot Remote Assist ($19)",
+  "Qualcomm 9008 EDL & MTK Unbrick ($49)",
+  "Root & Play Integrity Suite ($29)",
+  "Samsung Global Root & KnoxPatch ($35)",
+  "Free Diagnostic Inquiry ($0)",
+];
+
+const brands = [
+  "Xiaomi / Poco / Redmi",
+  "Samsung (Global / Exynos / Snapdragon B)",
+  "Google Pixel",
+  "OnePlus",
+  "Motorola",
+  "Sony Xperia",
+  "Nothing Phone",
+  "Asus (ROG / Zenfone)",
+  "Realme / Oppo",
+  "Transsion (Infinix / Tecno)",
+  "Other / Unsure",
 ];
 
 const timeSlots = [
-  "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00",
+  "09:00 UTC", "11:00 UTC", "13:00 UTC", "15:00 UTC", "17:00 UTC", "19:00 UTC", "21:00 UTC",
 ];
 
 function nextWeekdays(count: number) {
@@ -40,11 +52,11 @@ export const Route = createFileRoute("/booking")({
   component: BookingPage,
   head: () => ({
     meta: [
-      { title: "Book a project — Ali Nur Hasan (TasTaj)" },
+      { title: "Book a Bootloader Unlock Session — FastbootDesk" },
       {
         name: "description",
         content:
-          "Reserve a slot to discuss your project with Ali Nur Hasan. Pick a date, share what you need, and get a confirmation email back.",
+          "Schedule a 1-on-1 remote bootloader unlocking, HyperOS token bypass, or Qualcomm EDL unbrick session with an experienced firmware engineer.",
       },
     ],
   }),
@@ -57,17 +69,19 @@ function BookingPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [service, setService] = useState(services[0]);
+  const [brand, setBrand] = useState(brands[0]);
+  const [model, setModel] = useState("");
+  const [service, setService] = useState(unlockServices[0]);
   const [day, setDay] = useState<string>(days[0]?.iso ?? "");
-  const [slot, setSlot] = useState<string>("");
+  const [slot, setSlot] = useState<string>(timeSlots[2]);
   const [notes, setNotes] = useState("");
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim() || !email.trim() || !day) {
-      toast.error("Please fill in name, email and pick a date.");
+    if (!name.trim() || !email.trim() || !model.trim() || !day) {
+      toast.error("Please fill in your name, email, device model and pick a date.");
       return;
     }
     setSending(true);
@@ -77,14 +91,14 @@ function BookingPage() {
           name: name.trim(),
           email: email.trim(),
           phone: phone.trim(),
-          service,
+          service: `${service} [Brand: ${brand} | Model: ${model.trim()}]`,
           preferred_date: day,
           preferred_time: slot,
           notes: notes.trim(),
         },
       });
       setDone(true);
-      toast.success("Booking received — check your inbox for the confirmation.");
+      toast.success("Session request received — our engineer will reach out to confirm your slot.");
     } catch (err: any) {
       toast.error(err?.message ?? "Could not submit booking. Please try again.");
     } finally {
@@ -94,175 +108,243 @@ function BookingPage() {
 
   return (
     <div className="min-h-dvh bg-background text-foreground">
-      <main className="container mx-auto max-w-2xl px-6 py-16 md:py-24">
-        <header className="mb-10 text-center">
-          <p className="text-xs uppercase tracking-[0.18em] text-primary/80 mb-3">
-            Book a project
-          </p>
-          <h1 className="text-3xl md:text-5xl font-semibold tracking-tight mb-4">
-            Reserve a slot
+      <main className="container mx-auto max-w-2xl px-6 py-12 md:py-20">
+        <header className="mb-8 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary uppercase tracking-widest mb-3">
+            <Cpu className="w-3.5 h-3.5" />
+            1-on-1 Remote Engineering
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+            Schedule Remote Unlock Session
           </h1>
-          <p className="text-muted-foreground text-base md:text-lg">
-            Pick a date, share what you need — I'll confirm within 24 hours.
+          <p className="mt-2 text-sm text-muted-foreground">
+            Connect directly with an Android firmware engineer via AnyDesk or TeamViewer. No unlock, no charge.
           </p>
         </header>
 
         {done ? (
-          <div className="rounded-2xl border border-border bg-card p-10 text-center">
-            <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-primary" />
-            <h2 className="text-2xl font-semibold mb-2">Booking received</h2>
-            <p className="text-muted-foreground mb-6">
-              I've got your request and sent a confirmation to <strong>{email}</strong>.
-              You'll hear back from me within 24 hours.
+          <div className="rounded-2xl border border-border bg-card/80 p-8 text-center backdrop-blur-sm">
+            <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-400 mb-4" />
+            <h2 className="text-xl font-bold">Session Request Confirmed!</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              We received your unlock request for <strong className="text-foreground">{brand} {model}</strong>. Check your inbox ({email}) for connection instructions and pre-session driver verification.
             </p>
-            <Link
-              to="/"
-              className="inline-flex items-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground"
-            >
-              Back to home
-            </Link>
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link
+                to="/projects"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:shadow-glow transition-all"
+              >
+                Browse Device Matrix
+              </Link>
+              <Link
+                to="/"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-muted text-foreground text-xs font-semibold hover:bg-muted/80 transition-all"
+              >
+                Back to Home
+              </Link>
+            </div>
           </div>
         ) : (
           <form
             onSubmit={onSubmit}
-            className="space-y-5 rounded-2xl border border-border bg-card p-6 md:p-8"
+            className="space-y-6 rounded-2xl border border-border bg-card/70 p-6 sm:p-8 backdrop-blur-md shadow-xl"
           >
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Name" required>
+            {/* BRAND & MODEL */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
+                <Smartphone className="w-4 h-4 text-primary" /> Device Specifications
+              </h3>
+
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                  Device Manufacturer
+                </label>
+                <select
+                  value={brand}
+                  onChange={(e) => setBrand(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-foreground text-xs outline-none focus:border-primary"
+                >
+                  {brands.map((b) => (
+                    <option key={b} value={b}>
+                      {b}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                  Exact Model & Variant (Required)
+                </label>
                 <input
                   type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
                   required
-                  maxLength={200}
-                  className="form-input"
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                  placeholder="e.g. Xiaomi 14 Ultra (24030PN60G) or Galaxy S24 Ultra (SM-S928B)"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-foreground text-xs outline-none focus:border-primary"
                 />
-              </Field>
-              <Field label="Email" required>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  maxLength={320}
-                  className="form-input"
-                />
-              </Field>
-              <Field label="Phone (optional)">
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  maxLength={60}
-                  className="form-input"
-                />
-              </Field>
-              <Field label="Service">
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                  Service Package
+                </label>
                 <select
                   value={service}
                   onChange={(e) => setService(e.target.value)}
-                  className="form-input"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-foreground text-xs outline-none focus:border-primary"
                 >
-                  {services.map((s) => (
+                  {unlockServices.map((s) => (
                     <option key={s} value={s}>
                       {s}
                     </option>
                   ))}
                 </select>
-              </Field>
+              </div>
             </div>
 
-            <Field label="Preferred date" icon={<Calendar className="h-3.5 w-3.5" />} required>
-              <div className="flex flex-wrap gap-2">
-                {days.map((d) => (
-                  <button
-                    type="button"
-                    key={d.iso}
-                    onClick={() => setDay(d.iso)}
-                    className={`rounded-full border px-3 py-1.5 text-sm transition ${
-                      day === d.iso
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border bg-background hover:border-primary/50"
-                    }`}
-                  >
-                    {d.label}
-                  </button>
-                ))}
-              </div>
-            </Field>
+            {/* DATE & TIME */}
+            <div className="pt-4 border-t border-border space-y-4">
+              <h3 className="text-sm font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-primary" /> Preferred Session Slot
+              </h3>
 
-            <Field label="Preferred time (optional)" icon={<Clock className="h-3.5 w-3.5" />}>
-              <div className="flex flex-wrap gap-2">
-                {timeSlots.map((t) => (
-                  <button
-                    type="button"
-                    key={t}
-                    onClick={() => setSlot(slot === t ? "" : t)}
-                    className={`rounded-full border px-3 py-1.5 text-sm transition ${
-                      slot === t
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border bg-background hover:border-primary/50"
-                    }`}
-                  >
-                    {t}
-                  </button>
-                ))}
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                  Session Date
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                  {days.map((d) => (
+                    <button
+                      type="button"
+                      key={d.iso}
+                      onClick={() => setDay(d.iso)}
+                      className={`p-2.5 rounded-xl text-center text-xs font-medium border transition-all ${
+                        day === d.iso
+                          ? "bg-primary text-primary-foreground border-primary shadow-glow font-bold"
+                          : "bg-background border-border text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </Field>
 
-            <Field label="Notes (optional)">
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={4}
-                maxLength={5000}
-                placeholder="Tell me a bit about the project, deadlines, references…"
-                className="form-input resize-none"
-              />
-            </Field>
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                  Time Slot
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {timeSlots.map((s) => (
+                    <button
+                      type="button"
+                      key={s}
+                      onClick={() => setSlot(s)}
+                      className={`p-2 rounded-xl text-center text-xs font-medium border transition-all ${
+                        slot === s
+                          ? "bg-primary text-primary-foreground border-primary font-bold"
+                          : "bg-background border-border text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* CONTACT DETAILS */}
+            <div className="pt-4 border-t border-border space-y-4">
+              <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+                Contact & Remote Access
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                    Your Full Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Alex Morgan"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-foreground text-xs outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="alex@example.com"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-foreground text-xs outline-none focus:border-primary"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                  Telegram Username or WhatsApp (For Instant Remote Coordination)
+                </label>
+                <input
+                  type="text"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="@telegram_handle or +1 (555) 000-0000"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-foreground text-xs outline-none focus:border-primary"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                  Symptoms / Notes (Optional)
+                </label>
+                <textarea
+                  rows={3}
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Describe your current status: e.g. Phone is working on HyperOS 1.0.8, need bootloader unlock to flash LineageOS. Or stuck in 9008 EDL mode."
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-foreground text-xs outline-none focus:border-primary"
+                />
+              </div>
+            </div>
 
             <button
               type="submit"
               disabled={sending}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition hover:opacity-90 disabled:opacity-60"
+              className="w-full py-3.5 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:shadow-glow disabled:opacity-50 transition-all"
             >
               {sending ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> Submitting…
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Submitting Request...
                 </>
               ) : (
                 <>
-                  <Send className="h-4 w-4" /> Submit booking
+                  <Send className="w-4 h-4" />
+                  Request Remote Unlock Session
                 </>
               )}
             </button>
+
+            <div className="flex items-center justify-center gap-2 text-[11px] text-muted-foreground">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span>100% Satisfaction Guarantee. Payment is only collected after successful unlock verification.</span>
+            </div>
           </form>
         )}
       </main>
+
       <Footer />
     </div>
-  );
-}
-
-function Field({
-  label,
-  icon,
-  required,
-  children,
-}: {
-  label: string;
-  icon?: React.ReactNode;
-  required?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="block">
-      <span className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-        {icon}
-        {label}
-        {required ? <span className="text-primary">*</span> : null}
-      </span>
-      {children}
-    </label>
   );
 }

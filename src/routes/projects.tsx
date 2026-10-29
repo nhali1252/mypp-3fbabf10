@@ -11,8 +11,8 @@ export const Route = createFileRoute("/projects")({
   staleTime: 60_000,
   head: ({ loaderData }) => ({
     meta: buildSeoMeta(loaderData?.seo ?? null, {
-      title: "Projects — Ali Nur Hasan (TasTaj)",
-      description: "Selected work and projects by Ali Nur Hasan.",
+      title: "Supported Devices Matrix — Bootloader Unlock Compatibility",
+      description: "Search supported devices for bootloader unlock. Check Xiaomi HyperOS, Samsung Global, Google Pixel, OnePlus, Motorola, and permanently locked carrier models.",
     }),
   }),
 });

@@ -1,16 +1,16 @@
 {
-  "buildId": "2026-10-29T12-47-31-834Z_e78f1ea",
-  "gitHash": "e78f1ea491a823ae4271ae8f47677eea912c1811",
-  "gitShort": "e78f1ea",
+  "buildId": "2026-10-29T14-37-46-305Z_32f0db5",
+  "gitHash": "32f0db54e43bb3174cb6ca892e0014527f5bf395",
+  "gitShort": "32f0db5",
   "gitBranch": "main",
   "gitDirty": true,
-  "builtAt": "2026-10-29T12:47:31.834Z",
+  "builtAt": "2026-10-29T14:37:46.305Z",
   "node": "v26.12.1",
   "platform": "win32-x64",
   "tsc": {
     "ok": true,
-    "ranAt": "2026-10-29T12:47:31.856Z",
-    "durationMs": 91637,
+    "ranAt": "2026-10-29T14:37:46.335Z",
+    "durationMs": 94822,
     "errorCount": 0,
     "output": ""
   }
